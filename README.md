@@ -1,6 +1,6 @@
 # 【WGCF】连接CF WARP为服务器添加IPv4/IPv6网络
 
-好处：能让像EUserv这样的IPv6 only VPS上做的节点支持tg，能调用IPv4接口使京*docker和V2P等能正确运行。
+好处：能让像EUserv这样的IPv6 only VPS上做的节点支持tg，解锁奈飞流媒体，可调用IPv4接口使京*docker和V2P等正确运行。
 
 WARP是CloudFlare提供的一项基于WireGuard的网络流量安全及加速服务，能够让你通过连接到CloudFlare的边缘节点实现隐私保护及链路优化。
 
