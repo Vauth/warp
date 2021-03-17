@@ -8,7 +8,7 @@ yum -y install curl net-tools wireguard-tools
 wget -P /usr/bin https://github.com/bernardkkt/wg-go-builder/releases/latest/download/wireguard-go
 
 # 安装 wgcf
-wget -O wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.2/wgcf_2.2.2_linux_amd64
+wget -O wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
 
 # 添加执行权限
 chmod +x /usr/bin/wireguard-go wgcf
