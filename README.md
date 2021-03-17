@@ -25,21 +25,28 @@ WARP是CloudFlare提供的一项基于WireGuard的网络流量安全及加速服
 
 ![](https://cdn.luotianyi.vc/wp-content/uploads/2021-02-04_21-45-45-1.png)
 
-## 安装方法
+## 为IPv6服务器添加IPv4网络接口方法
 
-ubuntu 20.04，为IPv6服务器添加IPv4
+Ubuntu 20.04
 ```bash
 echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /etc/resolv.conf
 ```
 ```bash
 wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/ubuntu.sh" && chmod 700 /root/ubuntu.sh && /root/ubuntu.sh
 ```
-debian 10，为IPv6服务器添加IPv4
+Debian 10
 ```bash
 echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /etc/resolv.conf
 ```
 ```bash
 wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/debian.sh" && chmod 700 /root/debian.sh && /root/debian.sh
+```
+CentOS 8
+```bash
+echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /etc/resolv.conf
+```
+```bash
+wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/centos.sh" && chmod 700 /root/centos.sh && /root/centos.sh
 ```
 
 ## 参考文章，文件、图片引用（排名不分先后）： 
@@ -47,3 +54,4 @@ wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscar
 * https://p3terx.com/archives/use-cloudflare-warp-to-add-extra-ipv4-or-ipv6-network-support-to-vps-servers-for-free.html
 * https://luotianyi.vc/5252.html
 * https://bawodu.com/ipv6-only-vps-cloudflare-warp-for-ipv4/
+* https://github.com/ViRb3/wgcf
