@@ -26,6 +26,7 @@ WARP是CloudFlare提供的一项基于WireGuard的网络流量安全及加速服
 ![](https://cdn.luotianyi.vc/wp-content/uploads/2021-02-04_21-45-45-1.png)
 
 ## 为IPv6服务器添加IPv4网络接口方法
+EUserv 以下三个系统用 hostnamectl 查内核都是: Linux 4.20.8-1.el7.elrepo.x86_64，脚本测试通过。
 
 Ubuntu 20.04
 ```bash
@@ -50,7 +51,7 @@ wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscar
 ```
 
 ## 参考文章，文件、图片引用（排名不分先后）： 
-作业是全抄以下作者，我稍作优化,并整理为脚本方便安装
+作业是全抄以下作者，我稍作优化,并整理脚本方便安装。
 * https://p3terx.com/archives/use-cloudflare-warp-to-add-extra-ipv4-or-ipv6-network-support-to-vps-servers-for-free.html
 * https://luotianyi.vc/5252.html
 * https://bawodu.com/ipv6-only-vps-cloudflare-warp-for-ipv4/
