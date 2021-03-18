@@ -49,6 +49,14 @@ echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /e
 ```bash
 wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/centos.sh" && chmod 700 /root/centos.sh && /root/centos.sh
 ```
+查看安装是否成功请用 ```ip a```，有wgcf的网络接口即为成功。
+
+## 临时、永久关闭和开启
+
+临时关闭 wgcf（reboot重启后恢复开启） ```wg-quick down wgcf``` ，恢复启用 wgcf ```wg-quick up wgcf```
+
+禁止开机启动 wgcf ```systemctl disable wg-quick@wgcf```,恢复开机启动 wgcf ```systemctl enable wg-quick@wgcf```
+
 
 ## 参考文章，文件、图片引用（排名不分先后）： 
 作业是全抄以下作者，我稍作优化,并整理脚本方便安装。
