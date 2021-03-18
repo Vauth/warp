@@ -13,7 +13,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	# 安装必要的工具 
 	apt -y install curl lsb-release iptables	
 
-	# 添加 back­ports 源
+	# 添加 backports 源
 	echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
 
 	# 再次更新源
@@ -59,7 +59,7 @@ if grep -q -E -i "debian" /etc/issue; then
 
 
 # CentOS 运行以下脚本
-     elif grep -q -E -i "centos" /etc/issue; then
+     elif grep -q -E -i "kernel" /etc/issue; then
 
         # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 	yum -y install curl net-tools wireguard-tools
@@ -83,7 +83,7 @@ fi
 
 
 # 以下为三个系统共同部分
-# 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 Wire­Guard 接管，让 IPv4 的流量通过 WARP IPv6 节点以 NAT 的方式访问外部 IPv4 网络
+# 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 WireGuard 接管，让 IPv4 的流量通过 WARP IPv6 节点以 NAT 的方式访问外部 IPv4 网络
 sed -i 10d wgcf-profile.conf | sed -i 's#engage.cloudflareclient.com#[2606:4700:d0::a29f:c001]#g' wgcf-profile.conf
 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
