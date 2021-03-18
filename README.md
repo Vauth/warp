@@ -59,8 +59,7 @@ wget -P /root --no-check-certificate "https://raw.githubusercontent.com/fscarmen
 
 
 ## 参考文章，文件、图片引用（排名不分先后）： 
-作业是全抄以下作者，我稍作优化,并整理脚本方便安装。
+作业是全抄以下作者:P3terx和甬哥探世界，我稍作优化,整理并加上系统判断方便安装。
 * https://p3terx.com/archives/use-cloudflare-warp-to-add-extra-ipv4-or-ipv6-network-support-to-vps-servers-for-free.html
-* https://luotianyi.vc/5252.html
-* https://bawodu.com/ipv6-only-vps-cloudflare-warp-for-ipv4/
+* https://github.com/YG-tsj/EUserv-addv4-warp
 * https://github.com/ViRb3/wgcf
