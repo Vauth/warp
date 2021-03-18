@@ -2,11 +2,9 @@
 mkdir /root/warp/ && cd /root/warp/
 
 # 判断系统，运行相应脚本
-if grep -q -E -i "debian" /etc/issue; then
-
 
 # Debian 运行以下脚本
-	
+     if grep -q -E -i "debian" /etc/issue; then
 	# 更新源
 	apt update
 
