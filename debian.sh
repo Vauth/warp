@@ -18,7 +18,7 @@ curl -fsSL git.io/wireguard-go.sh | bash
 curl -fsSL git.io/wgcf.sh | bash
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-wgcf register
+echo | wgcf register
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 wgcf generate
