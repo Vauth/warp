@@ -35,4 +35,4 @@ systemctl enable wg-quick@wgcf
 echo 'precedence  ::ffff:0:0/96   100' | tee -a /etc/gai.conf
 
 # 删除临时目录和文件
-cd /root/ && rm -rf /root/warp/
+cd /root/ && rm -rf /root/warp/ /root/centos.sh
