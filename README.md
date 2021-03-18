@@ -26,30 +26,18 @@ WARP是CloudFlare提供的一项基于WireGuard的网络流量安全及加速服
 ![](https://cdn.luotianyi.vc/wp-content/uploads/2021-02-04_21-45-45-1.png)
 
 ## 为IPv6服务器添加IPv4网络接口方法
-EUserv 以下三个系统用 hostnamectl 查内核都是: Linux 4.20.8-1.el7.elrepo.x86_64，脚本测试通过。
 
-Ubuntu 20.04
+* 脚本会先行判断 EUserv 3大系统：Ubuntu 20.04、Debian 10、CentOS 8，再自动选相应的程序来完成，不需要人工选择。 
+
+* 完成后看到有 wgcf 的网络接口即为成功，并自动清理安装时的临时文件。
+
 ```bash
 echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /etc/resolv.conf
 ```
 ```bash
-wget -P /root --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/ubuntu.sh" && chmod +x /root/ubuntu.sh && /root/ubuntu.sh
+wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x /root/warp.sh && /root/warp.sh
 ```
-Debian 10
-```bash
-echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /etc/resolv.conf
-```
-```bash
-wget -P /root --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/debian.sh" && chmod +x /root/debian.sh && /root/debian.sh
-```
-CentOS 8
-```bash
-echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /etc/resolv.conf
-```
-```bash
-wget -P /root --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/centos.sh" && chmod +x /root/centos.sh && /root/centos.sh
-```
-查看安装是否成功 ```ip a```，有wgcf的网络接口即为成功。
+
 
 ## 临时、永久关闭和开启
 
