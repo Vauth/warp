@@ -49,7 +49,7 @@ echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /e
 ```bash
 wget -P /root --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/centos.sh" && chmod +x /root/centos.sh && /root/centos.sh
 ```
-查看安装是否成功请用 ```ip a```，有wgcf的网络接口即为成功。
+查看安装是否成功 ```ip a```，有wgcf的网络接口即为成功。
 
 ## 临时、永久关闭和开启
 
