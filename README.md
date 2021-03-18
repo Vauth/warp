@@ -55,7 +55,7 @@ wget -P /root --no-check-certificate "https://raw.githubusercontent.com/fscarmen
 
 临时关闭 wgcf（reboot重启后恢复开启） ```wg-quick down wgcf``` ，恢复启动 ```wg-quick up wgcf```
 
-禁止开机启动 wgcf ```systemctl disable wg-quick@wgcf```,恢复开机启动 ```systemctl enable wg-quick@wgcf```
+禁止开机启动 ```systemctl disable wg-quick@wgcf```,恢复开机启动 ```systemctl enable wg-quick@wgcf```
 
 
 ## 参考文章，文件、图片引用（排名不分先后）： 
