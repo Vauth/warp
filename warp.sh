@@ -29,12 +29,6 @@ if grep -q -E -i "debian" /etc/issue; then
 	# 安装 wgcf
 	curl -fsSL git.io/wgcf.sh | bash
 
-	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-	echo | wgcf register
-
-	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
-	wgcf generate
-
 
 # Ubuntu 运行以下脚本
      elif grep -q -E -i "ubuntu" /etc/issue; then
@@ -50,12 +44,6 @@ if grep -q -E -i "debian" /etc/issue; then
 
 	# 安装 wgcf
 	curl -fsSL git.io/wgcf.sh | bash
-
-	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-	echo | wgcf register
-
-	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
-	wgcf generate
 
 
 # Debian 运行以下脚本
@@ -73,16 +61,17 @@ if grep -q -E -i "debian" /etc/issue; then
 	# 添加执行权限
 	chmod +x /usr/bin/wireguard-go wgcf
 
-	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-	echo | ./wgcf register
-
-	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
-	./wgcf generate
-
 fi
 
 
 # 以下为三个系统共同部分
+
+# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
+echo | /root/warp/wgcf register
+
+# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
+/root/warp/wgcf generate
+
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 Wire­Guard 接管，让 IPv4 的流量通过 WARP IPv6 节点以 NAT 的方式访问外部 IPv4 网络
 sed -i 10d wgcf-profile.conf | sed -i 's#engage.cloudflareclient.com#[2606:4700:d0::a29f:c001]#g' wgcf-profile.conf
 
