@@ -4,7 +4,7 @@ mkdir /root/warp/ && cd /root/warp/
 # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 yum -y install curl net-tools wireguard-tools
 
-# 安装 wireguard-go（如安装了wireguard 内核模块，则不需要此步
+# 安装 wireguard-go（如安装了wireguard 内核模块，则不需要此步)
 wget -P /usr/bin https://github.com/bernardkkt/wg-go-builder/releases/latest/download/wireguard-go
 
 # 安装 wgcf
@@ -14,7 +14,7 @@ wget -O wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_l
 chmod +x /usr/bin/wireguard-go wgcf
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-./wgcf register
+echo | ./wgcf register
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 ./wgcf generate
