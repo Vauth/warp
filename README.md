@@ -33,21 +33,21 @@ Ubuntu 20.04
 echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /etc/resolv.conf
 ```
 ```bash
-wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/ubuntu.sh" && chmod 700 /root/ubuntu.sh && /root/ubuntu.sh
+wget -P /root --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/ubuntu.sh" && chmod +x /root/ubuntu.sh && /root/ubuntu.sh
 ```
 Debian 10
 ```bash
 echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /etc/resolv.conf
 ```
 ```bash
-wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/debian.sh" && chmod 700 /root/debian.sh && /root/debian.sh
+wget -P /root --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/debian.sh" && chmod +x /root/debian.sh && /root/debian.sh
 ```
 CentOS 8
 ```bash
 echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /etc/resolv.conf
 ```
 ```bash
-wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/centos.sh" && chmod 700 /root/centos.sh && /root/centos.sh
+wget -P /root --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/centos.sh" && chmod +x /root/centos.sh && /root/centos.sh
 ```
 查看安装是否成功请用 ```ip a```，有wgcf的网络接口即为成功。
 
