@@ -58,7 +58,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	wgcf generate
 
 
-# Debian 运行以下脚本
+# CentOS 运行以下脚本
      elif grep -q -E -i "centos" /etc/issue; then
 
         # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
