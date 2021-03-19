@@ -11,13 +11,13 @@ mkdir /root/warp/ && cd /root/warp/
 	# 安装必要的工具 
 	apt -y install curl lsb-release iptables	
 
-	# 添加 back­ports 源
+	# 添加 backports 源,之后才能安装 wireguard-tools 
 	echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
 
 	# 再次更新源
 	apt update
 
-	# 安装一些必要的网络工具包和 wireguard-dkms 、 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 	# 安装 wireguard-go（如安装了wireguard 内核模块，则不需要此步）
