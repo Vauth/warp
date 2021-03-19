@@ -44,4 +44,5 @@ systemctl enable wg-quick@wgcf
 # 优先使用 IPv4 网络
 echo 'precedence  ::ffff:0:0/96   100' | tee -a /etc/gai.conf
 
-# 删除临时目录和文件cd /root/ && rm -rf /root/warp/ /root/debian*
+# 删除临时目录和文件
+cd /root/ && rm -rf /root/warp/ /root/debian*
