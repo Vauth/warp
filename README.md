@@ -46,7 +46,7 @@ wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscar
 * 完成后看到有 wgcf 的网络接口即为成功，并自动清理安装时的临时文件。
 
 ```bash
-wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
+wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
 ```
 
 ## 临时、永久关闭和开启
