@@ -1,6 +1,3 @@
-# 创建安装暂时目录
-mkdir /root/warp/ && cd /root/warp/
-
 # 判断系统，安装差异依赖包和wireguard-tools
 
 # Debian 运行以下脚本
@@ -51,6 +48,9 @@ fi
 
 
 # 以下为3个系统公共部分
+
+# 创建安装暂时目录
+mkdir /root/warp/ && cd /root/warp/
 
 # 安装 wireguard-go（如安装了 wireguard 内核模块，则不需要此步)
 wget -P /usr/bin https://github.com/bernardkkt/wg-go-builder/releases/latest/download/wireguard-go
