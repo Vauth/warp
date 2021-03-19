@@ -9,7 +9,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt update
 
 	# 安装必要的工具
-	apt -y install curl lsb-release iptables
+	apt -y install lsb-release iptables
 
 	# 添加 backports 源,之后才能安装 wireguard-tools 
 	echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
@@ -28,14 +28,14 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt update
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	apt -y --no-install-recommends install curl net-tools iproute2 openresolv dnsutils wireguard-tools
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 
 # CentOS 运行以下脚本
      elif grep -q -E -i "kernel" /etc/issue; then
 
         # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	yum -y install curl net-tools wireguard-tools
+	yum -y install net-tools wireguard-tools
 
 
 # 如都不符合
