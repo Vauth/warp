@@ -9,8 +9,11 @@ if grep -q -E -i "ubuntu" /etc/issue; then
 	# 更新源
 	sudo apt update
 
-	# 安装一些必要的网络工具包和 wireguard内核模块、wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo apt -y --no-install-recommends install curl net-tools iproute2 openresolv dnsutils wireguard-dkms wireguard-tools
+	# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+	sudo apt -y --no-install-recommends install curl net-tools iproute2 openresolv dnsutils wireguard-tools
+	
+	# 安装 wireguard 内核模块 ( KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go)
+	sudo apt -y install wireguard-dkms
 
 	# 安装 wgcf
 	curl -fsSL git.io/wgcf.sh | sudo bash
@@ -27,7 +30,7 @@ if grep -q -E -i "ubuntu" /etc/issue; then
         # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 	sudo yum -y install curl net-tools wireguard-tools
 
-	# 安装 wireguard-go（如安装了wireguard 内核模块，则不需要此步)
+	# 安装 wireguard-go（ KVM 应该可以用性能更好的wireguard，待更新)
 	sudo wget -P /usr/bin https://github.com/bernardkkt/wg-go-builder/releases/latest/download/wireguard-go
 
 	# 安装 wgcf
