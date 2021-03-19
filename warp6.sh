@@ -24,14 +24,17 @@ if grep -q -E -i "ubuntu" /etc/issue; then
 # CentOS 运行以下脚本
      elif grep -q -E -i "kernel" /etc/issue; then
 
-        # 安装一些必要的网络工具包和 wireguard内核模块、wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo yum -y install curl net-tools wireguard-dkms wireguard-tools
+        # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+	sudo yum -y install curl net-tools wireguard-tools
+
+	# 安装 wireguard-go（如安装了wireguard 内核模块，则不需要此步)
+	sudo wget -P /usr/bin https://github.com/bernardkkt/wg-go-builder/releases/latest/download/wireguard-go
 
 	# 安装 wgcf
 	sudo wget -O wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
 
 	# 添加执行权限
-	sudo chmod +x wgcf
+	sudo chmod +x /usr/bin/wireguard-go wgcf
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 	echo | sudo ./wgcf register
