@@ -52,7 +52,7 @@ fi
 
 # 以下为3个系统公共部分
 
-# 安装 wireguard-go（如安装了wireguard 内核模块，则不需要此步)
+# 安装 wireguard-go（如安装了 wireguard 内核模块，则不需要此步)
 wget -P /usr/bin https://github.com/bernardkkt/wg-go-builder/releases/latest/download/wireguard-go
 
 # 安装 wgcf
@@ -70,7 +70,7 @@ echo | ./wgcf register
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 WireGuard 接管，让 IPv4 的流量通过 WARP IPv6 节点以 NAT 的方式访问外部 IPv4 网络，为了防止当节点发生故障时 DNS 请求无法发出，修改为 IPv6 地址的 DNS
 sed -i '/\:\:\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf | sed -i 's/1.1.1.1/2620:fe::10,2001:4860:4860::8888,2606:4700:4700::1111/g' wgcf-profile.conf
 
-# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
+# 把 wgcf-profile.conf 复制到 /etc/wireguard/ 并命名为 wgcf.conf
 cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 # 启用 Wire-Guard 网络接口守护进程
@@ -84,5 +84,6 @@ echo 'precedence  ::ffff:0:0/96   100' | tee -a /etc/gai.conf
 
 # 删除临时目录和文件
 cd /root/ && rm -rf /root/warp/ /root/warp*
+
 # 有wgcf的网络接口即为成功
 ip a
