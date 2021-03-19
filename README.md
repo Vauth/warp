@@ -39,6 +39,16 @@ wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscar
 ```
 
 
+## 为IPv4服务器添加IPv6网络接口方法
+
+* 脚本会先行判断 Oracle 3个系统：Ubuntu 20.04、Ubuntu 20.04 Minimal、CentOS 8，再自动选相应的程序来完成，不需要人工选择。 
+
+* 完成后看到有 wgcf 的网络接口即为成功，并自动清理安装时的临时文件。
+
+```bash
+wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
+```
+
 ## 临时、永久关闭和开启
 
 临时关闭 wgcf（reboot重启后恢复开启） ```wg-quick down wgcf``` ，恢复启动 ```wg-quick up wgcf```
