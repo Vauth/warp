@@ -47,7 +47,7 @@ wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/fscar
 
 
 ## 参考文章，文件、图片引用（排名不分先后）： 
-作业是全抄以下作者:P3terx和甬哥探世界，我稍作优化,整理并加上系统判断方便安装。
+作业是全抄以下作者:P3terx、甬哥探世界和Luminous，我稍作优化,整理并加上系统判断方便安装。
 * https://p3terx.com/archives/use-cloudflare-warp-to-add-extra-ipv4-or-ipv6-network-support-to-vps-servers-for-free.html
 * https://www.youtube.com/watch?v=78dZgYFS-Qo
 * https://luotianyi.vc/5252.html
