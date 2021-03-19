@@ -85,5 +85,5 @@ echo 'precedence  ::ffff:0:0/96   100' | tee -a /etc/gai.conf
 # 删除临时目录和文件
 cd /root/ && rm -rf /root/warp/ /root/warp*
 
-# 有wgcf的网络接口即为成功
+# 有 wgcf 的网络接口即为成功
 ip a
