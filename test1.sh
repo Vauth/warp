@@ -1,3 +1,6 @@
+# 为 IPv6 only VPS 添加 WGCF
+
+
 # 创建安装暂时目录
 mkdir /root/warp/ && cd /root/warp/
 
