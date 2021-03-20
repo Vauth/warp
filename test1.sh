@@ -72,7 +72,7 @@ if grep -q -E -i "debian" /etc/issue; then
 fi
 
 
-# 以下为3个系统公共部分
+# 以下为3类系统公共部分
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 echo | ./wgcf register
