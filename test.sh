@@ -22,8 +22,8 @@ if grep -q -E -i "ubuntu" /etc/issue; then
 # CentOS 运行以下脚本
      elif grep -q -E -i "kernel" /etc/issue; then
 
-	# 安装 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo yum -y install wireguard-tools
+	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+	sudo yum -y install net-tools wireguard-tools
 
 	# 安装 wireguard 内核模块 ( KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go)
 	sudo curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
