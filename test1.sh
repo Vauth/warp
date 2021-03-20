@@ -1,7 +1,5 @@
-# 为 IPv6 only VPS 添加 WGCF
+##### 为 IPv6 only VPS 添加 WGCF #####
 
-# 创建安装暂时目录
-# mkdir /root/warp/ && cd /root/warp/
 
 # 判断系统，安装差异部分
 
@@ -32,11 +30,11 @@ if grep -q -E -i "debian" /etc/issue; then
 # Ubuntu 运行以下脚本
   elif grep -q -E -i "ubuntu" /etc/issue; then
 
-	# 更新源
-	#apt update
+	更新源
+	apt update
 
-	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	#apt -y --no-install-recommends install curl net-tools iproute2 openresolv dnsutils wireguard-tools
+	安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+	apt -y --no-install-recommends install curl net-tools iproute2 openresolv dnsutils wireguard-tools
 
 	# 安装 wireguard-go（如安装了wireguard 内核模块，则不需要此步）
 	curl -fsSL git.io/wireguard-go.sh | bash
