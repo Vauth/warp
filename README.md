@@ -19,7 +19,7 @@
 * IPv6 建的节点能在 PassWall、ShadowSocksR Plus+ 上应用
 * 解锁奈飞流媒体
 * 可调用IPv4接口使京* docker 和 V2P 等正常运行
-* 由于可以双向转输数据，能做对方VPS的跳板和探针
+* 由于可以双向转输数据，能做对方VPS的跳板和探针，替代 HE tunnelbroker
 
 
 ## 为IPv6服务器添加IPv4网络接口方法
