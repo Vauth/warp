@@ -93,7 +93,7 @@ systemctl enable wg-quick@wgcf
 echo 'precedence  ::ffff:0:0/96   100' | tee -a /etc/gai.conf
 
 # 删除临时文件
-rm -f warp* wgcf*
+rm -f warp* wgcf* test*
 
 # 有 wgcf 的网络接口即为成功
 ip a
