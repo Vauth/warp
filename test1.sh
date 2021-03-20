@@ -1,6 +1,5 @@
 # 为 IPv6 only VPS 添加 WGCF
 
-
 # 创建安装暂时目录
 # mkdir /root/warp/ && cd /root/warp/
 
@@ -55,10 +54,10 @@ if grep -q -E -i "debian" /etc/issue; then
 	wget -P /usr/bin https://github.com/bernardkkt/wg-go-builder/releases/latest/download/wireguard-go
 
 	# 安装 wgcf
-	wget -O wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
+	wget -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
 
 	# 添加执行权限
-	chmod +x /usr/bin/wireguard-go wgcf
+	chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
 
 # 如都不符合，提示,删除临时文件并中止脚本
   else 
@@ -75,10 +74,10 @@ fi
 # 以下为3类系统公共部分
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-echo | ./wgcf register
+echo | wgcf register
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
-./wgcf generate
+wgcf generate
   
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 WireGuard 接管，让 IPv4 的流量通过 WARP IPv6 节点以 NAT 的方式访问外部 IPv4 网络，为了防止当节点发生故障时 DNS 请求无法发出，修改为 IPv6 地址的 DNS
 sed -i '/\:\:\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf | sed -i 's/1.1.1.1/2620:fe::10,2001:4860:4860::8888,2606:4700:4700::1111/g' wgcf-profile.conf
@@ -95,8 +94,8 @@ systemctl enable wg-quick@wgcf
 # 优先使用 IPv4 网络
 echo 'precedence  ::ffff:0:0/96   100' | tee -a /etc/gai.conf
 
-# 删除临时目录和文件
-# cd /root/ && rm -rf /root/warp/ /root/warp*
+# 删除临时文件
+rm warp* wgcf*
 
 # 有 wgcf 的网络接口即为成功
 ip a
