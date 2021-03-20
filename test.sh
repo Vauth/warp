@@ -27,17 +27,17 @@ if grep -q -E -i "ubuntu" /etc/issue; then
 # CentOS 运行以下脚本
      elif grep -q -E -i "kernel" /etc/issue; then
 
-  # 安装 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+	# 安装 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 	sudo yum -y install wireguard-tools
 
 	# 安装 wireguard 内核模块 ( KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go)
 	sudo curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-  sudo yum -y install epel-release wireguard-dkms
+	sudo yum -y install epel-release wireguard-dkms
 
 	# 升级所有包同时也升级软件和系统内核
 	sudo yum -y update
   
-  # 安装 wgcf
+	# 安装 wgcf
 	sudo wget -O wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
 
 	# 添加执行权限
