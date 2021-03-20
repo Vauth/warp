@@ -10,10 +10,10 @@ if grep -q -E -i "ubuntu" /etc/issue; then
 	sudo apt update
 
 	# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo apt -y --no-install-recommends install curl net-tools iproute2 openresolv dnsutils wireguard-tools
+	sudo apt -y --no-install-recommends install openresolv dnsutils wireguard-tools
 	
 	# 安装 wireguard 内核模块 ( KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go)
-	sudo apt -y install wireguard-dkms
+	sudo apt -y --no-install-recommends install wireguard-dkms
 
 	# 安装 wgcf
 	curl -fsSL git.io/wgcf.sh | sudo bash
@@ -51,7 +51,7 @@ if grep -q -E -i "ubuntu" /etc/issue; then
 fi
 
 
-# 以下为2个系统公共部分
+# 以下为2类系统公共部分
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 echo | wgcf register
