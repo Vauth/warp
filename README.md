@@ -64,4 +64,4 @@ wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/
 * https://github.com/ViRb3/wgcf
 
 
-好(https://github.com/fscarmen/warp/tree/main#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0%E6%96%87%E4%BB%B6%E5%9B%BE%E7%89%87%E5%BC%95%E7%94%A8%E6%8E%92%E5%90%8D%E4%B8%8D%E5%88%86%E5%85%88%E5%90%8E)
+a(#参考文章文件图片引用排名不分先后)
