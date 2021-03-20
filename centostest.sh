@@ -3,7 +3,7 @@ sudo yum -y install wireguard-tools
 sudo curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
 sudo yum -y install epel-release wireguard-dkms
 sudo yum -y update
-sudo modprobe wireguard
+# sudo modprobe wireguard
 sudo wget -O wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
 sudo chmod +x wgcf
 echo | sudo ./wgcf register
