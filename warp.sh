@@ -1,7 +1,7 @@
 ##### 为 IPv6 only VPS 添加 WGCF #####
+##### LXC 非完整虚拟化 VPS 主机，选择 "wireguard-go" 方案。##### 
 
-
-# 判断系统，安装差异部分
+# 判断系统，安装差异部分依赖包
 
 # Debian 运行以下脚本
 if grep -q -E -i "debian" /etc/issue; then
@@ -17,13 +17,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt update
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	apt -y --no-install-recommends install curl net-tools iproute2 openresolv dnsutils wireguard-tools
-
-	# 安装 wireguard-go（如安装了wireguard 内核模块，则不需要此步）
-	curl -fsSL git.io/wireguard-go.sh | bash
-
-	# 安装 wgcf
-	curl -fsSL git.io/wgcf.sh | bash
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 # Ubuntu 运行以下脚本
   elif grep -q -E -i "ubuntu" /etc/issue; then
@@ -34,26 +28,11 @@ if grep -q -E -i "debian" /etc/issue; then
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 	apt -y --no-install-recommends install curl net-tools iproute2 openresolv dnsutils wireguard-tools
 
-	# 安装 wireguard-go（如安装了wireguard 内核模块，则不需要此步）
-	curl -fsSL git.io/wireguard-go.sh | bash
-
-	# 安装 wgcf
-	curl -fsSL git.io/wgcf.sh | bash
-
 # CentOS 运行以下脚本
   elif grep -q -E -i "kernel" /etc/issue; then
 
   # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 	yum -y install curl net-tools wireguard-tools
-
-	# 安装 wireguard-go（如安装了wireguard 内核模块，则不需要此步)
-	wget -P /usr/bin https://github.com/bernardkkt/wg-go-builder/releases/latest/download/wireguard-go
-
-	# 安装 wgcf
-	wget -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
-
-	# 添加执行权限
-	chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
 
 # 如都不符合，提示,删除临时文件并中止脚本
   else 
@@ -68,6 +47,15 @@ fi
 
 
 # 以下为3类系统公共部分
+
+# 安装 wireguard-go
+wget -N -P /usr/bin https://github.com/fscarmen/warp/raw/main/wireguard-go
+
+# 安装 wgcf
+wget -N -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
+
+# 添加执行权限
+chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 echo | wgcf register
