@@ -79,3 +79,4 @@ rm -f warp* wgcf*
 
 # 有 wgcf 的网络接口即为成功
 ip a
+
