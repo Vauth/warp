@@ -17,7 +17,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt update
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	apt -y --no-install-recommends install curl net-tools iproute2 openresolv dnsutils wireguard-tools
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 # Ubuntu 运行以下脚本
   elif grep -q -E -i "ubuntu" /etc/issue; then
@@ -26,7 +26,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt update
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	apt -y --no-install-recommends install curl net-tools iproute2 openresolv dnsutils wireguard-tools
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 # CentOS 运行以下脚本
   elif grep -q -E -i "kernel" /etc/issue; then
@@ -48,7 +48,7 @@ fi
 
 # 以下为3类系统公共部分
 
-# 安装 wireguard-go
+# 安装 wireguard-go ( LXC 非完整虚拟化 VPS 主机，只能选择 "wireguard-go" 方案。)   
 wget -P /usr/bin https://github.com/fscarmen/warp/raw/main/wireguard-go
 
 # 安装 wgcf
