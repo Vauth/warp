@@ -1,4 +1,4 @@
-#####      为 IPv6 only VPS 添加 WGCF #####
+##### 为 IPv6 only VPS 添加 WGCF #####
 ##### LXC 非完整虚拟化 VPS 主机，选择 "wireguard-go" 方案。##### 
 
 # 判断系统，安装差异部分依赖包
