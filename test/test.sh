@@ -40,7 +40,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	echo -e "Sorry，I don't know this operating system!"
 	
 	# 删除临时目录和文件，退出脚本
-	cd /root/ && rm -rf /root/warp/ /root/warp*
+	rm -f warp*
 	exit 0
 
 fi
