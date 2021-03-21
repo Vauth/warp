@@ -17,7 +17,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt update
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	apt -y install net-tools iproute2 openresolv dnsutils wireguard-tools
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 # Ubuntu 运行以下脚本
   elif grep -q -E -i "ubuntu" /etc/issue; then
@@ -26,7 +26,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt update
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	apt -y install net-tools iproute2 openresolv dnsutils wireguard-tools
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 # CentOS 运行以下脚本
   elif grep -q -E -i "kernel" /etc/issue; then
@@ -50,13 +50,15 @@ fi
 
 # 安装 wireguard-go
 # wget -N -P /usr/bin https://github.com/fscarmen/warp/raw/main/wireguard-go
-wget -N -P /usr/bin https://github.com/bernardkkt/wg-go-builder/releases/latest/download/wireguard-go
+# wget -N -P /usr/bin https://github.com/bernardkkt/wg-go-builder/releases/latest/download/wireguard-go
+curl -fsSL git.io/wireguard-go.sh | bash
 
 # 安装 wgcf
 wget -N -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
 
 # 添加执行权限
-chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
+chmod +x /usr/local/bin/wgcf
+# /usr/bin/wireguard-go
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 echo | wgcf register
