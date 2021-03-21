@@ -49,16 +49,13 @@ fi
 # 以下为3类系统公共部分
 
 # 安装 wireguard-go
-# wget -N -P /usr/bin https://github.com/fscarmen/warp/raw/main/wireguard-go
-# wget -N -P /usr/bin https://github.com/bernardkkt/wg-go-builder/releases/latest/download/wireguard-go
-# curl -fsSL git.io/wireguard-go.sh | bash
-wget -N -P /usr/bin https://github.com/fscarmen/warp/raw/main/test/wireguard-go
+wget -N -P /usr/bin https://github.com/fscarmen/warp/raw/main/wireguard-go
 
 # 安装 wgcf
 wget -N -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
 
 # 添加执行权限
-chmod +x /usr/local/bin/wgcf /usr/bin/wireguard-go
+chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 echo | wgcf register
