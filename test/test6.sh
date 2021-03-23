@@ -72,5 +72,6 @@ echo 'precedence  ::ffff:0:0/96   100' | sudo tee -a /etc/gai.conf
 # 删除临时文件
 rm -f warp* wgcf*
 
-# 有 wgcf 的网络接口即为成功
+# 结果提示
 ip a
+echo -e "\033[32m 结果：上面有 wgcf 的网络接口即为成功。如报错 429 Too Many Requests ，可再次运行脚本直至成功。 \033[0m"
