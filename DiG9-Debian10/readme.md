@@ -2,6 +2,6 @@
 
 应对办法：经测试，暂只有 Debian 10 通过 wgcf 救活，另外两个系统 Ubuntu 20.04 和 CentOS 8 甚至连 apt update 都报错。
 
-步骤：1.下载本文件夹下的3个文件到本地：DiG9-debian.sh、wgcf、wireguard-go，上传到德鸡 /root 目录下
+步骤：下载本文件夹下的3个文件到本地：DiG9-debian.sh、wgcf、wireguard-go，上传到德鸡 /root 目录下
      
-      bashchmod +x DiG9-debian.sh && ./DiG9-debian.sh
+     bashchmod +x DiG9-debian.sh && ./DiG9-debian.sh
