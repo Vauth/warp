@@ -4,4 +4,4 @@
 
 步骤：1.下载本文件夹下的3个文件到本地：DiG9-debian.sh、wgcf、wireguard-go，上传到德鸡 /root 目录下
      
-     bashchmod +x DiG9-debian.sh && ./DiG9-debian.sh
+      bashchmod +x DiG9-debian.sh && ./DiG9-debian.sh
