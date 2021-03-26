@@ -1,3 +1,47 @@
+##### 解决 Euserv 访问不了IPv4的问题，只有 Debian 可成功 #####
+
+# 判断系统
+
+# Debian 运行以下脚本
+if grep -q -E -i "debian" /etc/issue; then
+	
+	# 更新源
+	apt update
+
+	# 添加 backports 源,之后才能安装 wireguard-tools 
+	apt -y install lsb-release
+	echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
+
+	# 再次更新源
+	apt update
+
+	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+
+# Ubuntu 提示
+  elif grep -q -E -i "ubuntu" /etc/issue; then
+
+	echo -e "\033[31m 此系统是 Ubuntu ，如需继续，请到 Euserv 后台重置为 Debian 10, https://support.euserv.com/ \033[0m"
+	exit 0
+
+# CentOS 提示
+  elif grep -q -E -i "kernel" /etc/issue; then
+
+	echo -e "\033[31m 此系统是 CentOS ，如需继续，请到 Euserv 后台重置为 CentOS 10, https://support.euserv.com/ \033[0m"
+	exit 0
+
+# 如都不符合，提示,删除临时文件并中止脚本
+  else 
+	# 提示找不到相应操作系统
+	echo -e "Sorry，I don't know this operating system!"
+	
+	# 删除临时目录和文件，退出脚本
+	rm -f warp*
+	exit 0
+
+fi
+
+
 # 更新源
 apt update
 
