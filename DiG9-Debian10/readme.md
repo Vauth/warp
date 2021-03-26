@@ -4,7 +4,7 @@
 
 步骤：下载本文件夹下的3个文件到本地：DiG9-debian.sh、wgcf、wireguard-go，上传到德鸡 /root 目录下
      
-     bashchmod +x DiG9-debian.sh && ./DiG9-debian.sh
+     chmod +x DiG9-debian.sh && ./DiG9-debian.sh
 
 
 上级目录 甲骨文 增加 IPv4 的方法仍然有效。
