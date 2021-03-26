@@ -7,4 +7,4 @@
      chmod +x DiG9-debian.sh && ./DiG9-debian.sh
 
 
-上级目录 甲骨文 增加 IPv4 的方法仍然有效。
+上级目录 甲骨文 增加 IPv4 的方法仍然有效。 
