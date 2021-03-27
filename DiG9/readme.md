@@ -1,5 +1,7 @@
 # EUserv 主机名变为 DiG9 不能正常使用 NAT64 解决办法
 
+![WechatIMG51.png](https://i.loli.net/2021/03/28/EQMnu8OHTFsWAt1.png)
+
 起因：2021年3月25日开始，部分德鸡即使添加了 NAT64 后，仍不能正常访问 IPv4 网络，也就不能正常使用 Github 了，最明显表现为登陆时主机名不再是 Srv+数字，而显示为 DiG9。
 
 故障定点：EUserv 官方限制 NAT64 Nameserver，凡是主机名是 DiG9 的必须用官方的不能更换。而主机名是 Srv 开头的暂未受影响。
