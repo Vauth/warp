@@ -7,7 +7,7 @@
 应对办法：Ubuntu 20.04 和 Debian 10，换回官方的默认的 NAT64；
         CentOS 8， elrepo源替换为中国科技大学的。
 
-复活步骤：下载本文件夹下的4个文件到本地：DiG9.sh、wgcf、wireguard-go、elrepo.repo，上传到德鸡 /root 目录下,执行下面指令。 [打包下载](https://link.jscdn.cn/1drv/aHR0cHM6Ly8xZHJ2Lm1zL3UvcyFBczJObkY3TXVRYlhnU2oyeFpaY3VuaHp1Q1ZsP2U9d25xdDE0)
+复活步骤：下载本路径的4个文件到本地：DiG9.sh、wgcf、wireguard-go、elrepo.repo，上传到德鸡 /root 目录下,执行下面指令。 [打包下载](https://link.jscdn.cn/1drv/aHR0cHM6Ly8xZHJ2Lm1zL3UvcyFBczJObkY3TXVRYlhnU2oyeFpaY3VuaHp1Q1ZsP2U9d25xdDE0)
 
  ```bash
   chmod +x DiG9.sh && ./DiG9.sh
