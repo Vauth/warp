@@ -4,7 +4,7 @@
 
 应对办法：经测试，暂只有 Debian 10 通过 wgcf 救活，另外两个系统 Ubuntu 20.04 和 CentOS 8 甚至连 ```apt update``` 也报错。
 
-步骤：下载本文件夹下的3个文件到本地：DiG9-debian.sh、wgcf、wireguard-go，上传到德鸡 /root 目录下,执行下面指令。
+步骤：下载本文件夹下的3个文件到本地：DiG9-debian.sh、wgcf、wireguard-go，上传到德鸡 /root 目录下,执行下面指令。 [打包下载](https://link.jscdn.cn/1drv/aHR0cHM6Ly8xZHJ2Lm1zL3UvcyFBczJObkY3TXVRYlhnU2oyeFpaY3VuaHp1Q1ZsP2U9d25xdDE0)
 
  ```bash
   chmod +x DiG9-debian.sh && ./DiG9-debian.sh
