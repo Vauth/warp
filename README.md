@@ -4,12 +4,13 @@
 
 # 目录
 
-- [好处](#好处)
-- [为IPv6服务器添加IPv4网络接口方法](#为IPv6服务器添加IPv4网络接口方法)
-- [为IPv4服务器添加IPv6网络接口方法](#为IPv4服务器添加IPv6网络接口方法)
-- [临时、永久关闭和开启WGCF网络接口](#临时永久关闭和开启WGCF网络接口)
-- [WARP原理](#WARP原理)
-- [致谢](#致谢下列作者和项目排名不分先后)
+- [好处](warp#好处)
+- [为IPv6服务器添加IPv4网络接口方法](warp#为IPv6服务器添加IPv4网络接口方法)
+- [为IPv4服务器添加IPv6网络接口方法](warp#为IPv4服务器添加IPv6网络接口方法)
+- [临时、永久关闭和开启WGCF网络接口](warp#临时永久关闭和开启WGCF网络接口)
+- [Euserv 主机名变为 DiG9 不能正常使用 Nat64 解决办法](https://github.com/fscarmen/warp/blob/main/DiG9-Debian10/readme.md#euserv-%E4%B8%BB%E6%9C%BA%E5%90%8D%E5%8F%98%E4%B8%BA-dig9-%E4%B8%8D%E8%83%BD%E6%AD%A3%E5%B8%B8%E4%BD%BF%E7%94%A8-nat64-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95)
+- [WARP原理](warp#WARP原理)
+- [致谢](warp#致谢下列作者和项目排名不分先后)
 
 * * *
 
