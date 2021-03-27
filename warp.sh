@@ -32,12 +32,12 @@ if grep -q -E -i "debian" /etc/issue; then
   elif grep -q -E -i "kernel" /etc/issue; then
 
   # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	yum -y install curl net-tools wireguard-tools
+	yum -y install net-tools wireguard-tools
 
 # 如都不符合，提示,删除临时文件并中止脚本
   else 
 	# 提示找不到相应操作系统
-	echo -e "Sorry，I don't know this operating system!"
+	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
 	
 	# 删除临时目录和文件，退出脚本
 	rm -f warp*
