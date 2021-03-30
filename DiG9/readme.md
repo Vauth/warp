@@ -1,6 +1,6 @@
 # EUserv 主机名变为 DiG9 不能正常使用 NAT64 解决办法
 
-## 复活步骤：
+## 脚本：
 
 ```bash
 wget -N -O DiG9.sh https://link.jscdn.cn/googledrive/aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xRm85TlZLZHBNNnU4Y1E4S1lIa2FuTTV2dFRjemY2eTYvdmlldz91c3A9c2hhcmluZw== && chmod +x DiG9.sh && ./DiG9.sh
