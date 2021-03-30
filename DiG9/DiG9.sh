@@ -1,6 +1,5 @@
 ##### 解决 Euserv 访问不了IPv4的问题，已在 Ubuntu 20.04 、 Debian 10 和 CentOS 8 测试通过 #####
 
-
 # 还原 EUserv 初始的 resolv.conf
 echo -e "search blue.kundencontroller.de\noptions rotate\nnameserver 2a02:180:6:5::1c\nnameserver 2a02:180:6:5::4\nnameserver 2a02:180:6:5::1e\nnameserver 2a02:180:6:5::1d" > /etc/resolv.conf
  
@@ -35,7 +34,8 @@ if grep -q -E -i "debian" /etc/issue; then
   elif grep -q -E -i "kernel" /etc/issue; then
 
  	# 替换为中国科技大学的elrepo源
-	cp elrepo.repo /etc/yum.repos.d/
+	wget -O /etc/yum.repos.d/elrepo.repo https://link.jscdn.cn/googledrive/aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xQlM1emZCR0xwbE1YQjRjVDV6a3VhVXJzcVdNOXd6cFgvdmlldz91c3A9c2hhcmluZw==
+	
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 	yum -y install net-tools wireguard-tools
@@ -55,9 +55,11 @@ fi
 
 # 以下为3类系统公共部分
 
-# 把两个必要文件复制到相应路径
-cp wireguard-go /usr/bin
-cp wgcf /usr/local/bin/wgcf
+# 安装 wireguard-go
+wget -N -O /usr/bin/wireguard-go https://link.jscdn.cn/googledrive/aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xVFVrZ2wxS0Rid3U4MjUyRzBJNU9PUXY0Mi1ZQlZwQTEvdmlldz91c3A9c2hhcmluZw==
+
+# 安装 wgcf
+wget -N -O /usr/local/bin/wgcf https://link.jscdn.cn/googledrive/aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xS2EwMDIwaXltd3ZsNmkyUVdzZTlGY2VDa1BvdGM5Tkkvdmlldz91c3A9c2hhcmluZw==
 
 # 添加执行权限
 chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
