@@ -21,4 +21,4 @@ wget -N -O DiG9.sh https://link.jscdn.cn/googledrive/aHR0cHM6Ly9kcml2ZS5nb29nbGU
 
 
 
-## PS:甲骨文 增加 IPv4 的方法仍然有效。 [点击直达](https://github.com/fscarmen/warp#wgcf%E8%BF%9E%E6%8E%A5cf-warp%E4%B8%BA%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%B7%BB%E5%8A%A0ipv4ipv6%E7%BD%91%E7%BB%9C)
+## PS:甲骨文 增加 IPv6 的方法仍然有效。 [点击直达](https://github.com/fscarmen/warp#wgcf%E8%BF%9E%E6%8E%A5cf-warp%E4%B8%BA%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%B7%BB%E5%8A%A0ipv4ipv6%E7%BD%91%E7%BB%9C)
