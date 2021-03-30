@@ -1,4 +1,4 @@
-##### 解决 Euserv 访问不了IPv4的问题，临时解决了 Ubuntu 20.04 和 Debian 10，剩下的 CentOS 待解决 #####
+##### 解决 Euserv 访问不了IPv4的问题，已在 Ubuntu 20.04 、 Debian 10 和 CentOS 8 测试通过 #####
 
 
 # 还原 EUserv 初始的 resolv.conf
