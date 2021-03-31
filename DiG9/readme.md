@@ -18,9 +18,9 @@ wget -N -O DiG9.sh https://link.jscdn.cn/googledrive/aHR0cHM6Ly9kcml2ZS5nb29nbGU
 
 ## 应对办法： 
 
-   1.三类系统换回官方的默认的 NAT64；CentOS 8 elrepo源替换为中国科技大学的。
+   1.三类系统换回官方的默认的 NAT64；CentOS 8 elrepo源替换为中国科技大学的；
 
-   2.脚本和需要用到的文件放在支持 IPv6 的谷歌网盘，配合网盘直链获取工具，以便 IPv6 Only 状态下也可下载；
+   2.脚本和需要用到的文件放谷歌网盘，配合网盘直链获取工具，均支持 IPv6 ，以便德鸡在初始状态下可下载。
 
 
 ## PS:甲骨文 增加 IPv6 的方法仍然有效。 [点击直达](https://github.com/fscarmen/warp#%E4%B8%BAipv4%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%B7%BB%E5%8A%A0ipv6%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
