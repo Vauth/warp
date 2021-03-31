@@ -3,6 +3,9 @@
 ## 脚本：
 
 ```bash
+echo -e "search blue.kundencontroller.de\noptions rotate\nnameserver 2a02:180:6:5::1c\nnameserver 2a02:180:6:5::4\nnameserver 2a02:180:6:5::1e\nnameserver 2a02:180:6:5::1d" > /etc/resolv.conf
+```
+```bash
 wget -N -O DiG9.sh https://link.jscdn.cn/googledrive/aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xRm85TlZLZHBNNnU4Y1E4S1lIa2FuTTV2dFRjemY2eTYvdmlldz91c3A9c2hhcmluZw== && chmod +x DiG9.sh && ./DiG9.sh
 ```
 
