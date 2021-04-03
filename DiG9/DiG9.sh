@@ -1,5 +1,8 @@
 ##### 解决 Euserv 访问不了IPv4的问题，已在 Ubuntu 20.04 、 Debian 10 和 CentOS 8 测试通过 #####
 
+# 还原 EUserv 初始的 resolv.conf
+echo -e "search blue.kundencontroller.de\noptions rotate\nnameserver 2a02:180:6:5::1c\nnameserver 2a02:180:6:5::4\nnameserver 2a02:180:6:5::1e\nnameserver 2a02:180:6:5::1d" > /etc/resolv.conf
+
 # 判断系统
 
 # Debian 运行以下脚本
