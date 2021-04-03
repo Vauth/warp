@@ -31,7 +31,7 @@ if grep -q -E -i "ubuntu" /etc/issue; then
 # 如都不符合，提示,删除临时文件并中止脚本
      else 
 	# 提示找不到相应操作系统
-	echo -e "Sorry，I don't know this operating system!"
+	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
 	
 	# 删除临时目录和文件，退出脚本
 	rm -f warp*
@@ -67,7 +67,7 @@ sudo systemctl start wg-quick@wgcf
 sudo systemctl enable wg-quick@wgcf
 
 # 优先使用 IPv4 网络
-echo 'precedence  ::ffff:0:0/96   100' | sudo tee -a /etc/gai.conf
+grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | sudo tee -a /etc/gai.conf
 
 # 删除临时文件
 rm -f warp* wgcf*
