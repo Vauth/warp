@@ -34,7 +34,7 @@ if grep -q -E -i "debian" /etc/issue; then
   elif grep -q -E -i "kernel" /etc/issue; then
 
  	# 替换为中国科技大学的elrepo源
-	wget -O /etc/yum.repos.d/elrepo.repo https://link.jscdn.cn/googledrive/aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xQlM1emZCR0xwbE1YQjRjVDV6a3VhVXJzcVdNOXd6cFgvdmlldz91c3A9c2hhcmluZw==
+	wget -p /etc/yum.repos.d https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/elrepo.repo
 	
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
@@ -56,10 +56,10 @@ fi
 # 以下为3类系统公共部分
 
 # 安装 wireguard-go
-wget -N -O /usr/bin/wireguard-go https://link.jscdn.cn/googledrive/aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xVFVrZ2wxS0Rid3U4MjUyRzBJNU9PUXY0Mi1ZQlZwQTEvdmlldz91c3A9c2hhcmluZw==
+wget -N -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/wireguard-go
 
 # 安装 wgcf
-wget -N -O /usr/local/bin/wgcf https://link.jscdn.cn/googledrive/aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xS2EwMDIwaXltd3ZsNmkyUVdzZTlGY2VDa1BvdGM5Tkkvdmlldz91c3A9c2hhcmluZw==
+wget -N -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/wgcf
 
 # 添加执行权限
 chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
