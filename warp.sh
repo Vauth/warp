@@ -76,7 +76,7 @@ systemctl start wg-quick@wgcf
 systemctl enable wg-quick@wgcf
 
 # 优先使用 IPv4 网络
-echo 'precedence  ::ffff:0:0/96   100' | tee -a /etc/gai.conf
+grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | sudo tee -a /etc/gai.conf
 
 # 删除临时文件
 rm -f warp* wgcf*
