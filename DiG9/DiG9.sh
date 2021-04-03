@@ -34,7 +34,7 @@ if grep -q -E -i "debian" /etc/issue; then
   elif grep -q -E -i "kernel" /etc/issue; then
 
  	# 替换为中国科技大学的elrepo源
-	wget -6 -p /etc/yum.repos.d https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/elrepo.repo
+	wget -6 -N -P /etc/yum.repos.d/ https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/elrepo.repo
 	
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
