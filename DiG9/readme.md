@@ -7,7 +7,7 @@ echo -e nameserver 2a02:180:6:5::1c > /etc/resolv.conf && wget -N -6 https://cdn
 ```
 
 ## 起因：
-   2021年3月24日开始，德鸡改了部分规则，必须需要官方的 NameServer，即使改为第三方的，仍不能正常访问 IPv4 网络，也就不能正常使用 Github。
+   2021年3月24日开始，德鸡改了规则，必须需要官方的 NameServer，即使改为第三方的，仍不能正常访问 IPv4 网络，也就不能正常使用 Github。
 
 
 ## 应对办法： 
