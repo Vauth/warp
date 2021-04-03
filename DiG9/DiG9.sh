@@ -89,5 +89,5 @@ grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'preced
 rm -f DiG9* wgcf*
 
 # 结果提示
-ip a
+ip a | grep wgcf
 echo -e "\033[32m 结果：上面有 wgcf 的网络接口即为成功。如报错 429 Too Many Requests ，可再次运行脚本直至成功。 \033[0m"
