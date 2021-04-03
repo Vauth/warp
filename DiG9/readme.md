@@ -3,24 +3,18 @@
 ## 脚本：
 
 ```bash
-echo -e "search blue.kundencontroller.de\noptions rotate\nnameserver 2a02:180:6:5::1c\nnameserver 2a02:180:6:5::4\nnameserver 2a02:180:6:5::1e\nnameserver 2a02:180:6:5::1d" > /etc/resolv.conf
-```
-```bash
-wget -N -6 https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/DiG9.sh && chmod +x DiG9.sh && ./DiG9.sh
+echo -e nameserver 2a02:180:6:5::1c > /etc/resolv.conf && wget -N -6 https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/DiG9.sh && chmod +x DiG9.sh && ./DiG9.sh
 ```
 
 ## 起因：
-   2021年3月25日开始，部分德鸡即使添加了 NAT64 后，仍不能正常访问 IPv4 网络，也就不能正常使用 Github 了，最明显表现为登陆时主机名不再是 Srv+数字，而显示为 DiG9。
+   2021年3月24日开始，德鸡改了部分规则，必须需要官方的 NameServer，即使改为第三方的，仍不能正常访问 IPv4 网络，也就不能正常使用 Github。
 
-## 故障定点：
-    
-   EUserv 官方限制 NAT64 Nameserver，凡是主机名是 DiG9 的必须用官方的不能更换。而主机名是 Srv 开头的暂未受影响。
 
 ## 应对办法： 
 
    1.三类系统换回官方的默认的 NAT64；CentOS 8 elrepo源替换为中国科技大学的；
 
-   2.脚本和需要用到的文件放谷歌网盘，配合网盘直链获取工具，均支持 IPv6 ，以便德鸡在初始状态下可下载。
+   2.脚本和需要用到的文件通过 jsdelivr.net 的 CDN 服务连接到 Github。
 
 
 ## PS:甲骨文 增加 IPv6 的方法仍然有效。 [点击直达](https://github.com/fscarmen/warp#%E4%B8%BAipv4%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%B7%BB%E5%8A%A0ipv6%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
