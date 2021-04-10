@@ -30,12 +30,8 @@
 * 完成后看到有 wgcf 的网络接口即为成功，并自动清理安装时的临时文件。
 
 ```bash
-echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a03:7900:2:0:31:3:104:161" > /etc/resolv.conf
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
 ```
-```bash
-wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
-```
-
 
 ## 为IPv4服务器添加IPv6网络接口方法
 
