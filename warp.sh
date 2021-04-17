@@ -31,7 +31,7 @@ if grep -q -E -i "debian" /etc/issue; then
 # CentOS 运行以下脚本
   elif grep -q -E -i "kernel" /etc/issue; then
 
-  # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+  	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 	yum -y install net-tools wireguard-tools
 
 # 如都不符合，提示,删除临时文件并中止脚本
