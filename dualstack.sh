@@ -80,7 +80,7 @@ systemctl enable wg-quick@wgcf
 grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf
 
 # 删除临时文件
-rm -f warp* wgcf*
+rm -f dualstack* wgcf*
 
 # 结果提示
 ip a | grep '.*wgcf:.*' "--color=auto"
