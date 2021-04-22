@@ -31,7 +31,7 @@
 * 脚本结束后会有结果提示，并自动清理安装时的临时文件。
 
 ```bash
-echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
 ```
 
 ## 为EUserv添加双栈网络接口方法
@@ -41,7 +41,7 @@ echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N --no-check-cert
 * 脚本结束后会有结果提示，并自动清理安装时的临时文件。
 
 ```bash
-echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
 ```
 
 ## 为甲骨文添加IPv6网络接口方法
