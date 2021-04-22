@@ -28,13 +28,18 @@
 
 * 脚本会先行判断 EUserv 3种系统：Ubuntu 20.04、Debian 10、CentOS 8，再自动选相应的程序来完成，不需要人工选择。 
 
-* 完成后看到有 wgcf 的网络接口即为成功，并自动清理安装时的临时文件。
+* 脚本结束后会有结果提示，并自动清理安装时的临时文件。
 
 ```bash
 echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
 ```
 
 ## 为EUserv添加双栈网络接口方法
+
+* 脚本会先行判断 EUserv 3种系统：Ubuntu 20.04、Debian 10、CentOS 8，再自动选相应的程序来完成，不需要人工选择。 
+
+* 脚本结束后会有结果提示，并自动清理安装时的临时文件。
+
 ```bash
 echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
 ```
@@ -43,7 +48,7 @@ echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N --no-check-cert
 
 * 脚本会先行判断 Oracle 3个系统：Ubuntu 20.04、Ubuntu 20.04 Minimal、CentOS 8，再自动选相应的程序来完成，不需要人工选择。 
 
-* 完成后看到有 wgcf 的网络接口即为成功，并自动清理安装时的临时文件。
+* 脚本结束后会有结果提示，并自动清理安装时的临时文件。
 
 * 甲骨文 CentOS 8 由于更新内核需要时间约15分钟，停留在 Running scriptlet: kernel-core-4.18.0-240.15.1.el8_3.x86_64 的时候耐心等待即可。 
 
