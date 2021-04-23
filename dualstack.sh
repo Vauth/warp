@@ -63,9 +63,8 @@ echo | wgcf register
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 wgcf generate
   
-# 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 WireGuard 接管，让 IPv4 的流量通过 WARP IPv6 节点以 NAT 的方式访问外部 IPv4 网络
-sed -i "7 s/^/PostUp = ip -6 rule add from $(ifconfig eth0 | grep "2a02" | awk '{ print $2}') lookup main\n/" wgcf-profile.conf
-sed -i "8 s/^/PostDown = ip -6 rule delete from $(ifconfig eth0 | grep "2a02" | awk '{ print $2}') lookup main\n/" wgcf-profile.conf
+# 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 IPv6 的流量均被 WireGuard 接管
+sed -i "7 s/^/PostUp = ip -6 rule add from $(ifconfig eth0 | grep "2a02" | awk '{ print $2}') lookup main\n/" wgcf-profile.conf | sed -i "8 s/^/PostDown = ip -6 rule delete from $(ifconfig eth0 | grep "2a02" | awk '{ print $2}') lookup main\n/" wgcf-profile.conf
 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 cp wgcf-profile.conf /etc/wireguard/wgcf.conf
