@@ -64,7 +64,7 @@ echo | wgcf register
 wgcf generate
   
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 IPv6 的流量均被 WireGuard 接管
-sed -i "7 s/^/PostUp = ip -6 rule add from $(ip a | grep 2a02 |awk -F '/' '{print $1}' | awk '{print $2}') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip a | grep 2a02 |awk -F '/' '{print $1}' | awk '{print $2}') lookup main\n/" wgcf-profile.conf
+sed -i "7 s/^/PostUp = ip -6 rule add from $(ip a | grep 2a02 |awk -F '/' '{print $1}' | awk '{print $2}') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip a | grep 2a02 |awk -F '/' '{print $1}' | awk '{print $2}') lookup main\n/" wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 cp wgcf-profile.conf /etc/wireguard/wgcf.conf
