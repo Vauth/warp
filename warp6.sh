@@ -3,6 +3,22 @@
 
 # 判断系统，安装差异部分
 
+# Debian 运行以下脚本
+if grep -q -E -i "debian" /etc/issue; then
+	
+	# 更新源
+	apt update
+
+	# 添加 backports 源,之后才能安装 wireguard-tools 
+	apt -y install lsb-release
+	echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
+
+	# 再次更新源
+	apt update
+
+	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+	
 # Ubuntu 运行以下脚本
 if grep -q -E -i "ubuntu" /etc/issue; then
 
