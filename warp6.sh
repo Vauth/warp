@@ -23,7 +23,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	sudo apt -y --no-install-recommends install wireguard-dkms
 	
 # Ubuntu 运行以下脚本
-if grep -q -E -i "ubuntu" /etc/issue; then
+     elif grep -q -E -i "ubuntu" /etc/issue; then
 
 	# 更新源
 	sudo apt update
