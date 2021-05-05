@@ -46,7 +46,7 @@ echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 --no-check-c
 
 ## 为甲骨文、谷歌云添加IPv6网络接口方法
 
-* 脚本会先行判断 Oracle 3个系统：Ubuntu 20.04、Ubuntu 20.04 Minimal、CentOS 8，再自动选相应的程序来完成，不需要人工选择。 
+* 脚本会先行判断 Oracle、GCP 3种系统：Ubuntu 20.04 (Minimal含)、Debian 10、CentOS 8，再自动选相应的程序来完成，不需要人工选择。 
 
 * 脚本结束后会有结果提示，并自动清理安装时的临时文件。
 
