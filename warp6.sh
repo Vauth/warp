@@ -62,7 +62,7 @@ fi
 # 以下为2类系统公共部分
 
 # 安装 wgcf
-sudo wget -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
+sudo wget -nc -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
 
 # 添加执行权限
 sudo chmod +x /usr/local/bin/wgcf
