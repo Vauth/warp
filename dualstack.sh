@@ -49,10 +49,10 @@ fi
 # 以下为3类系统公共部分
 
 # 安装 wireguard-go
-wget -N -6 -P /usr/bin https://github.com/fscarmen/warp/raw/main/wireguard-go
+wget -nc -6 -P /usr/bin https://github.com/fscarmen/warp/raw/main/wireguard-go
 
 # 安装 wgcf
-wget -N -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
+wget -nc -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
 
 # 添加执行权限
 chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
