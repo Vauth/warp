@@ -56,10 +56,10 @@ fi
 # 以下为3类系统公共部分
 
 # 安装 wireguard-go
-wget -N -6 -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/wireguard-go
+wget -nc -6 -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/wireguard-go
 
 # 安装 wgcf
-wget -N -6 -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/wgcf
+wget -nc -6 -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/wgcf
 
 # 添加执行权限
 chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
