@@ -56,7 +56,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
 	
 	# 删除临时目录和文件，退出脚本
-	rm -f warp*
+	rm -f dualstack*
 	exit 0
 
 fi
@@ -92,7 +92,7 @@ sudo systemctl enable wg-quick@wgcf
 grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | sudo tee -a /etc/gai.conf
 
 # 删除临时文件
-rm -f warp* wgcf*
+rm -f dualstack* wgcf*
 
 # 结果提示
 ip a | grep '.*wgcf:.*' "--color=auto"
