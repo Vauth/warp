@@ -38,14 +38,17 @@ if grep -q -E -i "debian" /etc/issue; then
      elif grep -q -E -i "kernel" /etc/issue; then
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo yum -y install net-tools wireguard-tools
+	sudo yum -y install net-tools wireguard-tools linux-headers-$(uname -r)
 
 	# 安装 wireguard 内核模块
 	sudo curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-	sudo yum -y install epel-release wireguard-dkms linux-headers-$(uname -r)
+	sudo yum -y install epel-release wireguard-dkms
 
 	# 升级所有包同时也升级软件和系统内核
 	sudo yum -y update
+	
+	# 添加执行文件环境变量
+        export PATH=$PATH:/usr/local/bin
 
 # 如都不符合，提示,删除临时文件并中止脚本
      else 
@@ -66,9 +69,6 @@ sudo wget -nc -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/down
 
 # 添加执行权限
 sudo chmod +x /usr/local/bin/wgcf
-
-# 添加执行文件环境变量
-export PATH=$PATH:/usr/local/bin
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 echo | wgcf register
