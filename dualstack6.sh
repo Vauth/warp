@@ -1,4 +1,4 @@
-##### 为 IPv4 only VPS 添加 WGCF #####
+##### 为 IPv4 only VPS 添加 WGCF ，双栈走 warp #####
 ##### KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go。#####
 
 # 判断系统，安装差异部分
@@ -17,7 +17,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt update
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+	sudo apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools linux-headers-$(uname -r)
 	
 	# 安装 wireguard 内核模块
 	sudo apt -y --no-install-recommends install wireguard-dkms
@@ -42,7 +42,7 @@ if grep -q -E -i "debian" /etc/issue; then
 
 	# 安装 wireguard 内核模块
 	sudo curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-	sudo yum -y install epel-release wireguard-dkms
+	sudo yum -y install epel-release wireguard-dkms linux-headers-$(uname -r)
 
 	# 升级所有包同时也升级软件和系统内核
 	sudo yum -y update
