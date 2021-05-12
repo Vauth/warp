@@ -17,7 +17,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt update
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+	sudo apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools linux-headers-$(uname -r)
 	
 	# 安装 wireguard 内核模块
 	sudo apt -y --no-install-recommends install wireguard-dkms
