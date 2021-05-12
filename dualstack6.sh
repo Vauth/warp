@@ -38,7 +38,7 @@ if grep -q -E -i "debian" /etc/issue; then
      elif grep -q -E -i "kernel" /etc/issue; then
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo yum -y install net-tools wireguard-tools linux-headers-$(uname -r)
+	sudo yum -y install net-tools wireguard-tools
 
 	# 安装 wireguard 内核模块
 	sudo curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
