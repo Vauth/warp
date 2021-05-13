@@ -19,8 +19,9 @@
 ## 好处
 
 * 能让像EUserv这样的IPv6 only VPS上做的节点支持Telegram
-* IPv6 建的节点能在 PassWall、ShadowSocksR Plus+ 上应用
+* IPv6 建的节点能在 PassWall、ShadowSocksR Plus+ 上使用
 * 解锁奈飞流媒体
+* 避免 Google 验证码或是使用 Google 学术搜索
 * 可调用IPv4接口使京* docker 和 V2P 等正常运行
 * 由于可以双向转输数据，能做对方VPS的跳板和探针，替代 HE tunnelbroker
 
