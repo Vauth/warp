@@ -30,9 +30,6 @@ if grep -q -E -i "debian" /etc/issue; then
 
 	# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 	sudo apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
-	
-	# 安装 wireguard 内核模块
-	# sudo apt -y --no-install-recommends install wireguard-dkms
 
 # CentOS 运行以下脚本
      elif grep -q -E -i "kernel" /etc/issue; then
