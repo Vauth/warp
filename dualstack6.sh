@@ -83,10 +83,10 @@ sudo sed -i "7 s/^/PostUp = ip -4 rule add from $(ip a | grep ens | awk -F '/' '
 sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 # 启用 Wire-Guard 网络接口守护进程
-sudo systemctl start wg-quick@wgcf
+systemctl start wg-quick@wgcf
 
 # 设置开机启动
-sudo systemctl enable wg-quick@wgcf
+systemctl enable wg-quick@wgcf
 
 # 优先使用 IPv4 网络
 grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | sudo tee -a /etc/gai.conf
