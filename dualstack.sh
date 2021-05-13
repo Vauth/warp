@@ -40,7 +40,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
 	
 	# 删除临时目录和文件，退出脚本
-	rm -f warp*
+	rm -f dualstack*
 	exit 0
 
 fi
