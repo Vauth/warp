@@ -20,7 +20,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	sudo apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools linux-headers-$(uname -r)
 	
 	# 安装 wireguard 内核模块
-	sudo apt -y --no-install-recommends install wireguard-dkms
+	#sudo apt -y --no-install-recommends install wireguard-dkms
 	
 # Ubuntu 运行以下脚本
      elif grep -q -E -i "ubuntu" /etc/issue; then
