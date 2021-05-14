@@ -59,7 +59,6 @@ if grep -q -E -i "debian" /etc/issue; then
 
 fi
 
-
 # 以下为3类系统公共部分
 
 # 安装 wgcf
