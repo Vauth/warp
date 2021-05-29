@@ -74,7 +74,7 @@ wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/
 * 脚本结束后会有结果提示，并自动清理安装时的临时文件。
 
 ```bash
-wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warparm.sh.sh" && chmod +x warparm.sh && ./warparm.sh
+wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warparm.sh" && chmod +x warparm.sh && ./warparm.sh
 ```
 
 ## 临时、永久关闭和开启WGCF网络接口
@@ -100,7 +100,7 @@ WARP是CloudFlare提供的一项基于WireGuard的网络流量安全及加速服
 
 原理如图，IPv6的流量均被WARP网卡接管，实现了让IPv6的流量通过WARP访问外部网络。
 
-![2021-02-04_21-45-44.png](https://i.loli.net/2021/05/29/SriebnMVOoFg45Y.png)
+![2021-02-04_21-45-44.png](https://cdn.luotianyi.vc/wp-content/uploads/2021-02-04_21-45-44.png)
 
 * 双栈服务器置换网络
 
