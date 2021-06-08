@@ -100,22 +100,3 @@ rm -f dualstack* wgcf*
 # 结果提示
 ip a | grep '.*wgcf:.*' "--color=auto"
 echo -e "\033[32m 结果：上一行是红字有 wgcf 的网络接口即为成功。如没有并报错 429 Too Many Requests ，可多次运行脚本直至成功。 \033[0m"
-
-# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
-sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
-
-# 启用 Wire-Guard 网络接口守护进程
-systemctl start wg-quick@wgcf
-
-# 设置开机启动
-systemctl enable wg-quick@wgcf
-
-# 优先使用 IPv4 网络
-grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | sudo tee -a /etc/gai.conf
-
-# 删除临时文件
-rm -f dualstack* wgcf*
-
-# 结果提示
-ip a | grep '.*wgcf:.*' "--color=auto"
-echo -e "\033[32m 结果：上一行是红字有 wgcf 的网络接口即为成功。如没有并报错 429 Too Many Requests ，可多次运行脚本直至成功。 \033[0m"
