@@ -1,4 +1,4 @@
-##### 为 IPv6 only VPS 添加 WGCF，双栈走 warp #####
+##### 为 IPv4 only VPS 添加 WGCF，双栈走 warp #####
 ##### KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go。#####
 
 # 判断系统，安装差异部分
