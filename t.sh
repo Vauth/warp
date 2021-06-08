@@ -68,7 +68,7 @@ fi
 # 以下为3类系统公共部分
 
 # 安装 wgcf
-sudo wget -nc -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_$architecture
+sudo wget -nc -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_$architecture
 
 # 添加执行权限
 sudo chmod +x /usr/local/bin/wgcf
@@ -80,7 +80,26 @@ echo | wgcf register
 wgcf generate
 
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv6 的流量均被 WireGuard 接管，让 IPv6 的流量通过 WARP IPv4 节点以 NAT 的方式访问外部 IPv6 网络，为了防止当节点发生故障时 DNS 请求无法发出，修改为 IPv4 地址的 DNS
-sudo sed -i "7 s/^/PostUp = ip -6 rule add from $(ip a | egrep 'inet6' | awk -F '/' '{print $1}' | awk 'NR==2 {print $2}') lookup main\n/" wgcf-profile.conf && sudo sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip a | egrep 'inet6' | awk -F '/' '{print $1}' | awk 'NR==2 {print $2}') lookup main\n/" wgcf-profile.conf && sudo sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf && sudo sed -i 's/1.1.1.1/1.1.1.1,9.9.9.10,8.8.8.8/g' wgcf-profile.conf
+sudo sed -i "7 s/^/PostUp = ip -4 rule add from $(ip a | egrep 'ens|eth0' | awk -F '/' '{print $1}' | awk 'NR==2 {print $2}') lookup main\n/" wgcf-profile.conf && sudo sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip a | egrep 'ens|eth0' | awk -F '/' '{print $1}' | awk 'NR==2 {print $2}') lookup main\n/" wgcf-profile.conf && sudo sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sudo sed -i 's/1.1.1.1/9.9.9.10,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
+
+# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
+sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
+
+# 启用 Wire-Guard 网络接口守护进程
+systemctl start wg-quick@wgcf
+
+# 设置开机启动
+systemctl enable wg-quick@wgcf
+
+# 优先使用 IPv4 网络
+grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | sudo tee -a /etc/gai.conf
+
+# 删除临时文件
+rm -f dualstack* wgcf*
+
+# 结果提示
+ip a | grep '.*wgcf:.*' "--color=auto"
+echo -e "\033[32m 结果：上一行是红字有 wgcf 的网络接口即为成功。如没有并报错 429 Too Many Requests ，可多次运行脚本直至成功。 \033[0m"
 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
