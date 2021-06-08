@@ -1,15 +1,5 @@
-##### 为 IPv4 only VPS 添加 WGCF，双栈走 warp #####
+##### 为 IPv6 only VPS 添加 WGCF，双栈走 warp #####
 ##### KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go。#####
-
-# 判断系统架构是 AMD 还是 ARM，虚拟化是 LXC 还是 KVM,设置应用的依赖与环境
-if [[ $(hostnamectl) =~ .*arm.* ]]
-    then wgcfpath=https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_arm64
-  elif [[ $(hostnamectl) =~ .*lxc.* ]]
-    then wgcfpath=https://github.com/fscarmen/warp/raw/main/wireguard-go
-         wget -nc -6 -P /usr/bin https://github.com/fscarmen/warp/raw/main/wireguard-go
-	 chmod +x /usr/bin/wireguard-go
-  else wgcfpath=https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
-fi
 
 # 判断系统，安装差异部分
 
@@ -20,7 +10,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt update
 
 	# 添加 backports 源,之后才能安装 wireguard-tools 
-	apt -y install lsb-release
+	apt -y install lsb-release sudo
 	echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
 
 	# 再次更新源
@@ -39,13 +29,13 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt update
 
 	# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools sudo
 
 # CentOS 运行以下脚本
      elif grep -q -E -i "kernel" /etc/issue; then
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo yum -y install epel-release
+	yum -y install epel-release sudo
 	sudo yum -y install net-tools wireguard-tools
 
 	# 安装 wireguard 内核模块
@@ -69,10 +59,16 @@ if grep -q -E -i "debian" /etc/issue; then
 
 fi
 
+# 判断系统架构是 AMD 还是 ARM，虚拟化是 LXC 还是 KVM,设置应用的依赖与环境
+if [[ $(hostnamectl) =~ .*arm.* ]]
+  then architecture=arm64
+  else architecture=amd64
+fi
+
 # 以下为3类系统公共部分
 
 # 安装 wgcf
-sudo wget -nc -6 -O /usr/local/bin/wgcf $wgcfpath 
+sudo wget -nc -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_$architecture
 
 # 添加执行权限
 sudo chmod +x /usr/local/bin/wgcf
