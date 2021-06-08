@@ -6,7 +6,7 @@ if [[ $(hostnamectl) =~ .*arm.* ]]
     then wgcfpath=https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_arm64
   elif [[ $(hostnamectl) =~ .*lxc.* ]]
     then wgcfpath=https://github.com/fscarmen/warp/raw/main/wireguard-go
-         wget -nc -P /usr/bin https://github.com/fscarmen/warp/raw/main/wireguard-go
+         wget -nc -P -6 /usr/bin https://github.com/fscarmen/warp/raw/main/wireguard-go
 	 chmod +x /usr/bin/wireguard-go
   else wgcfpath=https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
 fi
@@ -72,7 +72,7 @@ fi
 # 以下为3类系统公共部分
 
 # 安装 wgcf
-sudo wget -nc -O /usr/local/bin/wgcf $wgcfpath 
+sudo wget -nc -6 -O /usr/local/bin/wgcf $wgcfpath 
 
 # 添加执行权限
 sudo chmod +x /usr/local/bin/wgcf
