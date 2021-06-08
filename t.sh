@@ -1,10 +1,14 @@
 ##### 为 IPv4 only VPS 添加 WGCF，双栈走 warp #####
 ##### KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go。#####
 
-# 判断系统架构是 AMD 还是 ARM
+# 判断系统架构是 AMD 还是 ARM，虚拟化是 LXC 还是 KVM,设置应用的依赖与环境
 if [[ $(hostnamectl) =~ .*arm.* ]]
-  then sys=arm64
-  else sys=amd64
+    then wgcfpath=https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_arm64
+  elif [[ $(hostnamectl) =~ .*lxc.* ]]
+    then wgcfpath=https://github.com/fscarmen/warp/raw/main/wireguard-go
+         wget -nc -P /usr/bin https://github.com/fscarmen/warp/raw/main/wireguard-go
+	 chmod +x /usr/bin/wireguard-go
+  else wgcfpath=https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
 fi
 
 # 判断系统，安装差异部分
@@ -68,7 +72,7 @@ fi
 # 以下为3类系统公共部分
 
 # 安装 wgcf
-sudo wget -nc -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_$sys
+sudo wget -nc -O /root/wgcf $wgcfpath 
 
 # 添加执行权限
 sudo chmod +x /usr/local/bin/wgcf
