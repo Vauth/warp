@@ -72,7 +72,7 @@ fi
 # 以下为3类系统公共部分
 
 # 安装 wgcf
-sudo wget -nc -O /root/wgcf $wgcfpath 
+sudo wget -nc -O /usr/local/bin/wgcf $wgcfpath 
 
 # 添加执行权限
 sudo chmod +x /usr/local/bin/wgcf
