@@ -95,6 +95,16 @@ sudo sed -i "7 s/^/PostUp = ip -4 rule add from $(ip a | egrep 'ens|eth0|enp' | 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
+# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
+wg-quick up wgcf
+wget -qO- ipv4.ip.sb
+until [ $? -eq 0 ]  
+  do
+   wg-quick down wgcf
+   wg-quick up wgcf
+   wget -qO- ipv4.ip.sb
+done
+
 # 启用 Wire-Guard 网络接口守护进程
 systemctl start wg-quick@wgcf
 
@@ -106,16 +116,6 @@ grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'preced
 
 # 删除临时文件
 rm -f dualstack* wgcf*
-
-# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
-wg-quick up wgcf
-wget -qO- ipv4.ip.sb
-until [ $? -eq 0 ]  
-  do
-   wg-quick down wgcf
-   wg-quick up wgcf
-   wget -qO- ipv4.ip.sb
-done
 
 # 结果提示
 echo -e "\033[32m 恭喜！warp 双栈已成功，IPv4地址为:$(wget -qO- ipv4.ip.sb)，IPv6地址为:$(wget -qO- ipv6.ip.sb)。 \033[0m"
