@@ -5,11 +5,13 @@
 # 目录
 
 - [好处](README.md#好处)
-- [为EUserv添加IPv4网络接口方法](README.md#为EUserv添加IPv4网络接口方法)
-- [为EUserv添加双栈网络接口方法](README.md#为EUserv添加双栈网络接口方法)
-- [为甲骨文、谷歌云添加IPv6网络接口方法](README.md#为甲骨文谷歌云添加IPv6网络接口方法)
+- [脚本特点](README.md#脚本特点)
+- [为 EUserv 添加 IPv4 网络接口方法](README.md#为EUserv添加IPv4网络接口方法)
+- [为 EUserv 添加双栈网络接口方法](README.md#为EUserv添加双栈网络接口方法)
+- [为甲骨文、谷歌云添加 IPv6 网络接口方法](README.md#为甲骨文谷歌云添加IPv6网络接口方法)
 - [为甲骨文、谷歌云添加双栈网络接口方法](README.md#为甲骨文谷歌云添加双栈网络接口方法)
-- [为甲骨文添加IPv4网络接口方法(ARM架构专用）](README.md#为甲骨文添加IPv4网络接口方法ARM架构专用)
+- [为甲骨文 IPv6 only 添加 IPv4 网络接口方法](README.md#为甲骨文IPv6only添加IPv4网络接口方法)
+- [为甲骨文 IPv6 only 添加双栈网络接口方法](README.md#为甲骨文IPv6only添加双栈网络接口方法)
 - [临时、永久关闭和开启WGCF网络接口](README.md#临时永久关闭和开启WGCF网络接口)
 - [EUserv 主机名变为 DiG9 不能正常使用 NAT64 解决办法](https://github.com/fscarmen/warp/tree/main/DiG9#euserv-%E4%B8%BB%E6%9C%BA%E5%90%8D%E5%8F%98%E4%B8%BA-dig9-%E4%B8%8D%E8%83%BD%E6%AD%A3%E5%B8%B8%E4%BD%BF%E7%94%A8-nat64-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95)
 - [WARP原理](README.md#WARP原理)
@@ -26,32 +28,25 @@
 * 可调用IPv4接口使京* docker 和 V2P 等正常运行
 * 由于可以双向转输数据，能做对方VPS的跳板和探针，替代 HE tunnelbroker
 
+## 脚本特点
 
-## 为EUserv添加IPv4网络接口方法
-
-* 脚本会先行判断 EUserv 3种系统：Ubuntu 20.04、Debian 10、CentOS 8，再自动选相应的程序来完成，不需要人工选择。 
-
+* 智能判断vps架构 Architecture 为 X86 或者 ARM
+* 智能判断vps操作系统：Ubuntu 20.04、Debian 10、CentOS 8
 * 脚本结束后会有结果提示，并自动清理安装时的临时文件。
 
+## 为EUserv添加 IPv4 网络接口方法
+
 ```bash
-echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
 ```
 
 ## 为EUserv添加双栈网络接口方法
 
-* 脚本会先行判断 EUserv 3种系统：Ubuntu 20.04、Debian 10、CentOS 8，再自动选相应的程序来完成，不需要人工选择。 
-
-* 脚本结束后会有结果提示，并自动清理安装时的临时文件。
-
 ```bash
-echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
 ```
 
-## 为甲骨文、谷歌云添加IPv6网络接口方法
-
-* 脚本会先行判断 Oracle、GCP 3种系统：Ubuntu 20.04、Debian 10、CentOS 8，再自动选相应的程序来完成，不需要人工选择。 
-
-* 脚本结束后会有结果提示，并自动清理安装时的临时文件。
+## 为甲骨文、谷歌云添加 IPv6 网络接口方法
 
 ```bash
 wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
@@ -59,22 +54,20 @@ wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/
 
 ## 为甲骨文、谷歌云添加双栈网络接口方法
 
-* 脚本会先行判断 Oracle、GCP 3种系统：Ubuntu 20.04、Debian 10、CentOS 8，再自动选相应的程序来完成，不需要人工选择。 
-
-* 脚本结束后会有结果提示，并自动清理安装时的临时文件。
-
 ```bash
 wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack6.sh" && chmod +x dualstack6.sh && ./dualstack6.sh
 ```
 
-## 为甲骨文添加IPv4网络接口方法(ARM架构专用）
-
-* 专为甲骨文 ARM 架构的 IPv6 only 的实例添加 IPv4。新建ARM实例如果因为 Limit for ephemeral public IP per tenant of 2 has been already reached 失败的话，可以在”网络“->“不分配公共 IPv4 地址”,接着在实例开出后添加 IPv6 地址，最后登陆实例使用此脚本以添加 IPv4 网络。
-
-* 脚本结束后会有结果提示，并自动清理安装时的临时文件。
+## 为甲骨文 IPv6 only 添加 IPv4 网络接口方法
 
 ```bash
-echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warparm.sh" && chmod +x warparm.sh && ./warparm.sh
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp4.sh" && chmod +x warp4.sh && ./war4.sh
+```
+
+## 为甲骨文 IPv6 only 添加双栈网络接口方法
+
+```bash
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
 ```
 
 ## 临时、永久关闭和开启WGCF网络接口
