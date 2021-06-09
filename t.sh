@@ -75,9 +75,19 @@ sudo chmod +x /usr/local/bin/wgcf
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 echo | wgcf register
+until [ $? -eq 0 ]  
+  do
+   echo | wgcf register
+done
+
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 wgcf generate
+until [ $? -eq 0 ]  
+  do
+   wgcf generate
+done
+
 
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv6 的流量均被 WireGuard 接管，让 IPv6 的流量通过 WARP IPv4 节点以 NAT 的方式访问外部 IPv6 网络，为了防止当节点发生故障时 DNS 请求无法发出，修改为 IPv4 地址的 DNS
 sudo sed -i "7 s/^/PostUp = ip -4 rule add from $(ip a | egrep 'ens|eth0|enp' | awk -F '/' '{print $1}' | awk 'NR==2 {print $2}') lookup main\n/" wgcf-profile.conf && sudo sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip a | egrep 'ens|eth0|enp' | awk -F '/' '{print $1}' | awk 'NR==2 {print $2}') lookup main\n/" wgcf-profile.conf && sudo sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sudo sed -i 's/1.1.1.1/9.9.9.10,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
@@ -97,6 +107,14 @@ grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'preced
 # 删除临时文件
 rm -f dualstack* wgcf*
 
+# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
+wget -qO- ipv4.ip.sb
+until [ $? -eq 0 ]  
+  do
+   wg-quick down wgcf
+   wg-quick up wgcf
+   wget -qO- ipv4.ip.sb
+done
+
 # 结果提示
-ip a | grep '.*wgcf:.*' "--color=auto"
-echo -e "\033[32m 结果：上一行是红字有 wgcf 的网络接口即为成功。如没有并报错 429 Too Many Requests ，可多次运行脚本直至成功。 \033[0m"
+echo -e "\033[32m 恭喜！warp 双栈已成功，IPv4地址为:$(wget -qO- ipv4.ip.sb)，IPv6地址为:$(wget -qO- ipv6.ip.sb)。 \033[0m"
