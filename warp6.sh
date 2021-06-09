@@ -59,11 +59,16 @@ if grep -q -E -i "debian" /etc/issue; then
 
 fi
 
+# 判断系统架构是 AMD 还是 ARM，虚拟化是 LXC 还是 KVM,设置应用的依赖与环境
+if [[ $(hostnamectl) =~ .*arm.* ]]
+  then architecture=arm64
+  else architecture=amd64
+fi
 
 # 以下为3类系统公共部分
 
 # 安装 wgcf
-sudo wget -nc -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_amd64
+sudo wget -nc -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.3/wgcf_2.2.3_linux_$architecture
 
 # 添加执行权限
 sudo chmod +x /usr/local/bin/wgcf
