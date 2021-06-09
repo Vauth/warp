@@ -77,6 +77,19 @@ sed -i '/\:\:\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/[2
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
+# 删除临时文件
+rm -f dualstack* wgcf*
+
+# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
+wg-quick up wgcf
+wget -qO- ipv4.ip.sb
+until [ $? -eq 0 ]  
+  do
+   wg-quick down wgcf
+   wg-quick up wgcf
+   wget -qO- ipv4.ip.sb
+done
+
 # 启用 Wire-Guard 网络接口守护进程
 systemctl start wg-quick@wgcf
 
@@ -85,9 +98,6 @@ systemctl enable wg-quick@wgcf
 
 # 优先使用 IPv4 网络
 grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf
-
-# 删除临时文件
-rm -f warp* wgcf*
 
 # 结果提示
 echo -e "\033[32m 恭喜！为 IPv6 only VPS 添加 warp 已成功，IPv6地址为:$(wget -qO- ipv6.ip.sb) \033[0m"
