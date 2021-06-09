@@ -108,6 +108,7 @@ grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'preced
 rm -f dualstack* wgcf*
 
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
+wg-quick up wgcf
 wget -qO- ipv4.ip.sb
 until [ $? -eq 0 ]  
   do
