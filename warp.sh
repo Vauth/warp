@@ -59,9 +59,17 @@ chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 echo | wgcf register
+until [ $? -eq 0 ]  
+  do
+   echo | wgcf register
+done
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 wgcf generate
+until [ $? -eq 0 ]  
+  do
+   wgcf generate
+done
   
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 WireGuard 接管，让 IPv4 的流量通过 WARP IPv6 节点以 NAT 的方式访问外部 IPv4 网络
 sed -i '/\:\:\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
@@ -82,5 +90,4 @@ grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'preced
 rm -f warp* wgcf*
 
 # 结果提示
-ip a | grep '.*wgcf:.*' "--color=auto"
-echo -e "\033[32m 结果：上一行是红字有 wgcf 的网络接口即为成功。如没有并报错 429 Too Many Requests ，可多次运行脚本直至成功。 \033[0m"
+echo -e "\033[32m 恭喜！为 IPv6 only VPS 添加 warp 已成功，IPv6地址为:$(wget -qO- ipv6.ip.sb) \033[0m"
