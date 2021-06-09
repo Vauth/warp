@@ -59,15 +59,36 @@ chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 echo | wgcf register
+until [ $? -eq 0 ]  
+  do
+   echo | wgcf register
+done
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 wgcf generate
+until [ $? -eq 0 ]  
+  do
+   wgcf generate
+done
   
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 IPv6 的流量均被 WireGuard 接管
-sed -i "7 s/^/PostUp = ip -6 rule add from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
+sed -i "7 s/^/PostUp = ip -6 rule add from $(wget -qO- ipv6.ip.sb) lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(wget -qO- ipv6.ip.sb) lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 cp wgcf-profile.conf /etc/wireguard/wgcf.conf
+
+# 删除临时文件
+rm -f dualstack* wgcf*
+
+# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
+wg-quick up wgcf
+wget -qO- ipv4.ip.sb
+until [ $? -eq 0 ]  
+  do
+   wg-quick down wgcf
+   wg-quick up wgcf
+   wget -qO- ipv4.ip.sb
+done
 
 # 启用 Wire-Guard 网络接口守护进程
 systemctl start wg-quick@wgcf
@@ -78,9 +99,5 @@ systemctl enable wg-quick@wgcf
 # 优先使用 IPv4 网络
 grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf
 
-# 删除临时文件
-rm -f dualstack* wgcf*
-
 # 结果提示
-ip a | grep '.*wgcf:.*' "--color=auto"
-echo -e "\033[32m 结果：上一行是红字有 wgcf 的网络接口即为成功。如没有并报错 429 Too Many Requests ，可多次运行脚本直至成功。 \033[0m"
+echo -e "\033[32m 恭喜！warp 双栈已成功，IPv4地址为:$(wget -qO- ipv4.ip.sb)，IPv6地址为:$(wget -qO- ipv6.ip.sb)。 \033[0m"
