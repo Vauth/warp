@@ -74,7 +74,7 @@ wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/
 * 脚本结束后会有结果提示，并自动清理安装时的临时文件。
 
 ```bash
-echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warparm.sh" && chmod +x warparm.sh && ./warparm.sh
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warparm.sh" && chmod +x warparm.sh && ./warparm.sh
 ```
 
 ## 临时、永久关闭和开启WGCF网络接口
