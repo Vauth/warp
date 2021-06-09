@@ -91,7 +91,7 @@ until [ $? -eq 0 ]
 done
 
 # 启用 Wire-Guard 网络接口守护进程
-systemctl start wg-quick@wgcf
+# systemctl start wg-quick@wgcf
 
 # 设置开机启动
 systemctl enable wg-quick@wgcf
