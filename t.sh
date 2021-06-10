@@ -77,7 +77,7 @@ sudo chmod +x /usr/local/bin/wgcf
 echo | wgcf register
 until [ $? -eq 0 ]  
   do
-   echo -e "\033[32m warp 注册接口繁忙，3秒后自动重试 \033[0m"
+   echo -e "\033[32m warp 注册接口繁忙，3秒后自动重试直到成功。 \033[0m"
    sleep 3
    echo | wgcf register
 done
@@ -99,13 +99,11 @@ wg-quick up wgcf
 wget -qO- ipv4.ip.sb
 until [ $? -eq 0 ]  
   do
+   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
    wg-quick down wgcf
    wg-quick up wgcf
    wget -qO- ipv4.ip.sb
 done
-
-# 启用 Wire-Guard 网络接口守护进程
-systemctl start wg-quick@wgcf
 
 # 设置开机启动
 systemctl enable wg-quick@wgcf
