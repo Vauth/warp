@@ -75,6 +75,12 @@ sudo chmod +x /usr/local/bin/wgcf
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 echo | wgcf register
+until [ $? -eq 0 ]  
+  do
+   echo -e "\033[32m warp 注册接口繁忙，3秒后重试 \033[0m"
+   sleep 3
+   echo | wgcf register
+done
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 wgcf generate
