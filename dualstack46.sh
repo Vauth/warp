@@ -77,7 +77,7 @@ sudo chmod +x /usr/local/bin/wgcf
 echo | wgcf register
 until [ $? -eq 0 ]  
   do
-   echo -e "\033[32m warp 注册接口繁忙，3秒后重试 \033[0m"
+   echo -e "\033[32m warp 注册接口繁忙，3秒后自动重试 \033[0m"
    sleep 3
    echo | wgcf register
 done
