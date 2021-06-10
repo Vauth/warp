@@ -105,9 +105,6 @@ until [ $? -eq 0 ]
    wget -qO- ipv6.ip.sb
 done
 
-# 启用 Wire-Guard 网络接口守护进程
-sudo systemctl start wg-quick@wgcf
-
 # 设置开机启动
 sudo systemctl enable wg-quick@wgcf
 
