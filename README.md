@@ -21,18 +21,19 @@
 
 ## 好处
 
-* 能让像EUserv这样的IPv6 only VPS上做的节点支持Telegram
-* IPv6 建的节点能在 PassWall、ShadowSocksR Plus+ 上使用
 * 解锁奈飞流媒体
 * 避免 Google 验证码或是使用 Google 学术搜索
 * 可调用IPv4接口使京* docker 和 V2P 等正常运行
 * 由于可以双向转输数据，能做对方VPS的跳板和探针，替代 HE tunnelbroker
+* 能让像EUserv这样的 IPv6 only VPS 上做的节点支持Telegram
+* IPv6 建的节点能在只支持 IPv4 的 PassWall、ShadowSocksR Plus+ 上使用
 
 ## 脚本特点
 
-* 智能判断vps架构 Architecture 为 X86 或者 ARM
+* 智能判断vps架构：Architecture 为 X86 或者 ARM
 * 智能判断vps操作系统：Ubuntu 20.04、Debian 10、CentOS 8
-* 脚本结束后会有结果提示，并自动清理安装时的临时文件。
+* 智能分析内网和外网IP，自动插入到脚本相应的地方
+* 结束后会有结果提示，并自动清理安装时的临时文件
 
 ## 为EUserv添加 IPv4 网络接口方法
 
