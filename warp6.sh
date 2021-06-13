@@ -107,7 +107,7 @@ until [ $? -eq 0 ]
 done
 
 # 设置开机启动
-sudo systemctl enable wg-quick@wgcf
+systemctl enable wg-quick@wgcf
 
 # 优先使用 IPv4 网络
 grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf
