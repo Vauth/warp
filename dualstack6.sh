@@ -97,13 +97,14 @@ rm -f dualstack* wgcf*
 
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 wg-quick up wgcf
-wget -qO- ipv6.ip.sb
+echo -e "\033[32m warp 获取 IP 中，如失败将自动重试直到成功。 \033[0m"
+wget -qO- ipv4.ip.sb
 until [ $? -eq 0 ]  
   do
-   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
    wg-quick down wgcf
    wg-quick up wgcf
-   wget -qO- ipv6.ip.sb
+   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
+   wget -qO- ipv4.ip.sb
 done
 
 # 设置开机启动
