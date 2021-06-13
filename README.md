@@ -6,6 +6,7 @@
 
 - [好处](README.md#好处)
 - [脚本特点](README.md#脚本特点)
+- [菜单选择(推荐）](README.md#菜单选择推荐)
 - [为 EUserv 添加 IPv4 网络接口方法](README.md#%E4%B8%BAeuserv%E6%B7%BB%E5%8A%A0-ipv4-%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
 - [为 EUserv 添加双栈网络接口方法](README.md#%E4%B8%BAeuserv%E6%B7%BB%E5%8A%A0%E5%8F%8C%E6%A0%88%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
 - [为甲骨文、谷歌云添加 IPv6 网络接口方法](README.md#%E4%B8%BA%E7%94%B2%E9%AA%A8%E6%96%87%E8%B0%B7%E6%AD%8C%E4%BA%91%E6%B7%BB%E5%8A%A0-ipv6-%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
@@ -34,6 +35,16 @@
 * 智能判断vps操作系统：Ubuntu 20.04、Debian 10、CentOS 8
 * 智能分析内网和外网IP，自动插入到脚本相应的地方
 * 结束后会有结果提示，并自动清理安装时的临时文件
+
+## 菜单选择(推荐）
+
+* 重要 重要 重要：如是 IPv6 Only，请先添加 NAT64: ```echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf```；
+ 
+* 如果是 IPv4 或者 双栈的，不需要添加，直接刷下面指令
+
+```bash
+wget -N "https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh" && chmod +x menu.sh && ./menu.sh
+```
 
 ## 为EUserv添加 IPv4 网络接口方法
 
