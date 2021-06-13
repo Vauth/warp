@@ -42,9 +42,9 @@ function start_menu(){
 
     green " 本项目专为甲骨文、谷歌云和EUserv添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
 
-    green " 当前操作系统是：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}'), 内核是：$(uname -r)，架构是：$(uname -m) ，虚拟化：$(hostnamectl | grep -i virtual | awk -F ':' '{print $2}')"  
+    green " 当前操作系统：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}'), 内核：$(uname -r)，架构：$(uname -m) ，虚拟化：$(hostnamectl | grep -i virtual | awk -F ':' '{print $2}')"  
    
-    red " ==============================================================================================" 
+    red " ===========================================================================================================================================" 
     
     green " 1. 为甲骨文、谷歌云等 IPv4 添加 IPv6 网络接口方法 "
     
