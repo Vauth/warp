@@ -42,7 +42,7 @@ function start_menu(){
 
     green " 本项目专为甲骨文、谷歌云和EUserv添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
 
-    green " 当前操作系统和内核版本是：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}'), 架构是：$(uname -m) "  
+    green " 当前操作系统是：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}'), 内核是：$(uname -r)，架构是：$(uname -m) ，虚拟化：$(hostnamectl | grep -i virtual | awk -F ':' '{print $2}')"  
    
     red " ==============================================================================================" 
     
