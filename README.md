@@ -38,12 +38,14 @@
 
 ## 菜单选择(推荐）
 
-* 重要 重要 重要：如是 IPv6 Only，请先添加 NAT64: ```echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf```；
- 
-* 如果是 IPv4 或者 双栈的，不需要添加，直接刷下面指令
-
 ```bash
 wget -N "https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh" && chmod +x menu.sh && ./menu.sh
+```
+
+* 重要 重要 重要：如是 IPv6 Only，需要前置添加 NAT64；如果是 IPv4 或者 双栈的则不需要。
+
+```bash
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
 ```
 
 ## 为EUserv添加 IPv4 网络接口方法
