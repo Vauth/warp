@@ -12,6 +12,30 @@ blue(){
     echo -e "\033[36m\033[01m$1\033[0m"
 }
 
+function warp6(){
+wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
+}
+
+function dualstack6(){
+wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack6.sh" && chmod +x dualstack6.sh && ./dualstack6.sh
+}
+
+function warp4(){
+wget -N -6 --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp4.sh" && chmod +x warp4.sh && ./war4.sh
+}
+
+function dualstack46(){
+wget -N -6 --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
+}
+
+function warp(){
+wget -N -6 --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
+}
+
+function dualstack(){
+wget -N -6 --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
+}
+
 #主菜单
 function start_menu(){
     clear
@@ -40,32 +64,29 @@ function start_menu(){
     read -p "请输入数字:" menuNumberInput
     case "$menuNumberInput" in
         1 )
-           file=warp6
+           warp6
 	;;
 	2 )
-           file=dualstack6
+           dualstack6
 	;;
         3 )
-           file=warp4
+           warp4
 	;;
 	4 )
-           file=dualstack46
+           dualstack46
 	;;    
         5 )
-           file=warp
+           warp
 	;;
         6 )
-           file=dualstack
+           dualstack
 	;;
         0 )
-            exit 1
+           exit 1
         ;;
     esac
 }
 
-
-start_menu "first"  
-
-wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/$file.sh" && chmod +x $file.sh && ./$file.sh
+start_menu "first"
 
 rm -f menu*
