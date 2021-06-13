@@ -44,7 +44,7 @@ function start_menu(){
 
     green " 当前操作系统：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}'), 内核：$(uname -r)，架构：$(uname -m) ，虚拟化：$(hostnamectl | grep -i virtual | awk -F ':' '{print $2}')"  
    
-    red " ===========================================================================================================================================" 
+    red " ================================================================================================ " 
     
     green " 1. 为甲骨文、谷歌云等 IPv4 添加 IPv6 网络接口方法 "
     
@@ -60,30 +60,21 @@ function start_menu(){
     
     green " 0. 退出脚本 "
 
-    echo
-    read -p "请输入数字:" menuNumberInput
-    case "$menuNumberInput" in
-        1 )
-           warp6
-	;;
-	2 )
-           dualstack6
-	;;
-        3 )
-           warp4
-	;;
-	4 )
-           dualstack46
-	;;    
-        5 )
-           warp
-	;;
-        6 )
-           dualstack
-	;;
-        0 )
-           exit 1
-        ;;
+    read -p "请输入数字:" choose
+    case "$choose" in
+	1 ) warp6;;
+
+	2 ) dualstack6;;
+
+ 	3 ) warp4;;
+
+	4 ) dualstack46;;    
+
+	5 ) warp;;
+           
+	6 ) dualstack;;
+          
+	0 ) exit 1;; 
     esac
 }
 
