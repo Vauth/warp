@@ -48,7 +48,7 @@ fi
 # 以下为3类系统公共部分
 
 # 安装 wgcf
-wget -N -6 -O /usr/local/bin/wgcf wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_2.2.3_linux_$(arch)
+wget -N -6 -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_2.2.3_linux_$(arch)
 
 # 安装 wireguard-go
 wget -N -6 -P /usr/bin wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
