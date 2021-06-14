@@ -13,27 +13,27 @@ blue(){
 }
 
 function warp6(){
-wget -N --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
+wget -N --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
 }
 
 function dualstack6(){
-wget -N --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/dualstack6.sh" && chmod +x dualstack6.sh && ./dualstack6.sh
+wget -N --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dualstack6.sh" && chmod +x dualstack6.sh && ./dualstack6.sh
 }
 
 function warp4(){
-wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/warp4.sh" && chmod +x warp4.sh && ./war4.sh
+wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/warp4.sh" && chmod +x warp4.sh && ./war4.sh
 }
 
 function dualstack46(){
-wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
+wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
 }
 
 function warp(){
-wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
+wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/warp.sh" && chmod +x warp.sh && ./warp.sh
 }
 
 function dualstack(){
-wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
+wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
 }
 
 #主菜单
