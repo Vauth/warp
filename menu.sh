@@ -76,7 +76,9 @@ function start_menu(){
           
 	0 ) exit 1;; 
 	
-	* ) echo "请输入正确数字 [0-6]";;
+	* ) red "请输入正确数字 [0-6]"
+		sleep 1
+                start_menu;;
 
     esac
 }
