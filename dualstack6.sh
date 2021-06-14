@@ -63,7 +63,7 @@ fi
 # 以下为3类系统公共部分
 
 # 安装 wgcf
-sudo wget -N -O /usr/local/bin/wgcf wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_2.2.3_linux_$(arch)
+sudo wget -N -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_2.2.3_linux_$(arch)
 
 # 添加执行权限
 sudo chmod +x /usr/local/bin/wgcf
