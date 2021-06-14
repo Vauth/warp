@@ -21,7 +21,7 @@ wget -N --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dualst
 }
 
 function warp4(){
-wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/warp4.sh" && chmod +x warp4.sh && ./war4.sh
+wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/warp4.sh" && chmod +x warp4.sh && ./warp4.sh
 }
 
 function dualstack46(){
@@ -79,7 +79,6 @@ function menu(){
 	* ) red "请输入正确数字 [0-6]"
 		sleep 1
                 menu;;
-
     esac
 }
 
