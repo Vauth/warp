@@ -37,7 +37,7 @@ wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dua
 }
 
 #主菜单
-function start_menu(){
+function menu(){
     clear
 
     green " 本项目专为甲骨文、谷歌云和EUserv添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
@@ -78,11 +78,11 @@ function start_menu(){
 	
 	* ) red "请输入正确数字 [0-6]"
 		sleep 1
-                start_menu;;
+                menu;;
 
     esac
 }
 
-start_menu "first"
+start_menu
 
 rm -f menu*
