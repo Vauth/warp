@@ -84,4 +84,4 @@ function menu(){
 
 menu
 
-rm -f menu*
+rm -f menu* warp* dualstack*
