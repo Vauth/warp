@@ -41,7 +41,7 @@
 ![menu.jpg](https://i.loli.net/2021/06/13/DGyVL9TFo8YmMeb.jpg)
 
 ```bash
-wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && chmod +x menu.sh && ./menu.sh
+wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && chmod +x menu.sh && ./menu.sh
 ```
 
 ## 为EUserv添加 IPv4 网络接口方法
