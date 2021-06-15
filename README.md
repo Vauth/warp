@@ -103,7 +103,7 @@ WARP是CloudFlare提供的一项基于WireGuard的网络流量安全及加速服
 
 原理如图，IPv6的流量均被WARP网卡接管，实现了让IPv6的流量通过WARP访问外部网络。
 
-![68747470733a2f2f63646e2e6c756f7469616e79692e76632f77702d636f6e74656e742f75706c6f6164732f323032312d30322d30345f32312d34352d34342e706e67.png](https://i.loli.net/2021/06/15/ARfOasgp286xjym.png)
+![2021-02-04_21-45-44.png](https://i.loli.net/2021/06/15/ARfOasgp286xjym.png)
 
 * 双栈服务器置换网络
 
