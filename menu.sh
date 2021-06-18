@@ -21,18 +21,22 @@ wget -N --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dualst
 }
 
 function warp4(){
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
 wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/warp4.sh" && chmod +x warp4.sh && ./warp4.sh
 }
 
 function dualstack46(){
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
 wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
 }
 
 function warp(){
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
 wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/warp.sh" && chmod +x warp.sh && ./warp.sh
 }
 
 function dualstack(){
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
 wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
 }
 
