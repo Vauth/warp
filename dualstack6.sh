@@ -98,7 +98,7 @@ until [ $? -eq 0 ]
    wg-quick down wgcf
    wg-quick up wgcf
    echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
-   wget -qO- ipv4.ip.sb
+   wget -qO- -6 ip.gs
 done
 
 # 设置开机启动
