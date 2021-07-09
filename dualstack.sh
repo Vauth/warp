@@ -69,7 +69,7 @@ done
 wgcf generate
   
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 IPv6 的流量均被 WireGuard 接管
-sed -i "7 s/^/PostUp = ip -6 rule add from $(wget -qO- ipv6.ip.sb) lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(wget -qO- ipv6.ip.sb) lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
+sed -i "7 s/^/PostUp = ip -6 rule add from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 cp wgcf-profile.conf /etc/wireguard/wgcf.conf
@@ -96,4 +96,4 @@ systemctl enable wg-quick@wgcf
 grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf
 
 # 结果提示
-echo -e "\033[32m 恭喜！warp 双栈已成功，IPv4地址为:$(wget -qO- ipv4.ip.sb)，IPv6地址为:$(wget -qO- ipv6.ip.sb) \033[0m"
+echo -e "\033[32m 恭喜！warp 双栈已成功，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) \033[0m"
