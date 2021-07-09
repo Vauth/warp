@@ -77,8 +77,8 @@ sudo chmod +x /usr/local/bin/wgcf
 echo | wgcf register
 until [ $? -eq 0 ]  
   do
-   echo -e "\033[32m warp 注册接口繁忙，3秒后自动重试直到成功。 \033[0m"
-   sleep 3
+   echo -e "\033[32m warp 注册接口繁忙，5秒后自动重试直到成功。 \033[0m"
+   sleep 5
    echo | wgcf register
 done
 
@@ -96,13 +96,13 @@ rm -f dualstack* wgcf*
 
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 wg-quick up wgcf
-wget -qO- ipv4.ip.sb
+wget -qO- -6 ip.gs
 until [ $? -eq 0 ]  
   do
    echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
    wg-quick down wgcf
    wg-quick up wgcf
-   wget -qO- -4 ip.gs
+   wget -qO- -6 ip.gs
 done
 
 # 设置开机启动
