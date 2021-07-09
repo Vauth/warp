@@ -90,7 +90,7 @@ rm -f warp* wgcf*
 
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 wg-quick up wgcf
-wget -qO- ipv4.ip.sb
+wget -qO- -4 ip.gs
 until [ $? -eq 0 ]  
   do
    echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
