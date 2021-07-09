@@ -97,7 +97,7 @@ until [ $? -eq 0 ]
    echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
    wg-quick down wgcf
    wg-quick up wgcf
-   wget -qO- ipv6.ip.sb
+   wget -qO- -6 ip.gs
 done
 
 # 设置开机启动
@@ -107,4 +107,4 @@ systemctl enable wg-quick@wgcf
 grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf
 
 # 结果提示
-echo -e "\033[32m 恭喜！为 IPv4 only VPS 添加 warp 已成功，IPv6地址为:$(wget -qO- ipv6.ip.sb) \033[0m"
+echo -e "\033[32m 恭喜！为 IPv4 only VPS 添加 warp 已成功，IPv6地址为:$(wget -qO- -6 ip.gs) \033[0m"
