@@ -71,7 +71,7 @@ wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/
 ## 为甲骨文 IPv6 only 添加 IPv4 网络接口方法
 
 ```bash
-echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp4.sh" && chmod +x warp4.sh && ./war4.sh
+echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp4.sh" && chmod +x warp4.sh && ./warp4.sh
 ```
 
 ## 为甲骨文 IPv6 only 添加双栈网络接口方法
