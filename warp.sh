@@ -47,8 +47,17 @@ fi
 
 # 以下为3类系统公共部分
 
+# 判断系统架构是 AMD 还是 ARM，虚拟化是 LXC 还是 KVM,设置应用的依赖与环境
+if [[ $(hostnamectl) =~ .*arm.* ]]
+        then architecture=arm64
+        else architecture=amd64
+fi
+
+# 判断 wgcf 的最新版本
+latest=$(wget -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
+
 # 安装 wgcf
-wget -N -6 -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_2.2.3_linux_$(arch)
+sudo wget -N -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
 
 # 安装 wireguard-go
 wget -N -6 -P /usr/bin wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
