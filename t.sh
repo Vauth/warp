@@ -59,7 +59,7 @@ fi
 latest=$(wget -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
 
 # 安装 wgcf
-sudo wget -N https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
+sudo wget -N -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
 
 # 安装 wireguard-go
 wget -N -6 -P /usr/bin wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
