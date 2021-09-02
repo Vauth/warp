@@ -40,6 +40,14 @@ echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
 wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
 }
 
+function uninstall(){
+wg-quick down wgcf
+systemctl disable wg-quick@wgcf
+rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go
+sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
+green " wgcf已彻底删除 "
+}
+
 #主菜单
 function menu(){
     clear
@@ -62,6 +70,8 @@ function menu(){
     
     green " 6. 为 EUserv 添加双栈网络接口方法 ( LXC/OpenVZ 架构，用 wireguard-go ）"
     
+    green " 7. 一键删除 wgcf "
+    
     green " 0. 退出脚本 "
 
     read -p "请输入数字:" choose
@@ -77,10 +87,12 @@ function menu(){
 	5 ) warp;;
            
 	6 ) dualstack;;
+	
+	7 ）uninstall;;
           
 	0 ) exit 1;; 
 	
-	* ) red "请输入正确数字 [0-6]"
+	* ) red "请输入正确数字 [0-7]"
 		sleep 1
                 menu;;
     esac
