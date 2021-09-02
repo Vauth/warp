@@ -58,9 +58,9 @@ function menu(){
     
     green " 4. 为甲骨文等 IPv6 only 添加双栈网络接口方法 "
     
-    green " 5. 为 EUserv 添加 IPv4 网络接口方法" 
+    green " 5. 为 EUserv 添加 IPv4 网络接口方法 ( LXC/OpenVZ 架构，用 wireguard-go ）" 
     
-    green " 6. 为 EUserv 添加双栈网络接口方法"
+    green " 6. 为 EUserv 添加双栈网络接口方法 ( LXC/OpenVZ 架构，用 wireguard-go ）"
     
     green " 0. 退出脚本 "
 
