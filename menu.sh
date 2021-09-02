@@ -43,7 +43,7 @@ wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dua
 function uninstall(){
 wg-quick down wgcf
 systemctl disable wg-quick@wgcf
-rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go
+rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
 sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 green " wgcf已彻底删除 "
 }
