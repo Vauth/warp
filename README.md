@@ -39,7 +39,7 @@
 
 ## 菜单选择(推荐）
 
-![menu.jpg](https://i.loli.net/2021/06/13/DGyVL9TFo8YmMeb.jpg)
+![menu.jpg](https://i.loli.net/2021/09/02/SKmvQcElUV24RMu.jpg)
 
 ```bash
 wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && chmod +x menu.sh && ./menu.sh
