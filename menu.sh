@@ -88,7 +88,7 @@ function menu(){
            
 	6 ) dualstack;;
 	
-	7 ）uninstall;;
+	7 ) uninstall;;
           
 	0 ) exit 1;; 
 	
