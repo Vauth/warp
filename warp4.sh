@@ -76,7 +76,8 @@ sudo wget -N -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/do
 # 添加执行权限
 sudo chmod +x /usr/local/bin/wgcf
 
-# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
+# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
+rm -f wgcf-account.toml
 echo | wgcf register
 until [ $? -eq 0 ]  
   do
