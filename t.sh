@@ -66,6 +66,7 @@ wget -N -6 -P /usr/bin wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wiregua
 chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
+rm -f wgcf-account.toml
 echo | wgcf register
 until [ $? -eq 0 ]  
   do
