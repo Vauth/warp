@@ -61,7 +61,7 @@ fi
 
 # 以下为3类系统公共部分
 
-# 判断系统架构是 AMD 还是 ARM，虚拟化是 LXC 还是 KVM,设置应用的依赖与环境
+# 判断系统架构是 AMD 还是 ARM,设置应用的依赖与环境
 if [[ $(hostnamectl) =~ .*arm.* ]]
         then architecture=arm64
         else architecture=amd64
