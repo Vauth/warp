@@ -90,7 +90,7 @@ done
 wgcf generate
 
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv6 的流量均被 WireGuard 接管，让 IPv6 的流量通过 WARP IPv4 节点以 NAT 的方式访问外部 IPv6 网络，为了防止当节点发生故障时 DNS 请求无法发出，修改为 IPv4 地址的 DNS
-sudo sed -i "7 s/^/PostUp = ip -6 rule add from $(ip a | egrep 'inet6' | awk -F '/' '{print $1}' | awk 'END {print $2}') lookup main\n/" wgcf-profile.conf && sudo sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip a | egrep 'inet6' | awk -F '/' '{print $1}' | awk 'END {print $2}') lookup main\n/" wgcf-profile.conf && sudo sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf && sudo sed -i 's/1.1.1.1/1.1.1.1,9.9.9.10,8.8.8.8/g' wgcf-profile.conf
+sudo sed -i "7 s/^/PostUp = ip -6 rule add from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf && sudo sed -i "8 s/^/PostDown = ip -6 rule delete from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf && sudo sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf && sudo sed -i 's/1.1.1.1/1.1.1.1,9.9.9.10,8.8.8.8/g' wgcf-profile.conf
 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
