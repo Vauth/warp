@@ -96,7 +96,7 @@ sudo sed -i "7 s/^/PostUp = ip -4 rule add from $(ip a | egrep 'ens|eth0|enp' | 
 # 如果系统原来是双栈，则需要添加 IPv6 的处理
 wget -qO- -6 ip.gs > /dev/null
 if [ $? -eq 0 ]; then
-	sed -i "8 s/^/PostUp = ip -6 rule add from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf | sed -i "9 s/^/PostDown = ip -6 rule delete from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf
+	sed -i "9 s/^/PostUp = ip -6 rule add from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf | sed -i "10 s/^/PostDown = ip -6 rule delete from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf
 fi
 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
