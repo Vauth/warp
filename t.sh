@@ -121,7 +121,7 @@ done
 systemctl enable wg-quick@wgcf > /dev/null 2>&1
 
 # 优先使用 IPv4 网络
-grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf
+grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf > /dev/null 2>&1
 
 # 结果提示
 echo -e "\033[32m 恭喜！warp 双栈已成功，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) \033[0m"
