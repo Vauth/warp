@@ -94,7 +94,7 @@ wgcf generate
 sudo sed -i "7 s/^/PostUp = ip -4 rule add from $(ip a | egrep 'ens|eth0|enp' | awk -F '/' '{print $1}' | awk -F 'inet[ ]*' '{print $2}' | grep .) lookup main\n/" wgcf-profile.conf && sudo sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip a | egrep 'ens|eth0|enp' | awk -F '/' '{print $1}' | awk -F 'inet[ ]*' '{print $2}' | grep .) lookup main\n/" wgcf-profile.conf && sudo sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sudo sed -i 's/1.1.1.1/9.9.9.10,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
 
 # 如果系统原来是双栈，则需要添加 IPv6 的处理
-wget -qO- -6 ip.gs > /dev/null 2>&1
+wget -qO- -6 ip.gs > /dev/null
 if [ $? -eq 0 ]; then
 	sed -i "8 s/^/PostUp = ip -6 rule add from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf | sed -i "9 s/^/PostDown = ip -6 rule delete from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf
 fi
@@ -108,20 +108,20 @@ rm -f dualstack* wgcf*
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 wg-quick up wgcf
 echo -e "\033[32m warp 获取 IP 中，如失败将自动重试直到成功。 \033[0m"
-wget -qO- -6 ip.gs > /dev/null 2>&1
+wget -qO- -6 ip.gs > /dev/null
 until [ $? -eq 0 ]  
   do
    wg-quick down wgcf
    wg-quick up wgcf
    echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
-   wget -qO- -6 ip.gs > /dev/null 2>&1
+   wget -qO- -6 ip.gs > /dev/null
 done
 
 # 设置开机启动
-systemctl enable wg-quick@wgcf > /dev/null 2>&1
+systemctl enable wg-quick@wgcf > /dev/null
 
 # 优先使用 IPv4 网络
-grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf > /dev/null 2>&1
+grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf > /dev/null
 
 # 结果提示
 echo -e "\033[32m 恭喜！warp 双栈已成功，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) \033[0m"
