@@ -39,7 +39,7 @@ plan=`expr $virtual + $ipv4 + $ipv6`
 function status(){
 	clear
 	green " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
-	green " 当前操作系统：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}'), 内核：$(uname -r)，处理器架构：$architecture ，虚拟化：$(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') "
+	green " 当前操作系统：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}')，内核：$(uname -r)， 处理器架构：$architecture， 虚拟化：$(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') "
 	green " IPv4：$(wget -qO- -4 ip.gs)		IPv6：$(wget -qO- -6 ip.gs)"
 	red " ====================================================================================================================== " 
 		}    
