@@ -13,35 +13,35 @@ blue(){
     }
 
 if [[ $(hostnamectl) =~ .*arm.* ]]
-                then architecture=arm64
-                                else architecture=amd64
+	then architecture=arm64
+	else architecture=amd64
 fi
 
 if [[ $(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') =~ openvz|lxc ]]
-                then virtualization=100
-                                else virtualization=0
+	then virtual=100
+	else virtual=0
 fi
 
 wget -qO- -4 ip.gs > /dev/null
 if [ $? -eq 0 ]
-                then ipv4=10
-                                else ipv4=0
+	then ipv4=10
+	else ipv4=0
 fi
 
 wget -qO- -6 ip.gs > /dev/null
 if [ $? -eq 0 ]
-                then ipv6=1
-                                else ipv6=0
+	then ipv6=1
+	else ipv6=0
 fi
 
-plan=`expr $virtualization + $ipv4 + $ipv6`
+plan=`expr $virtual + $ipv4 + $ipv6`
 
 function status(){
 	clear
 
 	green " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
 
-	green " 当前操作系统：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}'), 内核：$(uname -r)，处理器架构：$architecture ，虚拟化：$(hostnamectl | grep -i virtual | awk -F ':' '{print $2}') "
+	green " 当前操作系统：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}'), 内核：$(uname -r)，处理器架构：$architecture ，虚拟化：$(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') "
 
 	green " IPv4：$(wget -qO- -4 ip.gs)		IPv6：$(wget -qO- -6 ip.gs)"
 
