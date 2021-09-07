@@ -112,7 +112,7 @@ function menu011(){
 		esac
 		}
 
-function menu111(){
+function menu101(){
 	status
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口方法 "	
 	green " 2. 为 IPv6 only 添加双栈网络接口方法 "	
@@ -149,7 +149,7 @@ function menu110(){
 		esac
         	}
 
-function menu101(){ 
+function menu111(){ 
 	status
 	green " 暂时没有遇到该类型系统测试，如有请提 issue : https://github.com/fscarmen/warp/issues "	
 	green " 1. 一键删除 wgcf "	
