@@ -105,7 +105,9 @@ function menu010(){
 function menu011(){ 
                 echo kvm+ipv4+ipv6 
         }
+
 function menu101(){
+	status
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口方法 "
 	green " 2. 为 IPv6 only 添加双栈网络接口方法 "
 	green " 3. 一键删除 wgcf "
