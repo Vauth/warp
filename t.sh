@@ -43,7 +43,7 @@ function status(){
 
 	green " 当前操作系统：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}'), 内核：$(uname -r)，处理器架构：$architecture ，虚拟化：$(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') "
 
-	green " IPv4："if [ $(wget -qO- -4 ip.gs) ];then green "$(wget -qO- -4 ip.gs)";else green "无";fi;		green " IPv6："if [ $(wget -qO- -6 ip.gs) ];then green "$(wget -qO- -6 ip.gs)";else green "无";fi;
+	green " IPv4：if [ $(wget -qO- -4 ip.gs) ];then $(wget -qO- -4 ip.gs);else 无;fi;		IPv6：if [ $(wget -qO- -6 ip.gs) ];then $(wget -qO- -6 ip.gs);else 无;fi;"
 
 	red " ====================================================================================================================== " 
 		}    
