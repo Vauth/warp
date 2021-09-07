@@ -59,8 +59,11 @@ function uninstall(){
 function menu001(){
 	status
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口方法 "
+	
 	green " 2. 为 IPv6 only 添加双栈网络接口方法 "
+	
 	green " 3. 一键删除 wgcf "
+	
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose001
 		case "$choose001" in
@@ -81,8 +84,11 @@ function menu001(){
 function menu010(){
 	status
 	green " 1. 为 IPv4 only 添加 IPv6 网络接口方法 "
+	
 	green " 2. 为 IPv4 only 添加双栈网络接口方法 "
+	
 	green " 3. 一键删除 wgcf "
+	
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose010
 		case "$choose010" in
@@ -102,7 +108,9 @@ function menu011(){
                 echo kvm+ipv4+ipv6
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口方法 "
+	
 	green " 2. 一键删除 wgcf "
+	
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose011
 		case "$choose011" in
@@ -119,8 +127,11 @@ function menu011(){
 function menu101(){
 	status
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口方法 "
+	
 	green " 2. 为 IPv6 only 添加双栈网络接口方法 "
+	
 	green " 3. 一键删除 wgcf "
+	
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose101
         	case "$choose101" in
@@ -141,7 +152,9 @@ function menu101(){
 function menu110(){
 	status
 	green " 暂时没有遇到该类型系统测试，如有请提 issue : https://github.com/fscarmen/warp/issues "
+	
 	green " 1. 一键删除 wgcf "
+	
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose110
         	case "$choose110" in
@@ -156,7 +169,9 @@ function menu110(){
 function menu111(){ 
 	status
 	green " 暂时没有遇到该类型系统测试，如有请提 issue : https://github.com/fscarmen/warp/issues "
+	
 	green " 1. 一键删除 wgcf "
+	
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose111
         	case "$choose111" in
