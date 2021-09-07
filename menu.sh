@@ -12,6 +12,11 @@ blue(){
             echo -e "\033[36m\033[01m$1\033[0m"
     }
 
+if [[ $(ip a) =~ wgcf ]]
+	then wgcf=WARP已开启
+	else wgcf=WARP未开启
+fi
+
 if [[ $(hostnamectl) =~ .*arm.* ]]
 	then architecture=arm64
 	else architecture=amd64
@@ -40,7 +45,7 @@ function status(){
 	clear
 	green " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
 	green " 当前操作系统：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}')，内核：$(uname -r)， 处理器架构：$architecture， 虚拟化：$(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') "
-	green " IPv4：$(wget -qO- -4 ip.gs)		IPv6：$(wget -qO- -6 ip.gs)"
+	green " IPv4：$(wget -qO- -4 ip.gs)		IPv6：$(wget -qO- -6 ip.gs)		$wgcf "
 	red " ====================================================================================================================== " 
 		}    
 
