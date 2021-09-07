@@ -31,9 +31,9 @@
 
 ## 脚本特点
 
-* 智能判断硬件结构类型：Architecture 为 X86 或者 ARM
+* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM
 * 智能判断vps操作系统：Ubuntu 20.04、Debian 10、Debian 11、CentOS 8
-* 智能分析内网和外网IP，自动插入到脚本相应的地方
+* 智能分析内网和外网IP
 * 智能判断 wgcf 项目的最新版本 （Latest release）
 * 结束后会有结果提示，并自动清理安装时的临时文件
 
