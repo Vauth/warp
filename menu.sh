@@ -1,46 +1,47 @@
-#彩色
+# 字体彩色
 red(){
             echo -e "\033[31m\033[01m$1\033[0m"
     }
 green(){
             echo -e "\033[32m\033[01m$1\033[0m"
     }
-yellow(){
-            echo -e "\033[33m\033[01m$1\033[0m"
-    }
-blue(){
-            echo -e "\033[36m\033[01m$1\033[0m"
-    }
 
+# 判断当前 WARP 状态
 if [[ $(ip a) =~ wgcf ]]
 	then wgcf=WARP已开启
 	else wgcf=WARP未开启
 fi
 
+# 判断处理器架构
 if [[ $(hostnamectl) =~ .*arm.* ]]
 	then architecture=arm64
 	else architecture=amd64
 fi
 
+# 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go
 if [[ $(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') =~ openvz|lxc ]]
 	then virtual=100
 	else virtual=0
 fi
 
+# 判断当前 IPv4 状态
 wget -qO- -4 ip.gs > /dev/null
 if [ $? -eq 0 ]
 	then ipv4=10
 	else ipv4=0
 fi
 
+# 判断当前 IPv6 状态
 wget -qO- -6 ip.gs > /dev/null
 if [ $? -eq 0 ]
 	then ipv6=1
 	else ipv6=0
 fi
 
+# 变量 plan 含义：001=KVM+IPv6,	010=KVM+IPv4,	011=KVM+IPv4+IPv6,	101=LXC+IPv6,	110=LXC+IPv4,	111=LXC+IPv4+IPv6
 plan=`expr $virtual + $ipv4 + $ipv6`
 
+# VPS 当前状态
 function status(){
 	clear
 	green " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
@@ -49,6 +50,7 @@ function status(){
 	red " ====================================================================================================================== " 
 		}    
 
+# 一键删除 wgcf
 function uninstall(){
         wg-quick down wgcf > /dev/null
         systemctl disable wg-quick@wgcf > /dev/null
@@ -57,10 +59,11 @@ function uninstall(){
         green " wgcf已彻底删除 "
 		}
 
+# KVM+IPv6
 function menu001(){
 	status
-	green " 1. 为 IPv6 only 添加 IPv4 网络接口方法 "	
-	green " 2. 为 IPv6 only 添加双栈网络接口方法 "	
+	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "	
+	green " 2. 为 IPv6 only 添加双栈网络接口 "	
 	green " 3. 一键删除 wgcf "	
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose001
@@ -79,10 +82,11 @@ function menu001(){
 		esac
 		}
 
+# KVM+IPv4
 function menu010(){
 	status
-	green " 1. 为 IPv4 only 添加 IPv6 网络接口方法 "	
-	green " 2. 为 IPv4 only 添加双栈网络接口方法 "	
+	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "	
+	green " 2. 为 IPv4 only 添加双栈网络接口 "	
 	green " 3. 一键删除 wgcf "	
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose010
@@ -99,10 +103,11 @@ function menu010(){
 		esac
 		}
 
+# KVM+IPv4+IPv6
 function menu011(){ 
                 echo kvm+ipv4+ipv6
 	status
-	green " 1. 为 原生双栈 添加 WARP双栈 网络接口方法 "	
+	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "	
 	green " 2. 一键删除 wgcf "	
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose011
@@ -117,10 +122,11 @@ function menu011(){
 		esac
 		}
 
+# LXC+IPv6
 function menu101(){
 	status
-	green " 1. 为 IPv6 only 添加 IPv4 网络接口方法 "	
-	green " 2. 为 IPv6 only 添加双栈网络接口方法 "	
+	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "	
+	green " 2. 为 IPv6 only 添加双栈网络接口 "	
 	green " 3. 一键删除 wgcf "	
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose101
@@ -139,6 +145,7 @@ function menu101(){
 		esac
                 }
 
+# LXC+IPv4
 function menu110(){
 	status
 	green " 暂时没有遇到该类型系统测试，如有请提 issue : https://github.com/fscarmen/warp/issues "	
@@ -154,6 +161,7 @@ function menu110(){
 		esac
         	}
 
+# LXC+IPv4+IPv6
 function menu111(){ 
 	status
 	green " 暂时没有遇到该类型系统测试，如有请提 issue : https://github.com/fscarmen/warp/issues "	
