@@ -126,11 +126,11 @@ function menu011(){
 
 function menu101(){
 	status
-	green " 1. 为 IPv6 only 添加 IPv4 网络接口方法 "
+	green " 1. 为 IPv6 only 添加 IPv4 网络接口方法/n "
 	
-	green " 2. 为 IPv6 only 添加双栈网络接口方法 "
+	green " 2. 为 IPv6 only 添加双栈网络接口方法/n "
 	
-	green " 3. 一键删除 wgcf "
+	green " 3. 一键删除 wgcf/n "
 	
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose101
