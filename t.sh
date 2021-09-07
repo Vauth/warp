@@ -1,123 +1,119 @@
-##### 为 IPv6 only VPS 添加 WGCF，IPv4走 warp #####
-##### KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go。#####
+#彩色
+red(){
+            echo -e "\033[31m\033[01m$1\033[0m"
+    }
+green(){
+            echo -e "\033[32m\033[01m$1\033[0m"
+    }
+yellow(){
+            echo -e "\033[33m\033[01m$1\033[0m"
+    }
+blue(){
+            echo -e "\033[36m\033[01m$1\033[0m"
+    }
 
-# 判断系统，安装差异部分
-
-# Debian 运行以下脚本
-if grep -q -E -i "debian" /etc/issue; then
-	
-	# 更新源
-	apt update
-
-	# 添加 backports 源,之后才能安装 wireguard-tools 
-	apt -y install lsb-release sudo
-	echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
-
-	# 再次更新源
-	apt update
-
-	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools linux-headers-$(uname -r)
-	
-	# 安装 wireguard 内核模块
-	sudo apt -y --no-install-recommends install wireguard-dkms
-	
-# Ubuntu 运行以下脚本
-     elif grep -q -E -i "ubuntu" /etc/issue; then
-
-	# 更新源
-	apt update
-
-	# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools sudo
-
-# CentOS 运行以下脚本
-     elif grep -q -E -i "kernel" /etc/issue; then
-
-	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	yum -y install epel-release sudo
-	sudo yum -y install net-tools wireguard-tools
-
-	# 安装 wireguard 内核模块
-	sudo curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-	sudo yum -y install epel-release wireguard-dkms
-
-	# 升级所有包同时也升级软件和系统内核
-	sudo yum -y update
-	
-	# 添加执行文件环境变量
-        export PATH=$PATH:/usr/local/bin
-
-# 如都不符合，提示,删除临时文件并中止脚本
-     else 
-	# 提示找不到相应操作系统
-	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
-	
-	# 删除临时目录和文件，退出脚本
-	rm -f warp*
-	exit 0
-
-fi
-
-# 以下为3类系统公共部分
-
-# 判断系统架构是 AMD 还是 ARM
 if [[ $(hostnamectl) =~ .*arm.* ]]
-        then architecture=arm64
-        else architecture=amd64
+                then architecture=arm64
+                                else architecture=amd64
 fi
 
-# 判断 wgcf 的最新版本
-latest=$(wget -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
+if [[ $(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') =~ openvz|lxc ]]
+                then virtualization=100
+                                else virtualization=0
+fi
 
-# 安装 wgcf
-sudo wget -N -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
-
-#### 安装 wireguard-go
-wget -N -6 -P /usr/bin wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
-chmod +x /usr/bin/wireguard-go
-
-# 添加执行权限
-sudo chmod +x /usr/local/bin/wgcf
-
-# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
-rm -f wgcf-account.toml
-echo | wgcf register
-until [ $? -eq 0 ]  
-  do
-   echo -e "\033[32m warp 注册接口繁忙，5秒后自动重试直到成功。 \033[0m"
-   sleep 5
-   echo | wgcf register
-done
-
-# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
-wgcf generate
-
-# 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 WireGuard 接管，让 IPv4 的流量通过 WARP IPv6 节点以 NAT 的方式访问外部 IPv4 网络
-sudo sed -i '/\:\:\/0/d' wgcf-profile.conf | sudo sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
-
-# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
-sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
-
-# 删除临时文件
-rm -f warp* wgcf*
-
-# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
-wg-quick up wgcf
 wget -qO- -4 ip.gs > /dev/null
-until [ $? -eq 0 ]  
-  do
-   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
-   wg-quick down wgcf
-   wg-quick up wgcf
-   wget -qO- -4 ip.gs > /dev/null
-done
+if [ $? -eq 0 ]
+                then ipv4=10
+                                else ipv4=0
+fi
 
-# 设置开机启动
-sudo systemctl enable wg-quick@wgcf > /dev/null
+wget -qO- -6 ip.gs > /dev/null
+if [ $? -eq 0 ]
+                then ipv6=1
+                                else ipv6=0
+fi
 
-# 优先使用 IPv4 网络
-grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf > /dev/null
+plan=`expr $virtualization + $ipv4 + $ipv6`
 
-# 结果提示
-echo -e "\033[32m 恭喜！为 IPv6 only VPS 添加 warp 已成功，IPv4地址为:$(wget -qO- -4 ip.gs) \033[0m"
+clear
+
+green " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
+
+green " 当前操作系统：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}'), 内核：$(uname -r)，处理器架构：$architecture ，虚拟化：$(hostnamectl | grep -i virtual | awk -F ':' '{print $2}') "
+
+green " IPv4：$(wget -qO- -4 ip.gs), IPv6：$(wget -qO- -6 ip.gs)"  
+
+   
+red " ====================================================================================================================== " 
+    
+
+function uninstall(){
+        wg-quick down wgcf > /dev/null
+        systemctl disable wg-quick@wgcf > /dev/null
+        rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
+        sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
+        green " wgcf已彻底删除 "
+}
+
+
+function menu001(){
+	green " 1. 为 IPv6 only 添加 IPv4 网络接口方法 "
+	green " 2. 为 IPv6 only 添加双栈网络接口方法 "
+	green " 3. 一键删除 wgcf "
+	green " 0. 退出脚本 "
+	read -p "请输入数字:" choose001
+		case "$choose001" in
+		1 ) 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
+			echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
+			wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/warp4.sh" && chmod +x warp4.sh && ./warp4.sh;;
+		2 )	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
+			echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
+			wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh;;
+		3 ) uninstall;;
+		0 ) exit 1;; 
+		* ) red "请输入正确数字 [0-3]"
+			sleep 1
+			menu001;;
+		esac
+		}
+
+function menu010(){ 
+                echo kvm+ipv4 
+        }
+function menu011(){ 
+                echo kvm+ipv4+ipv6 
+        }
+function menu101(){
+	green " 1. 为 IPv6 only 添加 IPv4 网络接口方法 "
+	green " 2. 为 IPv6 only 添加双栈网络接口方法 "
+	green " 3. 一键删除 wgcf "
+	green " 0. 退出脚本 "
+	read -p "请输入数字:" choose101
+        	case "$choose101" in
+		1 ) 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
+			echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
+			wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/warp.sh" && chmod +x warp.sh && ./warp.sh;;
+		2 ) 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
+			echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
+			wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh;;
+		3 ) uninstall;;
+		0 ) exit 1;; 
+		* ) red "请输入正确数字 [0-3]"
+			sleep 1
+			menu101;;
+		esac
+                }
+
+function menu110(){ 
+                echo lxc+ipv4 
+
+        }
+function menu111(){ 
+                echo lxc+ipv4+ipv6
+
+        }
+
+case "$plan" in
+                1 ) menu001;; 10 ) menu010;; 11 ) menu011;; 101 ) menu101;; 110 ) menu110;; 111 ) menu111;;
+        esac
