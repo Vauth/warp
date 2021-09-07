@@ -126,9 +126,9 @@ function menu101(){
 		2 ) 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
 			echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
 			wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh;;
-		3 ) uninstall;;
-		0 ) exit 1;; 
-		* ) red "请输入正确数字 [0-3]"
+		3 ) 	uninstall;;
+		0 ) 	exit 1;; 
+		* ) 	red "请输入正确数字 [0-3]"
 			sleep 1
 			menu101;;
 		esac
@@ -143,7 +143,7 @@ function menu110(){
         	case "$choose110" in
 		1 ) 	uninstall;;
 		0 ) 	exit 1;; 
-		* ) red "请输入正确数字 [0-1]"
+		* ) 	red "请输入正确数字 [0-1]"
 			sleep 1
 			menu110;;
 		esac
@@ -158,7 +158,7 @@ function menu111(){
         	case "$choose111" in
 		1 ) 	uninstall;;
 		0 ) 	exit 1;; 
-		* ) red "请输入正确数字 [0-1]"
+		* ) 	red "请输入正确数字 [0-1]"
 			sleep 1
 			menu111;;
 		esac
