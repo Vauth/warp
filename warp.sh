@@ -1,4 +1,4 @@
-##### 为 IPv6 only VPS 添加双栈 WGCF #####
+##### 为 IPv6 only VPS 添加 WGCF，IPv4走 warp #####
 ##### LXC 非完整虚拟化 VPS 主机，选择 "wireguard-go" 方案。##### 
 
 # 判断系统，安装差异部分依赖包
@@ -40,7 +40,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
 	
 	# 删除临时目录和文件，退出脚本
-	rm -f warp*
+	rm -f warp.sh menu.sh
 	exit 0
 
 fi
@@ -85,17 +85,15 @@ sed -i '/\:\:\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/[2
 cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 # 删除临时文件
-rm -f dualstack* wgcf*
+rm -f warp.sh wgcf-account.toml wgcf-profile.conf menu.sh
 
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 wg-quick up wgcf
-wget -qO- -4 ip.gs > /dev/null
-until [ $? -eq 0 ]  
+until [[ -n $(wget -qO- -6 ip.gs) ]]
   do
-   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
    wg-quick down wgcf
    wg-quick up wgcf
-   wget -qO- -4 ip.gs > /dev/null
+   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"	
 done
 
 # 设置开机启动
