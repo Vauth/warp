@@ -55,7 +55,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
 	
 	# 删除临时目录和文件，退出脚本
-	rm -f warp*
+	rm -f warp6.sh menu.sh
 	exit 0
 
 fi
@@ -97,17 +97,15 @@ sudo sed -i '/0\.\0\/0/d' wgcf-profile.conf | sudo sed -i 's/engage.cloudflarecl
 sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 # 删除临时文件
-rm -f warp* wgcf*
+rm -f warp6.sh wgcf-account.toml wgcf-profile.conf menu.sh
 
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 wg-quick up wgcf
-wget -qO- -6 ip.gs > /dev/null
-until [ $? -eq 0 ]  
+until [[ -n $(wget -qO- -6 ip.gs) ]]
   do
-   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
    wg-quick down wgcf
    wg-quick up wgcf
-   wget -qO- -6 ip.gs > /dev/null
+   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"	
 done
 
 # 设置开机启动
