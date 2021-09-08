@@ -55,7 +55,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
 	
 	# 删除临时目录和文件，退出脚本
-	rm -f dualstack* menu*
+	rm -f dualstack6.sh menu.sh
 	exit 0
 
 fi
@@ -102,7 +102,7 @@ fi
 sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 # 删除临时文件
-rm -f dualstack* wgcf* menu*
+rm -f dualstack6.sh wgcf-account.toml wgcf-profile.conf menu.sh
 
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 wg-quick up wgcf
