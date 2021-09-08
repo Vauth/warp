@@ -94,8 +94,7 @@ function menu010(){
 		esac
 		}
 
-function menu011(){ 
-                echo kvm+ipv4+ipv6
+function menu011(){
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口方法 "	
 	green " 2. 一键删除 wgcf "	
