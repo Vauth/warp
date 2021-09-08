@@ -32,7 +32,7 @@ if [[ -z $(wget -qO- -6 ip.gs) ]]
 	else ipv6=0
 fi
 
-plan=$virtual$ipv4$ipv6`
+plan=$virtual$ipv4$ipv6
 
 function status(){
 	clear
