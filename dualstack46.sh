@@ -54,7 +54,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
 	
 	# 删除临时目录和文件，退出脚本
-	rm -f dualstack*
+	rm -f dualstack46.sh menu.sh
 	exit 0
 
 fi
@@ -90,24 +90,21 @@ done
 wgcf generate
 
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv6 的流量均被 WireGuard 接管，让 IPv6 的流量通过 WARP IPv4 节点以 NAT 的方式访问外部 IPv6 网络，为了防止当节点发生故障时 DNS 请求无法发出，修改为 IPv4 地址的 DNS
-sudo sed -i "7 s/^/PostUp = ip -6 rule add from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf && sudo sed -i "8 s/^/PostDown = ip -6 rule delete from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf && sudo sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf && sudo sed -i 's/1.1.1.1/1.1.1.1,9.9.9.10,8.8.8.8/g' wgcf-profile.conf
+sudo sed -i "7 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sudo sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sudo sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf && sudo sed -i 's/1.1.1.1/1.1.1.1,9.9.9.10,8.8.8.8/g' wgcf-profile.conf
 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 # 删除临时文件
-rm -f dualstack* wgcf*
+rm -f dualstack46.sh wgcf-account.toml wgcf-profile.conf menu.sh
 
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 wg-quick up wgcf
-echo -e "\033[32m warp 获取 IP 中，如失败将自动重试直到成功。 \033[0m"
-wget -qO- -4 ip.gs > /dev/null
-until [ $? -eq 0 ]  
+until [[ -n $(wget -qO- -4 ip.gs) ]]
   do
    wg-quick down wgcf
    wg-quick up wgcf
-   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
-   wget -qO- -4 ip.gs > /dev/null
+   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"	
 done
 
 # 设置开机启动
