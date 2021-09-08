@@ -1,4 +1,4 @@
-##### 为 IPv4 only VPS 添加 WGCF，双栈走 warp #####
+##### 为 IPv4 only 或 原生双栈 VPS 添加 WGCF，双栈走 warp #####
 ##### KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go。#####
 
 # 判断系统，安装差异部分
@@ -55,7 +55,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
 	
 	# 删除临时目录和文件，退出脚本
-	rm -f dualstack*
+	rm -f dualstack* menu*
 	exit 0
 
 fi
@@ -91,30 +91,26 @@ done
 wgcf generate
 
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv6 的流量均被 WireGuard 接管，让 IPv6 的流量通过 WARP IPv4 节点以 NAT 的方式访问外部 IPv6 网络，为了防止当节点发生故障时 DNS 请求无法发出，修改为 IPv4 地址的 DNS
-sudo sed -i "7 s/^/PostUp = ip -4 rule add from $(ip a | egrep 'ens|eth0|enp' | awk -F '/' '{print $1}' | awk -F 'inet[ ]*' '{print $2}' | grep .) lookup main\n/" wgcf-profile.conf && sudo sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip a | egrep 'ens|eth0|enp' | awk -F '/' '{print $1}' | awk -F 'inet[ ]*' '{print $2}' | grep .) lookup main\n/" wgcf-profile.conf && sudo sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sudo sed -i 's/1.1.1.1/9.9.9.10,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
+sudo sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sudo sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sudo sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sudo sed -i 's/1.1.1.1/9.9.9.10,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
 
 # 如果系统原来是双栈，则需要添加 IPv6 的处理
-wget -qO- -6 ip.gs > /dev/null
-if [ $? -eq 0 ]; then
-	sudo sed -i "9 s/^/PostUp = ip -6 rule add from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf && sudo sed -i "10 s/^/PostDown = ip -6 rule delete from $(wget -qO- -6 ip.gs) lookup main\n/" wgcf-profile.conf
+if [[ -n $(wget -qO- -6 ip.gs) ]]; then
+	sudo sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sudo sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf
 fi
 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 # 删除临时文件
-rm -f dualstack* wgcf*
+rm -f dualstack* wgcf* menu*
 
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 wg-quick up wgcf
-echo -e "\033[32m warp 获取 IP 中，如失败将自动重试直到成功。 \033[0m"
-wget -qO- -6 ip.gs > /dev/null
-until [ $? -eq 0 ]  
+until [[ -n $(wget -qO- -6 ip.gs) ]]
   do
    wg-quick down wgcf
    wg-quick up wgcf
-   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
-   wget -qO- -6 ip.gs > /dev/null
+   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"	
 done
 
 # 设置开机启动
