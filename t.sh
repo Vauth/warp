@@ -18,23 +18,21 @@ if [[ $(hostnamectl) =~ .*arm.* ]]
 fi
 
 if [[ $(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') =~ openvz|lxc ]]
-	then virtual=100
+	then virtual=1
 	else virtual=0
 fi
 
-wget -qO- -4 ip.gs > /dev/null
-if [ $? -eq 0 ]
-	then ipv4=10
-	else ipv4=0
+if [[ -z $(wget -qO- -4 ip.gs) ]]
+	then ipv4=0
+	else ipv4=1
 fi
 
-wget -qO- -6 ip.gs > /dev/null
-if [ $? -eq 0 ]
+if [[ -z $(wget -qO- -6 ip.gs) ]]
 	then ipv6=1
 	else ipv6=0
 fi
 
-plan=`expr $virtual + $ipv4 + $ipv6`
+plan=$virtual$ipv4$ipv6`
 
 function status(){
 	clear
@@ -58,6 +56,7 @@ function menu001(){
 	green " 2. 为 IPv6 only 添加双栈网络接口方法 "	
 	green " 3. 一键删除 wgcf "	
 	green " 0. 退出脚本 "
+	blue " $plan "
 	read -p "请输入数字:" choose001
 		case "$choose001" in
 		1 ) 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
@@ -80,6 +79,7 @@ function menu010(){
 	green " 2. 为 IPv4 only 添加双栈网络接口方法 "	
 	green " 3. 一键删除 wgcf "	
 	green " 0. 退出脚本 "
+	blue " $plan "
 	read -p "请输入数字:" choose010
 		case "$choose010" in
 		1 ) 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
@@ -100,6 +100,7 @@ function menu011(){
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口方法 "	
 	green " 2. 一键删除 wgcf "	
 	green " 0. 退出脚本 "
+	blue " $plan "
 	read -p "请输入数字:" choose011
 		case "$choose011" in
 		1 )	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
@@ -118,6 +119,7 @@ function menu101(){
 	green " 2. 为 IPv6 only 添加双栈网络接口方法 "	
 	green " 3. 一键删除 wgcf "	
 	green " 0. 退出脚本 "
+	blue " $plan "
 	read -p "请输入数字:" choose101
         	case "$choose101" in
 		1 ) 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
@@ -139,6 +141,7 @@ function menu110(){
 	green " 暂时没有遇到该类型系统测试，如有请提 issue : https://github.com/fscarmen/warp/issues "	
 	green " 1. 一键删除 wgcf "	
 	green " 0. 退出脚本 "
+	blue " $plan "
 	read -p "请输入数字:" choose110
         	case "$choose110" in
 		1 ) 	uninstall;;
@@ -154,6 +157,7 @@ function menu111(){
 	green " 暂时没有遇到该类型系统测试，如有请提 issue : https://github.com/fscarmen/warp/issues "	
 	green " 1. 一键删除 wgcf "	
 	green " 0. 退出脚本 "
+	blue " $plan "
 	read -p "请输入数字:" choose111
         	case "$choose111" in
 		1 ) 	uninstall;;
@@ -165,5 +169,5 @@ function menu111(){
 		}
 
 case "$plan" in
-                1 ) menu001;; 10 ) menu010;; 11 ) menu011;; 101 ) menu101;; 110 ) menu110;; 111 ) menu111;;
+                001 ) menu001;; 010 ) menu010;; 011 ) menu011;; 101 ) menu101;; 110 ) menu110;; 111 ) menu111;;
         	esac
