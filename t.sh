@@ -66,12 +66,12 @@ wget -N -6 -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
 chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
-rm -f wgcf-account.toml 
-until [[ -a wgcf-account.toml ]]
+echo | wgcf register
+until [ $? -eq 0 ]  
   do
-   echo | wgcf register
    echo -e "\033[32m warp 注册接口繁忙，5秒后自动重试直到成功。 \033[0m"
    sleep 5
+   echo | wgcf register
 done
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
