@@ -20,14 +20,14 @@ fi
 
 # 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go
 if [[ $(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') =~ openvz|lxc ]]
-	then virtual=100
+	then virtual=1
 	else virtual=0
 fi
 
 # 判断当前 IPv4 状态
 wget -qO- -4 ip.gs > /dev/null
 if [ $? -eq 0 ]
-	then ipv4=10
+	then ipv4=1
 	else ipv4=0
 fi
 
@@ -39,7 +39,7 @@ if [ $? -eq 0 ]
 fi
 
 # 变量 plan 含义：001=KVM+IPv6,	010=KVM+IPv4,	011=KVM+IPv4+IPv6,	101=LXC+IPv6,	110=LXC+IPv4,	111=LXC+IPv4+IPv6
-plan=`expr $virtual + $ipv4 + $ipv6`
+plan=$virtual$ipv4$ipv6
 
 # VPS 当前状态
 function status(){
@@ -178,5 +178,5 @@ function menu111(){
 		}
 
 case "$plan" in
-   1 ) menu001;; 10 ) menu010;; 11 ) menu011;; 101 ) menu101;; 110 ) menu110;; 111 ) menu111;;
+   001 ) menu001;; 010 ) menu010;; 011 ) menu011;; 101 ) menu101;; 110 ) menu110;; 111 ) menu111;;
     esac
