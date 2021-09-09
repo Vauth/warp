@@ -62,10 +62,10 @@ function dependence(){
 		apt -y update
 
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools linux-headers-$(uname -r)
-
+		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+		
 		# 如是kvm，则安装 wireguard 内核模块
-		if [[ $virtual == 0 ]]; then apt -y --no-install-recommends install wireguard-dkms; fi
+		if [[ $virtual == 0 ]]; then apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms; fi
 
 	
 	# Ubuntu 运行以下脚本
