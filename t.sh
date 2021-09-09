@@ -159,7 +159,7 @@ function run(){
 	grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf > /dev/null
 
 	# 结果提示
-	green " 恭喜！warp 已成功运行，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) "
+	green " 恭喜！$wgcf，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) "
 	
 	# 删除临时文件
 	rm -f menu.sh
