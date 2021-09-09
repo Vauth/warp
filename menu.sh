@@ -35,8 +35,11 @@ if [[ -z $(wget -qO- -6 ip.gs) ]]
         else ipv6=1
 fi
 
-# 变量 plan 含义：001=KVM+IPv6,	010=KVM+IPv4,	011=KVM+IPv4+IPv6,	101=LXC+IPv6,	110=LXC+IPv4,	111=LXC+IPv4+IPv6
-plan=$virtual$ipv4$ipv6
+# 变量 plan 含义：001=KVM+IPv6,	010=KVM+IPv4,	011=KVM+IPv4+IPv6,	101=LXC+IPv6,	110=LXC+IPv4,	111=LXC+IPv4+IPv6,	2=WARP已开启
+if [[ $wgcf == WARP已开启 ]]
+	then plan=2 
+	else plan=$virtual$ipv4$ipv6
+fi
 
 # VPS 当前状态
 function status(){
@@ -50,7 +53,10 @@ function status(){
 # 一键删除 wgcf
 function uninstall(){
         wg-quick down wgcf > /dev/null
+	systemctl stop wg-quick@wgcf > /dev/null
         systemctl disable wg-quick@wgcf > /dev/null
+	apt -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
+	yum -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
         rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
         sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
         green " wgcf已彻底删除 "
@@ -173,7 +179,23 @@ function menu111(){
 			menu111;;
 		esac
 		}
+		
+# 已开启 warp 网络接口
+function menu2(){ 
+	status
+	green " 已开启 warp 网络接口 "	
+	green " 1. 一键删除 wgcf "	
+	green " 0. 退出脚本 "
+	read -p "请输入数字:" choose111
+        	case "$choose111" in
+		1 ) 	uninstall;;
+		0 ) 	exit 1;; 
+		* ) 	red "请输入正确数字 [0-1]"
+			sleep 1
+			menu111;;
+		esac
+		}		
 
 case "$plan" in
-   001 ) menu001;; 010 ) menu010;; 011 ) menu011;; 101 ) menu101;; 110 ) menu110;; 111 ) menu111;;
-    esac
+   001 ) menu001;; 010 ) menu010;; 011 ) menu011;; 101 ) menu101;; 110 ) menu110;; 111 ) menu111;; 2 ) menu2;;
+esac
