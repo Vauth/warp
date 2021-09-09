@@ -88,11 +88,11 @@ cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 rm -f warp.sh wgcf-account.toml wgcf-profile.conf menu.sh
 
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
-wg-quick up wgcf
+wg-quick up wgcf >/dev/null 2>&1
 until [[ -n $(wget -qO- -6 ip.gs) ]]
   do
-   wg-quick down wgcf
-   wg-quick up wgcf
+   wg-quick down wgcf >/dev/null 2>&1
+   wg-quick up wgcf >/dev/null 2>&1
    echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"	
 done
 
