@@ -97,7 +97,6 @@ until [[ -n $(wget -qO- -6 ip.gs) ]]
 done
 
 # 设置开机启动
-systemctl start wg-quick@wgcf > /dev/null
 systemctl enable wg-quick@wgcf > /dev/null
 
 # 优先使用 IPv4 网络
