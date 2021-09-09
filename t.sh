@@ -43,7 +43,7 @@ fi
 
 # 判断系统，安装差异部分，安装依赖
 function dependence(){
-	green " 安装系统依赖和 wireguard 内核模块 (1/3) "
+	green " (1/3) 安装系统依赖和 wireguard 内核模块 "
 	
 	# 先删除之前安装，可能导致失败的文件
 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
@@ -106,7 +106,7 @@ function dependence(){
 
 # 安装并认证 WGCF
 function register(){
-	green " 安装 WGCF (2/3) "
+	green " (2/3) 安装 WGCF "
 	# 判断系统架构是 AMD 还是 ARM
 	if [[ $(hostnamectl) =~ .*arm.* ]]; then architecture=arm64; else architecture=amd64; fi
 
@@ -127,7 +127,7 @@ function register(){
 	
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
 	rm -f wgcf-account.toml
-	echo " wgcf 注册中…… "
+	green " wgcf 注册中…… "
 	until [[ -a wgcf-account.toml ]]
 	  do
 	   echo | wgcf register >/dev/null 2>&1
@@ -143,7 +143,7 @@ function run(){
 	cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
-	green " 运行 WGCF (3/3) "
+	green " (3/3) 运行 WGCF "
 	green " 后台获取 warp IP 中，有时候需10分钟，请耐心等待。"
 	wg-quick up wgcf >/dev/null 2>&1
 	until [[ -n $(wget -qO- -6 ip.gs) ]]
