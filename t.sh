@@ -35,10 +35,11 @@ if [[ -z $(wget -qO- -6 ip.gs) ]]
         else ipv6=1
 fi
 
-# 变量 plan 含义：001=KVM+IPv6,	010=KVM+IPv4,	011=KVM+IPv4+IPv6,	101=LXC+IPv6,	110=LXC+IPv4,	111=LXC+IPv4+IPv6
+# 变量 plan 含义：001=KVM+IPv6,	010=KVM+IPv4,	011=KVM+IPv4+IPv6,	101=LXC+IPv6,	110=LXC+IPv4,	111=LXC+IPv4+IPv6,	2=WARP已开启,
 if [[ $wgcf=WARP已开启 ]]
 	then plan=2 
 	else plan=$virtual$ipv4$ipv6
+fi
 
 # VPS 当前状态
 function status(){
@@ -195,4 +196,4 @@ function menu2(){
 
 case "$plan" in
    001 ) menu001;; 010 ) menu010;; 011 ) menu011;; 101 ) menu101;; 110 ) menu110;; 111 ) menu111;; 2 ) menu2;;
-    esac
+esac
