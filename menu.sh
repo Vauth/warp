@@ -108,8 +108,7 @@ function menu010(){
 
 # KVM+IPv4+IPv6
 function menu011(){ 
-                echo kvm+ipv4+ipv6
-	status
+ 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "	
 	green " 2. 一键删除 wgcf "	
 	green " 0. 退出脚本 "
