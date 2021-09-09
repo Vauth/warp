@@ -153,10 +153,10 @@ function run(){
 	done
 
 	# 设置开机启动
-	systemctl enable wg-quick@wgcf > /dev/null
+	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 
 	# 优先使用 IPv4 网络
-	grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf > /dev/null
+	grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf >/dev/null 2>&1
 
 	# 结果提示
 	green " 恭喜！$wgcf，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) "
