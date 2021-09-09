@@ -122,7 +122,7 @@ function register(){
 	# 如是 lXC，安装 wireguard-go
 	if [[ $virtual == 1 ]]; then
  	wget -N -P /usr/bin wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
-	chmod +x /usr/bin/wireguard-g
+	chmod +x /usr/bin/wireguard-go
 	fi
 	
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
