@@ -36,7 +36,7 @@ if [[ -z $(wget -qO- -6 ip.gs) ]]
 fi
 
 # 变量 plan 含义：001=KVM+IPv6,	010=KVM+IPv4,	011=KVM+IPv4+IPv6,	101=LXC+IPv6,	110=LXC+IPv4,	111=LXC+IPv4+IPv6,	2=WARP已开启,
-if [[ $wgcf=WARP已开启 ]]
+if [[ $wgcf -eq WARP已开启 ]]
 	then plan=2 
 	else plan=$virtual$ipv4$ipv6
 fi
@@ -46,7 +46,7 @@ function status(){
 	clear
 	green " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
 	green " 当前操作系统：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}')，内核：$(uname -r)， 处理器架构：$architecture， 虚拟化：$(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') "
-	green " IPv4：$(wget -qO- -4 ip.gs)		IPv6：$(wget -qO- -6 ip.gs)		$wgcf "
+	green " IPv4：$(wget -qO- -4 ip.gs)		IPv6：$(wget -qO- -6 ip.gs)		$wgcf $plan "
 	red " ====================================================================================================================== " 
 		}    
 
