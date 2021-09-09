@@ -78,16 +78,14 @@ sudo chmod +x /usr/local/bin/wgcf
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
 rm -f wgcf-account.toml
-echo | wgcf register
-until [ $? -eq 0 ]  
+echo -e "\033[32m wgcf 注册中。 \033[0m"
+until [[ -a wgcf-account.toml ]]
   do
-   echo -e "\033[32m warp 注册接口繁忙，5秒后自动重试直到成功。 \033[0m"
-   sleep 5
-   echo | wgcf register
+   echo | wgcf register >/dev/null 2>&1
 done
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
-wgcf generate
+wgcf generate >/dev/null 2>&1
 
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 WireGuard 接管，让 IPv4 的流量通过 WARP IPv6 节点以 NAT 的方式访问外部 IPv4 网络
 sudo sed -i '/\:\:\/0/d' wgcf-profile.conf | sudo sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
