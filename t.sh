@@ -121,7 +121,7 @@ function register(){
 	
 	# 如是 lXC，安装 wireguard-go
 	if [[ $virtual == 1 ]]; then
- 	wget -N -P /usr/bin wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
+ 	wget -N -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
 	chmod +x /usr/bin/wireguard-go
 	fi
 	
@@ -156,7 +156,7 @@ function run(){
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 
 	# 优先使用 IPv4 网络
-	if [[ -a /etc/resolv.conf ]]; then grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf >/dev/null 2>&1; fi
+	if [[ -n /etc/resolv.conf ]]; then grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf >/dev/null 2>&1; fi
 
 	# 结果提示
 	green " 恭喜！WARP已开启，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) "
@@ -182,7 +182,7 @@ function uninstall(){
 	apt -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
         rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
-        if [[ -a /etc/resolv.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
+        if [[ -n /etc/resolv.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
         green " wgcf已彻底删除 "
 		}
 
