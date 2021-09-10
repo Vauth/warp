@@ -60,7 +60,7 @@ latest=$(wget -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/lat
 wget -N -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
 
 # 安装 wireguard-go
-wget -N -6 -P /usr/bin wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
+wget -N -6 -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
 
 # 添加执行权限
 chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
