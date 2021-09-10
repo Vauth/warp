@@ -156,7 +156,7 @@ function run(){
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 
 	# 优先使用 IPv4 网络
-	if [[ -e /etc/resolv.conf ]]; then grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf >/dev/null 2>&1; fi
+	if [[ -e /etc/gai.conf ]]; then grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf >/dev/null 2>&1; fi
 
 	# 结果提示
 	green " 恭喜！WARP已开启，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) "
@@ -182,7 +182,7 @@ function uninstall(){
 	apt -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
         rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
-        if [[ -e /etc/resolv.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
+        if [[ -e /etc/gai.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
         green " wgcf已彻底删除 "
 		}
 
