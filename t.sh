@@ -182,7 +182,7 @@ function uninstall(){
 	apt -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
         rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
-        sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
+        if [[ -a /etc/resolv.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
         green " wgcf已彻底删除 "
 		}
 
