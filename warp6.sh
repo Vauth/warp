@@ -48,7 +48,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	sudo yum -y update
 	
 	# 添加执行文件环境变量
-        export PATH=$PATH:/usr/local/bin
+        if [[ $PATH =~ /usr/local/bin ]]; then export PATH=$PATH; else export PATH=$PATH:/usr/local/bin; fi
 
 # 如都不符合，提示,删除临时文件并中止脚本
      else 
