@@ -189,9 +189,9 @@ function uninstall(){
 # KVM+IPv6
 function menu001(){
 	status
-	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "	
-	green " 2. 为 IPv6 only 添加双栈网络接口 "	
-	green " 3. 一键删除 wgcf "	
+	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
+	green " 2. 为 IPv6 only 添加双栈网络接口 "
+	green " 3. 一键删除 wgcf "
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose001
 		case "$choose001" in
@@ -214,15 +214,15 @@ function menu001(){
 # KVM+IPv4
 function menu010(){
 	status
-	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "	
-	green " 2. 为 IPv4 only 添加双栈网络接口 "	
-	green " 3. 一键删除 wgcf "	
+	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
+	green " 2. 为 IPv4 only 添加双栈网络接口 "
+	green " 3. 一键删除 wgcf "
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose010
 		case "$choose010" in
 		1 ) 	dependence
 			register
-			sed -i '/0\.\0\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf |sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf 
+			sed -i '/0\.\0\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf |sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
 			run;;
 		2 )	dependence
 			register
@@ -239,8 +239,8 @@ function menu010(){
 # KVM+IPv4+IPv6
 function menu011(){ 
 	status
-	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "	
-	green " 2. 一键删除 wgcf "	
+	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
+	green " 2. 一键删除 wgcf "
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose011
 		case "$choose011" in
@@ -259,9 +259,9 @@ function menu011(){
 # LXC+IPv6
 function menu101(){
 	status
-	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "	
-	green " 2. 为 IPv6 only 添加双栈网络接口 "	
-	green " 3. 一键删除 wgcf "	
+	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
+	green " 2. 为 IPv6 only 添加双栈网络接口 "
+	green " 3. 一键删除 wgcf "
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose101
         	case "$choose101" in
@@ -286,30 +286,46 @@ function menu101(){
 # LXC+IPv4
 function menu110(){
 	status
-	green " 暂时没有遇到该类型系统测试，如有请提 issue : https://github.com/fscarmen/warp/issues "	
-	green " 1. 一键删除 wgcf "	
+	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
+	green " 2. 为 IPv4 only 添加双栈网络接口 "
+	green " 3. 一键删除 wgcf "
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose110
         	case "$choose110" in
-		1 ) 	uninstall;;
+		1 ) 	echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
+			dependence
+			register
+			sed -i '/0\.\0\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf |sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
+			run;;
+		2 ) 	echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
+			dependence
+			register
+			sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
+			run;;
+		3 ) 	uninstall;;
 		0 ) 	exit 1;; 
-		* ) 	red "请输入正确数字 [0-1]"
+		* ) 	red "请输入正确数字 [0-3]"
 			sleep 1
 			menu110;;
 		esac
-        	}
+                }
 
 # LXC+IPv4+IPv6
-function menu111(){ 
+function menu111(){
 	status
-	green " 暂时没有遇到该类型系统测试，如有请提 issue : https://github.com/fscarmen/warp/issues "	
-	green " 1. 一键删除 wgcf "	
+	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
+	green " 2. 一键删除 wgcf "
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose111
-        	case "$choose111" in
-		1 ) 	uninstall;;
+		case "$choose111" in
+		1 ) 	echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
+			dependence
+			register
+			sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
+			run;;
+		2 ) 	uninstall;;
 		0 ) 	exit 1;; 
-		* ) 	red "请输入正确数字 [0-1]"
+		* ) 	red "请输入正确数字 [0-2]"
 			sleep 1
 			menu111;;
 		esac
@@ -318,8 +334,8 @@ function menu111(){
 # 已开启 warp 网络接口
 function menu2(){ 
 	status
-	green " 已开启 warp 网络接口 "	
-	green " 1. 一键删除 wgcf "	
+	green " 已开启 warp 网络接口 "
+	green " 1. 一键删除 wgcf "
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose111
         	case "$choose111" in
