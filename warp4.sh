@@ -1,7 +1,8 @@
 ##### 为 IPv6 only VPS 添加 WGCF，IPv4走 warp #####
 ##### KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go。#####
 
-# 判断系统，安装差异部分
+# 判断系统，安装差异部分依赖包
+echo -e "\033[32m (1/3) 安装系统依赖和 wireguard 内核模块 \033[0m"
 
 # Debian 运行以下脚本
 if grep -q -E -i "debian" /etc/issue; then
@@ -46,7 +47,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	sudo yum -y update
 	
 	# 添加执行文件环境变量
-        export PATH=$PATH:/usr/local/bin
+        if [[ $PATH =~ /usr/local/bin ]]; then export PATH=$PATH; else export PATH=$PATH:/usr/local/bin; fi
 
 # 如都不符合，提示,删除临时文件并中止脚本
      else 
@@ -60,6 +61,7 @@ if grep -q -E -i "debian" /etc/issue; then
 fi
 
 # 以下为3类系统公共部分
+echo -e "\033[32m (2/3) 安装 WGCF \033[0m"
 
 # 判断系统架构是 AMD 还是 ARM
 if [[ $(hostnamectl) =~ .*arm.* ]]
@@ -93,11 +95,8 @@ sudo sed -i '/\:\:\/0/d' wgcf-profile.conf | sudo sed -i 's/engage.cloudflarecli
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
-# 删除临时文件
-rm -f warp4.sh wgcf-account.toml wgcf-profile.conf menu.sh
-
-
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
+echo -e "\033[32m (3/3) 运行 WGCF \033[0m"
 echo -e "\033[32m 后台获取 warp IP 中，有时候需10分钟，请耐心等待。 \033[0m"
 wg-quick up wgcf >/dev/null 2>&1
 until [[ -n $(wget -qO- -4 ip.gs) ]]
@@ -107,10 +106,13 @@ until [[ -n $(wget -qO- -4 ip.gs) ]]
 done
 
 # 设置开机启动
-systemctl enable wg-quick@wgcf > /dev/null
+systemctl enable wg-quick@wgcf >/dev/null 2>&1
 
 # 优先使用 IPv4 网络
-grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf > /dev/null
+if [[ -e /etc/gai.conf ]]; then grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf >/dev/null 2>&1; fi
 
 # 结果提示
-echo -e "\033[32m 恭喜！为 IPv6 only VPS 添加 warp 已成功，IPv4地址为:$(wget -qO- -4 ip.gs) \033[0m"
+echo -e "\033[32m 恭喜！为 IPv4 only VPS 添加 warp 已成功，IPv6地址为:$(wget -qO- -6 ip.gs) \033[0m"
+
+# 删除临时文件
+rm -f warp4.sh wgcf-account.toml wgcf-profile.conf menu.sh
