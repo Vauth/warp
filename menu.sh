@@ -177,7 +177,6 @@ function status(){
 # 一键删除 wgcf
 function uninstall(){
         wg-quick down wgcf > /dev/null
-#	systemctl stop wg-quick@wgcf > /dev/null
         systemctl disable wg-quick@wgcf > /dev/null
 	apt -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
