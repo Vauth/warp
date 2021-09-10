@@ -1,5 +1,5 @@
 # 退格键处理
-$stty erase ^?
+$stty erase ^H
 
 # 字体彩色
 red(){
