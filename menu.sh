@@ -18,10 +18,10 @@ if [[ $(hostnamectl) =~ .*arm.* ]]
 	else architecture=amd64
 fi
 
-# 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go
-if [[ $(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') =~ openvz|lxc ]]
-	then virtual=1
-	else virtual=0
+# 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go，	1=KVM,		2=openvz或者lxc
+if [[ $(hostnamectl | grep -i Virtualization | awk -F ': ' '{print $2}') =~ openvz|lxc ]]
+	then virtualization=1
+	else virtualization=0
 fi
 # 判断当前 IPv4 状态
 if [[ -z $(wget -qO- -4 ip.gs) ]]
@@ -35,10 +35,16 @@ if [[ -z $(wget -qO- -6 ip.gs) ]]
         else ipv6=1
 fi
 
+# 在KVM的前提下，判断 Linux 版本是否小于等于 5.6，如是则安装 wireguard 内核模块，变量 wg=1
+if [[ $virtualization -eq 0 && $(uname  -r | awk -F . '{print $1 }') -le 5 ]]
+        then if [[ $(uname  -r | awk -F . '{print $2 }') -lt 6 ]]; then wg=1; fi
+else wg=1
+fi
+
 # 变量 plan 含义：001=KVM+IPv6,	010=KVM+IPv4,	011=KVM+IPv4+IPv6,	101=LXC+IPv6,	110=LXC+IPv4,	111=LXC+IPv4+IPv6,	2=WARP已开启
 if [[ $wgcf == WARP已开启 ]]
 	then plan=2 
-	else plan=$virtual$ipv4$ipv6
+	else plan=$virtualization$ipv4$ipv6
 fi
 
 # 判断系统，安装差异部分，安装依赖
@@ -64,8 +70,8 @@ function dependence(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 		
-		# 如是kvm，则安装 wireguard 内核模块
-		if [[ $virtual == 0 ]]; then apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms; fi
+		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
+		if [[ $wg == 1 ]]; then apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms; fi
 
 	
 	# Ubuntu 运行以下脚本
@@ -84,8 +90,8 @@ function dependence(){
 		yum -y install epel-release
 		yum -y install net-tools wireguard-tools
 
-		# 如是kvm，安装 wireguard 内核模块
-		if [[ $virtual == 0 ]]; then curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo; yum -y install epel-release wireguard-dkms; fi
+		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
+		if [[ $wg == 1 ]]; then curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo; yum -y install epel-release wireguard-dkms; fi
 
 		# 升级所有包同时也升级软件和系统内核
 		yum -y update
@@ -120,7 +126,7 @@ function register(){
 	chmod +x /usr/local/bin/wgcf
 	
 	# 如是 lXC，安装 wireguard-go
-	if [[ $virtual == 1 ]]; then
+	if [[ $virtualization == 1 ]]; then
  	wget -N -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
 	chmod +x /usr/bin/wireguard-go
 	fi
@@ -169,7 +175,7 @@ function run(){
 function status(){
 	clear
 	green " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
-	green " 当前操作系统：$(hostnamectl | grep -i operat | awk -F ':' '{print $2}')，内核：$(uname -r)， 处理器架构：$architecture， 虚拟化：$(hostnamectl | grep -i virtual | awk -F ': ' '{print $2}') "
+	green " 当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')，内核：$(uname -r)， 处理器架构：$architecture， 虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') "
 	green " IPv4：$(wget -qO- -4 ip.gs)		IPv6：$(wget -qO- -6 ip.gs)		$wgcf "
 	red " ====================================================================================================================== " 
 		}    
