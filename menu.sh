@@ -55,7 +55,7 @@ function dependence(){
 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
 	
 	# Debian 运行以下脚本
-	if grep -q -E -i "debian" /etc/issue; then
+	if [[ $(hostnamectl | tr A-Z a-z ) =~ debian ]]; then
 	
 		# 更新源
 		apt -y update
@@ -74,7 +74,7 @@ function dependence(){
 		if [[ $wg == 1 ]]; then apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms; fi
 
 	# Ubuntu 运行以下脚本
-	     elif grep -q -E -i "ubuntu" /etc/issue; then
+	     elif [[ $(hostnamectl | tr A-Z a-z ) =~ ubuntu ]]; then
 
 		# 更新源
 		apt -y update
@@ -83,14 +83,15 @@ function dependence(){
 		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 	# CentOS 运行以下脚本
-	     elif grep -q -E -i "kernel" /etc/issue; then
+	     elif [[ $(hostnamectl | tr A-Z a-z ) =~ centos ]]; then
 
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
 		yum -y install net-tools wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		if [[ $wg == 1 ]]; then curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo; yum -y install epel-release wireguard-dkms; fi
+		if [[ $wg == 1 ]]; then curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+		yum -y install epel-release wireguard-dkms; fi
 
 		# 升级所有包同时也升级软件和系统内核
 		yum -y update
@@ -116,17 +117,17 @@ function register(){
 	if [[ $(hostnamectl) =~ .*arm.* ]]; then architecture=arm64; else architecture=amd64; fi
 
 	# 判断 wgcf 的最新版本
-	latest=$(wget -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
+	latest=$(wget --no-check-certificate -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
 
 	# 安装 wgcf
-	wget -N -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
+	wget -N --no-check-certificate -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
 
 	# 添加执行权限
 	chmod +x /usr/local/bin/wgcf
 	
 	# 如是 lXC，安装 wireguard-go
 	if [[ $virtualization == 1 ]]; then
- 	wget -N -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
+ 	wget -N --no-check-certificate -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
 	chmod +x /usr/bin/wireguard-go
 	fi
 	
@@ -145,7 +146,7 @@ function register(){
 # 运行 warp
 function run(){
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
-	cp wgcf-profile.conf /etc/wireguard/wgcf.conf
+	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 	green " (3/3) 运行 WGCF "
