@@ -39,7 +39,7 @@ fi
 if  [[ $virtualization -eq 0 && $(uname  -r | awk -F . '{print $1 }') -lt 5 ]]; then wg=1
 	elif [[ $virtualization -eq 0 && $(uname  -r | awk -F . '{print $1 }') -eq 5 ]]
 		then if [[ $(uname  -r | awk -F . '{print $2 }') -lt 6 ]]; then wg=1; fi
-fi    
+fi
 
 # 变量 plan 含义：001=KVM+IPv6,	010=KVM+IPv4,	011=KVM+IPv4+IPv6,	101=LXC+IPv6,	110=LXC+IPv4,	111=LXC+IPv4+IPv6,	2=WARP已开启
 if [[ $wgcf == WARP已开启 ]]
