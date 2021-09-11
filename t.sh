@@ -48,7 +48,7 @@ if [[ $wgcf == WARP已开启 ]]
 fi
 
 # 判断系统，安装差异部分，安装依赖
-function dependence(){
+function install(){
 	green " (1/3) 安装系统依赖和 wireguard 内核模块 "
 
 	# 先删除之前安装，可能导致失败的文件
@@ -102,16 +102,14 @@ function dependence(){
 	# 如都不符合，提示,删除临时文件并中止脚本
 	     else 
 		# 提示找不到相应操作系统
-		green " 抱歉，我不认识此系统！ "
+		green " 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 "
 
 		# 删除临时目录和文件，退出脚本
 		rm -f menu.sh
 		exit 0
 	fi
-		}
 
-# 安装并认证 WGCF
-function register(){
+	# 安装并认证 WGCF
 	green " (2/3) 安装 WGCF "
 	# 判断系统架构是 AMD 还是 ARM
 	if [[ $(hostnamectl) =~ .*arm.* ]]; then architecture=arm64; else architecture=amd64; fi
@@ -141,10 +139,10 @@ function register(){
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
-		}
 
-# 运行 warp
-function run(){
+	# 修改配置文件
+	$modify
+
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
 
@@ -200,14 +198,10 @@ function menu001(){
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose001
 		case "$choose001" in
-		1 ) 	dependence
-			register
-			sed -i '/\:\:\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
-			run;;
-		2 )	dependence
-			register
-			sed -i "7 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf && sed -i 's/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g' wgcf-profile.conf
-			run;;
+		1 ) 	modify=sed -i '/\:\:\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
+			install;;
+		2 )	modify=sed -i "7 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf && sed -i 's/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g' wgcf-profile.conf
+			install;;
 		3 ) 	uninstall;;
 		0 ) 	exit 1;; 
 		* ) 	red "请输入正确数字 [0-3]"
@@ -225,14 +219,10 @@ function menu010(){
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose010
 		case "$choose010" in
-		1 ) 	dependence
-			register
-			sed -i '/0\.\0\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf |sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
-			run;;
-		2 )	dependence
-			register
-			sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
-			run;;
+		1 ) 	modify=sed -i '/0\.\0\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf |sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
+			install;;
+		2 ) 	modify=sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
+			install;;
 		3 ) 	uninstall;;
 		0 ) 	exit 1;; 
 		* ) 	red "请输入正确数字 [0-3]"
@@ -249,10 +239,8 @@ function menu011(){
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose011
 		case "$choose011" in
-		1 ) 	dependence
-			register
-			sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
-			run;;
+		1 ) 	modify=sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
+			install;;
 		2 ) 	uninstall;;
 		0 ) 	exit 1;; 
 		* ) 	red "请输入正确数字 [0-2]"
@@ -270,16 +258,10 @@ function menu101(){
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose101
         	case "$choose101" in
-		1 ) 	echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
-			dependence
-			register
-			sed -i '/\:\:\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
-			run;;
-		2 ) 	echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
-			dependence
-			register
-			sed -i "7 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
-			run;;
+		1 ) 	modify=sed -i '/\:\:\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
+			install;;
+		2 )	modify=sed -i "7 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
+			install;;
 		3 ) 	uninstall;;
 		0 ) 	exit 1;; 
 		* ) 	red "请输入正确数字 [0-3]"
@@ -297,16 +279,10 @@ function menu110(){
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose110
         	case "$choose110" in
-		1 ) 	echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
-			dependence
-			register
-			sed -i '/0\.\0\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf |sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
-			run;;
-		2 ) 	echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
-			dependence
-			register
-			sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
-			run;;
+		1 ) 	modify=sed -i '/0\.\0\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf |sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
+			install;;
+		2 ) 	modify=sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
+			install;;
 		3 ) 	uninstall;;
 		0 ) 	exit 1;; 
 		* ) 	red "请输入正确数字 [0-3]"
@@ -323,11 +299,8 @@ function menu111(){
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose111
 		case "$choose111" in
-		1 ) 	echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
-			dependence
-			register
-			sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
-			run;;
+		1 ) 	modify=sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
+			install;;
 		2 ) 	uninstall;;
 		0 ) 	exit 1;; 
 		* ) 	red "请输入正确数字 [0-2]"
