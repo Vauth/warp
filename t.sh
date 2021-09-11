@@ -124,14 +124,14 @@ function register(){
 	latest=$(wget -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
 
 	# 安装 wgcf
-	wget -N -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
+	wget -N --no-check-certificate -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
 
 	# 添加执行权限
 	chmod +x /usr/local/bin/wgcf
 	
 	# 如是 lXC，安装 wireguard-go
 	if [[ $virtualization == 1 ]]; then
- 	wget -N -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
+ 	wget -N --no-check-certificate -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
 	chmod +x /usr/bin/wireguard-go
 	fi
 	
