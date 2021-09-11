@@ -6,6 +6,11 @@ green(){
             echo -e "\033[32m\033[01m$1\033[0m"
     }
 
+# 修复退格键异常问题
+if stty -a | grep -q 'erase = ^?'; then stty erase '^H'
+    elif stty -a | grep -q 'erase = ^H'; then stty erase '^?'
+fi
+
 # 判断当前 WARP 状态
 if [[ $(ip a) =~ wgcf ]]
 	then wgcf=WARP已开启
