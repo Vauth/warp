@@ -5,7 +5,7 @@
 # 目录
 
 - [脚本特点](README.md#脚本特点)
-- [好处](README.md#好处)
+- [WARP好处](README.md#WARP好处)
 - [菜单选择（推荐）](README.md#菜单选择推荐)
 - [为 LXC IPv6 only 添加 IPv4 网络接口方法](README.md#为-lxc-ipv6-only-添加-ipv4-网络接口方法)
 - [为 LXC IPv6 only 添加双栈网络接口方法](README.md#为-lxc-ipv6-only-添加双栈网络接口方法)
@@ -22,14 +22,15 @@
 
 ## 脚本特点
 
+* 根据不同系统综合情况显示不同的窗口，没有不必要的选项，避免出错
+* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go
+* 智能判断 wgcf 作者 github库的最新版本 （Latest release），
+* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统
 * 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM
-* 智能判断vps操作系统：Ubuntu 20.04、Debian 10、Debian 11、CentOS 8
-* 智能分析内网和公网IP
-* 根据VPS综合情况，自动优选 WireGuard 安装方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go
-* 智能判断 wgcf 项目的最新版本 （Latest release）
+* 智能分析内网和公网IP生成 WGCF 配置文件
 * 结束后会有结果提示，并自动清理安装时的临时文件
 
-## 好处
+## WARP好处
 
 * 解锁奈飞流媒体
 * 避免 Google 验证码或是使用 Google 学术搜索
