@@ -38,6 +38,7 @@
 * 由于可以双向转输数据，能做对方VPS的跳板和探针，替代 HE tunnelbroker
 * 能让像EUserv这样的 IPv6 only VPS 上做的节点支持Telegram
 * IPv6 建的节点能在只支持 IPv4 的 PassWall、ShadowSocksR Plus+ 上使用
+
 ![menu.jpg](https://i.loli.net/2021/09/08/kmq816Vpl5Us9ng.jpg)
 
 ## 菜单选择（推荐）
