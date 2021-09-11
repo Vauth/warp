@@ -55,7 +55,7 @@ function dependence(){
 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
 	
 	# Debian 运行以下脚本
-	if grep -q -E -i "debian" /etc/issue; then
+	if [[ $(hostnamectl | tr A-Z a-z ) =~ debian ]]; then
 	
 		# 更新源
 		apt -y update
@@ -74,7 +74,7 @@ function dependence(){
 		if [[ $wg == 1 ]]; then apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms; fi
 
 	# Ubuntu 运行以下脚本
-	     elif grep -q -E -i "ubuntu" /etc/issue; then
+	     elif [[ $(hostnamectl | tr A-Z a-z ) =~ ubuntu ]]; then
 
 		# 更新源
 		apt -y update
@@ -83,7 +83,7 @@ function dependence(){
 		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 	# CentOS 运行以下脚本
-	     elif grep -q -E -i "kernel" /etc/issue; then
+	     elif [[ $(hostnamectl | tr A-Z a-z ) =~ centos ]]; then
 
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
@@ -145,7 +145,7 @@ function register(){
 # 运行 warp
 function run(){
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
-	cp wgcf-profile.conf /etc/wireguard/wgcf.conf
+	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 	green " (3/3) 运行 WGCF "
