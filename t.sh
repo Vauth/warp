@@ -55,7 +55,7 @@ fi
 # 判断系统，安装差异部分，安装依赖
 function dependence(){
 	green " (1/3) 安装系统依赖和 wireguard 内核模块 "
-	
+
 	# 先删除之前安装，可能导致失败的文件
 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
 	
