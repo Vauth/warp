@@ -7,12 +7,12 @@
 - [脚本特点](README.md#脚本特点)
 - [WARP好处](README.md#WARP好处)
 - [菜单选择（推荐）](README.md#菜单选择推荐)
-- [为 LXC IPv6 only 添加 IPv4 网络接口方法](README.md#为-lxc-ipv6-only-添加-ipv4-网络接口方法)
-- [为 LXC IPv6 only 添加双栈网络接口方法](README.md#为-lxc-ipv6-only-添加双栈网络接口方法)
 - [为 KVM IPv4 only 添加 IPv6 网络接口方法](README.md#为-kvm-ipv4-only-添加-ipv6-网络接口方法)
 - [为 KVM IPv4 only 或原生双栈 添加双栈网络接口方法](README.md#为-kvm-ipv4-only-或原生双栈-添加双栈网络接口方法)
 - [为 KVM IPv6 only 添加 IPv4 网络接口方法](README.md#为-kvm-ipv6-only-添加-ipv4-网络接口方法)
 - [为 KVM IPv6 only 添加双栈网络接口方法](README.md#为-kvm-ipv6-only-添加双栈网络接口方法)
+- [为 LXC IPv6 only 添加 IPv4 网络接口方法](README.md#为-lxc-ipv6-only-添加-ipv4-网络接口方法)
+- [为 LXC IPv6 only 添加双栈网络接口方法](README.md#为-lxc-ipv6-only-添加双栈网络接口方法)
 - [临时、永久关闭和开启WGCF网络接口](README.md#临时永久关闭和开启WGCF网络接口)
 - [EUserv 主机名变为 DiG9 不能正常使用 NAT64 解决办法](https://github.com/fscarmen/warp/tree/main/DiG9#euserv-主机名变为-dig9-不能正常使用-nat64-解决办法)
 - [WARP原理](README.md#WARP原理)
@@ -47,40 +47,40 @@
 wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && chmod +x menu.sh && ./menu.sh
 ```
 
-## 为 LXC IPv6 only 添加 IPv4 网络接口方法
-
-```bash
-echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
-```
-
-## 为 LXC IPv6 only 添加双栈网络接口方法
-
-```bash
-echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
-```
-
 ## 为 KVM IPv4 only 添加 IPv6 网络接口方法
 
 ```bash
-wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
+wget -N "https://raw.githubusercontent.com/fscarmen/warp/main/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
 ```
 
 ## 为 KVM IPv4 only 或原生双栈 添加双栈网络接口方法
 
 ```bash
-wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack6.sh" && chmod +x dualstack6.sh && ./dualstack6.sh
+wget -N "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack6.sh" && chmod +x dualstack6.sh && ./dualstack6.sh
 ```
 
 ## 为 KVM IPv6 only 添加 IPv4 网络接口方法
 
 ```bash
-echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp4.sh" && chmod +x warp4.sh && ./warp4.sh
+echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp4.sh" && chmod +x warp4.sh && ./warp4.sh
 ```
 
 ## 为 KVM IPv6 only 添加双栈网络接口方法
 
 ```bash
-echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
+echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
+```
+
+## 为 LXC IPv6 only 添加 IPv4 网络接口方法
+
+```bash
+echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
+```
+
+## 为 LXC IPv6 only 添加双栈网络接口方法
+
+```bash
+echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
 ```
 
 ## 临时、永久关闭和开启WGCF网络接口
