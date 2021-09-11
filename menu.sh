@@ -73,7 +73,6 @@ function dependence(){
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		if [[ $wg == 1 ]]; then apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms; fi
 
-	
 	# Ubuntu 运行以下脚本
 	     elif grep -q -E -i "ubuntu" /etc/issue; then
 
