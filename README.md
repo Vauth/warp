@@ -4,9 +4,9 @@
 
 # 目录
 
-- [好处](README.md#好处)
 - [脚本特点](README.md#脚本特点)
-- [菜单选择(推荐）](README.md#菜单选择推荐)
+- [好处](README.md#好处)
+- [菜单选择（推荐）](README.md#菜单选择推荐)
 - [为 LXC IPv6 only 添加 IPv4 网络接口方法](README.md#为-lxc-ipv6-only-添加-ipv4-网络接口方法)
 - [为 LXC IPv6 only 添加双栈网络接口方法](README.md#为-lxc-ipv6-only-添加双栈网络接口方法)
 - [为 KVM IPv4 only 添加 IPv6 网络接口方法](README.md#为-kvm-ipv4-only-添加-ipv6-网络接口方法)
@@ -20,15 +20,6 @@
 
 * * *
 
-## 好处
-
-* 解锁奈飞流媒体
-* 避免 Google 验证码或是使用 Google 学术搜索
-* 可调用IPv4接口使京* docker 和 V2P 等正常运行
-* 由于可以双向转输数据，能做对方VPS的跳板和探针，替代 HE tunnelbroker
-* 能让像EUserv这样的 IPv6 only VPS 上做的节点支持Telegram
-* IPv6 建的节点能在只支持 IPv4 的 PassWall、ShadowSocksR Plus+ 上使用
-
 ## 脚本特点
 
 * 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM
@@ -38,7 +29,16 @@
 * 智能判断 wgcf 项目的最新版本 （Latest release）
 * 结束后会有结果提示，并自动清理安装时的临时文件
 
-## 菜单选择(推荐）
+## 好处
+
+* 解锁奈飞流媒体
+* 避免 Google 验证码或是使用 Google 学术搜索
+* 可调用IPv4接口使京* docker 和 V2P 等正常运行
+* 由于可以双向转输数据，能做对方VPS的跳板和探针，替代 HE tunnelbroker
+* 能让像EUserv这样的 IPv6 only VPS 上做的节点支持Telegram
+* IPv6 建的节点能在只支持 IPv4 的 PassWall、ShadowSocksR Plus+ 上使用
+
+## 菜单选择（推荐）
 
 ![menu.jpg](https://i.loli.net/2021/09/08/kmq816Vpl5Us9ng.jpg)
 
