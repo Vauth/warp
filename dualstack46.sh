@@ -1,5 +1,11 @@
 ##### 为 IPv6 only VPS 添加 WGCF，双栈走 warp #####
-##### KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核模块＞wireguard-go。#####
+##### KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核集成WireGuard＞内核模块＞wireguard-go。#####
+
+# 在KVM的前提下，判断 Linux 版本是否小于等于 5.6，如是则安装 wireguard 内核模块，变量 wg=1
+if  [[ $(uname  -r | awk -F . '{print $1 }') -lt 5 ]]; then wg=1
+	elif [[ $(uname  -r | awk -F . '{print $1 }') -eq 5 ]]
+		then if [[ $(uname  -r | awk -F . '{print $2 }') -lt 6 ]]; then wg=1; fi
+fi
 
 # 判断系统，安装差异部分依赖包
 echo -e "\033[32m (1/3) 安装系统依赖和 wireguard 内核模块 \033[0m"
@@ -8,46 +14,45 @@ echo -e "\033[32m (1/3) 安装系统依赖和 wireguard 内核模块 \033[0m"
 if grep -q -E -i "debian" /etc/issue; then
 	
 	# 更新源
-	apt update
+	apt -y update
 
 	# 添加 backports 源,之后才能安装 wireguard-tools 
-	apt -y install lsb-release sudo
+	apt -y install lsb-release
 	echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
 
 	# 再次更新源
-	apt update
+	apt -y update
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	sudo apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools linux-headers-$(uname -r)
-	
-	# 安装 wireguard 内核模块
-	sudo apt -y --no-install-recommends install wireguard-dkms
-	
-# Ubuntu 运行以下脚本
-     elif grep -q -E -i "ubuntu" /etc/issue; then
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+		
+	# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
+	if [[ $wg == 1 ]]; then apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms; fi
+
+	# Ubuntu 运行以下脚本
+	elif grep -q -E -i "ubuntu" /etc/issue; then
 
 	# 更新源
-	apt update
+	apt -y update
 
 	# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools sudo
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
-# CentOS 运行以下脚本
-     elif grep -q -E -i "kernel" /etc/issue; then
+	# CentOS 运行以下脚本
+	elif grep -q -E -i "kernel" /etc/issue; then
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-	yum -y install epel-release sudo
-	sudo yum -y install net-tools wireguard-tools
+	yum -y install epel-release
+	yum -y install net-tools wireguard-tools
 
-	# 安装 wireguard 内核模块
-	sudo curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-	sudo yum -y install epel-release wireguard-dkms
+	# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
+	if [[ $wg == 1 ]]; then curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo; yum -y install epel-release wireguard-dkms; fi
 
 	# 升级所有包同时也升级软件和系统内核
-	sudo yum -y update
-	
+	yum -y update
+
 	# 添加执行文件环境变量
-        if [[ $PATH =~ /usr/local/bin ]]; then export PATH=$PATH; else export PATH=$PATH:/usr/local/bin; fi
+	if [[ $PATH =~ /usr/local/bin ]]; then export PATH=$PATH; else export PATH=$PATH:/usr/local/bin; fi
 
 # 如都不符合，提示,删除临时文件并中止脚本
      else 
