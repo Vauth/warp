@@ -36,10 +36,11 @@ if [[ -z $(wget -qO- -6 ip.gs) ]]
 fi
 
 # 在KVM的前提下，判断 Linux 版本是否小于等于 5.6，如是则安装 wireguard 内核模块，变量 wg=1
-if [[ $virtualization -eq 0 && $(uname  -r | awk -F . '{print $1 }') -le 5 ]]
-        then if [[ $(uname  -r | awk -F . '{print $2 }') -lt 6 ]]; then wg=1; fi
-else wg=1
-fi
+#if [[ $virtualization -eq 0 && $(uname  -r | awk -F . '{print $1 }') -le 5 ]]
+#        then if [[ $(uname  -r | awk -F . '{print $2 }') -lt 6 ]]; then wg=1; fi
+#else wg=1
+#fi
+wg=1
 
 # 变量 plan 含义：001=KVM+IPv6,	010=KVM+IPv4,	011=KVM+IPv4+IPv6,	101=LXC+IPv6,	110=LXC+IPv4,	111=LXC+IPv4+IPv6,	2=WARP已开启
 if [[ $wgcf == WARP已开启 ]]
