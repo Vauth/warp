@@ -7,12 +7,12 @@
 - [好处](README.md#好处)
 - [脚本特点](README.md#脚本特点)
 - [菜单选择(推荐）](README.md#菜单选择推荐)
-- [为 EUserv 添加 IPv4 网络接口方法](README.md#%E4%B8%BAeuserv%E6%B7%BB%E5%8A%A0-ipv4-%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
-- [为 EUserv 添加双栈网络接口方法](README.md#%E4%B8%BAeuserv%E6%B7%BB%E5%8A%A0%E5%8F%8C%E6%A0%88%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
-- [为甲骨文、谷歌云添加 IPv6 网络接口方法](README.md#%E4%B8%BA%E7%94%B2%E9%AA%A8%E6%96%87%E8%B0%B7%E6%AD%8C%E4%BA%91%E6%B7%BB%E5%8A%A0-ipv6-%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
-- [为甲骨文、谷歌云添加双栈网络接口方法](README.md#%E4%B8%BA%E7%94%B2%E9%AA%A8%E6%96%87%E8%B0%B7%E6%AD%8C%E4%BA%91%E6%B7%BB%E5%8A%A0%E5%8F%8C%E6%A0%88%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
-- [为甲骨文 IPv6 only 添加 IPv4 网络接口方法](README.md#%E4%B8%BA%E7%94%B2%E9%AA%A8%E6%96%87-ipv6-only-%E6%B7%BB%E5%8A%A0-ipv4-%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
-- [为甲骨文 IPv6 only 添加双栈网络接口方法](README.md#%E4%B8%BA%E7%94%B2%E9%AA%A8%E6%96%87-ipv6-only-%E6%B7%BB%E5%8A%A0%E5%8F%8C%E6%A0%88%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
+- [为 LXC IPv6 only 添加 IPv4 网络接口方法](README.md#%E4%B8%BAeuserv%E6%B7%BB%E5%8A%A0-ipv4-%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
+- [为 LXC IPv6 only 添加双栈网络接口方法](README.md#%E4%B8%BAeuserv%E6%B7%BB%E5%8A%A0%E5%8F%8C%E6%A0%88%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
+- [为 KVM IPv4 only 添加 IPv6 网络接口方法](README.md#%E4%B8%BA%E7%94%B2%E9%AA%A8%E6%96%87%E8%B0%B7%E6%AD%8C%E4%BA%91%E6%B7%BB%E5%8A%A0-ipv6-%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
+- [为 KVM IPv4 only 或原生双栈 添加双栈网络接口方法](README.md#%E4%B8%BA%E7%94%B2%E9%AA%A8%E6%96%87%E8%B0%B7%E6%AD%8C%E4%BA%91%E6%B7%BB%E5%8A%A0%E5%8F%8C%E6%A0%88%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
+- [为 KVM IPv6 only 添加 IPv4 网络接口方法](README.md#%E4%B8%BA%E7%94%B2%E9%AA%A8%E6%96%87-ipv6-only-%E6%B7%BB%E5%8A%A0-ipv4-%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
+- [为 KVM IPv6 only 添加双栈网络接口方法](README.md#%E4%B8%BA%E7%94%B2%E9%AA%A8%E6%96%87-ipv6-only-%E6%B7%BB%E5%8A%A0%E5%8F%8C%E6%A0%88%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95)
 - [临时、永久关闭和开启WGCF网络接口](README.md#临时永久关闭和开启WGCF网络接口)
 - [EUserv 主机名变为 DiG9 不能正常使用 NAT64 解决办法](https://github.com/fscarmen/warp/tree/main/DiG9#euserv-%E4%B8%BB%E6%9C%BA%E5%90%8D%E5%8F%98%E4%B8%BA-dig9-%E4%B8%8D%E8%83%BD%E6%AD%A3%E5%B8%B8%E4%BD%BF%E7%94%A8-nat64-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95)
 - [WARP原理](README.md#WARP原理)
@@ -33,7 +33,8 @@
 
 * 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM
 * 智能判断vps操作系统：Ubuntu 20.04、Debian 10、Debian 11、CentOS 8
-* 智能分析内网和外网IP
+* 智能分析内网和公网IP
+* 根据VPS综合情况，自动优选 WireGuard 安装方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go
 * 智能判断 wgcf 项目的最新版本 （Latest release）
 * 结束后会有结果提示，并自动清理安装时的临时文件
 
@@ -45,37 +46,37 @@
 wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && chmod +x menu.sh && ./menu.sh
 ```
 
-## 为EUserv添加 IPv4 网络接口方法
+## 为 LXC IPv6 only 添加 IPv4 网络接口方法
 
 ```bash
 echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
 ```
 
-## 为EUserv添加双栈网络接口方法
+## 为 LXC IPv6 only 添加双栈网络接口方法
 
 ```bash
 echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
 ```
 
-## 为甲骨文、谷歌云添加 IPv6 网络接口方法
+## 为 KVM IPv4 only 添加 IPv6 网络接口方法
 
 ```bash
 wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
 ```
 
-## 为甲骨文、谷歌云添加双栈网络接口方法
+## 为 KVM IPv4 only 或原生双栈 添加双栈网络接口方法
 
 ```bash
 wget -N --no-check-certificate "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack6.sh" && chmod +x dualstack6.sh && ./dualstack6.sh
 ```
 
-## 为甲骨文 IPv6 only 添加 IPv4 网络接口方法
+## 为 KVM IPv6 only 添加 IPv4 网络接口方法
 
 ```bash
 echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp4.sh" && chmod +x warp4.sh && ./warp4.sh
 ```
 
-## 为甲骨文 IPv6 only 添加双栈网络接口方法
+## 为 KVM IPv6 only 添加双栈网络接口方法
 
 ```bash
 echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
