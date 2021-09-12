@@ -189,8 +189,8 @@ function install(){
 
 # 一键删除 wgcf
 function uninstall(){
-        wg-quick down wgcf > /dev/null
-        systemctl disable wg-quick@wgcf > /dev/null
+        wg-quick down wgcf 2>/dev/null
+        systemctl disable wg-quick@wgcf 2>/dev/null
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
         rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
