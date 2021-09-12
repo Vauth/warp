@@ -44,43 +44,43 @@
 ## 菜单选择（推荐）
 
 ```bash
-wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && chmod +x menu.sh && ./menu.sh
+wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/main/old/menu.sh && chmod +x menu.sh && ./menu.sh
 ```
 
 ## 为 KVM IPv4 only 添加 IPv6 网络接口方法
 
 ```bash
-wget -N "https://raw.githubusercontent.com/fscarmen/warp/main/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
+wget -N "https://raw.githubusercontent.com/fscarmen/warp/main/old/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
 ```
 
 ## 为 KVM IPv4 only 或原生双栈 添加双栈网络接口方法
 
 ```bash
-wget -N "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack6.sh" && chmod +x dualstack6.sh && ./dualstack6.sh
+wget -N "https://raw.githubusercontent.com/fscarmen/warp/main/old/dualstack6.sh" && chmod +x dualstack6.sh && ./dualstack6.sh
 ```
 
 ## 为 KVM IPv6 only 添加 IPv4 网络接口方法
 
 ```bash
-echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp4.sh" && chmod +x warp4.sh && ./warp4.sh
+echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/old/warp4.sh" && chmod +x warp4.sh && ./warp4.sh
 ```
 
 ## 为 KVM IPv6 only 添加双栈网络接口方法
 
 ```bash
-echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
+echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/old/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
 ```
 
 ## 为 LXC IPv6 only 添加 IPv4 网络接口方法
 
 ```bash
-echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/warp.sh" && chmod +x warp.sh && ./warp.sh
+echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/old/warp.sh" && chmod +x warp.sh && ./warp.sh
 ```
 
 ## 为 LXC IPv6 only 添加双栈网络接口方法
 
 ```bash
-echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
+echo nameserver 2a00:1098:2b::1 > /etc/resolv.conf && wget -N -6 "https://raw.githubusercontent.com/fscarmen/warp/main/old/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
 ```
 
 ## 临时、永久关闭和开启WGCF网络接口
