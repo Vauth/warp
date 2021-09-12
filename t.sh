@@ -47,6 +47,13 @@ if [[ $wgcf == WARP已开启 ]]
 	else plan=$virtualization$ipv4$ipv6
 fi
 
+# WGCF 配置修改
+modify1="sed -i '/\:\:\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf"
+modify2='sed -i "7 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i '"'s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf && sed -i 's/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g' wgcf-profile.conf"
+modify3="sed -i '/0\.\0\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf"
+modify4='sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i '"'s/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf"
+modify5='sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i '"'s/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf"
+
 # VPS 当前状态
 function status(){
 	clear
@@ -56,154 +63,7 @@ function status(){
 	red " ====================================================================================================================== " 
 		}    
 
-# 一键删除 wgcf
-function uninstall(){
-        wg-quick down wgcf > /dev/null
-        systemctl disable wg-quick@wgcf > /dev/null
-	apt -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
-	yum -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
-        rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
-        if [[ -e /etc/gai.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
-        green " wgcf已彻底删除 "
-		}
-
-# KVM+IPv6
-function menu001(){
-	status
-	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
-	green " 2. 为 IPv6 only 添加双栈网络接口 "
-	green " 3. 一键删除 wgcf "
-	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose001
-		case "$choose001" in
-		1 ) 	modify=$(sed -i '/\:\:\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf)
-			install;;
-		2 )	modify=$(sed -i "7 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf && sed -i 's/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g' wgcf-profile.conf)
-			install;;
-		3 ) 	uninstall;;
-		0 ) 	exit 1;; 
-		* ) 	red "请输入正确数字 [0-3]"
-			sleep 1
-			menu001;;
-		esac
-		}
-
-# KVM+IPv4
-function menu010(){
-	status
-	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
-	green " 2. 为 IPv4 only 添加双栈网络接口 "
-	green " 3. 一键删除 wgcf "
-	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose010
-		case "$choose010" in
-		1 ) 	modify=$(sed -i '/0\.\0\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf |sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf)
-			install;;
-		2 ) 	modify=$(sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf)
-			install;;
-		3 ) 	uninstall;;
-		0 ) 	exit 1;; 
-		* ) 	red "请输入正确数字 [0-3]"
-			sleep 1
-			menu010;;
-		esac
-		}
-
-# KVM+IPv4+IPv6
-function menu011(){ 
-	status
-	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
-	green " 2. 一键删除 wgcf "
-	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose011
-		case "$choose011" in
-		1 ) 	modify=$(sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf)
-			install;;
-		2 ) 	uninstall;;
-		0 ) 	exit 1;; 
-		* ) 	red "请输入正确数字 [0-2]"
-			sleep 1
-			menu011;;
-		esac
-		}
-
-# LXC+IPv6
-function menu101(){
-	status
-	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
-	green " 2. 为 IPv6 only 添加双栈网络接口 "
-	green " 3. 一键删除 wgcf "
-	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose101
-        	case "$choose101" in
-		1 ) 	modify=$(sed -i '/\:\:\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf)
-			install;;
-		2 )	modify=$(sed -i "7 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf)
-			install;;
-		3 ) 	uninstall;;
-		0 ) 	exit 1;; 
-		* ) 	red "请输入正确数字 [0-3]"
-			sleep 1
-			menu101;;
-		esac
-                }
-
-# LXC+IPv4
-function menu110(){
-	status
-	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
-	green " 2. 为 IPv4 only 添加双栈网络接口 "
-	green " 3. 一键删除 wgcf "
-	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose110
-        	case "$choose110" in
-		1 ) 	modify=$(sed -i '/0\.\0\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf |sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf)
-			install;;
-		2 ) 	modify=$(sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf)
-			install;;
-		3 ) 	uninstall;;
-		0 ) 	exit 1;; 
-		* ) 	red "请输入正确数字 [0-3]"
-			sleep 1
-			menu110;;
-		esac
-                }
-
-# LXC+IPv4+IPv6
-function menu111(){
-	status
-	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
-	green " 2. 一键删除 wgcf "
-	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose111
-		case "$choose111" in
-		1 ) 	modify=$(sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf)
-			install;;
-		2 ) 	uninstall;;
-		0 ) 	exit 1;; 
-		* ) 	red "请输入正确数字 [0-2]"
-			sleep 1
-			menu111;;
-		esac
-		}
-		
-# 已开启 warp 网络接口
-function menu2(){ 
-	status
-	green " 已开启 warp 网络接口 "
-	green " 1. 一键删除 wgcf "
-	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose111
-        	case "$choose111" in
-		1 ) 	uninstall;;
-		0 ) 	exit 1;; 
-		* ) 	red "请输入正确数字 [0-1]"
-			sleep 1
-			menu111;;
-		esac
-		}		
-
-# WGCF安装
+# WGCF 安装
 function install(){
 	green " (1/3) 安装系统依赖和 wireguard 内核模块 "
 
@@ -298,7 +158,7 @@ function install(){
 	wgcf generate >/dev/null 2>&1
 
 	# 修改配置文件
-	$(modify)
+	echo ${modify}|awk '{run=$0;system(run)}'
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
@@ -324,6 +184,129 @@ function install(){
 	
 	# 删除临时文件
 	rm -f menu.sh
+		}
+
+# 一键删除 wgcf
+function uninstall(){
+        wg-quick down wgcf > /dev/null
+        systemctl disable wg-quick@wgcf > /dev/null
+	apt -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
+	yum -y autoremove net-tools wireguard-tools wireguard-dkms 2>/dev/null
+        rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
+        if [[ -e /etc/gai.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
+        green " wgcf已彻底删除 "
+		}
+
+# KVM+IPv6
+function menu001(){
+	status
+	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
+	green " 2. 为 IPv6 only 添加双栈网络接口 "
+	green " 3. 一键删除 wgcf "
+	green " 0. 退出脚本 "
+	read -p "请输入数字:" choose001
+		case "$choose001" in
+		1 ) 	modify=modify1;	install;;
+		2 )	modify=modify2;	install;;
+		3 ) 	uninstall;;
+		0 ) 	exit 1;;
+		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu001;;
+		esac
+		}
+
+# KVM+IPv4
+function menu010(){
+	status
+	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
+	green " 2. 为 IPv4 only 添加双栈网络接口 "
+	green " 3. 一键删除 wgcf "
+	green " 0. 退出脚本 "
+	read -p "请输入数字:" choose010
+		case "$choose010" in
+		1 ) 	modify=$modify3; install;;
+		2 ) 	modify=$modify4; install;;
+		3 ) 	uninstall;;
+		0 ) 	exit 1;;
+		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu010;;
+		esac
+		}
+
+# KVM+IPv4+IPv6
+function menu011(){ 
+	status
+	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
+	green " 2. 一键删除 wgcf "
+	green " 0. 退出脚本 "
+	read -p "请输入数字:" choose011
+		case "$choose011" in
+		1 ) 	modify=$modify5; install;;
+		2 ) 	uninstall;;
+		0 ) 	exit 1;;
+		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu011;;
+		esac
+		}
+
+# LXC+IPv6
+function menu101(){
+	status
+	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
+	green " 2. 为 IPv6 only 添加双栈网络接口 "
+	green " 3. 一键删除 wgcf "
+	green " 0. 退出脚本 "
+	read -p "请输入数字:" choose101
+        	case "$choose101" in
+		1 ) 	modify=$modify1; install;;
+		2 )	modify=$modify2; install;;
+		3 ) 	uninstall;;
+		0 ) 	exit 1;;
+		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu101;;
+		esac
+                }
+
+# LXC+IPv4
+function menu110(){
+	status
+	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
+	green " 2. 为 IPv4 only 添加双栈网络接口 "
+	green " 3. 一键删除 wgcf "
+	green " 0. 退出脚本 "
+	read -p "请输入数字:" choose110
+        	case "$choose110" in
+		1 ) 	modify=$modify3; install;;
+		2 ) 	modify=$modify4; install;;
+		3 ) 	uninstall;;
+		0 ) 	exit 1;;
+		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu110;;
+		esac
+                }
+
+# LXC+IPv4+IPv6
+function menu111(){
+	status
+	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
+	green " 2. 一键删除 wgcf "
+	green " 0. 退出脚本 "
+	read -p "请输入数字:" choose111
+		case "$choose111" in
+		1 ) 	modify=$modify5; install;;
+		2 ) 	uninstall;;
+		0 ) 	exit 1;;
+		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu111;;
+		esac
+		}
+		
+# 已开启 warp 网络接口
+function menu2(){ 
+	status
+	green " 已开启 warp 网络接口 "
+	green " 1. 一键删除 wgcf "
+	green " 0. 退出脚本 "
+	read -p "请输入数字:" choose111
+        	case "$choose111" in
+		1 ) 	uninstall;;
+		0 ) 	exit 1;;
+		* ) 	red "请输入正确数字 [0-1]"; sleep 1; menu111;;
+		esac
 		}
 
 case "$plan" in
