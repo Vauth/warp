@@ -184,7 +184,7 @@ function install(){
 	green " 恭喜！WARP已开启，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) "
 	
 	# 删除临时文件
-	rm -f menu.sh
+	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
 		}
 
 # 一键删除 wgcf
