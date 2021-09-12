@@ -22,9 +22,9 @@
 
 ## 脚本特点
 
-* 根据不同系统综合情况显示不同的窗口，没有不必要的选项，避免出错
+* 根据不同系统综合情况显示不同的菜单，避免出错
 * 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go
-* 智能判断 wgcf 作者 github库的最新版本 （Latest release），
+* 智能判断 WGCF 作者 github库的最新版本 （Latest release），
 * 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统
 * 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM
 * 智能分析内网和公网IP生成 WGCF 配置文件
@@ -34,9 +34,9 @@
 
 * 解锁奈飞流媒体
 * 避免 Google 验证码或是使用 Google 学术搜索
-* 可调用IPv4接口使京* docker 和 V2P 等正常运行
+* 可调用 IPv4 接口，使青龙和V2P等项目能正常运行
 * 由于可以双向转输数据，能做对方VPS的跳板和探针，替代 HE tunnelbroker
-* 能让像EUserv这样的 IPv6 only VPS 上做的节点支持Telegram
+* 能让 IPv6 only VPS 上做的节点支持 Telegram
 * IPv6 建的节点能在只支持 IPv4 的 PassWall、ShadowSocksR Plus+ 上使用
 
 ![menu.jpg](https://i.loli.net/2021/09/08/kmq816Vpl5Us9ng.jpg)
@@ -128,9 +128,9 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 技术指导:
 * P3terx：https://p3terx.com/archives/use-cloudflare-warp-to-add-extra-ipv4-or-ipv6-network-support-to-vps-servers-for-free.html
 * Luminous：https://luotianyi.vc/5252.html
-* Hiram:https://hiram.wang/cloudflare-wrap-vps
+* Hiram：https://hiram.wang/cloudflare-wrap-vps
 
 所需文件：
-* wgcf：https://github.com/ViRb3/wgcf
+* WGCF 项目原作者：https://github.com/ViRb3/wgcf/releases
 * WireGuard-GO 编译自官方：https://git.zx2c4.com/wireguard-go/
 * 中科大 elrepo 源：https://www.dazhuanlan.com/2020/04/02/5e8524f06823d/
