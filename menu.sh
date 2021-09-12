@@ -66,7 +66,7 @@ function status(){
 
 # WGCF 安装
 function install(){
-	green " 进度  1/3： 安装系统依赖和 wireguard 内核模块 "
+	green " 进度  1/3： 安装系统依赖 "
 
 	# 先删除之前安装，可能导致失败的文件
 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
