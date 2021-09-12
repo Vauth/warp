@@ -159,7 +159,7 @@ function install(){
 	wgcf generate >/dev/null 2>&1
 
 	# 修改配置文件
-	 echo $modify | sh
+	echo $modify | sh
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
@@ -184,7 +184,7 @@ function install(){
 	green " 恭喜！WARP已开启，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) "
 	
 	# 删除临时文件
-	rm -f menu.sh
+	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
 		}
 
 # 一键删除 wgcf
