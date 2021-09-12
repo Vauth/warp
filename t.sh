@@ -168,7 +168,7 @@ function install(){
 	green " 进度  3/3： 运行 WGCF "
 	green " 后台获取 warp IP 中，有时候长达10分钟，请耐心等待。"
 	wg-quick up wgcf >/dev/null 2>&1
-	until [[ wget -T1 -t1 -qO- -6 ip.gs ]]
+	until [[ -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
 	   wg-quick up wgcf >/dev/null 2>&1
