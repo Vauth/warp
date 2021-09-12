@@ -60,13 +60,13 @@ function status(){
 	clear
 	green " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
 	green " 当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')，内核：$(uname -r)， 处理器架构：$architecture， 虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') "
-	green " IPv4：$(wget -qO- -4 ip.gs)		IPv6：$(wget -qO- -6 ip.gs)		$wgcf "
+	green " IPv4：$(wget -T1 -t2 -qO- -4 ip.gs)		IPv6：$(wget -T1 -t2 -qO- -6 ip.gs)		$wgcf "
 	red " ====================================================================================================================== " 
 		}    
 
 # WGCF 安装
 function install(){
-	green " 进度  1/3： 安装系统依赖和 wireguard 内核模块 "
+	green " 进度  1/3： 安装系统依赖 "
 
 	# 先删除之前安装，可能导致失败的文件
 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
@@ -168,7 +168,7 @@ function install(){
 	green " 进度  3/3： 运行 WGCF "
 	green " 后台获取 warp IP 中，有时候长达10分钟，请耐心等待。"
 	wg-quick up wgcf >/dev/null 2>&1
-	until [[ -n $(wget -qO- -6 ip.gs) ]]
+	until [[ ping -6 -c1 -W1 2400:3200::1 ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
 	   wg-quick up wgcf >/dev/null 2>&1
