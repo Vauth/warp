@@ -159,7 +159,6 @@ function install(){
 	wgcf generate >/dev/null 2>&1
 
 	# 修改配置文件
-	#echo ${modify}|awk '{run=$0;system(run)}'
 	 echo $modify | sh
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
