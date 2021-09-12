@@ -8,7 +8,6 @@
 - [WARP好处](README.md#WARP好处)
 - [运行脚本](README.md#运行脚本)
 - [临时、永久关闭和开启WGCF网络接口](README.md#临时永久关闭和开启WGCF网络接口)
-- [EUserv 主机名变为 DiG9 不能正常使用 NAT64 解决办法](https://github.com/fscarmen/warp/tree/main/DiG9#euserv-主机名变为-dig9-不能正常使用-nat64-解决办法)
 - [WARP原理](README.md#WARP原理)
 - [致谢](README.md#致谢下列作者和项目排名不分先后)
 
