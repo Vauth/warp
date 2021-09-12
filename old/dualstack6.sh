@@ -11,7 +11,7 @@ fi
 echo -e "\033[32m (1/3) 安装系统依赖和 wireguard 内核模块 \033[0m"
 
 # Debian 运行以下脚本
-if grep -q -E -i "debian" /etc/issue; then
+if [[ $(hostnamectl | tr A-Z a-z ) =~ debian ]]; then
 	
 	# 更新源
 	apt -y update
@@ -29,9 +29,8 @@ if grep -q -E -i "debian" /etc/issue; then
 	# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 	if [[ $wg == 1 ]]; then apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms; fi
 
-	
 	# Ubuntu 运行以下脚本
-	elif grep -q -E -i "ubuntu" /etc/issue; then
+	elif [[ $(hostnamectl | tr A-Z a-z ) =~ ubuntu ]]; then
 
 	# 更新源
 	apt -y update
@@ -40,7 +39,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 	# CentOS 运行以下脚本
-	elif grep -q -E -i "kernel" /etc/issue; then
+	elif [[ $(hostnamectl | tr A-Z a-z ) =~ centos ]]; then
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 	yum -y install epel-release
@@ -58,7 +57,7 @@ if grep -q -E -i "debian" /etc/issue; then
 # 如都不符合，提示,删除临时文件并中止脚本
      else 
 	# 提示找不到相应操作系统
-	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
+	echo -e "\033[32m 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 \033[0m"
 	
 	# 删除临时目录和文件，退出脚本
 	rm -f dualstack6.sh menu.sh
@@ -99,7 +98,7 @@ wgcf generate >/dev/null 2>&1
 sudo sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sudo sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sudo sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sudo sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf
 
 # 如果系统原来是双栈，则需要添加 IPv6 的处理
-if [[ -n $(wget -qO- -6 ip.gs) ]]; then
+if [[ -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]; then
 	sudo sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf && sudo sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP 'src \K\S+') lookup main\n/" wgcf-profile.conf
 fi
 
