@@ -85,7 +85,7 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 技术指导:
 * P3terx：https://p3terx.com/archives/use-cloudflare-warp-to-add-extra-ipv4-or-ipv6-network-support-to-vps-servers-for-free.html
 * Luminous：https://luotianyi.vc/5252.html
-* Hiram:https://hiram.wang/cloudflare-wrap-vps
+* Hiram：https://hiram.wang/cloudflare-wrap-vps
 
 所需文件：
 * wgcf：https://github.com/ViRb3/wgcf/releases
