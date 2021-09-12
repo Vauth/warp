@@ -190,7 +190,7 @@ function uninstall(){
         systemctl disable wg-quick@wgcf 2>/dev/null
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-        rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
+        rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
         if [[ -e /etc/gai.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
         green " wgcf已彻底删除 "
 		}
