@@ -206,8 +206,8 @@ function menu01(){
 	green " 0. 退出脚本 "
 	red " read -p "请输入数字:" choose01 "
 		case "$choose01" in
-		1 ) 	modify=modify1;	install;;
-		2 )	modify=modify2;	install;;
+		1 ) 	modify=$modify1;	install;;
+		2 )	modify=$modify2;	install;;
 		3 ) 	uninstall;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu01;;
@@ -223,8 +223,8 @@ function menu10(){
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose10
 		case "$choose10" in
-		1 ) 	modify=$modify3; install;;
-		2 ) 	modify=$modify4; install;;
+		1 ) 	modify=$modify3;	install;;
+		2 ) 	modify=$modify4;	install;;
 		3 ) 	uninstall;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu10;;
@@ -239,7 +239,7 @@ function menu11(){
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose11
 		case "$choose11" in
-		1 ) 	modify=$modify5; install;;
+		1 ) 	modify=$modify5;	install;;
 		2 ) 	uninstall;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu11;;
