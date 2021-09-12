@@ -204,7 +204,7 @@ function menu01(){
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
 	green " 3. 一键删除 wgcf "
 	green " 0. 退出脚本 "
-	read -p red "请输入数字:" choose01
+	read -p "请输入数字:" choose01
 		case "$choose01" in
 		1 ) 	modify=$modify1;	install;;
 		2 )	modify=$modify2;	install;;
