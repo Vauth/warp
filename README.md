@@ -88,5 +88,5 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 * Hiram：https://hiram.wang/cloudflare-wrap-vps
 
 所需文件：
-* wgcf：https://github.com/ViRb3/wgcf/releases
+* WGCF 项目原作者：https://github.com/ViRb3/wgcf/releases
 * WireGuard-GO 编译自官方：https://git.zx2c4.com/wireguard-go/
