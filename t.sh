@@ -23,16 +23,17 @@ if [[ $(hostnamectl | grep -i Virtualization | awk -F ': ' '{print $2}') =~ open
 	then virtualization=1
 	else virtualization=0
 fi
+
 # 判断当前 IPv4 状态
-if [[ -z $(wget -qO- -4 ip.gs) ]]
-        then ipv4=0
-        else ipv4=1
+if ping -4 -c1 -W1 114.114.114.114 >/dev/null 2>&1
+        then ipv4=1
+        else ipv4=0
 fi
 
 # 判断当前 IPv6 状态
-if [[ -z $(wget -qO- -6 ip.gs) ]]
-        then ipv6=0
-        else ipv6=1
+if ping -6 -c1 -W1 2400:3200::1 >/dev/null 2>&1
+        then ipv6=1
+        else ipv6=0
 fi
 
 # 在KVM的前提下，判断 Linux 版本是否小于等于 5.6，如是则安装 wireguard 内核模块，变量 wg=1
