@@ -60,7 +60,7 @@ function status(){
 	clear
 	green " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
 	green " 当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')，内核：$(uname -r)， 处理器架构：$architecture， 虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') "
-	green " IPv4：$(wget -qO- -4 ip.gs)		IPv6：$(wget -qO- -6 ip.gs)		$wgcf "
+	green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs)		IPv6：$(wget -T1 -t1 -qO- -6 ip.gs)		$wgcf "
 	red " ====================================================================================================================== " 
 		}    
 
@@ -168,7 +168,7 @@ function install(){
 	green " 进度  3/3： 运行 WGCF "
 	green " 后台获取 warp IP 中，有时候长达10分钟，请耐心等待。"
 	wg-quick up wgcf >/dev/null 2>&1
-	until [[ -n $(wget -qO- -6 ip.gs) ]]
+	until [[ -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
 	   wg-quick up wgcf >/dev/null 2>&1
@@ -189,8 +189,8 @@ function install(){
 
 # 一键删除 wgcf
 function uninstall(){
-        wg-quick down wgcf > /dev/null
-        systemctl disable wg-quick@wgcf > /dev/null
+        wg-quick down wgcf 2>/dev/null
+        systemctl disable wg-quick@wgcf 2>/dev/null
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
         rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
