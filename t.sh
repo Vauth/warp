@@ -41,10 +41,10 @@ if  [[ $virtualization -eq 0 && $(uname  -r | awk -F . '{print $1 }') -lt 5 ]]; 
 		then if [[ $(uname  -r | awk -F . '{print $2 }') -lt 6 ]]; then wg=1; fi
 fi
 
-# 变量 plan 含义：001=KVM+IPv6,	010=KVM+IPv4,	011=KVM+IPv4+IPv6,	101=LXC+IPv6,	110=LXC+IPv4,	111=LXC+IPv4+IPv6,	2=WARP已开启
+# 变量 plan 含义：01=IPv6,	10=IPv4,	02=WARP已开启
 if [[ $wgcf == WARP已开启 ]]
-	then plan=2 
-	else plan=$virtualization$ipv4$ipv6
+	then plan=2
+	else plan=$ipv4$ipv6
 fi
 
 # WGCF 配置修改
@@ -197,118 +197,69 @@ function uninstall(){
         green " wgcf已彻底删除 "
 		}
 
-# KVM+IPv6
-function menu001(){
+# IPv6
+function menu01(){
 	status
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
 	green " 3. 一键删除 wgcf "
 	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose001
-		case "$choose001" in
+	read -p "请输入数字:" choose01
+		case "$choose01" in
 		1 ) 	modify=modify1;	install;;
 		2 )	modify=modify2;	install;;
 		3 ) 	uninstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu001;;
+		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu01;;
 		esac
 		}
 
-# KVM+IPv4
-function menu010(){
+# IPv4
+function menu10(){
 	status
 	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
 	green " 2. 为 IPv4 only 添加双栈网络接口 "
 	green " 3. 一键删除 wgcf "
 	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose010
-		case "$choose010" in
+	read -p "请输入数字:" choose10
+		case "$choose10" in
 		1 ) 	modify=$modify3; install;;
 		2 ) 	modify=$modify4; install;;
 		3 ) 	uninstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu010;;
+		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu10;;
 		esac
 		}
 
-# KVM+IPv4+IPv6
-function menu011(){ 
+# IPv4+IPv6
+function menu11(){ 
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 一键删除 wgcf "
 	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose011
-		case "$choose011" in
+	read -p "请输入数字:" choose11
+		case "$choose11" in
 		1 ) 	modify=$modify5; install;;
 		2 ) 	uninstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu011;;
+		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu11;;
 		esac
 		}
 
-# LXC+IPv6
-function menu101(){
-	status
-	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
-	green " 2. 为 IPv6 only 添加双栈网络接口 "
-	green " 3. 一键删除 wgcf "
-	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose101
-        	case "$choose101" in
-		1 ) 	modify=$modify1; install;;
-		2 )	modify=$modify2; install;;
-		3 ) 	uninstall;;
-		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu101;;
-		esac
-                }
-
-# LXC+IPv4
-function menu110(){
-	status
-	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
-	green " 2. 为 IPv4 only 添加双栈网络接口 "
-	green " 3. 一键删除 wgcf "
-	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose110
-        	case "$choose110" in
-		1 ) 	modify=$modify3; install;;
-		2 ) 	modify=$modify4; install;;
-		3 ) 	uninstall;;
-		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu110;;
-		esac
-                }
-
-# LXC+IPv4+IPv6
-function menu111(){
-	status
-	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
-	green " 2. 一键删除 wgcf "
-	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose111
-		case "$choose111" in
-		1 ) 	modify=$modify5; install;;
-		2 ) 	uninstall;;
-		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu111;;
-		esac
-		}
-		
 # 已开启 warp 网络接口
 function menu2(){ 
 	status
 	green " 已开启 warp 网络接口 "
 	green " 1. 一键删除 wgcf "
 	green " 0. 退出脚本 "
-	read -p "请输入数字:" choose111
-        	case "$choose111" in
+	read -p "请输入数字:" choose2
+        	case "$choose2" in
 		1 ) 	uninstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-1]"; sleep 1; menu111;;
+		* ) 	red "请输入正确数字 [0-1]"; sleep 1; menu2;;
 		esac
 		}
 
 case "$plan" in
-   001 ) menu001;; 010 ) menu010;; 011 ) menu011;; 101 ) menu101;; 110 ) menu110;; 111 ) menu111;; 2 ) menu2;;
+   01 ) menu01;; 10 ) menu10;; 11 ) menu11;; 2 ) menu2;;
 esac
