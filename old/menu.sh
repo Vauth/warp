@@ -18,7 +18,7 @@ if [[ $(hostnamectl) =~ .*arm.* ]]
 	else architecture=amd64
 fi
 
-# 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go，	1=KVM,		2=openvz或者lxc
+# 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go，	1=KVM,		0=openvz或者lxc
 if [[ $(hostnamectl | grep -i Virtualization | awk -F ': ' '{print $2}') =~ openvz|lxc ]]
 	then virtualization=1
 	else virtualization=0
@@ -36,11 +36,8 @@ if ping -6 -c1 -W1 2400:3200::1 >/dev/null 2>&1
         else ipv6=0
 fi
 
-# 在KVM的前提下，判断 Linux 版本是否小于等于 5.6，如是则安装 wireguard 内核模块，变量 wg=1
-if  [[ $virtualization -eq 0 && $(uname  -r | awk -F . '{print $1 }') -lt 5 ]]; then wg=1
-	elif [[ $virtualization -eq 0 && $(uname  -r | awk -F . '{print $1 }') -eq 5 ]]
-		then if [[ $(uname  -r | awk -F . '{print $2 }') -lt 6 ]]; then wg=1; fi
-fi
+# 在KVM的前提下，判断 Linux 版本是否小于等于 5.6，如是则安装 wireguard 内核模块，变量 wg=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
+if  [[ $virtualization -eq 0 && `expr $(uname  -r | awk -F . '{print $1 }') \* 100 +  $(uname  -r | awk -F . '{print $2 }')` -lt 506 ]]; then wg=1; fi
 
 # 变量 plan 含义：01=IPv6,	10=IPv4,	02=WARP已开启
 if [[ $wgcf == WARP已开启 ]]
