@@ -63,6 +63,7 @@ function status(){
 
 # WGCF 安装
 function install(){
+	startTime_s=`date +%s`
 	green " 进度  1/3： 安装系统依赖 "
 
 	# 先删除之前安装，可能导致失败的文件
@@ -178,7 +179,8 @@ function install(){
 	if [[ -e /etc/gai.conf ]]; then grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf >/dev/null 2>&1; fi
 
 	# 结果提示
-	green " 恭喜！WARP已开启，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) "
+	endTime_s=`date +%s`
+	green " 恭喜！WARP已开启，总耗时:$(( $endTime_s - $startTime_s ))秒，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) "
 	
 	# 删除临时文件
 	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
