@@ -37,7 +37,7 @@ if ping -6 -c1 -W1 2400:3200::1 >/dev/null 2>&1
 fi
 
 # 在KVM的前提下，判断 Linux 版本是否小于等于 5.6，如是则安装 wireguard 内核模块，变量 wg=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
-if  [[ $virtualization -eq 0 && `expr $(uname  -r | awk -F . '{print $1 }') \* 100 +  $(uname  -r | awk -F . '{print $2 }')` -lt 506 ]]; then wg=1; fi
+if  [[ $virtualization -eq 0 && $(($(uname  -r | awk -F . '{print $1 }') * 100 +  $(uname  -r | awk -F . '{print $2 }'))) -lt 506 ]]; then wg=1; fi
 
 # 变量 plan 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
 if [[ $wgcf == WARP已开启 ]]
