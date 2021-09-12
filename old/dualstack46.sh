@@ -11,7 +11,7 @@ fi
 echo -e "\033[32m (1/3) 安装系统依赖和 wireguard 内核模块 \033[0m"
 
 # Debian 运行以下脚本
-if grep -q -E -i "debian" /etc/issue; then
+if [[ $(hostnamectl | tr A-Z a-z ) =~ debian ]]; then
 	
 	# 更新源
 	apt -y update
@@ -30,7 +30,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	if [[ $wg == 1 ]]; then apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms; fi
 
 	# Ubuntu 运行以下脚本
-	elif grep -q -E -i "ubuntu" /etc/issue; then
+	elif [[ $(hostnamectl | tr A-Z a-z ) =~ ubuntu ]]; then
 
 	# 更新源
 	apt -y update
@@ -39,7 +39,7 @@ if grep -q -E -i "debian" /etc/issue; then
 	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 	# CentOS 运行以下脚本
-	elif grep -q -E -i "kernel" /etc/issue; then
+	elif [[ $(hostnamectl | tr A-Z a-z ) =~ centos ]]; then
 
 	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 	yum -y install epel-release
@@ -57,7 +57,7 @@ if grep -q -E -i "debian" /etc/issue; then
 # 如都不符合，提示,删除临时文件并中止脚本
      else 
 	# 提示找不到相应操作系统
-	echo -e "\033[32m 抱歉，我不认识此系统！\033[0m"
+	echo -e "\033[32m 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 \033[0m"
 	
 	# 删除临时目录和文件，退出脚本
 	rm -f dualstack46.sh menu.sh
@@ -104,7 +104,7 @@ sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 echo -e "\033[32m (3/3) 运行 WGCF \033[0m"
 echo -e "\033[32m 后台获取 warp IP 中，有时候需10分钟，请耐心等待。 \033[0m"
 wg-quick up wgcf >/dev/null 2>&1
-until [[ -n $(wget -qO- -4 ip.gs) ]]
+until [[ -n $(wget  -T1 -t1 -qO- -4 ip.gs) ]]
   do
    wg-quick down wgcf >/dev/null 2>&1
    wg-quick up wgcf >/dev/null 2>&1
