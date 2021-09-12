@@ -37,7 +37,7 @@
 ## 运行脚本
 
 ```bash
-wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && chmod +x menu.sh && ./menu.sh
+wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && chmod +x menu.sh && ./menu.sh
 ```
 
 ## 临时、永久关闭和开启WGCF网络接口
