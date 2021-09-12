@@ -5,6 +5,9 @@ red(){
 green(){
             echo -e "\033[32m\033[01m$1\033[0m"
     }
+yellow(){
+    echo -e "\033[33m\033[01m$1\033[0m"
+}
 
 # 判断当前 WARP 状态
 if [[ $(ip a) =~ wgcf ]]
@@ -55,10 +58,22 @@ modify5='sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.1
 # VPS 当前状态
 function status(){
 	clear
+	yellow " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
+        yellow " 脚本特点: "
+        yellow "        * 根据不同系统综合情况显示不同的菜单，避免出错 "
+        yellow "        * 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go "
+        yellow "        * 智能判断 WGCF 作者 github库的最新版本 （Latest release） "
+        yellow "        * 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统 "
+        yellow "        * 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM "
+        yellow "        * 智能分析内网和公网IP生成 WGCF 配置文件 "
+        yellow "        * 结束后会有结果提示，并自动清理安装时的临时文件 "
+        red "  "
+	red " ====================================================================================================================== " 
 	green " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
 	green " 当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')，内核：$(uname -r)， 处理器架构：$architecture， 虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') "
 	green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs)		IPv6：$(wget -T1 -t1 -qO- -6 ip.gs)		$wgcf "
 	red " ====================================================================================================================== " 
+	red "  "
 		}    
 
 # WGCF 安装
