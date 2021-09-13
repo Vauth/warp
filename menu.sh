@@ -211,7 +211,7 @@ function uninstall(){
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
 	if [[ -e /etc/gai.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
-	if [[ -z $(wg) ]] >/dev/null 2>&1; then green " WGCF 已彻底删除 "; else green " 没有清除干净，请重启(reboot)后尝试再次删除 "； fi
+	if [[ -z $(wg) ]] >/dev/null 2>&1; then green " WGCF 已彻底删除 " ; else green " 没有清除干净，请重启(reboot)后尝试再次删除 " ; fi
 		}
 
 # IPv6
