@@ -88,7 +88,7 @@ rm -f wgcf-account.toml
 echo -e "\033[32m wgcf 注册中。 \033[0m"
 until [[ -a wgcf-account.toml ]]
   do
-   echo | wgcf register >/dev/null 2>&1
+   echo | aaa register >/dev/null 2>&1
 done
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
