@@ -203,15 +203,15 @@ function install(){
 	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
 		}
 
-# 一键删除 wgcf
+# 关闭 WARP 网络接口，并删除 WGCF
 function uninstall(){
-        wg-quick down wgcf 2>/dev/null
-        systemctl disable wg-quick@wgcf 2>/dev/null
+	systemctl disable wg-quick@$(wg | grep interface: |awk '{print $2}') 2>/dev/null
+	wg-quick down $(wg | grep interface: |awk '{print $2}') 2>/dev/null
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-        rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
-        if [[ -e /etc/gai.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
-        green " wgcf已彻底删除 "
+	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
+	if [[ -e /etc/gai.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
+	green " wgcf已彻底删除 "
 		}
 
 # IPv6
@@ -219,7 +219,7 @@ function menu01(){
 	status
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
-	green " 3. 一键删除 wgcf "
+	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose01
 		case "$choose01" in
@@ -236,7 +236,7 @@ function menu10(){
 	status
 	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
 	green " 2. 为 IPv4 only 添加双栈网络接口 "
-	green " 3. 一键删除 wgcf "
+	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose10
 		case "$choose10" in
@@ -252,7 +252,7 @@ function menu10(){
 function menu11(){ 
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
-	green " 2. 一键删除 wgcf "
+	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose11
 		case "$choose11" in
@@ -267,7 +267,7 @@ function menu11(){
 function menu2(){ 
 	status
 	green " 已开启 warp 网络接口 "
-	green " 1. 一键删除 wgcf "
+	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 0. 退出脚本 "
 	read -p "请输入数字:" choose2
         	case "$choose2" in
