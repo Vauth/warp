@@ -9,6 +9,9 @@ yellow(){
     echo -e "\033[33m\033[01m$1\033[0m"
 }
 
+# 必须以root运行脚本
+if [[ $(id -u) != 0 ]]; then red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " ; exit 0; fi
+
 # 判断当前 WARP 状态
 if [[ $(wg) =~ private ]] >/dev/null 2>&1
 	then wgcf=WARP已开启
