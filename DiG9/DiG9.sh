@@ -52,7 +52,6 @@ if grep -q -E -i "debian" /etc/issue; then
 
 fi
 
-
 # 以下为3类系统公共部分
 
 # 安装 wireguard-go
@@ -82,8 +81,13 @@ sed -i '/\:\:\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/[2
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
-# 启用 Wire-Guard 网络接口守护进程
-systemctl start wg-quick@wgcf
+# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
+wg-quick up wgcf >/dev/null 2>&1
+until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) ]]
+  do
+   wg-quick down wgcf >/dev/null 2>&1
+   wg-quick up wgcf >/dev/null 2>&1
+done
 
 # 设置开机启动
 systemctl enable wg-quick@wgcf
@@ -93,23 +97,6 @@ grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'preced
 
 # 删除临时文件
 rm -f DiG9* wgcf*
-
-# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
-wg-quick up wgcf
-wget -qO- ipv4.ip.sb
-until [ $? -eq 0 ]  
-  do
-   echo -e "\033[32m warp 获取 IP 失败，自动重试直到成功。 \033[0m"
-   wg-quick down wgcf
-   wg-quick up wgcf
-   wget -qO- ipv4.ip.sb
-done
-
-# 设置开机启动
-systemctl enable wg-quick@wgcf
-
-# 优先使用 IPv4 网络
-grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf
 
 # 结果提示
 echo -e "\033[32m 恭喜！为 IPv6 only VPS 添加 warp 已成功，IPv4地址为:$(wget -qO- ipv4.ip.sb) \033[0m"
