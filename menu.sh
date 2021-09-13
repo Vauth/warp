@@ -10,7 +10,7 @@ yellow(){
 }
 
 # 判断当前 WARP 状态
-if [[ $(ip a) =~ wgcf ]]
+if [[ $(wg) =~ private ]]
 	then wgcf=WARP已开启
 	else wgcf=WARP未开启
 fi
