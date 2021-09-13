@@ -164,7 +164,7 @@ function install(){
 	
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
 	rm -f wgcf-account.toml
-	green " WGCF 注册中…… "
+	yellow " WGCF 注册中…… "
 	until [[ -a wgcf-account.toml ]]
 	  do
 	   echo | wgcf register >/dev/null 2>&1
@@ -181,7 +181,7 @@ function install(){
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 	green " 进度  3/3： 运行 WGCF "
-	green " 后台获取 warp IP 中，有时候长达10分钟，请耐心等待。"
+	green " 后台获取 warp IP 中，有时候长达5分钟，请耐心等待。"
 	wg-quick up wgcf >/dev/null 2>&1
 	until [[ -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]
 	  do
@@ -211,7 +211,7 @@ function uninstall(){
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
 	if [[ -e /etc/gai.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
-	if [[ -z $(wg) ]] >/dev/null 2>&1; then green " WGCF 已彻底删除 " ; else green " 没有清除干净，请重启(reboot)后尝试再次删除 " ; fi
+	if [[ -z $(wg) ]] >/dev/null 2>&1; then green " WGCF 已彻底删除 " ; else red " 没有清除干净，请重启(reboot)后尝试再次删除 " ; fi
 		}
 
 # IPv6
