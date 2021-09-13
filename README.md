@@ -73,9 +73,9 @@ WARP是CloudFlare提供的一项基于WireGuard的网络流量安全及加速服
 
 * 网络性能方面：内核集成＞内核模块＞wireguard-go
 
-Linux 5.6 以上内核则已经集成了 WireGuard ，可以用 ```hostnamectl```或```uname -r```查看版本。
+Linux 5.6 及以上内核则已经集成了 WireGuard ，可以用 ```hostnamectl```或```uname -r```查看版本。
 
-甲骨文是 KVM 完整虚拟化的 VPS 主机，而官方系统由于版本较低，在不更换内核的前提下选择  "内核模块" 方案。
+甲骨文是 KVM 完整虚拟化的 VPS 主机，而官方系统由于版本较低，在不更换内核的前提下选择  "内核模块" 方案。如已升级内核在5.6及以上，将会自动选择 “内核集成” 方案。
 
 EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更换内核，只能选择 "wireguard-go" 方案。
     
