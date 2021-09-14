@@ -62,18 +62,10 @@ modify5='sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.1
 function status(){
 	clear
 	yellow " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp \n 脚本特点: \n	* 根据不同系统综合情况显示不同的菜单，避免出错 \n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go \n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release） \n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统 \n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM \n	* 智能分析内网和公网IP生成 WGCF 配置文件 \n	* 结束后会有结果提示，并自动清理安装时的临时文件 \n "
-#        yellow " 脚本特点: \n	* 根据不同系统综合情况显示不同的菜单，避免出错 \n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go \n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release） \n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统 \n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM \n	 * 智能分析内网和公网IP生成 WGCF 配置文件 \n	* 结束后会有结果提示，并自动清理安装时的临时文件 \n "
-#        yellow " 	* 根据不同系统综合情况显示不同的菜单，避免出错 \n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go \n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release） \n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统 \n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM \n	 * 智能分析内网和公网IP生成 WGCF 配置文件 \n	* 结束后会有结果提示，并自动清理安装时的临时文件 \n " 
-#        yellow "        * 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go "
-#        yellow "        * 智能判断 WGCF 作者 github库的最新版本 （Latest release） "
-#        yellow "        * 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统 "
-#        yellow "        * 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM "
-#        yellow "        * 智能分析内网和公网IP生成 WGCF 配置文件 "
-#        yellow "        * 结束后会有结果提示，并自动清理安装时的临时文件 "
 	red " ====================================================================================================================== \n "
-	green " 本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp "
-	green " 当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')，内核：$(uname -r)， 处理器架构：$architecture， 虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') "
-	green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs)		IPv6：$(wget -T1 -t1 -qO- -6 ip.gs)		$wgcf \n "
+	green "	当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')，内核：$(uname -r)， 处理器架构：$architecture， 虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') \n	IPv4：$(wget -T1 -t1 -qO- -4 ip.gs)		IPv6：$(wget -T1 -t1 -qO- -6 ip.gs)		$wgcf \n "
+#	green " 当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')，内核：$(uname -r)， 处理器架构：$architecture， 虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') "
+#	green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs)		IPv6：$(wget -T1 -t1 -qO- -6 ip.gs)		$wgcf \n "
 	red " ====================================================================================================================== \n "
 		}    
 
@@ -143,6 +135,7 @@ function install(){
 
 	# 安装并认证 WGCF
 	green " 进度  2/3： 安装 WGCF "
+	
 	# 判断系统架构是 AMD 还是 ARM
 	if [[ $(hostnamectl) =~ .*arm.* ]]; then architecture=arm64; else architecture=amd64; fi
 
@@ -219,7 +212,7 @@ function menu01(){
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 0. 退出脚本 "
+	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose01
 		case "$choose01" in
 		1 ) 	modify=$modify1;	install;;
@@ -236,7 +229,7 @@ function menu10(){
 	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
 	green " 2. 为 IPv4 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 0. 退出脚本 "
+	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose10
 		case "$choose10" in
 		1 ) 	modify=$modify3;	install;;
@@ -252,7 +245,7 @@ function menu11(){
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 0. 退出脚本 "
+	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose11
 		case "$choose11" in
 		1 ) 	modify=$modify5;	install;;
@@ -267,7 +260,7 @@ function menu2(){
 	status
 	green " 已开启 warp 网络接口 "
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 0. 退出脚本 "
+	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose2
         	case "$choose2" in
 		1 ) 	uninstall;;
