@@ -214,11 +214,8 @@ bbrInstall() {
 	read -p "请选择：" installBBRStatus
 	case "$installBBRStatus" in
 		1 ) wget -N --no-check-certificate "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-		2 ) case "$plan" in
-			01 ) menu01;; 10 ) menu10;; 11 ) menu11;; 2 ) menu2;;
-			esac;;
-		3 )	bbrInstall;;
-		* ) 	red "请输入正确数字 [1-2]"; sleep 1; bbrInstall;;
+		2 ) $return;;
+		* ) red "请输入正确数字 [1-2]"; sleep 1; bbrInstall;;
 		esac
 		}
 
@@ -235,7 +232,7 @@ function menu01(){
 		1 ) 	modify=$modify1;	install;;
 		2 )	modify=$modify2;	install;;
 		3 ) 	uninstall;;
-		4 )	bbrInstall;;
+		4 )	return=menu01;bbrInstall;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu01;;
 		esac
@@ -254,7 +251,7 @@ function menu10(){
 		1 ) 	modify=$modify3;	install;;
 		2 ) 	modify=$modify4;	install;;
 		3 ) 	uninstall;;
-		4 )	bbrInstall;;
+		4 )	return=menu10;bbrInstall;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu10;;
 		esac
@@ -271,7 +268,7 @@ function menu11(){
 		case "$choose11" in
 		1 ) 	modify=$modify5;	install;;
 		2 ) 	uninstall;;
-		3 )	bbrInstall;;
+		3 )	return=menu11;bbrInstall;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu11;;
 		esac
@@ -286,7 +283,7 @@ function menu2(){
 	read -p "请输入数字:" choose2
         	case "$choose2" in
 		1 ) 	uninstall;;
-		2 )	bbrInstall;;
+		2 )	return=menu2;bbrInstall;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu2;;
 		esac
