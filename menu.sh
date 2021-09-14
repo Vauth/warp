@@ -204,20 +204,37 @@ function uninstall(){
 	if [[ -z $(wg) ]] >/dev/null 2>&1; then green " WGCF 已彻底删除 " ; else red " 没有清除干净，请重启(reboot)后尝试再次删除 " ; fi
 		}
 
+# 安装BBR
+bbrInstall() {
+	red "\n=============================================================="
+	green "BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
+	yellow "1.安装脚本【推荐原版BBR+FQ】"
+	yellow "2.回退主目录"
+	red "=============================================================="
+	read -p "请选择：" installBBRStatus
+	case "$installBBRStatus" in
+		1 ) wget -N --no-check-certificate "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
+		2 ) $return;;
+		* ) red "请输入正确数字 [1-2]"; sleep 1; bbrInstall;;
+		esac
+		}
+
 # IPv6
 function menu01(){
 	status
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose01
 		case "$choose01" in
 		1 ) 	modify=$modify1;	install;;
 		2 )	modify=$modify2;	install;;
 		3 ) 	uninstall;;
+		4 )	return=menu01;bbrInstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu01;;
+		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu01;;
 		esac
 		}
 
@@ -227,14 +244,16 @@ function menu10(){
 	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
 	green " 2. 为 IPv4 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose10
 		case "$choose10" in
 		1 ) 	modify=$modify3;	install;;
 		2 ) 	modify=$modify4;	install;;
 		3 ) 	uninstall;;
+		4 )	return=menu10;bbrInstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu10;;
+		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu10;;
 		esac
 		}
 
@@ -243,13 +262,15 @@ function menu11(){
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 3. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose11
 		case "$choose11" in
 		1 ) 	modify=$modify5;	install;;
 		2 ) 	uninstall;;
+		3 )	return=menu11;bbrInstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu11;;
+		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu11;;
 		esac
 		}
 
@@ -257,12 +278,14 @@ function menu11(){
 function menu2(){ 
 	status
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 2. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose2
         	case "$choose2" in
 		1 ) 	uninstall;;
+		2 )	return=menu2;bbrInstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-1]"; sleep 1; menu2;;
+		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu2;;
 		esac
 		}
 
