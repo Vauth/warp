@@ -13,7 +13,7 @@ yellow(){
 if [[ $(id -u) != 0 ]]; then red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " ; exit 0; fi
 
 # 判断当前 WARP 状态
-if [[ $(wg) =~ private ]] >/dev/null 2>&1
+if [[ $(wget -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp ) =~ on ||  $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp ) =~ on ]]
 	then wgcf=WARP已开启
 	else wgcf=WARP未开启
 fi
