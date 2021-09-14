@@ -213,7 +213,7 @@ bbrInstall() {
 	red "=============================================================="
 	read -p "请选择：" installBBRStatus
 	case "$installBBRStatus" in
-		1 ) wget -N --no-check-certificate "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh
+		1 ) wget -N --no-check-certificate "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
 		2 ) case "$plan" in
 			01 ) menu01;; 10 ) menu10;; 11 ) menu11;; 2 ) menu2;;
 			esac;;
