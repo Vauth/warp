@@ -216,12 +216,11 @@ bbrInstall() {
 		1 ) wget -N --no-check-certificate "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh
 		2 ) case "$plan" in
 			01 ) menu01;; 10 ) menu10;; 11 ) menu11;; 2 ) menu2;;
-			esac
+			esac;;
+		3 )	bbrInstall;;
 		* ) 	red "请输入正确数字 [1-2]"; sleep 1; bbrInstall;;
+		esac
 		}
-
-
-
 
 # IPv6
 function menu01(){
@@ -229,6 +228,7 @@ function menu01(){
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose01
 		case "$choose01" in
@@ -247,6 +247,7 @@ function menu10(){
 	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
 	green " 2. 为 IPv4 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose10
 		case "$choose10" in
@@ -264,6 +265,7 @@ function menu11(){
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 3. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose11
 		case "$choose11" in
@@ -279,6 +281,7 @@ function menu11(){
 function menu2(){ 
 	status
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 2. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose2
         	case "$choose2" in
