@@ -90,4 +90,4 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 所需文件：
 * WGCF 项目原作者：https://github.com/ViRb3/wgcf/releases
 * WireGuard-GO 编译自官方：https://git.zx2c4.com/wireguard-go/
-* ylx2016 的成熟作品：https://github.com/ylx2016/Linux-NetSpeed]
+* ylx2016 的成熟作品：https://github.com/ylx2016/Linux-NetSpeed
