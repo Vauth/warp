@@ -19,7 +19,7 @@ yellow(){
 [[ $(hostnamectl | grep -i Architecture) =~ arm ]] && architecture=arm64 || architecture=amd64
 
 # 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go，	1=KVM,		2=openvz或者lxc
-[[ $(hostnamectl | grep -i Virtualization | awk -F ': ' '{print $2}') =~ openvz|lxc ]] && virtualization=1 || virtualization=0
+[[ $(hostnamectl | grep -i Virtualization) =~ openvz|lxc ]] && virtualization=1 || virtualization=0
 
 # 判断当前 IPv4 状态
 [[ $(ping -4 -c1 -W1 114.114.114.114) ]] >/dev/null 2>&1 && ipv4=1 || ipv4=0
@@ -151,7 +151,6 @@ function install(){
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 	green " 进度  3/3： 运行 WGCF "
 	green " 后台获取 WARP IP 中，有时候长达5分钟，请耐心等待。"
-	wg-quick up wgcf >/dev/null 2>&1
 	until [[ -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
