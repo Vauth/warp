@@ -10,46 +10,28 @@ yellow(){
 }
 
 # 必须以root运行脚本
-if [[ $(id -u) != 0 ]]; then red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " ; exit 0; fi
+[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " && exit 0
 
 # 判断当前 WARP 状态
-if [[ -n $(wget -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ||  $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]]
-	then wgcf=WARP已开启
-	else wgcf=WARP未开启
-fi
+[[ -n $(wget -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) || $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && wgcf=WARP已开启 || wgcf=WARP未开启
 
 # 判断处理器架构
-if [[ $(hostnamectl) =~ .*arm.* ]]
-	then architecture=arm64
-	else architecture=amd64
-fi
+[[ $(hostnamectl | grep -i Architecture) =~ arm ]] && architecture=arm64 || architecture=amd64; echo $architecture
 
 # 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go，	1=KVM,		2=openvz或者lxc
-if [[ $(hostnamectl | grep -i Virtualization | awk -F ': ' '{print $2}') =~ openvz|lxc ]]
-	then virtualization=1
-	else virtualization=0
-fi
+[[ $(hostnamectl | grep -i Virtualization | awk -F ': ' '{print $2}') =~ openvz|lxc ]] && virtualization=1 || virtualization=0
 
 # 判断当前 IPv4 状态
-if ping -4 -c1 -W1 114.114.114.114 >/dev/null 2>&1
-        then ipv4=1
-        else ipv4=0
-fi
+[[ $(ping -4 -c1 -W1 114.114.114.114) ]] >/dev/null 2>&1 && ipv4=1 || ipv4=0
 
 # 判断当前 IPv6 状态
-if ping -6 -c1 -W1 2400:3200::1 >/dev/null 2>&1
-        then ipv6=1
-        else ipv6=0
-fi
+[[ $(ping -6 -c1 -W1 2400:3200::1) ]] >/dev/null 2>&1 && ipv6=1 || ipv6=0
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 wg=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
-if  [[ $virtualization -eq 0 && $(($(uname  -r | awk -F . '{print $1 }') * 100 +  $(uname  -r | awk -F . '{print $2 }'))) -lt 506 ]]; then wg=1; fi
+[[ $virtualization -eq 0 && $(($(uname  -r | awk -F . '{print $1 }') * 100 +  $(uname  -r | awk -F . '{print $2 }'))) -lt 506 ]] && wg=1
 
 # 变量 plan 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
-if [[ $wgcf == WARP已开启 ]]
-	then plan=2
-	else plan=$ipv4$ipv6
-fi
+[[ $wgcf == WARP已开启 ]] && plan=2 || plan=$ipv4$ipv6
 
 # WGCF 配置修改
 modify1="sed -i '/\:\:\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf"
@@ -96,7 +78,7 @@ function install(){
 		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		if [[ $wg == 1 ]]; then apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms; fi
+		[[ $wg == 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms
 
 	# Ubuntu 运行以下脚本
 	     elif [[ $(hostnamectl | tr A-Z a-z ) =~ ubuntu ]]; then
@@ -112,17 +94,17 @@ function install(){
 
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
-		yum -y install net-tools wireguard-tools
+		yum -y install curl net-tools wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		if [[ $wg == 1 ]]; then curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-		yum -y install epel-release wireguard-dkms; fi
+		[[ $wg == 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
+		yum -y install epel-release wireguard-dkms
 
 		# 升级所有包同时也升级软件和系统内核
 		yum -y update
 
 		# 添加执行文件环境变量
-		if [[ $PATH =~ /usr/local/bin ]]; then export PATH=$PATH; else export PATH=$PATH:/usr/local/bin; fi
+		[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 
 	# 如都不符合，提示,删除临时文件并中止脚本
 	     else 
@@ -136,9 +118,6 @@ function install(){
 
 	# 安装并认证 WGCF
 	green " 进度  2/3： 安装 WGCF "
-	
-	# 判断系统架构是 AMD 还是 ARM
-	if [[ $(hostnamectl) =~ .*arm.* ]]; then architecture=arm64; else architecture=amd64; fi
 
 	# 判断 wgcf 的最新版本
 	latest=$(wget --no-check-certificate -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
@@ -150,10 +129,7 @@ function install(){
 	chmod +x /usr/local/bin/wgcf
 	
 	# 如是 lXC，安装 wireguard-go
-	if [[ $virtualization == 1 ]]; then
- 	wget -N --no-check-certificate -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
-	chmod +x /usr/bin/wireguard-go
-	fi
+	[[ $virtualization == 1 ]] && wget -N --no-check-certificate -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
 	
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
 	rm -f wgcf-account.toml
@@ -203,8 +179,8 @@ function uninstall(){
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
-	if [[ -e /etc/gai.conf ]]; then sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf; fi
-	if [[ -z $(wg) ]] >/dev/null 2>&1; then green " WGCF 已彻底删除 " ; else red " 没有清除干净，请重启(reboot)后尝试再次删除 " ; fi
+	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
+	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除 " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
 		}
 
 # 安装BBR
