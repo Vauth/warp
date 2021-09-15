@@ -150,7 +150,7 @@ function install(){
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 	green " 进度  3/3： 运行 WGCF "
-	green " 后台获取 warp IP 中，有时候长达5分钟，请耐心等待。"
+	green " 后台获取 WARP IP 中，有时候长达5分钟，请耐心等待。"
 	wg-quick up wgcf >/dev/null 2>&1
 	until [[ -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]
 	  do
@@ -166,7 +166,7 @@ function install(){
 
 	# 结果提示
 	endTime_s=`date +%s`
-	green " 恭喜！WARP已开启，总耗时:$(( $endTime_s - $startTime_s ))秒，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) "
+	green " 恭喜！WARP已开启，总耗时:$(( $endTime_s - $startTime_s ))秒 "
 	[[ $(wget -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) " || green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) "
 	[[ $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) " || green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) "
 
