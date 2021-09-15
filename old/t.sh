@@ -16,7 +16,7 @@ yellow(){
 [[ -n $(wget -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) || $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && wgcf=WARP已开启 || wgcf=WARP未开启
 
 # 判断处理器架构
-[[ $(hostnamectl | grep -i Architecture) =~ arm ]] && architecture=arm64 || architecture=amd64; echo $architecture
+[[ $(hostnamectl | grep -i Architecture) =~ arm ]] && architecture=arm64 || architecture=amd64
 
 # 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go，	1=KVM,		2=openvz或者lxc
 [[ $(hostnamectl | grep -i Virtualization | awk -F ': ' '{print $2}') =~ openvz|lxc ]] && virtualization=1 || virtualization=0
