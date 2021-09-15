@@ -31,7 +31,7 @@ yellow(){
 [[ $virtualization -eq 0 && $(($(uname  -r | awk -F . '{print $1 }') * 100 +  $(uname  -r | awk -F . '{print $2 }'))) -lt 506 ]] && wg=1
 
 # 变量 plan 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
-[[ $wgcf == WARP已开启 ]] && plan=2 || plan=$ipv4$ipv6
+[[ $wgcf = WARP已开启 ]] && plan=2 || plan=$ipv4$ipv6
 
 # WGCF 配置修改
 modify1="sed -i '/\:\:\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf"
@@ -78,7 +78,7 @@ function install(){
 		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		[[ $wg == 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms
+		[[ $wg = 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms
 
 	# Ubuntu 运行以下脚本
 	     elif [[ $(hostnamectl | tr A-Z a-z ) =~ ubuntu ]]; then
@@ -97,7 +97,7 @@ function install(){
 		yum -y install curl net-tools wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		[[ $wg == 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
+		[[ $wg = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
 		yum -y install epel-release wireguard-dkms
 
 		# 升级所有包同时也升级软件和系统内核
