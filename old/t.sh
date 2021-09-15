@@ -47,7 +47,7 @@ function status(){
 	red "======================================================================================================================\n"
 	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') "
 	[[ $(wget -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green "	IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) " || green "	IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) "
-	[[ $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green "	IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) " || green "	IPv4：$(wget -T1 -t1 -qO- -6 ip.gs) "
+	[[ $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green "	IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) " || green "	IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) "
 	green "	$wgcf "
 	red "======================================================================================================================\n"
 		}    
@@ -167,7 +167,9 @@ function install(){
 	# 结果提示
 	endTime_s=`date +%s`
 	green " 恭喜！WARP已开启，总耗时:$(( $endTime_s - $startTime_s ))秒，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) "
-	
+	[[ $(wget -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) " || green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) "
+	[[ $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) " || green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) "
+
 	# 删除临时文件
 	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
 		}
