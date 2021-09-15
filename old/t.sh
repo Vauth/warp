@@ -129,7 +129,7 @@ function install(){
 	chmod +x /usr/local/bin/wgcf
 
 	# 如是 lXC，安装 wireguard-go
-	[[ $virtualization == 1 ]] && wget -N --no-check-certificate -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
+	[[ $virtualization = 1 ]] && wget -N --no-check-certificate -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
 	rm -f wgcf-account.toml
@@ -206,16 +206,16 @@ function menu01(){
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 4. 升级内核、安装BBR、DD脚本 "
+	[[ $virtualization = 0 ]] && green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose01
 		case "$choose01" in
 		1 ) 	modify=$modify1;	install;;
 		2 )	modify=$modify2;	install;;
 		3 ) 	uninstall;;
-		4 )	return=menu01;bbrInstall;;
+		[[ $virtualization = 0 ]] && 4 )	return=menu01;bbrInstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu01;;
+		[[ $virtualization = 0 ]] && * )	red "请输入正确数字 [0-4]" || * )	red "请输入正确数字 [0-3]"; sleep 1; menu01;;
 		esac
 		}
 
@@ -225,16 +225,16 @@ function menu10(){
 	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
 	green " 2. 为 IPv4 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 4. 升级内核、安装BBR、DD脚本 "
+	[[ $virtualization = 0 ]] && green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose10
 		case "$choose10" in
 		1 ) 	modify=$modify3;	install;;
 		2 ) 	modify=$modify4;	install;;
 		3 ) 	uninstall;;
-		4 )	return=menu10;bbrInstall;;
+		[[ $virtualization = 0 ]] && 4 )	return=menu10;bbrInstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu10;;
+		[[ $virtualization = 0 ]] && * )	red "请输入正确数字 [0-4]" || * )	red "请输入正确数字 [0-3]"; sleep 1; menu10;;
 		esac
 		}
 
@@ -243,15 +243,15 @@ function menu11(){
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 3. 升级内核、安装BBR、DD脚本 "
+	[[ $virtualization = 0 ]] && green " 3. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose11
 		case "$choose11" in
 		1 ) 	modify=$modify5;	install;;
 		2 ) 	uninstall;;
-		3 )	return=menu11;bbrInstall;;
+		[[ $virtualization = 0 ]] && 3 )	return=menu11;bbrInstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu11;;
+		[[ $virtualization = 0 ]] && * )	red "请输入正确数字 [0-3]" || * )	red "请输入正确数字 [0-2]"; sleep 1; menu11;;
 		esac
 		}
 
@@ -259,14 +259,14 @@ function menu11(){
 function menu2(){ 
 	status
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 2. 升级内核、安装BBR、DD脚本 "
+	[[ $virtualization = 0 ]] && green " 2. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose2
         	case "$choose2" in
 		1 ) 	uninstall;;
-		2 )	return=menu2;bbrInstall;;
+		[[ $virtualization = 0 ]] && 2 )	return=menu2;bbrInstall;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu2;;
+		[[ $virtualization = 0 ]] && * )	red "请输入正确数字 [0-2]" || * )	red "请输入正确数字 [0-1]"; sleep 1; menu2;;
 		esac
 		}
 
