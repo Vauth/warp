@@ -21,7 +21,7 @@
 * 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统
 * 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM
 * 智能分析内网和公网IP生成 WGCF 配置文件
-* 结束后会有结果提示，并自动清理安装时的临时文件
+* 输出结果，提示是否使用 WARP IP ，并自动清理安装时的临时文件
 
 ## WARP好处
 
@@ -32,7 +32,7 @@
 * 能让 IPv6 only VPS 上做的节点支持 Telegram
 * IPv6 建的节点能在只支持 IPv4 的 PassWall、ShadowSocksR Plus+ 上使用
 
-![menu.jpg](https://i.loli.net/2021/09/08/kmq816Vpl5Us9ng.jpg)
+![image.png](https://i.loli.net/2021/09/15/Rc3V1C8sS7QMung.png)
 
 ## 运行脚本
 
