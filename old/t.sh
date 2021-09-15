@@ -129,7 +129,7 @@ function install(){
 	chmod +x /usr/local/bin/wgcf
 
 	# 如是 lXC，安装 wireguard-go
-	[[ $virtualization == 1 ]] && wget -N --no-check-certificate -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
+	[[ $virtualization = 1 ]] && wget -N --no-check-certificate -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
 	rm -f wgcf-account.toml
@@ -206,7 +206,7 @@ function menu01(){
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 4. 升级内核、安装BBR、DD脚本 "
+	[[ $virtualization = 1 ]] && green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" choose01
 		case "$choose01" in
