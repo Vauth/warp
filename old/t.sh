@@ -151,6 +151,7 @@ function install(){
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 	green " 进度  3/3： 运行 WGCF "
 	green " 后台获取 WARP IP 中，有时候长达5分钟，请耐心等待。"
+	wg-quick up wgcf >/dev/null 2>&1
 	until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) && -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
