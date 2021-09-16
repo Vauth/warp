@@ -13,7 +13,7 @@ yellow(){
 [[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " && exit 0
 
 # 判断当前 WARP 状态
-[[ -n $(wget -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) || $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && wgcf=WARP已开启 || wgcf=WARP未开启
+[[ $(wget -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) || $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && wgcf=WARP已开启 || wgcf=WARP未开启
 
 # 判断处理器架构
 [[ $(hostnamectl | grep -i Architecture) =~ arm ]] && architecture=arm64 || architecture=amd64
@@ -151,7 +151,6 @@ function install(){
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 	green " 进度  3/3： 运行 WGCF "
 	green " 后台获取 WARP IP 中，有时候长达5分钟，请耐心等待。"
-	wg-quick up wgcf >/dev/null 2>&1
 	until [[ -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
@@ -162,7 +161,7 @@ function install(){
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 
 	# 优先使用 IPv4 网络
-	[[ -e /etc/gai.conf ]] && [[ -n $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
+	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 结果提示
 	endTime_s=`date +%s`
