@@ -30,14 +30,11 @@ v6=$(wget -T1 -t1 -qO- -6 ip.gs) >/dev/null 2>&1
 [[ -n $v6 ]] && ipv6=1 || ipv6=0
 [[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv6=1
 
-# 判断当前 WARP 状态
-[[ $warpv4 = 1 || $warpv6 = 1 ]] && wgcf=WARP已开启 || wgcf=WARP未开启
+# 判断当前 WARP 状态，决定变量 plan，变量 plan 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
+[[ $warpv4 = 1 || $warpv6 = 1 ]] && plan=2 || plan=$ipv4$ipv6
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 wg=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $virtualization -eq 0 && $(($(uname  -r | awk -F . '{print $1 }') * 100 +  $(uname  -r | awk -F . '{print $2 }'))) -lt 506 ]] && wg=1
-
-# 变量 plan 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
-[[ $wgcf = WARP已开启 ]] && plan=2 || plan=$ipv4$ipv6
 
 # WGCF 配置修改
 modify1="sed -i '/\:\:\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf"
@@ -54,8 +51,8 @@ function status(){
 	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') "
 	[[ $warpv4 = 1 ]] && green "	IPv4：$v4 ( WARP IPv4 ) " || green "	IPv4：$v4 "
 	[[ $warpv6 = 1 ]] && green "	IPv6：$v6 ( WARP IPv6 ) " || green "	IPv6：$v6 "
-	green "	$wgcf "
-	red "======================================================================================================================\n"
+	[[ $plan = 2 ]] && green "	WARP 已开启" || green "	WARP 未开启 "
+ 	red "\n======================================================================================================================\n"
 		}    
 
 # WGCF 安装
