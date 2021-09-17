@@ -22,10 +22,10 @@ yellow(){
 [[ $(hostnamectl | grep -i Virtualization) =~ openvz|lxc ]] && virtualization=1 || virtualization=0
 
 # 判断当前 IPv4 状态
-[[ $(ping -4 -c1 -W1 114.114.114.114) ]] >/dev/null 2>&1 && ipv4=1 || ipv4=0
+[[ -n $(wget -T1 -t1 -qO- -4 ip.gs) ]] >/dev/null 2>&1 && ipv4=1 || ipv4=0
 
 # 判断当前 IPv6 状态
-[[ $(ping -6 -c1 -W1 2400:3200::1) ]] >/dev/null 2>&1 && ipv6=1 || ipv6=0
+[[ -n $(wget -T1 -t1 -qO- -6 ip.gs) ]] >/dev/null 2>&1 && ipv6=1 || ipv6=0
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 wg=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $virtualization -eq 0 && $(($(uname  -r | awk -F . '{print $1 }') * 100 +  $(uname  -r | awk -F . '{print $2 }'))) -lt 506 ]] && wg=1
