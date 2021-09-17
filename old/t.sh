@@ -81,7 +81,7 @@ function install(){
 		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		[[ $wg = 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r);apt -y --no-install-recommends install wireguard-dkms
+		[[ $wg = 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r) && apt -y --no-install-recommends install wireguard-dkms
 
 	# Ubuntu 运行以下脚本
 	     elif [[ $(hostnamectl | tr A-Z a-z ) =~ ubuntu ]]; then
