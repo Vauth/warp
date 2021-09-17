@@ -9,10 +9,10 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 
-green " 检查环境中…… "
-
 # 必须以root运行脚本
 [[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " && exit 0
+
+green " 检查环境中…… "
 
 # 判断处理器架构
 [[ $(hostnamectl | grep -i Architecture) =~ arm ]] && architecture=arm64 || architecture=amd64
