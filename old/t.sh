@@ -9,11 +9,11 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 
-# 判断操作系统，只支持 Debian、Ubuntu 和 Centos,如非上述操作系统，删除临时文件，退出脚本
+# 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 [[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && system=debian
 [[ $(hostnamectl | tr A-Z a-z) =~ ubuntu ]] && system=ubuntu
 [[ $(hostnamectl | tr A-Z a-z) =~ centos ]] && system=centos
-[[ -z $system ]] && red " 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 " && rm -f menu.sh && exit 0
+[[ -z $system ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统 " && rm -f menu.sh && exit 0
 
 # 必须以root运行脚本
 [[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " && exit 0
