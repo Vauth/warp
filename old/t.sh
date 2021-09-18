@@ -9,6 +9,10 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 
+[[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && system=debian
+[[ $(hostnamectl | tr A-Z a-z) =~ ubuntu ]] && system=ubuntu
+[[ $(hostnamectl | tr A-Z a-z) =~ centos ]] && system=centos
+
 # 必须以root运行脚本
 [[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " && exit 0
 
@@ -53,11 +57,7 @@ function status(){
 	[[ $warpv6 = 1 ]] && green "	IPv6：$v6 ( WARP IPv6 ) " || green "	IPv6：$v6 "
 	[[ $plan = 2 ]] && green "	WARP 已开启" || green "	WARP 未开启 "
  	red "\n======================================================================================================================\n"
-		}    
-
-
-
-
+		}
 
 # WGCF 安装
 function install(){
@@ -67,9 +67,11 @@ function install(){
 	# 先删除之前安装，可能导致失败的文件
 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
 	
-	# 判断系统，安装差异部分，安装依赖
+        # 根据系统选择需要安装的依赖
+        case "$system" in
+	
 	# Debian 运行以下脚本
-	function debian(){
+	debian )
 		# 更新源
 		apt -y update
 
@@ -85,19 +87,19 @@ function install(){
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		[[ $wg = 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r) && apt -y --no-install-recommends install wireguard-dkms
-		}
+		;;
 		
 	# Ubuntu 运行以下脚本
-	function ubuntu(){
+	ubuntu )
 		# 更新源
 		apt -y update
 
 		# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
-		}
+		;;
 		
 	# CentOS 运行以下脚本
-	function centos(){
+	centos )
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
 		yum -y install curl net-tools wireguard-tools
@@ -111,13 +113,7 @@ function install(){
 
 		# 添加执行文件环境变量
 		[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
-		}
-
-        # 根据系统选择需要安装的依赖
-        case "$system" in
-        debian ) debian;;
-        ubuntu ) ubuntu;;
-        centos ) centos;;
+		;;
         esac
 
 	# 安装并认证 WGCF
