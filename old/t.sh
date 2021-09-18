@@ -9,6 +9,12 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 
+# 判断系统，如不是 Debian、Ubuntu或CentOS，将会删除临时文件并退出
+[[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && system=debian
+[[ $(hostnamectl | tr A-Z a-z) =~ ubuntu ]] && system=ubuntn
+[[ $(hostnamectl | tr A-Z a-z) =~ centos ]] && system=centos
+[[ -z $system ]] && rm -f menu.sh && red " 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 " && exit 0
+
 # 必须以root运行脚本
 [[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " && exit 0
 
@@ -65,8 +71,7 @@ function install(){
 
 	# 判断系统，安装差异部分，安装依赖
 	# Debian 运行以下脚本
-	if [[ $(hostnamectl | tr A-Z a-z ) =~ debian ]]; then
-
+	function debian(){
 		# 更新源
 		apt -y update
 
@@ -82,19 +87,19 @@ function install(){
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		[[ $wg = 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r) && apt -y --no-install-recommends install wireguard-dkms
-
+		}
+		
 	# Ubuntu 运行以下脚本
-	     elif [[ $(hostnamectl | tr A-Z a-z ) =~ ubuntu ]]; then
-
+	function ubuntu(){
 		# 更新源
 		apt -y update
 
 		# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
-
+		}
+		
 	# CentOS 运行以下脚本
-	     elif [[ $(hostnamectl | tr A-Z a-z ) =~ centos ]]; then
-
+	function centos(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
 		yum -y install curl net-tools wireguard-tools
@@ -108,17 +113,12 @@ function install(){
 
 		# 添加执行文件环境变量
 		[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
+		}
 
-	# 如都不符合，提示,删除临时文件并中止脚本
-	     else 
-		# 提示找不到相应操作系统
-		green " 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 "
-
-		# 删除临时目录和文件，退出脚本
-		rm -f menu.sh
-		exit 0
-	fi
-
+	case "$system" in
+	debian ) debian;; ubuntu ) ubuntu;; centos ) centos;;
+	esac
+	
 	# 安装并认证 WGCF
 	green " 进度  2/3： 安装 WGCF "
 
