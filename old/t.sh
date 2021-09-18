@@ -40,7 +40,7 @@ v6=$(wget -T1 -t1 -qO- -6 ip.gs) >/dev/null 2>&1
 [[ $warpv4 = 1 || $warpv6 = 1 ]] && plan=2 || plan=$ipv4$ipv6
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 wg=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
-[[ $virtualization -eq 0 && $(($(uname  -r | awk -F . '{print $1 }') * 100 +  $(uname  -r | awk -F . '{print $2 }'))) -lt 506 ]] && wg=1
+[[ $virtualization = 0 && $(($(uname  -r | uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && wg=1
 
 # WGCF 配置修改
 modify1="sed -i '/\:\:\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf"
@@ -54,7 +54,7 @@ status(){
 	clear
 	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp\n脚本特点:\n	* 根据不同系统综合情况显示不同的菜单，避免出错\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统\n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出结果，提示是否使用 WARP IP ，并自动清理安装时的临时文件\n"
 	red "======================================================================================================================\n"
-	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
+	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | cut -d : -f2)\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
 	[[ $warpv4 = 1 ]] && green "	IPv4：$v4 ( WARP IPv4 ) " || green "	IPv4：$v4 "
 	[[ $warpv6 = 1 ]] && green "	IPv6：$v6 ( WARP IPv6 ) " || green "	IPv6：$v6 "
 	[[ $plan = 2 ]] && green "	WARP 已开启" || green "	WARP 未开启 "
@@ -178,8 +178,8 @@ install(){
 
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
-	systemctl disable wg-quick@$(wg | grep interface: |awk '{print $2}') 2>/dev/null
-	wg-quick down $(wg | grep interface: |awk '{print $2}') 2>/dev/null
+	systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) 2>/dev/null
+	wg-quick down $(wg | grep interface | cut -d : -f2) 2>/dev/null
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
