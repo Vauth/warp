@@ -63,11 +63,14 @@ status(){
 
 # WGCF 安装
 install(){
-	startTime_s=`date +%s`
+	# 脚本开始时间
+	start=`date +%s`
+	
 	green " 进度  1/3： 安装系统依赖 "
 
-	# 先删除之前安装，可能导致失败的文件
+	# 先删除之前安装，可能导致失败的文件，添加环境变量
 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
+	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
         # 根据系统选择需要安装的依赖
         case "$system" in
@@ -112,9 +115,6 @@ install(){
 
 		# 升级所有包同时也升级软件和系统内核
 		yum -y update
-
-		# 添加执行文件环境变量
-		[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 		;;
         esac
 
@@ -136,7 +136,7 @@ install(){
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
 	rm -f wgcf-account.toml
 	yellow " WGCF 注册中…… "
-	until [[ -a wgcf-account.toml ]]
+	until [[ -e wgcf-account.toml ]]
 	  do
 	   echo | wgcf register >/dev/null 2>&1
 	done
@@ -167,8 +167,8 @@ install(){
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 结果提示
-	endTime_s=`date +%s`
-	green " 恭喜！WARP已开启，总耗时:$(( $endTime_s - $startTime_s ))秒 "
+	end=`date +%s`
+	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
 	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) " || green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) "
 	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) " || green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) "
 
