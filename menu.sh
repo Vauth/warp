@@ -27,12 +27,14 @@ green " 检查环境中…… "
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && virtualization=1 || virtualization=0
 
 # 判断当前 IPv4 状态
-v4=$(wget -T1 -t1 -qO- -4 ip.gs) >/dev/null 2>&1 
+v4=$(wget -T1 -t1 -qO- -4 ip.gs)
+v4country=$(wget -qO- -4 https://ip.gs/country)
 [[ -n $v4 ]] && ipv4=1|| ipv4=0
 [[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv4=1
 
 # 判断当前 IPv6 状态
-v6=$(wget -T1 -t1 -qO- -6 ip.gs) >/dev/null 2>&1 
+v6=$(wget -T1 -t1 -qO- -6 ip.gs)
+v6country=$(wget -qO- -6 https://ip.gs/country)
 [[ -n $v6 ]] && ipv6=1 || ipv6=0
 [[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv6=1
 
@@ -52,11 +54,11 @@ modify5='sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.1
 # VPS 当前状态
 status(){
 	clear
-	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp\n脚本特点:\n	* 根据不同系统综合情况显示不同的菜单，避免出错\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统\n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出结果，提示是否使用 WARP IP ，并自动清理安装时的临时文件\n"
+	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp\n脚本特点:\n	* 根据不同系统综合情况显示不同的菜单，避免出错\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统\n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
 	red "======================================================================================================================\n"
 	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | cut -d : -f2)\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
-	[[ $warpv4 = 1 ]] && green "	IPv4：$v4 ( WARP IPv4 ) " || green "	IPv4：$v4 "
-	[[ $warpv6 = 1 ]] && green "	IPv6：$v6 ( WARP IPv6 ) " || green "	IPv6：$v6 "
+	[[ $warpv4 = 1 ]] && green "	IPv4：$v4 ( WARP IPv4 ) $v4country " || green "	IPv4：$v4 $v4country "
+	[[ $warpv6 = 1 ]] && green "	IPv6：$v6 ( WARP IPv6 ) $v6country " || green "	IPv6：$v6 $v6country "
 	[[ $plan = 2 ]] && green "	WARP 已开启" || green "	WARP 未开启 "
  	red "\n======================================================================================================================\n"
 		}
@@ -104,7 +106,7 @@ install(){
 		;;
 		
 	# CentOS 运行以下脚本
-	centos )		
+	centos )
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
 		yum -y install curl net-tools wireguard-tools
@@ -169,8 +171,8 @@ install(){
 	# 结果提示
 	end=`date +%s`
 	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
-	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) " || green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) "
-	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) " || green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) "
+	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) $(wget -qO- -4 https://ip.gs/country) " || green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) $(wget -qO- -4 https://ip.gs/country) "
+	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) $(wget -qO- -6 https://ip.gs/country) " || green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) $(wget -qO- -4 https://ip.gs/country) "
 
 	# 删除临时文件
 	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
@@ -184,7 +186,7 @@ uninstall(){
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$(wget -T1 -t1 -qO- -4 ip.gs)\n IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
+	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) $(wget -qO- -4 https://ip.gs/country)\n IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) $(wget -qO- -6 https://ip.gs/country) " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
 		}
 
 # 安装BBR
