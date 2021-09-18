@@ -184,7 +184,7 @@ uninstall(){
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除 " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
+	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除！	IPv4：$(wget -T1 -t1 -qO- -4 ip.gs)	IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
 		}
 
 # 安装BBR
