@@ -115,6 +115,7 @@ function install(){
 		[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 		}
 
+	# 根据系统选择需要安装的依赖
 	case "$system" in
 	debian ) debian;; ubuntu ) ubuntu;; centos ) centos;;
 	esac
