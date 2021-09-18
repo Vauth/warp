@@ -28,13 +28,13 @@ green " 检查环境中…… "
 
 # 判断当前 IPv4 状态
 v4=$(wget -T1 -t1 -qO- -4 ip.gs)
-v4country=$(wget -qO- -4 https://ip.gs/country)
+v4country=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
 [[ -n $v4 ]] && ipv4=1|| ipv4=0
 [[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv4=1
 
 # 判断当前 IPv6 状态
 v6=$(wget -T1 -t1 -qO- -6 ip.gs)
-v6country=$(wget -qO- -6 https://ip.gs/country)
+v6country=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
 [[ -n $v6 ]] && ipv6=1 || ipv6=0
 [[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv6=1
 
@@ -171,8 +171,8 @@ install(){
 	# 结果提示
 	end=`date +%s`
 	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
-	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) $(wget -qO- -4 https://ip.gs/country) " || green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) $(wget -qO- -4 https://ip.gs/country) "
-	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) $(wget -qO- -6 https://ip.gs/country) " || green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) $(wget -qO- -4 https://ip.gs/country) "
+	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) $(wget -T1 -t1 -qO- -4 https://ip.gs/country) " || green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) $(wget -T1 -t1 -qO- -4 https://ip.gs/country) "
+	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) $(wget -T1 -t1 -qO- -6 https://ip.gs/country) " || green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) $(wget -T1 -t1 -qO- -6 https://ip.gs/country) "
 
 	# 删除临时文件
 	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
@@ -186,7 +186,7 @@ uninstall(){
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) $(wget -qO- -4 https://ip.gs/country)\n IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) $(wget -qO- -6 https://ip.gs/country) " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
+	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) $(wget -T1 -t1 -qO- -4 https://ip.gs/country)\n IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) $(wget -T1 -t1 -qO- -6 https://ip.gs/country) " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
 		}
 
 # 安装BBR
