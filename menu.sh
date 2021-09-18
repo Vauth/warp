@@ -15,10 +15,10 @@ yellow(){
 green " 检查环境中…… "
 
 # 判断处理器架构
-[[ $(hostnamectl | grep -i Architecture) =~ arm ]] && architecture=arm64 || architecture=amd64
+[[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && architecture=arm64 || architecture=amd64
 
 # 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go，	1=KVM,		2=openvz或者lxc
-[[ $(hostnamectl | grep -i Virtualization) =~ openvz|lxc ]] && virtualization=1 || virtualization=0
+[[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && virtualization=1 || virtualization=0
 
 # 判断当前 IPv4 状态
 v4=$(wget -T1 -t1 -qO- -4 ip.gs) >/dev/null 2>&1 
