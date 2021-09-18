@@ -83,7 +83,7 @@ function debian(){
 	}
 		
 # Ubuntu 运行以下脚本
-	unction ubuntu(){
+function ubuntu(){
 	# 更新源
 	apt -y update
 
