@@ -9,9 +9,11 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 
+# 判断操作系统，只支持 Debian、Ubuntu 和 Centos,如非上述操作系统，删除临时文件，退出脚本
 [[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && system=debian
 [[ $(hostnamectl | tr A-Z a-z) =~ ubuntu ]] && system=ubuntu
 [[ $(hostnamectl | tr A-Z a-z) =~ centos ]] && system=centos
+[[ -z $system ]] && red " 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 " && rm -f menu.sh && exit 0
 
 # 必须以root运行脚本
 [[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " && exit 0
@@ -48,11 +50,11 @@ modify4='sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.1
 modify5='sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 114.114.114.114 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 114.114.114.114 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2400:3200::1 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2400:3200::1 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i '"'s/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf"
 
 # VPS 当前状态
-function status(){
+status(){
 	clear
 	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp\n脚本特点:\n	* 根据不同系统综合情况显示不同的菜单，避免出错\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统\n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出结果，提示是否使用 WARP IP ，并自动清理安装时的临时文件\n"
 	red "======================================================================================================================\n"
-	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') "
+	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
 	[[ $warpv4 = 1 ]] && green "	IPv4：$v4 ( WARP IPv4 ) " || green "	IPv4：$v4 "
 	[[ $warpv6 = 1 ]] && green "	IPv6：$v6 ( WARP IPv6 ) " || green "	IPv6：$v6 "
 	[[ $plan = 2 ]] && green "	WARP 已开启" || green "	WARP 未开启 "
@@ -60,7 +62,7 @@ function status(){
 		}
 
 # WGCF 安装
-function install(){
+install(){
 	startTime_s=`date +%s`
 	green " 进度  1/3： 安装系统依赖 "
 
@@ -175,7 +177,7 @@ function install(){
 		}
 
 # 关闭 WARP 网络接口，并删除 WGCF
-function uninstall(){
+uninstall(){
 	systemctl disable wg-quick@$(wg | grep interface: |awk '{print $2}') 2>/dev/null
 	wg-quick down $(wg | grep interface: |awk '{print $2}') 2>/dev/null
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
@@ -201,7 +203,7 @@ bbrInstall() {
 		}
 
 # IPv6
-function menu01(){
+menu01(){
 	status
 	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
@@ -220,7 +222,7 @@ function menu01(){
 		}
 
 # IPv4
-function menu10(){
+menu10(){
 	status
 	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
 	green " 2. 为 IPv4 only 添加双栈网络接口 "
@@ -239,7 +241,7 @@ function menu10(){
 		}
 
 # IPv4+IPv6
-function menu11(){ 
+menu11(){ 
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
@@ -256,7 +258,7 @@ function menu11(){
 		}
 
 # 已开启 warp 网络接口
-function menu2(){ 
+menu2(){ 
 	status
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 2. 升级内核、安装BBR、DD脚本 "
