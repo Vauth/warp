@@ -102,6 +102,9 @@ install(){
 		
 	# CentOS 运行以下脚本
 	centos )
+		# 添加执行文件环境变量
+		[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
+		
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
 		yum -y install curl net-tools wireguard-tools
@@ -112,9 +115,6 @@ install(){
 
 		# 升级所有包同时也升级软件和系统内核
 		yum -y update
-
-		# 添加执行文件环境变量
-		[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 		;;
         esac
 
