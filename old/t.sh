@@ -10,9 +10,9 @@ yellow(){
 }
 
 # 判断系统，如不是 Debian、Ubuntu或CentOS，将会删除临时文件并退出
-[[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && system=debian
-[[ $(hostnamectl | tr A-Z a-z) =~ ubuntu ]] && system=ubuntn
-[[ $(hostnamectl | tr A-Z a-z) =~ centos ]] && system=centos
+[[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && system=1
+[[ $(hostnamectl | tr A-Z a-z) =~ ubuntu ]] && system=2
+[[ $(hostnamectl | tr A-Z a-z) =~ centos ]] && system=3
 [[ -z $system ]] && rm -f menu.sh && red " 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 " && exit 0
 
 # 必须以root运行脚本
@@ -54,7 +54,7 @@ function status(){
 	clear
 	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp\n脚本特点:\n	* 根据不同系统综合情况显示不同的菜单，避免出错\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统\n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出结果，提示是否使用 WARP IP ，并自动清理安装时的临时文件\n"
 	red "======================================================================================================================\n"
-	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') "
+	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2 "
 	[[ $warpv4 = 1 ]] && green "	IPv4：$v4 ( WARP IPv4 ) " || green "	IPv4：$v4 "
 	[[ $warpv6 = 1 ]] && green "	IPv6：$v6 ( WARP IPv6 ) " || green "	IPv6：$v6 "
 	[[ $plan = 2 ]] && green "	WARP 已开启" || green "	WARP 未开启 "
@@ -117,7 +117,7 @@ function install(){
 
 	# 根据系统选择需要安装的依赖
 	case "$system" in
-	debian ) debian;; ubuntu ) ubuntu;; centos ) centos;;
+	1 ) debian;; 2 ) ubuntu;; 3 ) centos;;
 	esac
 	
 	# 安装并认证 WGCF
