@@ -139,7 +139,7 @@ install(){
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
 	rm -f wgcf-account.toml
 	yellow " WGCF 注册中…… "
-	until [[ -a wgcf-account.toml ]]
+	until [[ -e wgcf-account.toml ]]
 	  do
 	   echo | wgcf register >/dev/null 2>&1
 	done
