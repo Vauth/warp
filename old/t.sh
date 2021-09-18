@@ -71,7 +71,7 @@ function install(){
 
 	# 判断系统，安装差异部分，安装依赖
 	# Debian 运行以下脚本
-	debian(){
+	function debian(){
 		# 更新源
 		apt -y update
 
@@ -90,7 +90,7 @@ function install(){
 		}
 		
 	# Ubuntu 运行以下脚本
-	ubuntu(){
+	function ubuntu(){
 		# 更新源
 		apt -y update
 
@@ -99,7 +99,7 @@ function install(){
 		}
 		
 	# CentOS 运行以下脚本
-	centos(){
+	function centos(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
 		yum -y install curl net-tools wireguard-tools
