@@ -9,22 +9,16 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 
-# 判断系统，如不是 Debian、Ubuntu或CentOS，将会删除临时文件并退出
-[[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && system=debian
-[[ $(hostnamectl | tr A-Z a-z) =~ ubuntu ]] && system=ubuntu
-[[ $(hostnamectl | tr A-Z a-z) =~ centos ]] && system=centos
-[[ -z $system ]] && rm -f menu.sh && red " 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 " && exit 0
-
 # 必须以root运行脚本
 [[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " && exit 0
 
 green " 检查环境中…… "
 
 # 判断处理器架构
-[[ $(hostnamectl | grep -i Architecture) =~ arm ]] && architecture=arm64 || architecture=amd64
+[[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && architecture=arm64 || architecture=amd64
 
 # 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go，	1=KVM,		2=openvz或者lxc
-[[ $(hostnamectl | grep -i Virtualization) =~ openvz|lxc ]] && virtualization=1 || virtualization=0
+[[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && virtualization=1 || virtualization=0
 
 # 判断当前 IPv4 状态
 v4=$(wget -T1 -t1 -qO- -4 ip.gs) >/dev/null 2>&1 
@@ -54,12 +48,16 @@ function status(){
 	clear
 	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp\n脚本特点:\n	* 根据不同系统综合情况显示不同的菜单，避免出错\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统\n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出结果，提示是否使用 WARP IP ，并自动清理安装时的临时文件\n"
 	red "======================================================================================================================\n"
-	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2 "
+	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | awk -F ':' '{print $2}')\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | awk -F ': ' '{print $2}') "
 	[[ $warpv4 = 1 ]] && green "	IPv4：$v4 ( WARP IPv4 ) " || green "	IPv4：$v4 "
 	[[ $warpv6 = 1 ]] && green "	IPv6：$v6 ( WARP IPv6 ) " || green "	IPv6：$v6 "
 	[[ $plan = 2 ]] && green "	WARP 已开启" || green "	WARP 未开启 "
  	red "\n======================================================================================================================\n"
-		}
+		}    
+
+
+
+
 
 # WGCF 安装
 function install(){
@@ -69,6 +67,59 @@ function install(){
 	# 先删除之前安装，可能导致失败的文件
 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
 	
+	# 判断系统，安装差异部分，安装依赖
+	# Debian 运行以下脚本
+	function debian(){
+		# 更新源
+		apt -y update
+
+		# 添加 backports 源,之后才能安装 wireguard-tools 
+		apt -y install lsb-release
+		echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
+
+		# 再次更新源
+		apt -y update
+
+		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+
+		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
+		[[ $wg = 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r) && apt -y --no-install-recommends install wireguard-dkms
+		}
+		
+	# Ubuntu 运行以下脚本
+	function ubuntu(){
+		# 更新源
+		apt -y update
+
+		# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+		}
+		
+	# CentOS 运行以下脚本
+	function centos(){
+		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+		yum -y install epel-release
+		yum -y install curl net-tools wireguard-tools
+
+		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
+		[[ $wg = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
+		yum -y install epel-release wireguard-dkms
+
+		# 升级所有包同时也升级软件和系统内核
+		yum -y update
+
+		# 添加执行文件环境变量
+		[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
+		}
+
+        # 根据系统选择需要安装的依赖
+        case "$system" in
+        debian ) debian;;
+        ubuntu ) ubuntu;;
+        centos ) centos;;
+        esac
+
 	# 安装并认证 WGCF
 	green " 进度  2/3： 安装 WGCF "
 
@@ -139,7 +190,7 @@ function uninstall(){
 		}
 
 # 安装BBR
-function bbrInstall() {
+bbrInstall() {
 	red "\n=============================================================="
 	green "BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
 	yellow "1.安装脚本【推荐原版BBR+FQ】"
@@ -166,7 +217,7 @@ function menu01(){
 		1 ) 	modify=$modify1;	install;;
 		2 )	modify=$modify2;	install;;
 		3 ) 	uninstall;;
-		4 )	return=menu01;bbrInstall;;
+		4 )	return=menu01;	bbrInstall;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu01;;
 		esac
@@ -185,7 +236,7 @@ function menu10(){
 		1 ) 	modify=$modify3;	install;;
 		2 ) 	modify=$modify4;	install;;
 		3 ) 	uninstall;;
-		4 )	return=menu10;bbrInstall;;
+		4 )	return=menu10;	bbrInstall;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu10;;
 		esac
@@ -202,7 +253,7 @@ function menu11(){
 		case "$choose11" in
 		1 ) 	modify=$modify5;	install;;
 		2 ) 	uninstall;;
-		3 )	return=menu11;bbrInstall;;
+		3 )	return=menu11;	bbrInstall;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu11;;
 		esac
@@ -217,7 +268,7 @@ function menu2(){
 	read -p "请输入数字:" choose2
         	case "$choose2" in
 		1 ) 	uninstall;;
-		2 )	return=menu2;bbrInstall;;
+		2 )	return=menu2;	bbrInstall;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu2;;
 		esac
