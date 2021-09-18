@@ -10,9 +10,9 @@ yellow(){
 }
 
 # 判断系统，如不是 Debian、Ubuntu或CentOS，将会删除临时文件并退出
-[[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && system=1
-[[ $(hostnamectl | tr A-Z a-z) =~ ubuntu ]] && system=2
-[[ $(hostnamectl | tr A-Z a-z) =~ centos ]] && system=3
+[[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && system=debian
+[[ $(hostnamectl | tr A-Z a-z) =~ ubuntu ]] && system=ubuntu
+[[ $(hostnamectl | tr A-Z a-z) =~ centos ]] && system=centos
 [[ -z $system ]] && rm -f menu.sh && red " 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 " && exit 0
 
 # 必须以root运行脚本
@@ -117,7 +117,9 @@ function install(){
 
 	# 根据系统选择需要安装的依赖
 	case "$system" in
-	1 ) debian;; 2 ) ubuntu;; 3 ) centos;;
+	debian ) debian;;
+	ubuntu ) ubuntu;;
+	centos ) centos;;
 	esac
 	
 	# 安装并认证 WGCF
