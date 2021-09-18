@@ -63,11 +63,14 @@ status(){
 
 # WGCF 安装
 install(){
-	startTime_s=`date +%s`
+	# 脚本开始时间
+	start=`date +%s`
+	
 	green " 进度  1/3： 安装系统依赖 "
 
-	# 先删除之前安装，可能导致失败的文件
+	# 先删除之前安装，可能导致失败的文件，添加环境变量
 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
+	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
         # 根据系统选择需要安装的依赖
         case "$system" in
@@ -167,8 +170,8 @@ install(){
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 结果提示
-	endTime_s=`date +%s`
-	green " 恭喜！WARP已开启，总耗时:$(( $endTime_s - $startTime_s ))秒 "
+	end=`date +%s`
+	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
 	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) " || green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) "
 	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) " || green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) "
 
