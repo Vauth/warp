@@ -61,6 +61,53 @@ function status(){
  	red "\n======================================================================================================================\n"
 		}    
 
+
+# 判断系统，安装差异部分，安装依赖
+# Debian 运行以下脚本
+function debian(){
+	# 更新源
+	apt -y update
+
+	# 添加 backports 源,之后才能安装 wireguard-tools 
+	apt -y install lsb-release
+	echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
+
+	# 再次更新源
+	apt -y update
+
+	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+
+	# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
+	[[ $wg = 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r) && apt -y --no-install-recommends install wireguard-dkms
+	}
+		
+# Ubuntu 运行以下脚本
+	unction ubuntu(){
+	# 更新源
+	apt -y update
+
+	# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+	apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+	}
+		
+# CentOS 运行以下脚本
+function centos(){
+	# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+	yum -y install epel-release
+	yum -y install curl net-tools wireguard-tools
+
+	# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
+	[[ $wg = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
+	yum -y install epel-release wireguard-dkms
+
+	# 升级所有包同时也升级软件和系统内核
+	yum -y update
+
+	# 添加执行文件环境变量
+	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
+	}
+
 # WGCF 安装
 function install(){
 	startTime_s=`date +%s`
@@ -68,52 +115,6 @@ function install(){
 
 	# 先删除之前安装，可能导致失败的文件
 	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
-
-	# 判断系统，安装差异部分，安装依赖
-	# Debian 运行以下脚本
-	function debian(){
-		# 更新源
-		apt -y update
-
-		# 添加 backports 源,之后才能安装 wireguard-tools 
-		apt -y install lsb-release
-		echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
-
-		# 再次更新源
-		apt -y update
-
-		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
-
-		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		[[ $wg = 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r) && apt -y --no-install-recommends install wireguard-dkms
-		}
-		
-	# Ubuntu 运行以下脚本
-	function ubuntu(){
-		# 更新源
-		apt -y update
-
-		# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
-		}
-		
-	# CentOS 运行以下脚本
-	function centos(){
-		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		yum -y install epel-release
-		yum -y install curl net-tools wireguard-tools
-
-		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		[[ $wg = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
-		yum -y install epel-release wireguard-dkms
-
-		# 升级所有包同时也升级软件和系统内核
-		yum -y update
-
-		# 添加执行文件环境变量
-		[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
-		}
 
 	# 根据系统选择需要安装的依赖
 	case "$system" in
