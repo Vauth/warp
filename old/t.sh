@@ -181,7 +181,7 @@ install(){
 
 	# 结果提示，脚本运行时间
 	[[ $warpv4 = 1 ]] && green " IPv4：$v4 ( WARP IPv4 ) $v4country " || green " IPv4：$v4 $v4country "
-	[[ $warpv6 = 1 ]] && green " IPv4：$v6 ( WARP IPv6 ) $v6country " || green " IPv6：$v6 $v6country "
+	[[ $warpv6 = 1 ]] && green " IPv6：$v6 ( WARP IPv6 ) $v6country " || green " IPv6：$v6 $v6country "
 
 	end=$(date +%s)
 	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
