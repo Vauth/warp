@@ -191,13 +191,18 @@ install(){
 
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
+	unset v4 v6 v4country v6country
 	systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) 2>/dev/null
 	wg-quick down $(wg | grep interface | cut -d : -f2) 2>/dev/null
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) $(wget -T1 -t1 -qO- -4 https://ip.gs/country)\n IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) $(wget -T1 -t1 -qO- -6 https://ip.gs/country) " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
+	v4=$(wget -T1 -t1 -qO- -4 ip.gs)
+	v6=$(wget -T1 -t1 -qO- -6 ip.gs)
+	v4country=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
+	v6country=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
+	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$v4 $v4country\n IPv6：$v6 $v6country " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
 		}
 
 # 安装BBR
