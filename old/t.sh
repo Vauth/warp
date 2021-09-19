@@ -161,7 +161,7 @@ install(){
 	unset v4 v6 v4country v6country warpv4 warpv6
 
 	wg-quick up wgcf >/dev/null 2>&1
-	until [[ -n $v4 && -n $v6 ]]
+	until [[ -n $(v4) && -n $(v6) ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
 	   wg-quick up wgcf >/dev/null 2>&1
@@ -192,8 +192,8 @@ install(){
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
 	unset v4 v6 v4country v6country
-	systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
-	wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
+	[[ -n $(wg) ]] && systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
+	[[ -n $(wg) ]] && wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
