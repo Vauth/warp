@@ -161,20 +161,25 @@ install(){
 	unset v4 v6 v4country v6country warpv4 warpv6
 
 	wg-quick up wgcf >/dev/null 2>&1
-	until [[ -n $v4 && -n $v6 ]]
+	until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) && -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
 	   wg-quick up wgcf >/dev/null 2>&1
-	   v4=$(wget -T1 -t1 -qO- -4 ip.gs)
-	   v6=$(wget -T1 -t1 -qO- -6 ip.gs)
 	done
 	v4country=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
 	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv4=1
 	v6country=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
 	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv6=1
 	
-	# 设置开机启动
+	# 设置开机启动，由于warp bug，有时候获取不了ip地址，在定时任务加了重启后自动刷网络
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
+	grep -qE '^@reboot[ ]*root[ ]*bash[ ]*/etc/wireguard/WARP_AutoUp.sh' /etc/crontab || echo '@reboot root bash /etc/wireguard/WARP_AutoUp.sh' >> /etc/crontab
+	echo 'wg-quick up wgcf >/dev/null 2>&1' > /etc/wireguard/WARP_AutoUp.sh
+	echo 'until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) && -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
+	echo '	do' >> /etc/wireguard/WARP_AutoUp.sh
+	echo '		wg-quick down wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
+	echo '		wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
+ 	echo '	done' >> /etc/wireguard/WARP_AutoUp.sh
 
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
@@ -198,6 +203,7 @@ uninstall(){
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
+	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
 	v4=$(wget -T1 -t1 -qO- -4 ip.gs)
 	v6=$(wget -T1 -t1 -qO- -6 ip.gs)
 	v4country=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
