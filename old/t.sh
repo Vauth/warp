@@ -152,7 +152,7 @@ install(){
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
-	
+
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），记录新的 IPv4 和 IPv6 地址和归属地
 	green " 进度  3/3： 运行 WGCF "
 	green " 后台获取 WARP IP 中，有时候长达5分钟，请耐心等待。"
@@ -161,7 +161,7 @@ install(){
 	unset v4 v6 v4country v6country warpv4 warpv6
 
 	wg-quick up wgcf >/dev/null 2>&1
-	until [[ -n $(v4) && -n $(v6) ]]
+	until [[ -n $v4 && -n $v6 ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
 	   wg-quick up wgcf >/dev/null 2>&1
