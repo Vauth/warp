@@ -155,7 +155,7 @@ install(){
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），记录新的 IPv4 和 IPv6 地址和归属地
 	green " 进度  3/3： 运行 WGCF "
-	green " 后台获取 WARP IP 中，有时候长达5分钟，请耐心等待。"
+	yellow " 后台获取 WARP IP 中…… "
 
 	# 清空之前的相关变量值
 	unset v4 v6 v4country v6country warpv4 warpv6
