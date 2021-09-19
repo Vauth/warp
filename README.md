@@ -7,7 +7,7 @@
 - [脚本特点](README.md#脚本特点)
 - [WARP好处](README.md#WARP好处)
 - [运行脚本](README.md#运行脚本)
-- [临时、永久关闭和开启WGCF网络接口](README.md#临时永久关闭和开启WGCF网络接口)
+- [WireGuard 网络接口数据，临时、永久关闭和开启WARP](README.md#WireGuard网络接口数据临时永久关闭和开启WARP)
 - [WARP原理](README.md#WARP原理)
 - [致谢](README.md#致谢下列作者和项目排名不分先后)
 
@@ -40,7 +40,9 @@
 wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && chmod +x menu.sh && ./menu.sh
 ```
 
-## 临时、永久关闭和开启WGCF网络接口
+## WireGuard 网络接口数据，临时、永久关闭和开启WARP
+
+WireGuard 网络接口数据，查看 ```wg```
 
 临时关闭 wgcf（reboot重启后恢复开启） ```wg-quick down wgcf``` ，恢复启动 ```wg-quick up wgcf```
 
