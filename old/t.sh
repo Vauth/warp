@@ -169,11 +169,11 @@ install(){
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
-	# 结果提示
-	end=$(date +%s)
-	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
+	# 结果提示，脚本运行时间
 	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) $(wget -T1 -t1 -qO- -4 https://ip.gs/country) " || green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) $(wget -T1 -t1 -qO- -4 https://ip.gs/country) "
 	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) $(wget -T1 -t1 -qO- -6 https://ip.gs/country) " || green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) $(wget -T1 -t1 -qO- -6 https://ip.gs/country) "
+	end=$(date +%s)
+	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
 
 	# 删除临时文件
 	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
