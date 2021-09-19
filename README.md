@@ -7,7 +7,7 @@
 - [脚本特点](README.md#脚本特点)
 - [WARP好处](README.md#WARP好处)
 - [运行脚本](README.md#运行脚本)
-- [WireGuard 网络接口数据，临时、永久关闭和开启WARP](README.md#WireGuard网络接口数据临时永久关闭和开启WARP)
+- [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
 - [WARP原理](README.md#WARP原理)
 - [致谢](README.md#致谢下列作者和项目排名不分先后)
 
@@ -40,11 +40,11 @@
 wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && chmod +x menu.sh && ./menu.sh
 ```
 
-## WireGuard 网络接口数据，临时、永久关闭和开启WARP
+## WARP 网络接口数据，临时、永久关闭和开启
 
 WireGuard 网络接口数据，查看 ```wg```
 
-临时关闭 wgcf（reboot重启后恢复开启） ```wg-quick down wgcf``` ，恢复启动 ```wg-quick up wgcf```
+临时关闭 WARP（reboot重启后恢复开启） ```wg-quick down wgcf``` ，恢复启动 ```wg-quick up wgcf```
 
 禁止开机启动 ```systemctl disable wg-quick@wgcf```,恢复开机启动 ```systemctl enable wg-quick@wgcf```
 
@@ -89,7 +89,7 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 * Luminous：https://luotianyi.vc/5252.html
 * Hiram：https://hiram.wang/cloudflare-wrap-vps
 
-所需文件：
+服务提供：
 * WGCF 项目原作者：https://github.com/ViRb3/wgcf/releases
 * WireGuard-GO 编译自官方：https://git.zx2c4.com/wireguard-go/
 * ylx2016 的成熟作品：https://github.com/ylx2016/Linux-NetSpeed
