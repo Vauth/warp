@@ -161,10 +161,14 @@ install(){
 	unset v4 v6 v4country v6country warpv4 warpv6
 
 	wg-quick up wgcf >/dev/null 2>&1
-	until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) && -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]
+	v4=$(wget -T1 -t1 -qO- -4 ip.gs)
+	v6=$(wget -T1 -t1 -qO- -6 ip.gs)
+	until [[ -n $v4 && -n $v6 ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
 	   wg-quick up wgcf >/dev/null 2>&1
+	   v4=$(wget -T1 -t1 -qO- -4 ip.gs)
+	   v6=$(wget -T1 -t1 -qO- -6 ip.gs)
 	done
 	v4country=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
 	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv4=1
