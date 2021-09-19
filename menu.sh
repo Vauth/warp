@@ -66,7 +66,7 @@ status(){
 # WGCF 安装
 install(){
 	# 脚本开始时间
-	start=`date +%s`
+	start=$(date +%s)
 	
 	green " 进度  1/3： 安装系统依赖 "
 
@@ -122,11 +122,11 @@ install(){
 
 	# 安装并认证 WGCF
 	green " 进度  2/3： 安装 WGCF "
-	
+
 	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.8
 	latest=$(wget --no-check-certificate -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
 	[[ -z $latest ]] && latest='2.2.8'
-	
+
 	# 安装 wgcf
 	wget -N --no-check-certificate -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
 
@@ -169,11 +169,11 @@ install(){
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
-	# 结果提示
-	end=`date +%s`
-	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
+	# 结果提示，脚本运行时间
 	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) $(wget -T1 -t1 -qO- -4 https://ip.gs/country) " || green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) $(wget -T1 -t1 -qO- -4 https://ip.gs/country) "
 	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) $(wget -T1 -t1 -qO- -6 https://ip.gs/country) " || green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) $(wget -T1 -t1 -qO- -6 https://ip.gs/country) "
+	end=$(date +%s)
+	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
 
 	# 删除临时文件
 	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
