@@ -179,15 +179,14 @@ install(){
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
+	# 删除临时文件
+	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
+
 	# 结果提示，脚本运行时间
 	[[ $warpv4 = 1 ]] && green " IPv4：$v4 ( WARP IPv4 ) $v4country " || green " IPv4：$v4 $v4country "
 	[[ $warpv6 = 1 ]] && green " IPv6：$v6 ( WARP IPv6 ) $v6country " || green " IPv6：$v6 $v6country "
-
 	end=$(date +%s)
 	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
-
-	# 删除临时文件
-	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
 		}
 
 # 关闭 WARP 网络接口，并删除 WGCF
