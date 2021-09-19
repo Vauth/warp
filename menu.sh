@@ -153,41 +153,56 @@ install(){
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
 
-	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
+	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），记录新的 IPv4 和 IPv6 地址和归属地
 	green " 进度  3/3： 运行 WGCF "
 	green " 后台获取 WARP IP 中，有时候长达5分钟，请耐心等待。"
+
+	# 清空之前的相关变量值
+	unset v4 v6 v4country v6country warpv4 warpv6
+
 	wg-quick up wgcf >/dev/null 2>&1
-	until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) && -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]
+	until [[ -n $v4 && -n $v6 ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
 	   wg-quick up wgcf >/dev/null 2>&1
+	   v4=$(wget -T1 -t1 -qO- -4 ip.gs)
+	   v6=$(wget -T1 -t1 -qO- -6 ip.gs)
 	done
-
+	v4country=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
+	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv4=1
+	v6country=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
+	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv6=1
+	
 	# 设置开机启动
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
-	# 结果提示，脚本运行时间
-	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) ( WARP IPv4 ) $(wget -T1 -t1 -qO- -4 https://ip.gs/country) " || green " IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) $(wget -T1 -t1 -qO- -4 https://ip.gs/country) "
-	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) ( WARP IPv6 ) $(wget -T1 -t1 -qO- -6 https://ip.gs/country) " || green " IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) $(wget -T1 -t1 -qO- -6 https://ip.gs/country) "
-	end=$(date +%s)
-	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
-
 	# 删除临时文件
 	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
+
+	# 结果提示，脚本运行时间
+	[[ $warpv4 = 1 ]] && green " IPv4：$v4 ( WARP IPv4 ) $v4country " || green " IPv4：$v4 $v4country "
+	[[ $warpv6 = 1 ]] && green " IPv6：$v6 ( WARP IPv6 ) $v6country " || green " IPv6：$v6 $v6country "
+	end=$(date +%s)
+	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
 		}
 
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
-	systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) 2>/dev/null
-	wg-quick down $(wg | grep interface | cut -d : -f2) 2>/dev/null
+	unset v4 v6 v4country v6country
+	systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
+	wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$(wget -T1 -t1 -qO- -4 ip.gs) $(wget -T1 -t1 -qO- -4 https://ip.gs/country)\n IPv6：$(wget -T1 -t1 -qO- -6 ip.gs) $(wget -T1 -t1 -qO- -6 https://ip.gs/country) " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
+	v4=$(wget -T1 -t1 -qO- -4 ip.gs)
+	v6=$(wget -T1 -t1 -qO- -6 ip.gs)
+	v4country=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
+	v6country=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
+	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$v4 $v4country\n IPv6：$v6 $v6country " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
 		}
 
 # 安装BBR
