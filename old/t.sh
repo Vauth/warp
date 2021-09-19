@@ -201,7 +201,7 @@ uninstall(){
 	wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf menu.sh
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /etc/wireguard wgcf-account.toml wgcf-profile.conf menu.sh 
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
 	v4=$(wget -T1 -t1 -qO- -4 ip.gs)
