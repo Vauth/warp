@@ -23,8 +23,8 @@ green " 检查环境中…… "
 # 判断处理器架构
 [[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && architecture=arm64 || architecture=amd64
 
-# 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go，	1=KVM,		2=openvz或者lxc
-[[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && virtualization=1 || virtualization=0
+# 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go		1=openvz或者lxc
+[[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && virtualization=1
 
 # 判断当前 IPv4 状态
 v4=$(wget -T1 -t1 -qO- -4 ip.gs)
@@ -42,7 +42,7 @@ v6country=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
 [[ $warpv4 = 1 || $warpv6 = 1 ]] && plan=2 || plan=$ipv4$ipv6
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 wg=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
-[[ $virtualization = 0 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && wg=1
+[[ $virtualization != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && wg=1
 
 # WGCF 配置修改
 modify1="sed -i '/\:\:\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf"
