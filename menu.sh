@@ -75,10 +75,7 @@ install(){
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
         # 根据系统选择需要安装的依赖
-        case "$system" in
-	
-	# Debian 运行以下脚本
-	debian )
+	debian(){
 		# 更新源
 		apt -y update
 
@@ -94,19 +91,17 @@ install(){
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		[[ $wg = 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r) && apt -y --no-install-recommends install wireguard-dkms
-		;;
+		}
 		
-	# Ubuntu 运行以下脚本
-	ubuntu )
+	ubuntu(){
 		# 更新源
 		apt -y update
 
 		# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
-		;;
+		}
 		
-	# CentOS 运行以下脚本
-	centos )
+	centos(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
 		yum -y install curl net-tools wireguard-tools
@@ -117,8 +112,9 @@ install(){
 
 		# 升级所有包同时也升级软件和系统内核
 		yum -y update
-		;;
-        esac
+		}
+
+	$system
 
 	# 安装并认证 WGCF
 	green " 进度  2/3： 安装 WGCF "
