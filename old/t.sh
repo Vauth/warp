@@ -301,6 +301,4 @@ menu2(){
 		esac
 		}
 
-case "$plan" in
-   01 ) menu01;; 10 ) menu10;; 11 ) menu11;; 2 ) menu2;;
-esac
+menu$plan
