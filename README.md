@@ -37,7 +37,7 @@
 ## 运行脚本
 
 ```bash
-wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && chmod +x menu.sh && ./menu.sh
+wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh
 ```
 
 ## WARP 网络接口数据，临时、永久关闭和开启
