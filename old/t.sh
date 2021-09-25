@@ -12,16 +12,16 @@ yellow(){
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
 lan4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+'); [[ $? = 0 ]] && connect=1
 lan6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+'); [[ $? = 0 ]] && connect=1
-[[ $connect != 1 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许这是大陆 VPS " && rm -f menu.sh && exit 0
+[[ $connect != 1 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:https://github.com/fscarmen/warp/issues " && rm -f menu.sh && exit 0
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 [[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && system=debian
 [[ $(hostnamectl | tr A-Z a-z) =~ ubuntu ]] && system=ubuntu
 [[ $(hostnamectl | tr A-Z a-z) =~ centos ]] && system=centos
-[[ -z $system ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统 " && rm -f menu.sh && exit 0
+[[ -z $system ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:https://github.com/fscarmen/warp/issues  " && rm -f menu.sh && exit 0
 
 # 必须以root运行脚本
-[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本,可以输入 sudo -i 后重新下载运行。 " && exit 0
+[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:https://github.com/fscarmen/warp/issues  " && rm -f menu.sh && exit 0
 
 green " 检查环境中…… "
 
