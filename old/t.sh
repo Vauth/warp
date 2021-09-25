@@ -32,16 +32,14 @@ green " 检查环境中…… "
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && lxc=1
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
-wan4=$(wget -T1 -t1 -qO- -4 ip.gs)
-wan6=$(wget -T1 -t1 -qO- -6 ip.gs)
-[[ -n $wan4 ]] && ipv4=1 || ipv4=0
-[[ -n $wan6 ]] && ipv6=1 || ipv6=0
-lan4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+')
-lan6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
-country4=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
-country6=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
-[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp4=1
-[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp6=1
+wan4=$(wget -T1 -t1 -qO- -4 ip.gs) && ipv4=1 || ipv4=0
+wan6=$(wget -T1 -t1 -qO- -6 ip.gs) && ipv6=1 || ipv6=0
+[[ $ipv4 = 1 ]] && lan4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+')
+[[ $ipv6 = 1 ]] && lan6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
+[[ $ipv4 = 1 ]] && country4=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
+[[ $ipv6 = 1 ]] && country6=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
+[[ $ipv4 = 1 ]] && [[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp4=1
+[[ $ipv6 = 1 ]] && [[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp6=1
 
 # 判断当前 WARP 状态，决定变量 plan，变量 plan 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
 [[ $warp4 = 1 || $warp6 = 1 ]] && plan=2 || plan=$ipv4$ipv6
