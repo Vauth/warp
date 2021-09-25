@@ -10,8 +10,8 @@ yellow(){
 }
 
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
-lan4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+'); [[ $? = 0 ]] && connect=1
-lan6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+'); [[ $? = 0 ]] && connect=1
+ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1; [[ $? = 0 ]] && connect=1
+ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1; [[ $? = 0 ]] && connect=1
 [[ $connect != 1 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:https://github.com/fscarmen/warp/issues " && rm -f menu.sh && exit 0
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
@@ -31,16 +31,16 @@ green " 检查环境中…… "
 # 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && lxc=1
 
-# 判断当前 IPv4 状态
+# 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 wan4=$(wget -T1 -t1 -qO- -4 ip.gs)
-country4=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
-[[ -n $wan4 ]] && ipv4=1|| ipv4=0
-[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp4=1
-
-# 判断当前 IPv6 状态
 wan6=$(wget -T1 -t1 -qO- -6 ip.gs)
-country6=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
+[[ -n $wan4 ]] && ipv4=1 || ipv4=0
 [[ -n $wan6 ]] && ipv6=1 || ipv6=0
+lan4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+')
+lan6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
+country4=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
+country6=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
+[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp4=1
 [[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp6=1
 
 # 判断当前 WARP 状态，决定变量 plan，变量 plan 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
@@ -180,12 +180,14 @@ install(){
 	# 设置开机启动，由于warp bug，有时候获取不了ip地址，在定时任务加了重启后自动刷网络
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 	grep -qE '^@reboot[ ]*root[ ]*bash[ ]*/etc/wireguard/WARP_AutoUp.sh' /etc/crontab || echo '@reboot root bash /etc/wireguard/WARP_AutoUp.sh' >> /etc/crontab
-	echo 'wg-quick up wgcf >/dev/null 2>&1' > /etc/wireguard/WARP_AutoUp.sh
+	echo 'if [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]]; then' > /etc/wireguard/WARP_AutoUp.sh
+	echo 'wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
 	echo 'until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) && -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '	do' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '		wg-quick down wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '		wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
  	echo '	done' >> /etc/wireguard/WARP_AutoUp.sh
+	echo 'fi' >> /etc/wireguard/WARP_AutoUp.sh
 
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
