@@ -86,7 +86,7 @@ install(){
 
 		# 添加 backports 源,之后才能安装 wireguard-tools 
 		apt -y install lsb-release
-		echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" | tee /etc/apt/sources.list.d/backports.list
+		echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" > /etc/apt/sources.list.d/backports.list
 
 		# 再次更新源
 		apt -y update
