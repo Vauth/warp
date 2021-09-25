@@ -34,7 +34,6 @@ green " 检查环境中…… "
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 wan4=$(wget -T1 -t1 -qO- -4 ip.gs)
 wan6=$(wget -T1 -t1 -qO- -6 ip.gs)
-lan4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') 
 [[ -n $wan4 ]] && ipv4=1 || ipv4=0
 [[ -n $wan6 ]] && ipv6=1 || ipv6=0
 lan4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+')
