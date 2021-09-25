@@ -10,8 +10,8 @@ yellow(){
 }
 
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
-ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1; [[ $? = 0 ]] && connect=1
-ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1; [[ $? = 0 ]] && connect=1
+lan4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+'); [[ $? = 0 ]] && connect=1
+lan6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+'); [[ $? = 0 ]] && connect=1
 [[ $connect != 1 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许这是大陆 VPS " && rm -f menu.sh && exit 0
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
@@ -32,29 +32,29 @@ green " 检查环境中…… "
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && lxc=1
 
 # 判断当前 IPv4 状态
-v4=$(wget -T1 -t1 -qO- -4 ip.gs)
-v4country=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
-[[ -n $v4 ]] && ipv4=1|| ipv4=0
-[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv4=1
+wan4=$(wget -T1 -t1 -qO- -4 ip.gs)
+country4=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
+[[ -n $wan4 ]] && ipv4=1|| ipv4=0
+[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp4=1
 
 # 判断当前 IPv6 状态
-v6=$(wget -T1 -t1 -qO- -6 ip.gs)
-v6country=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
-[[ -n $v6 ]] && ipv6=1 || ipv6=0
-[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv6=1
+wan6=$(wget -T1 -t1 -qO- -6 ip.gs)
+country6=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
+[[ -n $wan6 ]] && ipv6=1 || ipv6=0
+[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp6=1
 
 # 判断当前 WARP 状态，决定变量 plan，变量 plan 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
-[[ $warpv4 = 1 || $warpv6 = 1 ]] && plan=2 || plan=$ipv4$ipv6
+[[ $warp4 = 1 || $warp6 = 1 ]] && plan=2 || plan=$ipv4$ipv6
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 wg=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $lxc != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && wg=1
 
 # WGCF 配置修改，其中用到的 162.159.192.1 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的IP
-modify1="sed -i '/\:\:\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf"
-modify2='sed -i "7 s/^/PostUp = ip -6 rule add from $(ip route get 2606:4700:d0::a29f:c001 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $(ip route get 2606:4700:d0::a29f:c001 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i '"'s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf && sed -i 's/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g' wgcf-profile.conf"
-modify3="sed -i '/0\.\0\/0/d' wgcf-profile.conf && sed -i 's/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf"
-modify4='sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 162.159.192.1 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 162.159.192.1 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i '"'s/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf"
-modify5='sed -i "7 s/^/PostUp = ip -4 rule add from $(ip route get 162.159.192.1 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $(ip route get 162.159.192.1 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from $(ip route get 2606:4700:d0::a29f:c001 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from $(ip route get 2606:4700:d0::a29f:c001 | grep -oP '"'src \K\S+') lookup main\n/"'" wgcf-profile.conf && sed -i '"'s/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf"
+modify1='sed -i "/\:\:\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
+modify2='sed -i "7 s/^/PostUp = ip -6 rule add from $lan6 lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from $lan6 lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf && sed -i "s/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g" wgcf-profile.conf'
+modify3='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+modify4='sed -i "7 s/^/PostUp = ip -4 rule add from $lan4 lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $lan4 lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+modify5='sed -i "7 s/^/PostUp = ip -4 rule add from $lan4 lookup main\n/"'" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from $lan4 lookup main\n/"'" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from $lan6 lookup main\n/"'" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from $lan6 lookup main\n/"'" wgcf-profile.conf && sed -i '"'s/engage.cloudflareclient.com/162.159.192.1/g' wgcf-profile.conf && sed -i 's/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g' wgcf-profile.conf"
 
 # VPS 当前状态
 status(){
@@ -62,8 +62,8 @@ status(){
 	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp\n脚本特点:\n	* 根据不同系统综合情况显示不同的菜单，避免出错\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统\n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
 	red "======================================================================================================================\n"
 	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | cut -d : -f2)\n	内核：$(uname -r)\n	处理器架构：$architecture\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
-	[[ $warpv4 = 1 ]] && green "	IPv4：$v4 ( WARP IPv4 ) $v4country " || green "	IPv4：$v4 $v4country "
-	[[ $warpv6 = 1 ]] && green "	IPv6：$v6 ( WARP IPv6 ) $v6country " || green "	IPv6：$v6 $v6country "
+	[[ $warp4 = 1 ]] && green "	IPv4：$wan4 ( WARP IPv4 ) $country4 " || green "	IPv4：$wan4 $country4 "
+	[[ $warp6 = 1 ]] && green "	IPv6：$wan6 ( WARP IPv6 ) $country6 " || green "	IPv6：$wan6 $country6 "
 	[[ $plan = 2 ]] && green "	WARP 已开启" || green "	WARP 未开启 "
  	red "\n======================================================================================================================\n"
 		}
@@ -160,22 +160,22 @@ install(){
 	yellow " 后台获取 WARP IP 中…… "
 
 	# 清空之前的相关变量值
-	unset v4 v6 v4country v6country warpv4 warpv6
+	unset wan4 wan6 country4 country6 warp4 warp6
 
 	wg-quick up wgcf >/dev/null 2>&1
-	v4=$(wget -T1 -t1 -qO- -4 ip.gs)
-	v6=$(wget -T1 -t1 -qO- -6 ip.gs)
-	until [[ -n $v4 && -n $v6 ]]
+	wan4=$(wget -T1 -t1 -qO- -4 ip.gs)
+	wan6=$(wget -T1 -t1 -qO- -6 ip.gs)
+	until [[ -n $wan4 && -n $wan6 ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
 	   wg-quick up wgcf >/dev/null 2>&1
-	   v4=$(wget -T1 -t1 -qO- -4 ip.gs)
-	   v6=$(wget -T1 -t1 -qO- -6 ip.gs)
+	   wan4=$(wget -T1 -t1 -qO- -4 ip.gs)
+	   wan6=$(wget -T1 -t1 -qO- -6 ip.gs)
 	done
-	v4country=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
-	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv4=1
-	v6country=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
-	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warpv6=1
+	country4=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
+	[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp4=1
+	country6=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
+	[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp6=1
 	
 	# 设置开机启动，由于warp bug，有时候获取不了ip地址，在定时任务加了重启后自动刷网络
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
@@ -194,15 +194,15 @@ install(){
 	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
 
 	# 结果提示，脚本运行时间
-	[[ $warpv4 = 1 ]] && green " IPv4：$v4 ( WARP IPv4 ) $v4country " || green " IPv4：$v4 $v4country "
-	[[ $warpv6 = 1 ]] && green " IPv6：$v6 ( WARP IPv6 ) $v6country " || green " IPv6：$v6 $v6country "
+	[[ $warp4 = 1 ]] && green " IPv4：$wan4 ( WARP IPv4 ) $country4 " || green " IPv4：$wan4 $country4 "
+	[[ $warp6 = 1 ]] && green " IPv6：$wan6 ( WARP IPv6 ) $country6 " || green " IPv6：$wan6 $country6 "
 	end=$(date +%s)
 	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
 		}
 
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
-	unset v4 v6 v4country v6country
+	unset wan4 wan6 country4 country6
 	systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
 	wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
 	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
@@ -210,11 +210,11 @@ uninstall(){
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /etc/wireguard wgcf-account.toml wgcf-profile.conf menu.sh
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
-	v4=$(wget -T1 -t1 -qO- -4 ip.gs)
-	v6=$(wget -T1 -t1 -qO- -6 ip.gs)
-	v4country=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
-	v6country=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
-	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$v4 $v4country\n IPv6：$v6 $v6country " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
+	wan4=$(wget -T1 -t1 -qO- -4 ip.gs)
+	wan6=$(wget -T1 -t1 -qO- -6 ip.gs)
+	country4=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
+	country6=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
+	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$wan4 $country4\n IPv6：$wan6 $country6 " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
 		}
 
 # 安装BBR
