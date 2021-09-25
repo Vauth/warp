@@ -176,12 +176,14 @@ install(){
 	# 设置开机启动，由于warp bug，有时候获取不了ip地址，在定时任务加了重启后自动刷网络
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 	grep -qE '^@reboot[ ]*root[ ]*bash[ ]*/etc/wireguard/WARP_AutoUp.sh' /etc/crontab || echo '@reboot root bash /etc/wireguard/WARP_AutoUp.sh' >> /etc/crontab
-	echo 'wg-quick up wgcf >/dev/null 2>&1' > /etc/wireguard/WARP_AutoUp.sh
+	echo 'if [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]]; then' > /WARP_AutoUp.sh
+	echo 'wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
 	echo 'until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) && -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '	do' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '		wg-quick down wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '		wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
  	echo '	done' >> /etc/wireguard/WARP_AutoUp.sh
+	echo 'fi' >> /etc/wireguard/WARP_AutoUp.sh
 
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
