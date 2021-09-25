@@ -33,7 +33,9 @@ green " 检查环境中…… "
 # 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && lxc=1
 
-# 判断当前 IPv4 与 IPv6 归属 及 WARP 是否开启
+# 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
+wan4=$(wget -T1 -t1 -qO- -4 ip.gs)
+wan6=$(wget -T1 -t1 -qO- -6 ip.gs)
 country4=$(wget -T1 -t1 -qO- -4 https://ip.gs/country)
 country6=$(wget -T1 -t1 -qO- -6 https://ip.gs/country)
 [[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp4=1
