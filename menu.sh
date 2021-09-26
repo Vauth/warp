@@ -10,9 +10,9 @@ yellow(){
 }
 
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
-ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1; [[ $? = 0 ]] && connect=1
-ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1; [[ $? = 0 ]] && connect=1
-[[ $connect != 1 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:https://github.com/fscarmen/warp/issues " && rm -f menu.sh && exit 0
+ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1 && ipv4=1 || ipv4=0
+ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && ipv6=1 || ipv6=0
+[[ $ipv4$ipv6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:https://github.com/fscarmen/warp/issues " && rm -f menu.sh && exit 0
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 [[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && system=debian
@@ -32,12 +32,12 @@ green " 检查环境中…… "
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && lxc=1
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
-wan4=$(wget -T1 -t1 -qO- -4 ip.gs) && ipv4=1 || ipv4=0
-wan6=$(wget -T1 -t1 -qO- -6 ip.gs) && ipv6=1 || ipv6=0
 [[ $ipv4 = 1 ]] && lan4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
+		wan4=$(wget -T1 -t1 -qO- -4 ip.gs) &&
 		country4=$(wget -T1 -t1 -qO- -4 https://ip.gs/country) &&
 		[[ $(wget -T1 -t1 -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp4=1
 [[ $ipv6 = 1 ]] && lan6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
+		wan6=$(wget -T1 -t1 -qO- -6 ip.gs) &&
 		country6=$(wget -T1 -t1 -qO- -6 https://ip.gs/country) &&
 		[[ $(wget -T1 -t1 -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && warp6=1
 
