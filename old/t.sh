@@ -10,8 +10,8 @@ yellow(){
 }
 
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
-ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1; [[ $? = 0 ]] && ipv4=1 || ipv4=0
-ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1; [[ $? = 0 ]] && ipv6=1 || ipv6=0
+ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1 && ipv4=1 || ipv4=0
+ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && ipv6=1 || ipv6=0
 [[ $ipv4$ipv6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:https://github.com/fscarmen/warp/issues " && rm -f menu.sh && exit 0
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
