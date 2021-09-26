@@ -107,7 +107,7 @@ install(){
 	centos(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
-		yum -y install curl net-tools wireguard-tools
+		yum -y install net-tools wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		[[ $wg = 1 ]] && wget -N -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
