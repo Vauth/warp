@@ -14,36 +14,36 @@ blue(){
 
 function warp6(){
 rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
-wget -N --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/old/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
+wget -N --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/old/warp6.sh" && chmod +x warp6.sh && ./warp6.sh
 }
 
 function dualstack6(){
 rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
-wget -N --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/old/dualstack6.sh" && chmod +x dualstack6.sh && ./dualstack6.sh
+wget -N --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/old/dualstack6.sh" && chmod +x dualstack6.sh && ./dualstack6.sh
 }
 
 function warp4(){
 rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
 echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
-wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/old/warp4.sh" && chmod +x warp4.sh && ./warp4.sh
+wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/old/warp4.sh" && chmod +x warp4.sh && ./warp4.sh
 }
 
 function dualstack46(){
 rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
 echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
-wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/old/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
+wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/old/dualstack46.sh" && chmod +x dualstack46.sh && ./dualstack46.sh
 }
 
 function warp(){
 rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
 echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
-wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/old/warp.sh" && chmod +x warp.sh && ./warp.sh
+wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/old/warp.sh" && chmod +x warp.sh && ./warp.sh
 }
 
 function dualstack(){
 rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
 echo -e nameserver 2a00:1098:2b::1 > /etc/resolv.conf
-wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/main/old/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
+wget -N -6 --no-check-certificate "https://cdn.jsdelivr.net/gh/fscarmen/warp/old/dualstack.sh" && chmod +x dualstack.sh && ./dualstack.sh
 }
 
 function uninstall(){
