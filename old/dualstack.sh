@@ -91,7 +91,7 @@ cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 echo -e "\033[32m (3/3) 运行 WGCF \033[0m"
 echo -e "\033[32m 后台获取 warp IP 中，有时候需10分钟，请耐心等待。 \033[0m"
 wg-quick up wgcf >/dev/null 2>&1
-until [[ -n $(wget -T1 -t1 -qO- -6 ip.gs) ]]
+until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) ]]
   do
    wg-quick down wgcf >/dev/null 2>&1
    wg-quick up wgcf >/dev/null 2>&1
@@ -104,7 +104,7 @@ systemctl enable wg-quick@wgcf >/dev/null 2>&1
 if [[ -e /etc/gai.conf ]]; then grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf >/dev/null 2>&1; fi
 
 # 结果提示
-echo -e "\033[32m 恭喜！为 IPv4 only VPS 添加 warp 已成功，IPv6地址为:$(wget -qO- -6 ip.gs) \033[0m"
+echo -e "\033[32m 恭喜！WARP已开启，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) \033[0m"
 
 # 删除临时文件
 rm -f dualstack.sh wgcf-account.toml wgcf-profile.conf menu.sh
