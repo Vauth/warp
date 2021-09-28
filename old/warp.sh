@@ -104,7 +104,7 @@ systemctl enable wg-quick@wgcf >/dev/null 2>&1
 if [[ -e /etc/gai.conf ]]; then grep -qE '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf || echo 'precedence ::ffff:0:0/96  100' | tee -a /etc/gai.conf >/dev/null 2>&1; fi
 
 # 结果提示
-echo -e "\033[32m 恭喜！为 IPv6 only VPS 添加 warp 已成功，IPv4地址为:$(wget -qO- -4 ip.gs) \033[0m"
+echo -e "\033[32m 恭喜！WARP已开启，IPv4地址为:$(wget -qO- -4 ip.gs)，IPv6地址为:$(wget -qO- -6 ip.gs) \033[0m"
 
 # 删除临时文件
 rm -f warp.sh wgcf-account.toml wgcf-profile.conf menu.sh
