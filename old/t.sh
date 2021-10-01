@@ -62,7 +62,7 @@ status(){
 	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | cut -d : -f2)\n	内核：$(uname -r)\n	处理器架构：$ARCHITECTURE\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
 	[[ $WARP4 = 1 ]] && green "	IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 " || green "	IPv4：$WAN4 $COUNTRY4 "
 	[[ $WARP6 = 1 ]] && green "	IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 " || green "	IPv6：$WAN6 $COUNTRY6 "
-	[[ $PLAN = 2 ]] && green "	WARP 已开启" || green "	WARP 未开启 "
+	[[ $PLAN = 2 ]] && green "	WARP 已开启" || green "	WARP 未开启 $PLAN"
  	red "\n======================================================================================================================\n"
 		}
 
