@@ -48,11 +48,11 @@ green " 检查环境中…… "
 [[ $LXC != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && wg=1
 
 # WGCF 配置修改，其中用到的 162.159.192.1 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的IP
-modify1='sed -i "/\:\:\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
-modify2='sed -i "7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf && sed -i "s/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g" wgcf-profile.conf'
-modify3='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
-modify4='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
-modify5='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+MODIFY1='sed -i "/\:\:\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
+MODIFY2='sed -i "7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf && sed -i "s/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g" wgcf-profile.conf'
+MODIFY3='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+MODIFY4='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+MODIFY5='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 
 # VPS 当前状态
 status(){
@@ -148,7 +148,7 @@ install(){
 	wgcf generate >/dev/null 2>&1
 
 	# 修改配置文件
-	echo $modify | sh
+	echo $MODIFY | sh
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
@@ -222,8 +222,8 @@ bbrInstall() {
 	yellow "1.安装脚本【推荐原版BBR+FQ】"
 	yellow "2.回退主目录"
 	red "=============================================================="
-	read -p "请选择：" installBBRStatus
-	case "$installBBRStatus" in
+	read -p "请选择：" BBR
+	case "$BBR" in
 		1 ) wget -N --no-check-certificate "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
 		2 ) menu$PLAN;;
 		* ) red "请输入正确数字 [1-2]"; sleep 1; bbrInstall;;
@@ -238,10 +238,10 @@ menu01(){
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" choose01
-		case "$choose01" in
-		1 ) 	modify=$modify1;	install;;
-		2 )	modify=$modify2;	install;;
+	read -p "请输入数字:" CHOOSE01
+		case "$CHOOSE01" in
+		1 ) 	MODIFY=$MODIFY1;	install;;
+		2 )	MODIFY=$MODIFY2;	install;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		0 ) 	exit 1;;
@@ -257,10 +257,10 @@ menu10(){
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" choose10
-		case "$choose10" in
-		1 ) 	modify=$modify3;	install;;
-		2 ) 	modify=$modify4;	install;;
+	read -p "请输入数字:" CHOOSE10
+		case "$CHOOSE10" in
+		1 ) 	MODIFY=$MODIFY3;	install;;
+		2 ) 	MODIFY=$MODIFY4;	install;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		0 ) 	exit 1;;
@@ -275,9 +275,9 @@ menu11(){
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 3. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" choose11
-		case "$choose11" in
-		1 ) 	modify=$modify5;	install;;
+	read -p "请输入数字:" CHOOSE11
+		case "$CHOOSE11" in
+		1 ) 	MODIFY=$MODIFY5;	install;;
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
 		0 ) 	exit 1;;
@@ -291,8 +291,8 @@ menu2(){
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 2. 升级内核、安装BBR、DD脚本 "
 	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" choose2
-        	case "$choose2" in
+	read -p "请输入数字:" CHOOSE2
+        	case "$CHOOSE2" in
 		1 ) 	uninstall;;
 		2 )	bbrInstall;;
 		0 ) 	exit 1;;
