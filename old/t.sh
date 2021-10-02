@@ -33,13 +33,13 @@ green " 检查环境中…… "
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
-		WAN4=$(wget -qO- -4 ip.gs) &&
+		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
 		COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country) &&
-		[[ $(wget -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP4=1
+		[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP4=1
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
-		WAN6=$(wget -qO- -6 ip.gs) &&
+		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs) &&
 		COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country) &&
-		[[ $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP6=1
+		[[ $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP6=1
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
 [[ $WARP4 = 1 || $WARP6 = 1 ]] && PLAN=2 || PLAN=$IPV4$IPV6
@@ -161,19 +161,19 @@ install(){
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 WARP4 WARP6
 
 	wg-quick up wgcf >/dev/null 2>&1
-	WAN4=$(wget -T1 -t1 -qO- -4 ip.gs)
-	WAN6=$(wget -T1 -t1 -qO- -6 ip.gs)
+	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
 	until [[ -n $WAN4 && -n $WAN6 ]]
 	  do
 	   wg-quick down wgcf >/dev/null 2>&1
 	   wg-quick up wgcf >/dev/null 2>&1
-	   WAN4=$(wget -T1 -t1 -qO- -4 ip.gs)
-	   WAN6=$(wget -T1 -t1 -qO- -6 ip.gs)
+	   WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+	   WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
 	done
-	COUNTRY4=$(wget -qO- -4 https://ip.gs/country)
-	[[ $(wget -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP4=1
-	COUNTRY6=$(wget -qO- -6 https://ip.gs/country)
-	[[ $(wget -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP6=1
+	COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country)
+	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP4=1
+	COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country)
+	[[ $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP6=1
 	
 	# 设置开机启动，由于warp bug，有时候获取不了ip地址，在定时任务加了重启后自动刷网络
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
