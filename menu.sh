@@ -211,11 +211,10 @@ install(){
 	[[ $TRACE6 = plus ]] && green " IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = off || -z $TRACE6 ]] && green " IPv6：$WAN6 $COUNTRY6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " WARP+ 已开启"
-	[[ $TRACE4 = on || $TRACE6 = on ]] && green " WARP 已开启" 	
-	[[ $TRACE4 = off && $TRACE6 = off ]] && green " WARP 未开启 "
 	end=$(date +%s)
-	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒 "
+	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 " 	
+	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:https://github.com/fscarmen/warp/issues "
 		}
 
 # 关闭 WARP 网络接口，并删除 WGCF
