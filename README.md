@@ -15,7 +15,7 @@
 
 ## 脚本特点
 
-* 根据不同系统综合情况显示不同的菜单，避免出错
+* 支持 Warp+ 账户，根据不同系统综合情况显示不同的菜单，避免出错
 * 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go
 * 智能判断 WGCF 作者 github库的最新版本 （Latest release）
 * 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统
