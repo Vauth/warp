@@ -154,7 +154,8 @@ install(){
 	done
 	
 	# 如有 Warp+ 账户，修改 license 并升级
-	[[ -n $LICENSE ]] && yellow " 升级 Warp+ 账户 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml && wgcf update
+	[[ -n $LICENSE ]] && yellow " 升级 Warp+ 账户 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
+	wgcf update && [[ $? != 0 ]] && red " 升级失败，Warp+ 账户错误或者已激活超过5台设备 "
 	
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
