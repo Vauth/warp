@@ -36,17 +36,14 @@ green " 检查环境中…… "
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
 		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
 		COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country) &&
-		TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) &&
-		[[ -z $TRACE4 ]] && TRACE4=off
-				
+		TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
 		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs) &&
 		COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country) &&
-		TRACE6=$(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) &&
-		[[ -z $TRACE6 ]] && TRACE6=off
+		TRACE6=$(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
-[[ $TRACE4 != off || $TRACE6 != off ]] && PLAN=2 || PLAN=$IPV4$IPV6
+[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=2 || PLAN=$IPV4$IPV6
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $LXC != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && WG=1
