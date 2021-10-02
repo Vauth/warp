@@ -72,7 +72,7 @@ install(){
 	start=$(date +%s)
 	
 	# 输入 Warp+ 账户
-	read -p "如有 Warp+ License 请输入，没有直接回车跳过" LICENESE
+	read -p "如有 Warp+ License 请输入，没有直接回车跳过:" LICENESE
 	
 	green " 进度  1/3： 安装系统依赖 "
 
