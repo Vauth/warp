@@ -15,9 +15,10 @@ ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 || IPV6=0
 [[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:https://github.com/fscarmen/warp/issues " && rm -f menu.sh && exit 0
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
-[[ $(hostnamectl | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
-[[ $(hostnamectl | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
-[[ $(hostnamectl | tr A-Z a-z) =~ centos ]] && SYSTEM=centos
+SYS=$(hostnamectl | tr A-Z a-z | grep system)
+[[ $SYS =~ debian ]] && SYSTEM=debian
+[[ $SYS =~ ubuntu ]] && SYSTEM=ubuntu
+[[ $SYS =~ centos ]] && SYSTEM=centos
 [[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:https://github.com/fscarmen/warp/issues  " && rm -f menu.sh && exit 0
 
 # 必须以root运行脚本
@@ -35,14 +36,15 @@ green " 检查环境中…… "
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
 		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
 		COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country) &&
-		[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | egrep "warp=plus|warp=on") ]] && WARP4=1
+		TRACE4=[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) ]]
+				
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
 		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs) &&
 		COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country) &&
-		[[ $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | egrep "warp=plus|warp=on") ]] && WARP6=1
+		TRACE6=[[ $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) ]]
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
-[[ $WARP4 = 1 || $WARP6 = 1 ]] && PLAN=2 || PLAN=$IPV4$IPV6
+[[ $TRACE4 != off || $TRACE6 != off ]] && PLAN=2 || PLAN=$IPV4$IPV6
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $LXC != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && WG=1
@@ -60,9 +62,15 @@ status(){
 	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp\n脚本特点:\n	* 根据不同系统综合情况显示不同的菜单，避免出错\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统\n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
 	red "======================================================================================================================\n"
 	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | cut -d : -f2)\n	内核：$(uname -r)\n	处理器架构：$ARCHITECTURE\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
-	[[ $WARP4 = 1 ]] && green "	IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 " || green "	IPv4：$WAN4 $COUNTRY4 "
-	[[ $WARP6 = 1 ]] && green "	IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 " || green "	IPv6：$WAN6 $COUNTRY6 "
-	[[ $PLAN = 2 ]] && green "	WARP 已开启" || green "	WARP 未开启 "
+	[[ $TRACE4 = plus ]] && green " IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
+	[[ $TRACE4 = on ]] && green " IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 "
+	[[ $TRACE4 = off ]] && green " IPv4：$WAN4 $COUNTRY4 "
+	[[ $TRACE6 = plus ]] && green " IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 "
+	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
+	[[ $TRACE6 = off ]] && green " IPv6：$WAN6 $COUNTRY6 "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " WARP+ 已开启"
+	[[ $TRACE4 = on || $TRACE6 = on ]] && green " WARP 已开启" 	
+	[[ $TRACE4 = off && $TRACE6 = off ]] && green " WARP 未开启 "
  	red "\n======================================================================================================================\n"
 		}
 
@@ -139,8 +147,7 @@ install(){
 	# 如是 LXC，安装 wireguard-go
 	[[ $LXC = 1 ]] && wget --no-check-certificate -N -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
 
-	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
-	rm -f wgcf-account.toml
+	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 	yellow " WGCF 注册中…… "
 	until [[ -e wgcf-account.toml ]]
 	  do
@@ -164,7 +171,7 @@ install(){
 	yellow " 后台获取 WARP IP 中…… "
 
 	# 清空之前的相关变量值
-	unset WAN4 WAN6 COUNTRY4 COUNTRY6 WARP4 WARP6
+	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
 
 	wg-quick up wgcf >/dev/null 2>&1
 	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
@@ -198,8 +205,15 @@ install(){
 	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
 
 	# 结果提示，脚本运行时间
-	[[ $WARP4 = 1 ]] && green " IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 " || green " IPv4：$WAN4 $COUNTRY4 "
-	[[ $WARP6 = 1 ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 " || green " IPv6：$WAN6 $COUNTRY6 "
+	[[ $TRACE4 = plus ]] && green " IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
+	[[ $TRACE4 = on ]] && green " IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 "
+	[[ $TRACE4 = off ]] && green " IPv4：$WAN4 $COUNTRY4 "
+	[[ $TRACE6 = plus ]] && green " IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 "
+	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
+	[[ $TRACE6 = off ]] && green " IPv6：$WAN6 $COUNTRY6 "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " WARP+ 已开启"
+	[[ $TRACE4 = on || $TRACE6 = on ]] && green " WARP 已开启" 	
+	[[ $TRACE4 = off && $TRACE6 = off ]] && green " WARP 未开启 "
 	end=$(date +%s)
 	green " 恭喜！WARP已开启，总耗时:$(( $end - $start ))秒 "
 		}
