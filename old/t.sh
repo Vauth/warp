@@ -146,7 +146,7 @@ install(){
 	  do
 	   echo | wgcf register >/dev/null 2>&1
 	done
-	[[ -n $LICENSE ]] && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml
+	[[ -n $LICENSE ]] && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml && wgcf update
 	
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
