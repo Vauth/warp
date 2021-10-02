@@ -72,7 +72,7 @@ install(){
 	start=$(date +%s)
 	
 	# 输入 Warp+ 账户
-	read -p "如有 Warp+ License 请输入，没有直接回车跳过:" LICENSE
+	read -p "如有 Warp+ License 请输入，没有可回车忽略:" LICENSE
 	
 	green " 进度  1/3： 安装系统依赖 "
 
@@ -146,7 +146,9 @@ install(){
 	  do
 	   echo | wgcf register >/dev/null 2>&1
 	done
-	[[ -n $LICENSE ]] && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml && wgcf update
+	
+	# 如有 Warp+ 账户，修改 license 并升级
+	[[ -n $LICENSE ]] && yellow " 升级 Warp+ 账户 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml && wgcf update
 	
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
