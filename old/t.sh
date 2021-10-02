@@ -35,11 +35,11 @@ green " 检查环境中…… "
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
 		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
 		COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country) &&
-		[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP4=1
+		[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | egrep "warp=plus|warp=on") ]] && WARP4=1
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
 		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs) &&
 		COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country) &&
-		[[ $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP6=1
+		[[ $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | egrep "warp=plus|warp=on") ]] && WARP6=1
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
 [[ $WARP4 = 1 || $WARP6 = 1 ]] && PLAN=2 || PLAN=$IPV4$IPV6
@@ -70,6 +70,9 @@ status(){
 install(){
 	# 脚本开始时间
 	start=$(date +%s)
+	
+	# 输入 Warp+ 账户
+	read -p "如有 Warp+ License 请输入，没有直接回车跳过" LICENESE
 	
 	green " 进度  1/3： 安装系统依赖 "
 
@@ -143,7 +146,8 @@ install(){
 	  do
 	   echo | wgcf register >/dev/null 2>&1
 	done
-
+	[[ -n $LICENSE ]] && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml
+	
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
 
@@ -171,9 +175,9 @@ install(){
 	   WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
 	done
 	COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country)
-	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP4=1
+	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | egrep "warp=plus|warp=on") ]] && WARP4=1
 	COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country)
-	[[ $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp=on) ]] && WARP6=1
+	[[ $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | egrep "warp=plus|warp=on") ]] && WARP6=1
 	
 	# 设置开机启动，由于warp bug，有时候获取不了ip地址，在定时任务加了重启后自动刷网络
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
