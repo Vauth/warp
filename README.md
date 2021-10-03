@@ -15,10 +15,10 @@
 
 ## 脚本特点
 
-* 支持 Warp+ 账户，根据不同系统综合情况显示不同的菜单，避免出错
+* 支持 Warp+ 账户，附带第三方刷 Warp+ 流量和升级内核 BBR 脚本
+* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统
 * 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go
 * 智能判断 WGCF 作者 github库的最新版本 （Latest release）
-* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统
 * 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM
 * 智能分析内网和公网IP生成 WGCF 配置文件
 * 输出结果，提示是否使用 WARP IP ，IP 归属地
@@ -32,7 +32,7 @@
 * 能让 IPv6 only VPS 上做的节点支持 Telegram
 * IPv6 建的节点能在只支持 IPv4 的 PassWall、ShadowSocksR Plus+ 上使用
 
-![image](https://user-images.githubusercontent.com/62703343/135731945-ed3892f5-95c7-4434-8424-d955e2552524.png)
+![image](https://user-images.githubusercontent.com/62703343/135737566-f71acba6-f85a-4735-b980-4e19b474c2e7.png)
 
 ## 运行脚本
 
@@ -90,7 +90,9 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 * Hiram：https://hiram.wang/cloudflare-wrap-vps
 
 服务提供：
+* CloudFlare Warp(+)：https://1.1.1.1/
 * WGCF 项目原作者：https://github.com/ViRb3/wgcf/
-* WireGuard-GO 编译自官方：https://git.zx2c4.com/wireguard-go/
+* WireGuard-GO 官方：https://git.zx2c4.com/wireguard-go/
 * ylx2016 的成熟作品：https://github.com/ylx2016/Linux-NetSpeed
+* ALIILAPRO 的成熟作品：https://github.com/ALIILAPRO/warp-plus-cloudflare
 * 获取公网 IP 及归属地查询：https://ip.gs/
