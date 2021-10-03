@@ -268,7 +268,7 @@ plus() {
 				do
 					let i++
 					red " Warp+ ID 应为36位数，请重新输入 "
-					read -p "请输入 Warp+ ID（剩余$(( 6 - $i ))次）:" ID
+					read -p "请重新输入 Warp+ ID （剩余$(( 6 - $i ))次）:" ID
 				done
 		    [[ $i = 5 ]] && red " 输入错误达$i次，脚本退出 " && exit 0
 		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
