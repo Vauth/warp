@@ -80,7 +80,7 @@ install(){
 	
 	# 输入 Warp+ 账户（如有）
 	read -p "如有 Warp+ License 请输入，没有可回车继续:" LICENSE
-	[[ -z $LICENSE || ${#LICENSE} = 26 ]] || （ red " License 应为26位数，没有则留空，请重新输入 " && sleep 2 && install ) 
+	[[ -z $LICENSE || ${#LICENSE} = 26 ]] || ( red " License 应为26位数，没有则留空，请重新输入 " && sleep 2 && install )
 	
 	green " 进度  1/3： 安装系统依赖 "
 
@@ -259,7 +259,7 @@ plus() {
 	read -p "请选择：" CHOOSEPLUS
 	case "$CHOOSEPLUS" in
 		1 ) read -p "请输入 Warp+ ID:" ID
-		    [[ ${#ID} = 36 ]] || （ red " Warp+ ID 应为36位数，请重新输入 " && sleep 2 && plus ) 
+		    [[ ${#ID} = 36 ]] || ( red " Warp+ ID 应为36位数，请重新输入 " && sleep 2 && plus )
 		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
 		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
