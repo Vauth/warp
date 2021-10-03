@@ -251,7 +251,7 @@ bbrInstall() {
 # 刷 Warp+ 流量
 plus() {
 	red "\n=============================================================="
-	green " 刷 Warp+ 流量用的[ALIILAPRO]的成熟作品，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]，请熟知\n	下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n	获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n	重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n	最好配合 screen 指令后台运行任务 "
+	green " 刷 Warp+ 流量用的[ALIILAPRO]的成熟作品，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]，请熟知\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 指令后台运行任务 "
 	yellow "1.运行刷流量脚本 "
 	yellow "2.回退主目录"
 	red "=============================================================="
