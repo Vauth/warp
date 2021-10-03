@@ -78,9 +78,13 @@ install(){
 	# 脚本开始时间
 	start=$(date +%s)
 	
-	# 输入 Warp+ 账户（如有）
+	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
 	read -p "如有 Warp+ License 请输入，没有可回车继续:" LICENSE
-	[[ -z $LICENSE || ${#LICENSE} = 26 ]] || ( red " License 应为26位数，没有则留空，请重新输入 " && sleep 2 && install )
+	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
+		do
+			red " License 应为26位数，没有则留空，请重新输入 "
+			read -p "如有 Warp+ License 请输入，没有可回车继续:" LICENSE
+		done
 	
 	green " 进度  1/3： 安装系统依赖 "
 
