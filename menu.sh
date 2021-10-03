@@ -78,8 +78,13 @@ install(){
 	# 脚本开始时间
 	start=$(date +%s)
 	
-	# 输入 Warp+ 账户（如有）
+	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
 	read -p "如有 Warp+ License 请输入，没有可回车继续:" LICENSE
+	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
+		do
+			red " License 应为26位数，没有则留空，请重新输入 "
+			read -p "如有 Warp+ License 请输入，没有可回车继续:" LICENSE
+		done
 	
 	green " 进度  1/3： 安装系统依赖 "
 
@@ -155,7 +160,7 @@ install(){
 	
 	# 如有 Warp+ 账户，修改 license 并升级
 	[[ -n $LICENSE ]] && yellow " 升级 Warp+ 账户 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml && wgcf update
-	[[ $? != 0 ]] && red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，换免费 Warp 账户继续 "
+	[[ $? != 0 ]] && red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
 	
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
@@ -251,7 +256,7 @@ bbrInstall() {
 # 刷 Warp+ 流量
 plus() {
 	red "\n=============================================================="
-	green " 刷 Warp+ 流量用的[ALIILAPRO]的成熟作品，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]，请熟知\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 指令后台运行任务 "
+	green " 刷 Warp+ 流量用的[ALIILAPRO]的成熟作品，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]，请熟知\n	下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n	获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n	重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n	最好配合 screen 指令后台运行任务 "
 	yellow "1.运行刷流量脚本 "
 	yellow "2.回退主目录"
 	red "=============================================================="
@@ -261,9 +266,9 @@ plus() {
 			i=1
 			until [[ ${#ID} = 36 || $i = 5 ]]
 				do
-					let i++ 
+					let i++
 					red " Warp+ ID 应为36位数，请重新输入 "
-					read -p "请输入 Warp+ ID:" ID
+					read -p "请重新输入 Warp+ ID （剩余$(( 6 - $i ))次）:" ID
 				done
 		    [[ $i = 5 ]] && red " 输入错误达$i次，脚本退出 " && exit 0
 		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
@@ -282,7 +287,7 @@ menu01(){
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
-	green " 5. 刷 Warp + 流量 "
+	green " 5. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE01
 		case "$CHOOSE01" in
@@ -303,7 +308,7 @@ menu10(){
 	green " 2. 为 IPv4 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
-	green " 5. 刷 Warp + 流量 "
+	green " 5. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE10
 		case "$CHOOSE10" in
@@ -323,7 +328,7 @@ menu11(){
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 3. 升级内核、安装BBR、DD脚本 "
-	green " 4. 刷 Warp + 流量 "
+	green " 4. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE11
 		case "$CHOOSE11" in
@@ -341,7 +346,7 @@ menu2(){
 	status
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 2. 升级内核、安装BBR、DD脚本 "
-	green " 3. 刷 Warp + 流量 "
+	green " 3. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE2
         	case "$CHOOSE2" in
