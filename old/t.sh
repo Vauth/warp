@@ -259,7 +259,7 @@ plus() {
 	case "$CHOOSEPLUS" in
 		1 ) [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
 		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
-		    git clone https://github.com/aliilapro/warp-plus-cloudflare.git
+		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
 		    python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) menu$PLAN;;
 		* ) red "请输入正确数字 [1-2]"; sleep 1; plus;;
