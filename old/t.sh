@@ -80,6 +80,7 @@ install(){
 	
 	# 输入 Warp+ 账户（如有）
 	read -p "如有 Warp+ License 请输入，没有可回车继续:" LICENSE
+	[[ -z $LICENSE || ${#LICENSE} = 26 ]] || （ red " License 应为26位数，没有则留空，请重新输入 " && sleep 2 && install ) 
 	
 	green " 进度  1/3： 安装系统依赖 "
 
@@ -258,6 +259,7 @@ plus() {
 	read -p "请选择：" CHOOSEPLUS
 	case "$CHOOSEPLUS" in
 		1 ) read -p "请输入 Warp+ ID:" ID
+		    [[ ${#ID} = 36 ]] || （ red " Warp+ ID 应为36位数，请重新输入 " && sleep 2 && plus ) 
 		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
 		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
@@ -274,7 +276,7 @@ menu01(){
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
-	green " 5. 刷 Warp + 流量 "
+	green " 5. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE01
 		case "$CHOOSE01" in
@@ -295,7 +297,7 @@ menu10(){
 	green " 2. 为 IPv4 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
-	green " 5. 刷 Warp + 流量 "
+	green " 5. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE10
 		case "$CHOOSE10" in
@@ -315,7 +317,7 @@ menu11(){
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 3. 升级内核、安装BBR、DD脚本 "
-	green " 4. 刷 Warp + 流量 "
+	green " 4. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE11
 		case "$CHOOSE11" in
@@ -333,7 +335,7 @@ menu2(){
 	status
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 2. 升级内核、安装BBR、DD脚本 "
-	green " 3. 刷 Warp + 流量 "
+	green " 3. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE2
         	case "$CHOOSE2" in
