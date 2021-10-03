@@ -251,16 +251,17 @@ bbrInstall() {
 # 刷 Warp+ 流量
 plus() {
 	red "\n=============================================================="
-	green " 刷 Warp+ 流量用的[ALIILAPRO]的成熟作品，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]，请熟知\n	下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n	获取 Warp+ ID，右上角菜单 三 --> 高级 --> 诊断 --> ID\n	重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥 "
+	green " 刷 Warp+ 流量用的[ALIILAPRO]的成熟作品，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]，请熟知\n	下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n	获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n	重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n	最好配合 screen 指令后台运行任务 "
 	yellow "1.运行刷流量脚本 "
 	yellow "2.回退主目录"
 	red "=============================================================="
 	read -p "请选择：" CHOOSEPLUS
 	case "$CHOOSEPLUS" in
-		1 ) [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
+		1 ) read -p "请输入 Warp+ ID:" ID
+		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
 		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
-		    python3 ~/warp-plus-cloudflare/wp-plus.py;;
+		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) menu$PLAN;;
 		* ) red "请输入正确数字 [1-2]"; sleep 1; plus;;
 		esac
