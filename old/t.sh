@@ -263,11 +263,14 @@ plus() {
 	read -p "请选择：" CHOOSEPLUS
 	case "$CHOOSEPLUS" in
 		1 ) read -p "请输入 Warp+ ID:" ID
-			until [[ ${#ID} = 36 ]]
+			i=1
+			until [[ ${#ID} = 36 || $i = 5 ]]
 				do
+					let i++
 					red " Warp+ ID 应为36位数，请重新输入 "
 					read -p "请输入 Warp+ ID:" ID
 				done
+		    [[ $i = 5 ]] && red " 输入错误达$i次，脚本退出 " && exit 0
 		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
 		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
