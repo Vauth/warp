@@ -58,7 +58,7 @@ MODIFY5='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf
 # VPS 当前状态
 status(){
 	clear
-	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp\n脚本特点:\n	* 支持 Warp+ 账户，根据不同系统综合情况显示不同的菜单，避免出错。\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统\n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
+	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：https://github.com/fscarmen/warp\n脚本特点:\n	* 支持 Warp+ 账户，附带第三方刷 Warp+ 流量和升级内核 BBR 脚本\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
 	red "======================================================================================================================\n"
 	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | cut -d : -f2)\n	内核：$(uname -r)\n	处理器架构：$ARCHITECTURE\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
 	[[ $TRACE4 = plus ]] && green "	IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
@@ -248,6 +248,24 @@ bbrInstall() {
 		esac
 		}
 
+# 刷 Warp+ 流量
+plus() {
+	red "\n=============================================================="
+	green " 刷 Warp+ 流量用的[ALIILAPRO]的成熟作品，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]，请熟知\n	下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n	获取 Warp+ ID，右上角菜单 三 --> 高级 --> 诊断 --> ID\n	重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥 "
+	yellow "1.运行刷流量脚本 "
+	yellow "2.回退主目录"
+	red "=============================================================="
+	read -p "请选择：" CHOOSEPLUS
+	case "$CHOOSEPLUS" in
+		1 ) [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
+		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
+		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
+		    python3 ~/warp-plus-cloudflare/wp-plus.py;;
+		2 ) menu$PLAN;;
+		* ) red "请输入正确数字 [1-2]"; sleep 1; plus;;
+		esac
+		}
+
 # IPv6
 menu01(){
 	status
@@ -255,6 +273,7 @@ menu01(){
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
+	green " 5. 刷 Warp + 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE01
 		case "$CHOOSE01" in
@@ -262,8 +281,9 @@ menu01(){
 		2 )	MODIFY=$MODIFY2;	install;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
+		5 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu01;;
+		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu01;;
 		esac
 		}
 
@@ -274,6 +294,7 @@ menu10(){
 	green " 2. 为 IPv4 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
+	green " 5. 刷 Warp + 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE10
 		case "$CHOOSE10" in
@@ -281,8 +302,9 @@ menu10(){
 		2 ) 	MODIFY=$MODIFY4;	install;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
+		5 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu10;;
+		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu10;;
 		esac
 		}
 
@@ -292,14 +314,16 @@ menu11(){
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 3. 升级内核、安装BBR、DD脚本 "
+	green " 4. 刷 Warp + 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE11
 		case "$CHOOSE11" in
 		1 ) 	MODIFY=$MODIFY5;	install;;
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
+		4 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu11;;
+		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu11;;
 		esac
 		}
 
@@ -308,13 +332,15 @@ menu2(){
 	status
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 2. 升级内核、安装BBR、DD脚本 "
+	green " 3. 刷 Warp + 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE2
         	case "$CHOOSE2" in
 		1 ) 	uninstall;;
 		2 )	bbrInstall;;
+		3 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu2;;
+		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu2;;
 		esac
 		}
 
