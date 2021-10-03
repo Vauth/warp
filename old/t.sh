@@ -258,8 +258,9 @@ plus() {
 	read -p "请选择：" CHOOSEPLUS
 	case "$CHOOSEPLUS" in
 		1 ) [[ $(type -P git) ]] || apt -y install git
-			git clone https://github.com/aliilapro/warp-plus-cloudflare.git
-			python3 ~/warp-plus-cloudflare/wp-plus.py;;
+		    [[ $(type -P python3) ]] || apt -y install python3
+		    git clone https://github.com/aliilapro/warp-plus-cloudflare.git
+		    python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) menu$PLAN;;
 		* ) red "请输入正确数字 [1-2]"; sleep 1; plus;;
 		esac
