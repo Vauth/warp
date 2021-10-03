@@ -257,8 +257,8 @@ plus() {
 	red "=============================================================="
 	read -p "请选择：" CHOOSEPLUS
 	case "$CHOOSEPLUS" in
-		1 ) [[ $(type -P git) ]] || apt -y install git
-		    [[ $(type -P python3) ]] || apt -y install python3
+		1 ) [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
+		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
 		    git clone https://github.com/aliilapro/warp-plus-cloudflare.git
 		    python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) menu$PLAN;;
