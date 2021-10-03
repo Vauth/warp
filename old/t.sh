@@ -248,6 +248,23 @@ bbrInstall() {
 		esac
 		}
 
+# 刷 Warp+ 流量
+plus() {
+	red "\n=============================================================="
+	green " 说明：\n	下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n	获取 Warp+ ID，右上角菜单 三 --> 高级 --> 诊断 --> ID\n	重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥 "
+	yellow "1.运行刷流量脚本 "
+	yellow "2.回退主目录"
+	red "=============================================================="
+	read -p "请选择：" CHOOSEPLUS
+	case "$CHOOSEPLUS" in
+		1 ) [[ $(type -P git) ]] || apt -y install git
+			git clone https://github.com/aliilapro/warp-plus-cloudflare.git
+			python3 ~/warp-plus-cloudflare/wp-plus.py;;
+		2 ) menu$PLAN;;
+		* ) red "请输入正确数字 [1-2]"; sleep 1; plus;;
+		esac
+		}
+
 # IPv6
 menu01(){
 	status
@@ -255,6 +272,7 @@ menu01(){
 	green " 2. 为 IPv6 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
+	green " 5. 刷 Warp + 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE01
 		case "$CHOOSE01" in
@@ -262,8 +280,9 @@ menu01(){
 		2 )	MODIFY=$MODIFY2;	install;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
+		5 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu01;;
+		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu01;;
 		esac
 		}
 
@@ -274,6 +293,7 @@ menu10(){
 	green " 2. 为 IPv4 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
+	green " 5. 刷 Warp + 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE10
 		case "$CHOOSE10" in
@@ -281,8 +301,9 @@ menu10(){
 		2 ) 	MODIFY=$MODIFY4;	install;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
+		5 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu10;;
+		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu10;;
 		esac
 		}
 
@@ -292,14 +313,16 @@ menu11(){
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 3. 升级内核、安装BBR、DD脚本 "
+	green " 4. 刷 Warp + 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE11
 		case "$CHOOSE11" in
 		1 ) 	MODIFY=$MODIFY5;	install;;
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
+		4 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu11;;
+		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu11;;
 		esac
 		}
 
@@ -308,13 +331,15 @@ menu2(){
 	status
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 2. 升级内核、安装BBR、DD脚本 "
+	green " 3. 刷 Warp + 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE2
         	case "$CHOOSE2" in
 		1 ) 	uninstall;;
 		2 )	bbrInstall;;
+		3 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-2]"; sleep 1; menu2;;
+		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu2;;
 		esac
 		}
 
