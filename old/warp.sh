@@ -101,7 +101,7 @@ until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) ]]
 done
 
 # 如有 Warp+ 账户，修改 license 并升级
-[[ -n $LICENSE ]] && yellow " 升级 Warp+ 账户 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
+[[ -n $LICENSE ]] && echo -e "\033[33m 升级 Warp+ 账户 \033[0m" && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
 ( wgcf update || echo -e "\033[31m 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续\033[0m " )
 
 # 设置开机启动
