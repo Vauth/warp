@@ -256,30 +256,39 @@ bbrInstall() {
 		esac
 		}
 
+input() {
+	read -p "请输入 Warp+ ID:" ID
+	i=5
+	until [[ ${#ID} = 36 || $i = 1 ]]
+		do
+		let i--
+		red " Warp+ ID 应为36位数 "
+		read -p " 请重新输入 Warp+ ID （剩余$i次）:" ID
+	done
+	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
+	}
+
 # 刷 Warp+ 流量
 plus() {
 	red "\n=============================================================="
-	green " 刷 Warp+ 流量用的[ALIILAPRO]的成熟作品，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]，请熟知\n	下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n	获取 Warp+ ID 填到下面。方法：App右上角菜单 ☰ --> 高级 --> 诊断 --> ID\n	重要：刷脚本后流量没有增加处理：右上角菜单 ☰ --> 高级 --> 连接选项 --> 重置加密密钥\n	最好配合 screen 在后台运行任务 "
-	yellow "1.运行刷流量脚本 "
-	yellow "2.回退主目录"
+	green " 刷 Warp+ 流量用:\n	1、[ALIILAPRO]的成熟作品，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	2、[mixool]的成熟作品，地址[https://github.com/mixool/across/tree/master/wireguard],请熟知\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务 "
+	yellow "1.运行[ALIILAPRO]脚本 "
+	yellow "2.运行[mixool]脚本 "
+	yellow "3.回退主目录"
 	red "=============================================================="
 	read -p "请选择：" CHOOSEPLUS
 	case "$CHOOSEPLUS" in
-		1 ) read -p "请输入 Warp+ ID:" ID
-			i=5
-			until [[ ${#ID} = 36 || $i = 1 ]]
-				do
-					let i--
-					red " Warp+ ID 应为36位数 "
-					read -p " 请重新输入 Warp+ ID （剩余$i次）:" ID
-				done
-		    [[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
+		1 ) input
 		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
 		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
 		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
-		2 ) menu$PLAN;;
-		* ) red "请输入正确数字 [1-2]"; sleep 1; plus;;
+		2 ) input
+		    wget --no-check-certificate -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
+		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
+		    bash warp_plus.sh;;
+		3 ) menu$PLAN;;
+		* ) red "请输入正确数字 [1-3]"; sleep 1; plus;;
 		esac
 		}
 
