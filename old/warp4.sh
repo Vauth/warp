@@ -1,6 +1,9 @@
 ##### 为 IPv6 only VPS 添加 WGCF，IPv4走 warp #####
 ##### KVM 属于完整虚拟化的 VPS 主机，网络性能方面：内核集成WireGuard＞内核模块＞wireguard-go。#####
 
+# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
+read -p "如有 Warp+ License 请输入，没有可回车继续:" LICENSE
+
 # 在KVM的前提下，判断 Linux 版本是否小于等于 5.6，如是则安装 wireguard 内核模块，变量 wg=1
 if  [[ $(uname  -r | awk -F . '{print $1 }') -lt 5 ]]; then wg=1
 	elif [[ $(uname  -r | awk -F . '{print $1 }') -eq 5 ]]
@@ -57,7 +60,7 @@ if [[ $(hostnamectl | tr A-Z a-z ) =~ debian ]]; then
 # 如都不符合，提示,删除临时文件并中止脚本
      else 
 	# 提示找不到相应操作系统
-	echo -e "\033[32m 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 \033[0m"
+	echo -e "\033[31m 本脚本只支持 Debian、Ubuntu 和 CentOS 系统 \033[0m"
 	
 	# 删除临时目录和文件，退出脚本
 	rm -f warp4.sh menu.sh
@@ -75,21 +78,25 @@ if [[ $(hostnamectl) =~ .*arm.* ]]
 fi
 
 # 判断 wgcf 的最新版本
-latest=$(wget -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
+latest=$(wget --no-check-certificate -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
 
 # 安装 wgcf
-sudo wget -N -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
+sudo wget --no-check-certificate -N -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
 
 # 添加执行权限
 sudo chmod +x /usr/local/bin/wgcf
 
 # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
 rm -f wgcf-account.toml
-echo -e "\033[32m wgcf 注册中。 \033[0m"
+echo -e "\033[33m wgcf 注册中…… \033[0m"
 until [[ -a wgcf-account.toml ]]
   do
    echo | wgcf register >/dev/null 2>&1
 done
+
+# 如有 Warp+ 账户，修改 license 并升级
+[[ -n $LICENSE ]] && echo -e "\033[33m 升级 Warp+ 账户 \033[0m" && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
+( wgcf update || echo -e "\033[31m 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续\033[0m " )
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 wgcf generate >/dev/null 2>&1
@@ -102,7 +109,7 @@ sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 # 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 echo -e "\033[32m (3/3) 运行 WGCF \033[0m"
-echo -e "\033[32m 后台获取 warp IP 中，有时候需10分钟，请耐心等待。 \033[0m"
+echo -e "\033[33m 后台获取 warp IP 中…… \033[0m"
 wg-quick up wgcf >/dev/null 2>&1
 until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) ]]
   do
