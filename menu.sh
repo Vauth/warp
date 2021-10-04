@@ -257,7 +257,7 @@ bbrInstall() {
 		}
 
 input() {
-	read -p "请输入 Warp+ ID:" ID
+	read -p " 请输入 Warp+ ID: " ID
 	i=5
 	until [[ ${#ID} = 36 || $i = 1 ]]
 		do
@@ -284,9 +284,10 @@ plus() {
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
 		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) input
+		    read -p " 你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10 :" MISSION
 		    wget --no-check-certificate -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
 		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
-		    bash warp_plus.sh;;
+		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
 		3 ) menu$PLAN;;
 		* ) red "请输入正确数字 [1-3]"; sleep 1; plus;;
 		esac
