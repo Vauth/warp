@@ -62,13 +62,13 @@ if [[ $(hostnamectl) =~ .*arm.* ]]
 fi
 
 # 判断 wgcf 的最新版本
-latest=$(wget -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
+latest=$(wget --no-check-certificate -qO- -t1 -T2 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
 
 # 安装 wgcf
-wget -N -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
+wget --no-check-certificate -N -6 -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$architecture
 
 # 安装 wireguard-go
-wget -N -6 -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
+wget --no-check-certificate -N -6 -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go
 
 # 添加执行权限
 chmod +x /usr/bin/wireguard-go /usr/local/bin/wgcf
@@ -80,6 +80,10 @@ until [[ -a wgcf-account.toml ]]
   do
    echo | wgcf register >/dev/null 2>&1
 done
+
+# 如有 Warp+ 账户，修改 license 并升级
+[[ -n $LICENSE ]] && echo -e "\033[33m 升级 Warp+ 账户 \033[0m" && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
+( wgcf update || echo -e "\033[31m 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续\033[0m " )
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 wgcf generate >/dev/null 2>&1
@@ -99,10 +103,6 @@ until [[ -n $(wget -T1 -t1 -qO- -4 ip.gs) ]]
    wg-quick down wgcf >/dev/null 2>&1
    wg-quick up wgcf >/dev/null 2>&1
 done
-
-# 如有 Warp+ 账户，修改 license 并升级
-[[ -n $LICENSE ]] && echo -e "\033[33m 升级 Warp+ 账户 \033[0m" && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-( wgcf update || echo -e "\033[31m 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续\033[0m " )
 
 # 设置开机启动
 systemctl enable wg-quick@wgcf >/dev/null 2>&1
