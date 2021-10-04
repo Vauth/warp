@@ -80,11 +80,14 @@ install(){
 	
 	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
 	read -p "如有 Warp+ License 请输入，没有可回车继续:" LICENSE
-	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
+	i=5
+	until [[ -z $LICENSE || ${#LICENSE} = 26 || $i = 1 ]]
 		do
-			red " License 应为26位数，没有则留空，请重新输入 "
-			read -p "如有 Warp+ License 请输入，没有可回车继续:" LICENSE
+			let i--
+			red " License 应为26位数 "
+			read -p " 请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
+	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
 	
 	green " 进度  1/3： 安装系统依赖 "
 
@@ -263,14 +266,14 @@ plus() {
 	read -p "请选择：" CHOOSEPLUS
 	case "$CHOOSEPLUS" in
 		1 ) read -p "请输入 Warp+ ID:" ID
-			i=1
-			until [[ ${#ID} = 36 || $i = 5 ]]
+			i=5
+			until [[ ${#ID} = 36 || $i = 1 ]]
 				do
-					let i++
-					red " Warp+ ID 应为36位数，请重新输入 "
-					read -p "请重新输入 Warp+ ID （剩余$(( 6 - $i ))次）:" ID
+					let i--
+					red " Warp+ ID 应为36位数 "
+					read -p " 请重新输入 Warp+ ID （剩余$i次）:" ID
 				done
-		    [[ $i = 5 ]] && red " 输入错误达$i次，脚本退出 " && exit 0
+		    [[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
 		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
 		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
