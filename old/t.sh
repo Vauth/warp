@@ -84,8 +84,8 @@ install(){
 	until [[ -z $LICENSE || ${#LICENSE} = 26 || $i = 1 ]]
 		do
 			let i--
-			red " License 应为26位数，没有则留空，请重新输入 "
-			read -p "如有 Warp+ License 请输入，没有可回车继续:" LICENSE
+			red " License 应为26位数 "
+			read -p " 请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
 	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
 	
@@ -271,7 +271,7 @@ plus() {
 				do
 					let i--
 					red " Warp+ ID 应为36位数 "
-					read -p "请重新输入 Warp+ ID （剩余$i次）:" ID
+					read -p " 请重新输入 Warp+ ID （剩余$i次）:" ID
 				done
 		    [[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
 		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
