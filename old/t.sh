@@ -273,7 +273,7 @@ plus() {
 					red " Warp+ ID 应为36位数 "
 					read -p "请重新输入 Warp+ ID （剩余$i次）:" ID
 				done
-		    [[ $i = 1 ]] && red " 输入错误达$i次，脚本退出 " && exit 0
+		    [[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
 		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
 		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
