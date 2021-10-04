@@ -32,8 +32,8 @@
 * 能让 IPv6 only VPS 上做的节点支持 Telegram
 * IPv6 建的节点能在只支持 IPv4 的 PassWall、ShadowSocksR Plus+ 上使用
 
-![image](https://user-images.githubusercontent.com/62703343/135737566-f71acba6-f85a-4735-b980-4e19b474c2e7.png)
-![image](https://user-images.githubusercontent.com/62703343/135888110-a628a11e-c75a-4084-894c-8c4606327b2c.png)
+![image](https://user-images.githubusercontent.com/62703343/135889918-d224d2e3-c79f-47be-8bc7-fe4d48f26c56.png)
+
 
 ## 运行脚本
 
