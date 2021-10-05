@@ -172,7 +172,7 @@ install(){
 	echo $MODIFY | sh
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
-	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
+	mkdir /etc/wireguard && cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），记录新的 IPv4 和 IPv6 地址和归属地
 	green " 进度  3/3： 运行 WGCF "
