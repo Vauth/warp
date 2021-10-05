@@ -9,75 +9,6 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 
-# 关闭 WARP 网络接口，并删除 WGCF
-uninstall(){
-	unset WAN4 WAN6 COUNTRY4 COUNTRY6
-	systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
-	wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
-	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /etc/wireguard wgcf-account.toml wgcf-profile.conf menu.sh
-	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
-	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-	COUNTRY4=$(wget --no-check-certificate -T1 -t1 -qO- -4 https://ip.gs/country)
-	COUNTRY6=$(wget --no-check-certificate -T1 -t1 -qO- -6 https://ip.gs/country)
-	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
-		}
-
-# 安装BBR
-bbrInstall() {
-	red "\n=============================================================="
-	green "BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
-	yellow "1.安装脚本【推荐原版BBR+FQ】"
-	yellow "2.回退主目录"
-	red "=============================================================="
-	read -p "请选择：" BBR
-	case "$BBR" in
-		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-		2 ) menu$PLAN;;
-		* ) red "请输入正确数字 [1-2]"; sleep 1; bbrInstall;;
-		esac
-		}
-
-input() {
-	read -p " 请输入 Warp+ ID: " ID
-	i=5
-	until [[ ${#ID} = 36 || $i = 1 ]]
-		do
-		let i--
-		red " Warp+ ID 应为36位数 "
-		read -p " 请重新输入 Warp+ ID （剩余$i次）:" ID
-	done
-	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
-	}
-
-# 刷 Warp+ 流量
-plus() {
-	red "\n=============================================================="
-	green " 刷 Warp+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务 "
-	yellow "1.运行[ALIILAPRO]脚本 "
-	yellow "2.运行[mixool]脚本 "
-	yellow "3.回退主目录"
-	red "=============================================================="
-	read -p "请选择：" CHOOSEPLUS
-	case "$CHOOSEPLUS" in
-		1 ) input
-		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
-		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
-		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
-		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
-		2 ) input
-		    read -p " 你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10 :" MISSION
-		    wget --no-check-certificate -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
-		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
-		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
-		3 ) menu$PLAN;;
-		* ) red "请输入正确数字 [1-3]"; sleep 1; plus;;
-		esac
-		}
-
-main(){
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
 ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 || IPV4=0
 ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 || IPV6=0
@@ -118,11 +49,11 @@ green " 检查环境中…… "
 [[ $LXC != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && WG=1
 
 # WGCF 配置修改，其中用到的 162.159.192.1 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的IP
-MODIFY1='sed -i "/\:\:\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
-MODIFY2='sed -i "7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf && sed -i "s/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g" wgcf-profile.conf'
-MODIFY3='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
-MODIFY4='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
-MODIFY5='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+MODIFYS01='sed -i "/\:\:\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
+MODIFYD01='sed -i "7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf && sed -i "s/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g" wgcf-profile.conf'
+MODIFYS10='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+MODIFYD10='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 
 # VPS 当前状态
 status(){
@@ -294,6 +225,74 @@ install(){
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 		}
 
+# 关闭 WARP 网络接口，并删除 WGCF
+uninstall(){
+	unset WAN4 WAN6 COUNTRY4 COUNTRY6
+	systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
+	wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
+	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /etc/wireguard wgcf-account.toml wgcf-profile.conf menu.sh
+	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
+	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
+	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+	COUNTRY4=$(wget --no-check-certificate -T1 -t1 -qO- -4 https://ip.gs/country)
+	COUNTRY6=$(wget --no-check-certificate -T1 -t1 -qO- -6 https://ip.gs/country)
+	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
+		}
+
+# 安装BBR
+bbrInstall() {
+	red "\n=============================================================="
+	green "BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
+	yellow "1.安装脚本【推荐原版BBR+FQ】"
+	yellow "2.回退主目录"
+	red "=============================================================="
+	read -p "请选择：" BBR
+	case "$BBR" in
+		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
+		2 ) menu$PLAN;;
+		* ) red "请输入正确数字 [1-2]"; sleep 1; bbrInstall;;
+		esac
+		}
+
+input() {
+	read -p " 请输入 Warp+ ID: " ID
+	i=5
+	until [[ ${#ID} = 36 || $i = 1 ]]
+		do
+		let i--
+		red " Warp+ ID 应为36位数 "
+		read -p " 请重新输入 Warp+ ID （剩余$i次）:" ID
+	done
+	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
+	}
+
+# 刷 Warp+ 流量
+plus() {
+	red "\n=============================================================="
+	green " 刷 Warp+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务 "
+	yellow "1.运行[ALIILAPRO]脚本 "
+	yellow "2.运行[mixool]脚本 "
+	yellow "3.回退主目录"
+	red "=============================================================="
+	read -p "请选择：" CHOOSEPLUS
+	case "$CHOOSEPLUS" in
+		1 ) input
+		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
+		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
+		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
+		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
+		2 ) input
+		    read -p " 你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10 :" MISSION
+		    wget --no-check-certificate -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
+		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
+		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
+		3 ) menu$PLAN;;
+		* ) red "请输入正确数字 [1-3]"; sleep 1; plus;;
+		esac
+		}
+
 # IPv6
 menu01(){
 	status
@@ -305,8 +304,8 @@ menu01(){
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE01
 		case "$CHOOSE01" in
-		1 ) 	MODIFY=$MODIFY1;	install;;
-		2 )	MODIFY=$MODIFY2;	install;;
+		1 ) 	MODIFY=$(eval echo \$MODIFYS$PLAN);	install;;
+		2 )	MODIFY=$(eval echo \$MODIFYD$PLAN);	install;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
@@ -326,8 +325,8 @@ menu10(){
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE10
 		case "$CHOOSE10" in
-		1 ) 	MODIFY=$MODIFY3;	install;;
-		2 ) 	MODIFY=$MODIFY4;	install;;
+		1 ) 	MODIFY=$(eval echo \$MODIFYS$PLAN);	install;;
+		2 ) 	MODIFY=$(eval echo \$MODIFYD$PLAN);	install;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
@@ -346,7 +345,7 @@ menu11(){
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE11
 		case "$CHOOSE11" in
-		1 ) 	MODIFY=$MODIFY5;	install;;
+		1 ) 	MODIFY=$(eval echo \$MODIFYD$PLAN);	install;;
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
 		4 )	plus;;
@@ -372,13 +371,14 @@ menu2(){
 		esac
 		}
 
-menu$PLAN
-}
+# menu$PLAN
 
 ACTION=$1
 case "$ACTION" in
-bbr )	bbrInstall;;
-warp+ )	plus;;
-uninstall)	uninstall;;
-* )	main;;
+1 )	MODIFY=$(eval echo \$MODIFYS$PLAN);	install;;
+2 )	MODIFY=$(eval echo \$MODIFYD$PLAN);	install;;
+b )	bbrInstall;;
+p )	plus;;
+u )	uninstall;;
+* )	menu$PLAN;;
 esac
