@@ -354,11 +354,11 @@ menu3(){
 
 ACTION=$1
 case "$ACTION" in
-1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次安装 " && uninstall && exit 1
+1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit 0
 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
-2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次安装 " && uninstall && exit 1
+2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit 0
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-b )	bbrInstall;;
+[Bb] )	bbrInstall;;
 p )	plus;;
 u )	uninstall;;
 * )	menu$PLAN;;
