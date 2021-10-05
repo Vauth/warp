@@ -49,6 +49,18 @@ wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh [optio
   | p | 刷 Warp+ 流量 |
   | 其他或空值| 菜单界面 |
 
+举例：想为 IPv4 的甲骨文添加 Warp 双栈，可运行
+```bash
+wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh 2
+```
+或者
+```bash
+wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh
+```
+```bash
+bash menu.sh 2
+```
+
 ## WARP 网络接口数据，临时、永久关闭和开启
 
 WireGuard 网络接口数据，查看 ```wg```
