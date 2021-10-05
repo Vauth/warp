@@ -89,7 +89,8 @@ install(){
 		done
 	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
 	
-	[[ $PLAN = 3 ]] && yellow " 检查WARP已开启，自动关闭后再安装 " && wg-quick down $(wg | grep interface | cut -d : -f2)
+	[[ $PLAN = 3 ]] && yellow " 检查WARP已开启，自动关闭后再安装 " && wg-quick down $(wg | grep interface | cut -d : -f2) &&
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /etc/wireguard wgcf-account.toml wgcf-profile.conf
 	
 	green " 进度  1/3： 安装系统依赖 "
 
