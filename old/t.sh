@@ -64,7 +64,7 @@ onoff(){
 		until [[ -n $WAN4 && -n $WAN6 ]]
                 do	wg-quick down wgcf >/dev/null 2>&1
 	   		wg-quick up wgcf >/dev/null 2>&1
-	   		WAN4=$(wget --no-aqcheck-certificate -T1 -t1 -qO- -4 ip.gs)
+	   		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
 	   		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
 		done 
 		
