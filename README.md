@@ -7,7 +7,7 @@
 - [脚本特点](README.md#脚本特点)
 - [WARP好处](README.md#WARP好处)
 - [运行脚本](README.md#运行脚本)
-- [WARP+ License 及 ID 获取](README.md#warp+-License及-ID-获取)
+- [WARP+ License 及 ID 获取](README.md#warp-license-及-id-获取)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
 - [WARP原理](README.md#WARP原理)
 - [致谢](README.md#致谢下列作者和项目排名不分先后)
