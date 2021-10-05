@@ -58,16 +58,18 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 # WARP 开关，开启时自动刷直至成功（ warp bug，有时候获取不了ip地址）
 onoff(){
         [[ $PLAN != 3 ]] && ( [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
-		wg-quick up wgcf >/dev/null 2>&1 &&
-		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) &&
-		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) &&
+		wg-quick up wgcf >/dev/null 2>&1
+		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
 		until [[ -n $WAN4 && -n $WAN6 ]]
                 do	wg-quick down wgcf >/dev/null 2>&1
 	   		wg-quick up wgcf >/dev/null 2>&1
 	   		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
 	   		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-		done && green " WARP 已开启 " || red " WireGuard 没有安装或者找不到 WGCF 配置文件 " )
-        [[ $PLAN = 3 ]] && wg-quick down wgcf && green " WARP 已关闭 "
+		done 
+		)
+		
+        [[ $PLAN = 3 ]] && wg-quick down wgcf "
         }
 
 # VPS 当前状态
@@ -196,16 +198,17 @@ install(){
 	# 清空之前的相关变量值
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
 
-	wg-quick up wgcf >/dev/null 2>&1
-	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-	until [[ -n $WAN4 && -n $WAN6 ]]
-	  do
-	   wg-quick down wgcf >/dev/null 2>&1
-	   wg-quick up wgcf >/dev/null 2>&1
-	   WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-	   WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-	done
+#	wg-quick up wgcf >/dev/null 2>&1
+#	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+#	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+#	until [[ -n $WAN4 && -n $WAN6 ]]
+#	  do
+#	   wg-quick down wgcf >/dev/null 2>&1
+#	   wg-quick up wgcf >/dev/null 2>&1
+#	   WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+#	   WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+#	done
+	onoff
 	COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country)
 	TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 	COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country)
@@ -381,6 +384,6 @@ case "$OPTION" in
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
 [Uu] )	uninstall;;
-[Oo] )	onoff;;
+[Oo] )	onoff;	[[ -n $(wg) ]] && green " 已开启 WARP " || green " 已暂停 WARP " ;;
 * )	menu$PLAN;;
 esac
