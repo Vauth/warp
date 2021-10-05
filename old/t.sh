@@ -59,14 +59,12 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 onoff(){
         [[ $PLAN != 3 ]] && [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
 		wg-quick up wgcf >/dev/null 2>&1 &&
-		( WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-		until [[ -n $WAN4 && -n $WAN6 ]]
+		until [[ -n $(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) && -n $(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) ]]
                 do	wg-quick down wgcf >/dev/null 2>&1
 	   		wg-quick up wgcf >/dev/null 2>&1
-	   		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-	   		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-		done )
+		done &&
+		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
+		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
 		
         [[ $PLAN = 3 ]] && wg-quick down wgcf >/dev/null 2>&1
         }
