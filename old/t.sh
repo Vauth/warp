@@ -42,8 +42,8 @@ green " 检查环境中…… "
 		COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country) &&
 		TRACE6=$(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
-# 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
-[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=2 || PLAN=$IPV4$IPV6
+# 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
+[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $LXC != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && WG=1
@@ -293,40 +293,19 @@ plus() {
 		esac
 		}
 
-# IPv6
-menu01(){
+# 单栈
+menu1(){
 	status
-	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
-	green " 2. 为 IPv6 only 添加双栈网络接口 "
-	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 4. 升级内核、安装BBR、DD脚本 "
-	green " 5. 刷 Warp+ 流量 "
-	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" CHOOSE01
-		case "$CHOOSE01" in
-		1 ) 	MODIFY=$(eval echo \$MODIFYS$PLAN);	install;;
-		2 )	MODIFY=$(eval echo \$MODIFYD$PLAN);	install;;
-		3 ) 	uninstall;;
-		4 )	bbrInstall;;
-		5 )	plus;;
-		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu01;;
-		esac
-		}
-
-# IPv4
-menu10(){
-	status
-	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
-	green " 2. 为 IPv4 only 添加双栈网络接口 "
+	[[ $IPV4$IPV6 = 01 ]] && green " 1. 为 IPv6 only 添加 IPv4 网络接口 " || green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
+	[[ $IPV4$IPV6 = 01 ]] && green " 2. 为 IPv6 only 添加双栈网络接口 " || green " 2. 为 IPv4 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 5. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE10
 		case "$CHOOSE10" in
-		1 ) 	MODIFY=$(eval echo \$MODIFYS$PLAN);	install;;
-		2 ) 	MODIFY=$(eval echo \$MODIFYD$PLAN);	install;;
+		1 ) 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
+		2 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
@@ -335,8 +314,8 @@ menu10(){
 		esac
 		}
 
-# IPv4+IPv6
-menu11(){ 
+# 双栈
+menu2(){ 
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
@@ -345,7 +324,7 @@ menu11(){
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE11
 		case "$CHOOSE11" in
-		1 ) 	MODIFY=$(eval echo \$MODIFYD$PLAN);	install;;
+		1 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
 		4 )	plus;;
@@ -355,7 +334,7 @@ menu11(){
 		}
 
 # 已开启 warp 网络接口
-menu2(){ 
+menu3(){ 
 	status
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 2. 升级内核、安装BBR、DD脚本 "
@@ -375,8 +354,8 @@ menu2(){
 
 ACTION=$1
 case "$ACTION" in
-1 )	MODIFY=$(eval echo \$MODIFYS$PLAN);	install;;
-2 )	MODIFY=$(eval echo \$MODIFYD$PLAN);	install;;
+1 )	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
+2 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 b )	bbrInstall;;
 p )	plus;;
 u )	uninstall;;
