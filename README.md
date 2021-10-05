@@ -16,10 +16,10 @@
 ## 脚本特点
 
 * 支持 Warp+ 账户，附带第三方刷 Warp+ 流量和升级内核 BBR 脚本
-* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统
+* 普通用户友好的菜单，进阶者通过后缀选项快速搭建
+* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；智能判断硬件结构类型：AMD 或者 ARM
 * 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go
 * 智能判断 WGCF 作者 github库的最新版本 （Latest release）
-* 智能判断硬件结构类型：Architecture 为 AMD 或者 ARM
 * 智能分析内网和公网IP生成 WGCF 配置文件
 * 输出结果，提示是否使用 WARP IP ，IP 归属地
 
