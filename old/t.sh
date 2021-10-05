@@ -69,7 +69,7 @@ onoff(){
 		done 
 		)
 		
-        [[ $PLAN = 3 ]] && wg-quick down wgcf "
+        [[ $PLAN = 3 ]] && wg-quick down wgcf >/dev/null 2>&1
         }
 
 # VPS 当前状态
@@ -325,7 +325,7 @@ menu1(){
 		case "$CHOOSE1" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 		2 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		3 )	onoff;;
+		3 )	onoff;	[[ -n $(wg) ]] && green " 已开启 WARP " || green " 已暂停 WARP " ;;
 		4 ) 	uninstall;;
 		5 )	bbrInstall;;
 		6 )	plus;;
@@ -346,7 +346,7 @@ menu2(){
 	read -p "请输入数字:" CHOOSE2
 		case "$CHOOSE2" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		2 )	onoff;;
+		2 )	onoff;	[[ -n $(wg) ]] && green " 已开启 WARP " || green " 已暂停 WARP " ;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
@@ -365,7 +365,7 @@ menu3(){
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE3
         	case "$CHOOSE3" in
-		1 ) 	onoff;;
+		1 ) 	onoff;	[[ -n $(wg) ]] && green " 已开启 WARP " || green " 已暂停 WARP " ;;
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
 		4 )	plus;;
