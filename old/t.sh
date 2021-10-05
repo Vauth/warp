@@ -383,6 +383,6 @@ case "$OPTION" in
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
 [Uu] )	uninstall;;
-[Oo] )	onoff;	[[ -n $(wg) ]] && green " 已开启 WARP " || green " 已暂停 WARP " ;;
+[Oo] )	onoff;	[[ -n $(wg) ]] && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
 * )	menu$PLAN;;
 esac
