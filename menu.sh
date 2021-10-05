@@ -12,17 +12,17 @@ yellow(){
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
 ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 || IPV4=0
 ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 || IPV6=0
-[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:[https://github.com/fscarmen/warp/issues] " && rm -f menu.sh && exit 0
+[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 0
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 SYS=$(hostnamectl | tr A-Z a-z | grep system)
 [[ $SYS =~ debian ]] && SYSTEM=debian
 [[ $SYS =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $SYS =~ centos ]] && SYSTEM=centos
-[[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && rm -f menu.sh && exit 0
+[[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 0
 
 # 必须以root运行脚本
-[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && rm -f menu.sh && exit 0
+[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit 0
 
 green " 检查环境中…… "
 
@@ -210,7 +210,7 @@ install(){
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 删除临时文件
-	rm -f wgcf-account.toml  wgcf-profile.conf menu.sh
+	rm -f wgcf-account.toml wgcf-profile.conf
 
 	# 结果提示，脚本运行时间
 	[[ $TRACE4 = plus ]] && green " IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
@@ -231,7 +231,7 @@ uninstall(){
 	systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
 	wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /etc/wireguard wgcf-account.toml wgcf-profile.conf menu.sh
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /etc/wireguard wgcf-account.toml wgcf-profile.conf
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
 	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
