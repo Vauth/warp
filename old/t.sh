@@ -57,17 +57,16 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 
 # WARP 开关，开启时自动刷直至成功（ warp bug，有时候获取不了ip地址）
 onoff(){
-        [[ $PLAN != 3 ]] && ( [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
-		wg-quick up wgcf >/dev/null 2>&1
-		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+        [[ $PLAN != 3 ]] && [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
+		wg-quick up wgcf >/dev/null 2>&1 &&
+		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) &&
+		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) &&
 		until [[ -n $WAN4 && -n $WAN6 ]]
                 do	wg-quick down wgcf >/dev/null 2>&1
 	   		wg-quick up wgcf >/dev/null 2>&1
-	   		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+	   		WAN4=$(wget --no-aqcheck-certificate -T1 -t1 -qO- -4 ip.gs)
 	   		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
 		done 
-		)
 		
         [[ $PLAN = 3 ]] && wg-quick down wgcf >/dev/null 2>&1
         }
