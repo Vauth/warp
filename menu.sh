@@ -350,16 +350,15 @@ menu3(){
 		esac
 		}
 
-# menu$PLAN
-
-ACTION=$1
-case "$ACTION" in
+# 参数选项	1=为 IPv4 或者 IPv6 补全另一栈Warp;	2=安装双栈 Warp;	u=卸载 Warp;	b=升级内核、开启BBR及DD;	p=刷 Warp+ 流量;	其他或空值=菜单界面
+OPTION=$1
+case "$OPTION" in
 1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit 0
 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit 0
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 [Bb] )	bbrInstall;;
-p )	plus;;
-u )	uninstall;;
+[Pp] )	plus;;
+[Uu] )	uninstall;;
 * )	menu$PLAN;;
 esac
