@@ -55,6 +55,21 @@ MODIFYS10='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflare
 MODIFYD10='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 
+# WARP 开关，开启时自动刷直至成功（ warp bug，有时候获取不了ip地址）
+onoff(){
+        [[ $PLAN != 3 ]] && ( [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
+		wg-quick up wgcf >/dev/null 2>&1 &&
+		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) &&
+		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) &&
+		until [[ -n $WAN4 && -n $WAN6 ]]
+                do	wg-quick down wgcf >/dev/null 2>&1
+	   		wg-quick up wgcf >/dev/null 2>&1
+	   		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+	   		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+		done && green " WARP 已开启 " || red " WireGuard 没有安装或者找不到 WGCF 配置文件 " )
+        [[ $PLAN = 3 ]] && wg-quick down wgcf && green " WARP 已关闭 "
+        }
+
 # VPS 当前状态
 status(){
 	clear
@@ -224,15 +239,6 @@ install(){
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 " 	
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 		}
-
-# 开启 WARP，自动刷直至成功（ warp bug，有时候获取不了ip地址）
-onoff(){
-	[[ $PLAN != 3 ]] && [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] && wg-quick up wgcf &&
-	( until [[ -n $(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) && -n $(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) ]]
-		do wg-quick down wgcf >/dev/null 2>&1; wg-quick up wgcf >/dev/null 2>&1; done ）&&
-		green " WARP 已开启 " || red " WireGuard 没有安装好或者找不到 wgcf 配置文件 "
-	[[ $PLAN = 3 ]] && wg-quick down wgcf && green " WARP 已关闭 " || red " WARP 并未开启，故不能关闭 ";;
-	}
 
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
