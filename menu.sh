@@ -42,18 +42,18 @@ green " 检查环境中…… "
 		COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country) &&
 		TRACE6=$(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
-# 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：01=IPv6,	10=IPv4,	11=IPv4+IPv6,	2=WARP已开启
-[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=2 || PLAN=$IPV4$IPV6
+# 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
+[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $LXC != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && WG=1
 
 # WGCF 配置修改，其中用到的 162.159.192.1 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的IP
-MODIFY1='sed -i "/\:\:\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
-MODIFY2='sed -i "7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf && sed -i "s/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g" wgcf-profile.conf'
-MODIFY3='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
-MODIFY4='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
-MODIFY5='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+MODIFYS01='sed -i "/\:\:\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
+MODIFYD01='sed -i "7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf && sed -i "s/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g" wgcf-profile.conf'
+MODIFYS10='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+MODIFYD10='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 
 # VPS 当前状态
 status(){
@@ -71,7 +71,7 @@ status(){
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP 已开启" 	
 	[[ $TRACE4 = off && $TRACE6 = off ]] && green "	WARP 未开启"
  	red "\n======================================================================================================================\n"
-		}
+	}
 
 # WGCF 安装
 install(){
@@ -79,7 +79,7 @@ install(){
 	start=$(date +%s)
 	
 	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
-	read -p "如有 Warp+ License 请输入，没有可回车继续:" LICENSE
+	read -p " 如有 Warp+ License 请输入，没有可回车继续: " LICENSE
 	i=5
 	until [[ -z $LICENSE || ${#LICENSE} = 26 || $i = 1 ]]
 		do
@@ -92,7 +92,7 @@ install(){
 	green " 进度  1/3： 安装系统依赖 "
 
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
-	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
         # 根据系统选择需要安装的依赖
@@ -293,40 +293,19 @@ plus() {
 		esac
 		}
 
-# IPv6
-menu01(){
+# 单栈
+menu1(){
 	status
-	green " 1. 为 IPv6 only 添加 IPv4 网络接口 "
-	green " 2. 为 IPv6 only 添加双栈网络接口 "
-	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 4. 升级内核、安装BBR、DD脚本 "
-	green " 5. 刷 Warp+ 流量 "
-	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" CHOOSE01
-		case "$CHOOSE01" in
-		1 ) 	MODIFY=$MODIFY1;	install;;
-		2 )	MODIFY=$MODIFY2;	install;;
-		3 ) 	uninstall;;
-		4 )	bbrInstall;;
-		5 )	plus;;
-		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu01;;
-		esac
-		}
-
-# IPv4
-menu10(){
-	status
-	green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
-	green " 2. 为 IPv4 only 添加双栈网络接口 "
+	[[ $IPV4$IPV6 = 01 ]] && green " 1. 为 IPv6 only 添加 IPv4 网络接口 " || green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
+	[[ $IPV4$IPV6 = 01 ]] && green " 2. 为 IPv6 only 添加双栈网络接口 " || green " 2. 为 IPv4 only 添加双栈网络接口 "
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 5. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE10
 		case "$CHOOSE10" in
-		1 ) 	MODIFY=$MODIFY3;	install;;
-		2 ) 	MODIFY=$MODIFY4;	install;;
+		1 ) 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
+		2 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
@@ -335,8 +314,8 @@ menu10(){
 		esac
 		}
 
-# IPv4+IPv6
-menu11(){ 
+# 双栈
+menu2(){ 
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
@@ -345,7 +324,7 @@ menu11(){
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE11
 		case "$CHOOSE11" in
-		1 ) 	MODIFY=$MODIFY5;	install;;
+		1 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
 		4 )	plus;;
@@ -355,7 +334,7 @@ menu11(){
 		}
 
 # 已开启 warp 网络接口
-menu2(){ 
+menu3(){ 
 	status
 	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 2. 升级内核、安装BBR、DD脚本 "
@@ -371,4 +350,16 @@ menu2(){
 		esac
 		}
 
-menu$PLAN
+# menu$PLAN
+
+ACTION=$1
+case "$ACTION" in
+1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit 0
+	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
+2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit 0
+	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
+[Bb] )	bbrInstall;;
+p )	plus;;
+u )	uninstall;;
+* )	menu$PLAN;;
+esac
