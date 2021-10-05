@@ -302,15 +302,15 @@ menu1(){
 	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 5. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" CHOOSE10
-		case "$CHOOSE10" in
+	read -p "请输入数字:" CHOOSE1
+		case "$CHOOSE1" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 		2 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu10;;
+		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu1;;
 		esac
 		}
 
@@ -322,14 +322,14 @@ menu2(){
 	green " 3. 升级内核、安装BBR、DD脚本 "
 	green " 4. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" CHOOSE11
-		case "$CHOOSE11" in
+	read -p "请输入数字:" CHOOSE2
+		case "$CHOOSE2" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
 		4 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu11;;
+		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu2;;
 		esac
 		}
 
@@ -340,13 +340,13 @@ menu3(){
 	green " 2. 升级内核、安装BBR、DD脚本 "
 	green " 3. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" CHOOSE2
-        	case "$CHOOSE2" in
+	read -p "请输入数字:" CHOOSE3
+        	case "$CHOOSE3" in
 		1 ) 	uninstall;;
 		2 )	bbrInstall;;
 		3 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu2;;
+		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu3;;
 		esac
 		}
 
