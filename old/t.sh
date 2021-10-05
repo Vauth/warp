@@ -108,6 +108,8 @@ install(){
 	green " 进度  1/3： 安装系统依赖 "
 
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
+	systemctl disable wg-quick@wgcf >/dev/null 2>&1
+	wg-quick down wgcf >/dev/null 2>&1
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
@@ -245,10 +247,10 @@ install(){
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6
-	systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
-	wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
+	systemctl disable wg-quick@wgcf >/dev/null 2>&1
+	wg-quick down wgcf >/dev/null 2>&1
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /etc/wireguard wgcf-account.toml wgcf-profile.conf
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
 	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
