@@ -292,6 +292,7 @@ install(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 " 	
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
+		}
 
 # IPv6
 menu01(){
@@ -374,10 +375,10 @@ menu2(){
 menu$PLAN
 }
 
-
 ACTION=$1
 case "$ACTION" in
 bbr )	bbrInstall;;
 warp+ )	plus;;
-* )	main
+uninstall)	uninstall;;
+* )	main;;
 esac
