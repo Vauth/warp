@@ -38,8 +38,16 @@
 ## 运行脚本
 
 ```bash
-wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh
+wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh [option]
 ```
+  | [option] 变量 | 具体动作说明 |
+  | --------------------------- | ----------- |
+  | 1 | 为 IPv4 或者 IPv6 补全另一栈Warp |
+  | 2 | 安装双栈 Warp |
+  | u | 卸载 Warp |
+  | b | 升级内核、开启BBR及DD |
+  | p | 刷 Warp+ 流量 |
+  | 其他或空值| 菜单界面 |
 
 ## WARP 网络接口数据，临时、永久关闭和开启
 
