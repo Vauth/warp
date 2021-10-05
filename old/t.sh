@@ -71,7 +71,7 @@ status(){
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP 已开启" 	
 	[[ $TRACE4 = off && $TRACE6 = off ]] && green "	WARP 未开启"
  	red "\n======================================================================================================================\n"
-		}
+	}
 
 # WGCF 安装
 install(){
@@ -354,13 +354,9 @@ menu3(){
 
 ACTION=$1
 case "$ACTION" in
-1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再安装 "
-	wg-quick down wgcf
-	bash menu.sh $1 || bash t.sh $1
+1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次安装 " && uninstall && exit 1
 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
-2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再安装 "
-	wg-quick down wgcf
-	bash menu.sh $1 || bash t.sh $1
+2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次安装 " && uninstall && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 b )	bbrInstall;;
 p )	plus;;
