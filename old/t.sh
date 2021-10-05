@@ -89,7 +89,7 @@ install(){
 		done
 	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
 	
-	[[ $PLAN = 3 ]] $$ green " WARP已开启，自动关闭后再安装 " && wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
+	[[ $PLAN = 3 ]] && green " WARP已开启，自动关闭后再安装 " && wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
 	
 	green " 进度  1/3： 安装系统依赖 "
 
