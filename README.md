@@ -7,6 +7,7 @@
 - [脚本特点](README.md#脚本特点)
 - [WARP好处](README.md#WARP好处)
 - [运行脚本](README.md#运行脚本)
+- [WARP+ License 及 ID 获取](README.md#warp+-License及-ID-获取)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
 - [WARP原理](README.md#WARP原理)
 - [致谢](README.md#致谢下列作者和项目排名不分先后)
@@ -61,6 +62,9 @@ wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh
 ```bash
 bash menu.sh 2
 ```
+## WARP+ License 及 ID 获取
+
+![image](https://user-images.githubusercontent.com/62703343/136070323-47f2600a-13e4-4eb0-a64d-d7eb805c28e2.png)
 
 ## WARP 网络接口数据，临时、永久关闭和开启
 
