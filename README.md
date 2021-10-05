@@ -43,9 +43,9 @@ wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh [optio
 ```
   | [option] 变量 | 具体动作说明 |
   | --------------------------- | ----------- |
-  | 1 | 原生IPv4 -> 原生IPv4 + Warp IPv6    或   原生IPv6 -> Warp IPv4 + 原生IPv6 |
+  | 1 | 原生IPv4 -> （原生IPv4 + Warp IPv6） 或 原生IPv6 -> (Warp IPv4 + 原生IPv6) |
   | 2 | 原无论任何状态 -> Warp 双栈 |
-  | o | Warp 开关，开和关一样，用于打开和关闭已经安装的 Warp |
+  | o | Warp 开关，脚本主动判断当前状态，自动开或关 |
   | u | 卸载 Warp |
   | b | 升级内核、开启BBR及DD |
   | p | 刷 Warp+ 流量 |
