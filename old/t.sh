@@ -12,17 +12,17 @@ yellow(){
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
 ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 || IPV4=0
 ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 || IPV6=0
-[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 0
+[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 SYS=$(hostnamectl | tr A-Z a-z | grep system)
 [[ $SYS =~ debian ]] && SYSTEM=debian
 [[ $SYS =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $SYS =~ centos ]] && SYSTEM=centos
-[[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 0
+[[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
 
 # 必须以root运行脚本
-[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit 0
+[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit
 
 green " 检查环境中…… "
 
@@ -59,14 +59,14 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 onoff(){
         [[ $PLAN != 3 ]] && [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
 		wg-quick up wgcf >/dev/null 2>&1 &&
-		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+		( WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
 		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
 		until [[ -n $WAN4 && -n $WAN6 ]]
                 do	wg-quick down wgcf >/dev/null 2>&1
 	   		wg-quick up wgcf >/dev/null 2>&1
 	   		WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
 	   		WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-		done 
+		done )
 		
         [[ $PLAN = 3 ]] && wg-quick down wgcf >/dev/null 2>&1
         }
@@ -103,7 +103,7 @@ install(){
 			red " License 应为26位数 "
 			read -p " 请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
-	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
+	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	
 	green " 进度  1/3： 安装系统依赖 "
 
@@ -190,25 +190,13 @@ install(){
 	echo $MODIFY | sh
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
-	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
+	mkdir /etc/wireguard/ >/dev/null 2>&1
+	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
-	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），记录新的 IPv4 和 IPv6 地址和归属地
+	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
 	green " 进度  3/3： 运行 WGCF "
 	yellow " 后台获取 WARP IP 中…… "
-
-	# 清空之前的相关变量值
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
-
-#	wg-quick up wgcf >/dev/null 2>&1
-#	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-#	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-#	until [[ -n $WAN4 && -n $WAN6 ]]
-#	  do
-#	   wg-quick down wgcf >/dev/null 2>&1
-#	   wg-quick up wgcf >/dev/null 2>&1
-#	   WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-#	   WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-#	done
 	onoff
 	COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country)
 	TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
@@ -284,7 +272,7 @@ input() {
 		red " Warp+ ID 应为36位数 "
 		read -p " 请重新输入 Warp+ ID （剩余$i次）:" ID
 	done
-	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
+	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	}
 
 # 刷 Warp+ 流量
@@ -378,13 +366,13 @@ menu3(){
 # 参数选项	1=为 IPv4 或者 IPv6 补全另一栈Warp;	2=安装双栈 Warp;	u=卸载 Warp;	b=升级内核、开启BBR及DD;	o=Warp开关；	p=刷 Warp+ 流量;	其他或空值=菜单界面
 OPTION=$1
 case "$OPTION" in
-1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit 0
+1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit
 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
-2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit 0
+2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
 [Uu] )	uninstall;;
-[Oo] )	onoff;	[[ -n $(wg) ]] && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+[Oo] )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
 * )	menu$PLAN;;
 esac
