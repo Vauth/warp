@@ -10,19 +10,19 @@ yellow(){
 }
 
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
-ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 || IPV4=0
-ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 || IPV6=0
-[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 0
+ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
+ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
+[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 SYS=$(hostnamectl | tr A-Z a-z | grep system)
 [[ $SYS =~ debian ]] && SYSTEM=debian
 [[ $SYS =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $SYS =~ centos ]] && SYSTEM=centos
-[[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 0
+[[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
 
 # 必须以root运行脚本
-[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit 0
+[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit
 
 green " 检查环境中…… "
 
@@ -54,6 +54,20 @@ MODIFYD01='sed -i "7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wg
 MODIFYS10='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 MODIFYD10='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+
+# WARP 开关，开启时自动刷直至成功（ warp bug，有时候获取不了ip地址）
+onoff(){
+        [[ $PLAN != 3 ]] && [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
+		wg-quick up wgcf >/dev/null 2>&1 &&
+		until [[ -n $(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) && -n $(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) ]]
+                do	wg-quick down wgcf >/dev/null 2>&1
+	   		wg-quick up wgcf >/dev/null 2>&1
+		done &&
+		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
+		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
+		
+        [[ $PLAN = 3 ]] && wg-quick down wgcf >/dev/null 2>&1
+        }
 
 # VPS 当前状态
 status(){
@@ -87,11 +101,13 @@ install(){
 			red " License 应为26位数 "
 			read -p " 请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
-	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
+	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	
 	green " 进度  1/3： 安装系统依赖 "
 
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
+	systemctl disable wg-quick@wgcf >/dev/null 2>&1
+	wg-quick down wgcf >/dev/null 2>&1
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
@@ -141,18 +157,18 @@ install(){
 	green " 进度  2/3： 安装 WGCF "
 
 	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.8
-	latest=$(wget --no-check-certificate -qO- -t1 -T1 "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
+	latest=$(wget --no-check-certificate -qO- -t1 -T1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
 	[[ -z $latest ]] && latest='2.2.8'
 
 	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈
-	wget --no-check-certificate -t1 -T1 -N -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$ARCHITECTURE
-	[[ $? != 0 ]] && wget --no-check-certificate -N -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_${latest}_linux_$ARCHITECTURE
+	wget --no-check-certificate -t1 -T1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$ARCHITECTURE
+	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_${latest}_linux_$ARCHITECTURE
 
 	# 添加执行权限
 	chmod +x /usr/local/bin/wgcf
 
 	# 如是 LXC，安装 wireguard-go
-	[[ $LXC = 1 ]] && wget --no-check-certificate -N -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
+	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 	yellow " WGCF 注册中…… "
@@ -172,25 +188,14 @@ install(){
 	echo $MODIFY | sh
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
-	mkdir /etc/wireguard && cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
+	mkdir /etc/wireguard/ >/dev/null 2>&1
+	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
-	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），记录新的 IPv4 和 IPv6 地址和归属地
+	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
 	green " 进度  3/3： 运行 WGCF "
 	yellow " 后台获取 WARP IP 中…… "
-
-	# 清空之前的相关变量值
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
-
-	wg-quick up wgcf >/dev/null 2>&1
-	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-	until [[ -n $WAN4 && -n $WAN6 ]]
-	  do
-	   wg-quick down wgcf >/dev/null 2>&1
-	   wg-quick up wgcf >/dev/null 2>&1
-	   WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-	   WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-	done
+	onoff
 	COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country)
 	TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 	COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country)
@@ -228,10 +233,10 @@ install(){
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6
-	systemctl disable wg-quick@$(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
-	wg-quick down $(wg | grep interface | cut -d : -f2) >/dev/null 2>&1
+	systemctl disable wg-quick@wgcf >/dev/null 2>&1
+	wg-quick down wgcf >/dev/null 2>&1
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /etc/wireguard wgcf-account.toml wgcf-profile.conf
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
 	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
@@ -239,7 +244,7 @@ uninstall(){
 	COUNTRY4=$(wget --no-check-certificate -T1 -t1 -qO- -4 https://ip.gs/country)
 	COUNTRY6=$(wget --no-check-certificate -T1 -t1 -qO- -6 https://ip.gs/country)
 	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
-		}
+	}
 
 # 安装BBR
 bbrInstall() {
@@ -254,7 +259,7 @@ bbrInstall() {
 		2 ) menu$PLAN;;
 		* ) red "请输入正确数字 [1-2]"; sleep 1; bbrInstall;;
 		esac
-		}
+	}
 
 input() {
 	read -p " 请输入 Warp+ ID: " ID
@@ -265,7 +270,7 @@ input() {
 		red " Warp+ ID 应为36位数 "
 		read -p " 请重新输入 Warp+ ID （剩余$i次）:" ID
 	done
-	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
+	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	}
 
 # 刷 Warp+ 流量
@@ -285,80 +290,87 @@ plus() {
 		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) input
 		    read -p " 你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10 :" MISSION
-		    wget --no-check-certificate -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
+		    wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
 		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
 		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
 		3 ) menu$PLAN;;
 		* ) red "请输入正确数字 [1-3]"; sleep 1; plus;;
 		esac
-		}
+	}
 
 # 单栈
 menu1(){
 	status
 	[[ $IPV4$IPV6 = 01 ]] && green " 1. 为 IPv6 only 添加 IPv4 网络接口 " || green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
 	[[ $IPV4$IPV6 = 01 ]] && green " 2. 为 IPv6 only 添加双栈网络接口 " || green " 2. 为 IPv4 only 添加双栈网络接口 "
-	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 4. 升级内核、安装BBR、DD脚本 "
-	green " 5. 刷 Warp+ 流量 "
+	[[ $PLAN = 3 ]] && green  " 3. 暂时关闭 WARP " || green " 3. 打开 WARP "
+	green " 4. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 5. 升级内核、安装BBR、DD脚本 "
+	green " 6. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE1
 		case "$CHOOSE1" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 		2 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		3 ) 	uninstall;;
-		4 )	bbrInstall;;
-		5 )	plus;;
+		3 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		4 ) 	uninstall;;
+		5 )	bbrInstall;;
+		6 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu1;;
+		* ) 	red "请输入正确数字 [0-6]"; sleep 1; menu1;;
 		esac
-		}
+	}
 
 # 双栈
 menu2(){ 
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
-	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 3. 升级内核、安装BBR、DD脚本 "
-	green " 4. 刷 Warp+ 流量 "
+	[[ $PLAN = 3 ]] && green  " 2. 暂时关闭 WARP " || green " 2. 打开 WARP "
+	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 4. 升级内核、安装BBR、DD脚本 "
+	green " 5. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE2
 		case "$CHOOSE2" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		2 ) 	uninstall;;
-		3 )	bbrInstall;;
-		4 )	plus;;
+		2 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		3 ) 	uninstall;;
+		4 )	bbrInstall;;
+		5 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu2;;
+		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu2;;
 		esac
-		}
+	}
 
 # 已开启 warp 网络接口
 menu3(){ 
 	status
-	green " 1. 关闭 WARP 网络接口，并删除 WGCF "
-	green " 2. 升级内核、安装BBR、DD脚本 "
-	green " 3. 刷 Warp+ 流量 "
+	[[ $PLAN = 3 ]] && green  " 1. 暂时关闭 WARP " || green " 1. 打开 WARP "
+	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 3. 升级内核、安装BBR、DD脚本 "
+	green " 4. 刷 Warp+ 流量 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE3
         	case "$CHOOSE3" in
-		1 ) 	uninstall;;
-		2 )	bbrInstall;;
-		3 )	plus;;
+		1 ) 	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		2 ) 	uninstall;;
+		3 )	bbrInstall;;
+		4 )	plus;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu3;;
+		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu3;;
 		esac
-		}
+	}
 
-# 参数选项	1=为 IPv4 或者 IPv6 补全另一栈Warp;	2=安装双栈 Warp;	u=卸载 Warp;	b=升级内核、开启BBR及DD;	p=刷 Warp+ 流量;	其他或空值=菜单界面
+# 参数选项	1=为 IPv4 或者 IPv6 补全另一栈Warp;	2=安装双栈 Warp;	u=卸载 Warp;	b=升级内核、开启BBR及DD;	o=Warp开关；	p=刷 Warp+ 流量;	其他或空值=菜单界面
 OPTION=$1
 case "$OPTION" in
-1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit 0
+1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && wg-quick down wgcf >/dev/null 2>&1 && exit
 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
-2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后再次运行安装 " && uninstall && exit 0
+2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && wg-quick down wgcf >/dev/null 2>&1 && exit
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
 [Uu] )	uninstall;;
+[Oo] )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
 * )	menu$PLAN;;
 esac
