@@ -370,7 +370,7 @@ menu2(){
 		* ) 	red "请输入正确数字 [0-3]"; sleep 1; menu2;;
 		esac
 		}
-		}
+
 menu$PLAN
 }
 
