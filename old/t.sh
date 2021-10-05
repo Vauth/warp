@@ -89,13 +89,12 @@ install(){
 		done
 	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit 0
 	
-	[[ $PLAN = 3 ]] && yellow " 检查WARP已开启，自动关闭后再安装 " && wg-quick down $(wg | grep interface | cut -d : -f2) &&
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /etc/wireguard wgcf-account.toml wgcf-profile.conf
+	[[ $PLAN = 3 ]] && yellow " 检测WARP已开启，自动关闭后再安装 " && wg-quick down $(wg | grep interface | cut -d : -f2)
 	
 	green " 进度  1/3： 安装系统依赖 "
 
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
-	rm -f /usr/local/bin/wgcf /etc/wireguard/wgcf.conf /usr/bin/wireguard-go  wgcf-account.toml  wgcf-profile.conf
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
         # 根据系统选择需要安装的依赖
