@@ -381,7 +381,7 @@ case "$OPTION" in
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
 [Uu] )	uninstall;;
-[Oo] )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 warp o " ;;
-[Nn] )	net;	bash /etc/wireguard/WARP_AutoUp.sh;;
+[Oo] )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " IPv4:$WAN4\n IPv6:$WAN6\n 已开启 WARP，之后关闭： warp o " || green " 已暂停 WARP，再次开启： warp o " ;;
+[Nn] )	[[ -e /etc/wireguard/WARP_AutoUp.sh ]] || net && bash /etc/wireguard/WARP_AutoUp.sh && green " 已成功刷 Warp(+) 网络\n IPv4:$(wget --no-check-certificate -qO- -4 ip.gs)\n IPv6:$(wget --no-check-certificate -qO- -6 ip.gs) ";;
 * )	menu$PLAN;;
 esac
