@@ -37,8 +37,13 @@
 
 ## 运行脚本
 
+首次运行
 ```bash
 wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh [option] [lisence]
+```
+再次运行
+```bash
+warp [option] [lisence]
 ```
   | [option] 变量 | 具体动作说明 |
   | ------------- | ----------- |
@@ -52,16 +57,13 @@ wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh [optio
   | p | 刷 Warp+ 流量 |
   | 其他或空值| 菜单界面 |
 
-举例：想为 IPv4 的甲骨文添加 Warp 双栈，可运行
+举例：想为 IPv4 的甲骨文添加 Warp 双栈，首次运行
 ```bash
 wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh 2
 ```
-或者
+或者再次运行
 ```bash
-wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh
-```
-```bash
-bash menu.sh 2
+warp 2
 ```
 ## WARP+ License 及 ID 获取
 
