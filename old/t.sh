@@ -55,30 +55,24 @@ MODIFYS10='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflare
 MODIFYD10='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 
-# WARP 开关，开启时自动刷直至成功（ warp bug，有时候获取不了ip地址）
-onoff(){
-        [[ $PLAN != 3 ]] && [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
-		wg-quick up wgcf >/dev/null 2>&1 &&
-		until [[ -n $(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) && -n $(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) ]]
-                do	wg-quick down wgcf >/dev/null 2>&1
-	   		wg-quick up wgcf >/dev/null 2>&1
-		done &&
-		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
-		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
-		
-        [[ $PLAN = 3 ]] && wg-quick down wgcf >/dev/null 2>&1
-        }
-
 # 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行
 net(){
-	grep -qE '^@reboot[ ]*root[ ]*bash[ ]*/etc/wireguard/WARP_AutoUp.sh' /etc/crontab || echo '@reboot root bash /etc/wireguard/WARP_AutoUp.sh' >> /etc/crontab
-	echo '[[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] && wg-quick up wgcf >/dev/null 2>&1 &&' > /etc/wireguard/WARP_AutoUp.sh
-	echo 'until [[ -n $(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) && -n $(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '	do' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '		wg-quick down wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '		wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
- 	echo '	done' >> /etc/wireguard/WARP_AutoUp.sh
-	}
+	[[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
+	wg-quick up wgcf >/dev/null 2>&1
+	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+	until [[ -n $WAN4 && -n $WAN6 ]]
+		do	wg-quick down wgcf >/dev/null 2>&1
+			wg-quick up wgcf >/dev/null 2>&1
+			WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+			WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+ 	done || ( red " 找不到 WireGuard 指令 wg-quick 或者配置文件 wgcf.conf 不存在，请重新运行 warp " && exit )
+		}
+
+# WARP 开关
+onoff(){
+        [[ $PLAN != 3 ]] && net || wg-quick down wgcf >/dev/null 2>&1 
+        }
 
 # VPS 当前状态
 status(){
@@ -212,6 +206,7 @@ install(){
 
 	# 设置开机启动
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
+	grep -qE '^@reboot[ ]*root[ ]*warp[ ]*o' /etc/crontab || echo '@reboot root warp o' >> /etc/crontab
 	net
 
 	# 优先使用 IPv4 网络
@@ -382,6 +377,6 @@ case "$OPTION" in
 [Pp] )	plus;;
 [Uu] )	uninstall;;
 [Oo] )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " IPv4:$WAN4\n IPv6:$WAN6\n 已开启 WARP，之后关闭： warp o " || green " 已暂停 WARP，再次开启： warp o ";;
-[Nn] )	[[ -e /etc/wireguard/WARP_AutoUp.sh ]] || net && bash /etc/wireguard/WARP_AutoUp.sh; green " 已成功刷 Warp(+) 网络\n IPv4:$(wget --no-check-certificate -qO- -4 ip.gs)\n IPv6:$(wget --no-check-certificate -qO- -6 ip.gs) ";;
+[Nn] )	net; green " 已成功刷 Warp(+) 网络\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 * )	menu$PLAN;;
 esac
