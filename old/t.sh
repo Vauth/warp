@@ -233,7 +233,7 @@ install(){
 	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 "
-	[[ $TRACE4 = plus || $TRACE6 = plus || $TRACE4 = on || $TRACE6 = on ]] && yellow " 再次运行用 warp\n 如 warp (打开菜单)\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp p (刷warp+流量)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈) " 
+	[[ $TRACE4 = plus || $TRACE6 = plus || $TRACE4 = on || $TRACE6 = on ]] && yellow " 再次运行用 warp\n 如 warp (打开菜单)\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp p (刷warp+流量)\n warp n (断网时刷Warp)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈) " 
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 		}
 
@@ -319,7 +319,7 @@ menu1(){
 		case "$CHOOSE1" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 		2 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		3 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		3 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " IPv4:$WAN4\n IPv6:$WAN6\n 已开启 WARP，之后关闭： warp o " || green " 已暂停 WARP，再次开启： warp o ";;
 		4 ) 	uninstall;;
 		5 )	bbrInstall;;
 		6 )	plus;;
@@ -340,7 +340,7 @@ menu2(){
 	read -p "请输入数字:" CHOOSE2
 		case "$CHOOSE2" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		2 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		2 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " IPv4:$WAN4\n IPv6:$WAN6\n 已开启 WARP，之后关闭： warp o " || green " 已暂停 WARP，再次开启： warp o ";;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
@@ -359,7 +359,7 @@ menu3(){
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE3
         	case "$CHOOSE3" in
-		1 ) 	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		1 ) 	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " IPv4:$WAN4\n IPv6:$WAN6\n 已开启 WARP，之后关闭： warp o " || green " 已暂停 WARP，再次开启： warp o ";;
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
 		4 )	plus;;
@@ -371,7 +371,7 @@ menu3(){
 # 参数选项 LICENSE
 LICENSE=$2
 
-# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
+# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; n=刷Warp网络; 其他或空值=菜单界面
 OPTION=$1
 case "$OPTION" in
 1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && wg-quick down wgcf >/dev/null 2>&1 && exit
@@ -381,7 +381,7 @@ case "$OPTION" in
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
 [Uu] )	uninstall;;
-[Oo] )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " IPv4:$WAN4\n IPv6:$WAN6\n 已开启 WARP，之后关闭： warp o " || green " 已暂停 WARP，再次开启： warp o " ;;
-[Nn] )	[[ -e /etc/wireguard/WARP_AutoUp.sh ]] || net && bash /etc/wireguard/WARP_AutoUp.sh && green " 已成功刷 Warp(+) 网络\n IPv4:$(wget --no-check-certificate -qO- -4 ip.gs)\n IPv6:$(wget --no-check-certificate -qO- -6 ip.gs) ";;
+[Oo] )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " IPv4:$WAN4\n IPv6:$WAN6\n 已开启 WARP，之后关闭： warp o " || green " 已暂停 WARP，再次开启： warp o ";;
+[Nn] )	[[ -e /etc/wireguard/WARP_AutoUp.sh ]] || net && bash /etc/wireguard/WARP_AutoUp.sh; green " 已成功刷 Warp(+) 网络\n IPv4:$(wget --no-check-certificate -qO- -4 ip.gs)\n IPv6:$(wget --no-check-certificate -qO- -6 ip.gs) ";;
 * )	menu$PLAN;;
 esac
