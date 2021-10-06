@@ -57,20 +57,21 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 
 # 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行
 net(){
-	[[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
-	wg-quick up wgcf >/dev/null 2>&1 &&
-	until [[ -n $(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) && -n $(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) ]]
-                do	wg-quick down wgcf >/dev/null 2>&1
-	   		wg-quick up wgcf >/dev/null 2>&1
-	done &&
-		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
-		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
-		}
+        [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
+        wg-quick up wgcf >/dev/null 2>&1
+        WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+        WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+        until [[ -n $WAN4 && -n $WAN6 ]]
+                do      wg-quick down wgcf >/dev/null 2>&1
+                        wg-quick up wgcf >/dev/null 2>&1
+                        WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+                        WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+        done || ( red " 找不到 WireGuard 指令 wg-quick 或者配置文件 wgcf.conf 不存在，请重新运行 warp " && exit )
+                }
 
 # WARP 开关
 onoff(){
-	[[ $PLAN != 3 ]] && net
-	[[ $PLAN = 3 ]] && wg-quick down wgcf >/dev/null 2>&1
+        [[ $PLAN != 3 ]] && net || wg-quick down wgcf >/dev/null 2>&1 
         }
 
 # VPS 当前状态
