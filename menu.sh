@@ -25,6 +25,8 @@ SYS=$(hostnamectl | tr A-Z a-z | grep system)
 [[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit
 
 green " 检查环境中…… "
+# 安装 curl
+[[ $(type -P curl) ]] || ( green " 安装curl中…… " && apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1 )
 
 # 判断处理器架构
 [[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
@@ -34,13 +36,13 @@ green " 检查环境中…… "
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
-		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
-		COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country) &&
-		TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
+		WAN4=$(curl -s4 ip.gs) &&
+		COUNTRY4=$(curl -s4 ip.gs) &&
+		TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
-		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs) &&
-		COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country) &&
-		TRACE6=$(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+		WAN6=$(curl -s6 ip.gs) &&
+		COUNTRY6=$(curl -s6 ip.gs) &&
+		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
@@ -55,18 +57,24 @@ MODIFYS10='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflare
 MODIFYD10='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 
-# WARP 开关，开启时自动刷直至成功（ warp bug，有时候获取不了ip地址）
+# 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行
+net(){
+	[[ $(type -P wg-quick) ]] || red " 没有安装 WireGuard tools，请重新安装 " && exit
+	[[ -e /etc/wireguard/wgcf.conf ]] || red " 找不到配置文件 wgcf.conf，请重新安装 " && exit
+        wg-quick up wgcf >/dev/null 2>&1
+        WAN4=$(curl -s4m1 ip.gs)
+        WAN6=$(curl -s6m1 ip.gs)
+        until [[ -n $WAN4 && -n $WAN6 ]]
+                do      wg-quick down wgcf >/dev/null 2>&1
+                        wg-quick up wgcf >/dev/null 2>&1
+                        WAN4=$(curl -s4m1 ip.gs)
+                        WAN6=$(curl -s6m1 ip.gs)
+        done
+	}
+
+# WARP 开关
 onoff(){
-        [[ $PLAN != 3 ]] && [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
-		wg-quick up wgcf >/dev/null 2>&1 &&
-		until [[ -n $(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) && -n $(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) ]]
-                do	wg-quick down wgcf >/dev/null 2>&1
-	   		wg-quick up wgcf >/dev/null 2>&1
-		done &&
-		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
-		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
-		
-        [[ $PLAN = 3 ]] && wg-quick down wgcf >/dev/null 2>&1
+        [[ $PLAN = 3 ]] && wg-quick down wgcf >/dev/null 2>&1 || net 
         }
 
 # VPS 当前状态
@@ -106,7 +114,7 @@ install(){
 	green " 进度  1/3： 安装系统依赖 "
 
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /usr/sbin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
         # 根据系统选择需要安装的依赖
@@ -139,7 +147,7 @@ install(){
 	centos(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
-		yum -y install curl net-tools wireguard-tools
+		yum -y install net-tools wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
@@ -194,26 +202,21 @@ install(){
 	yellow " 后台获取 WARP IP 中…… "
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
 	onoff
-	COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country)
-	TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country)
-	TRACE6=$(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+	COUNTRY4=$(curl -s4 https://ip.gs/country)
+	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+	COUNTRY6=$(curl -s6 https://ip.gs/country)
+	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
-	# 设置开机启动，由于warp bug，有时候获取不了ip地址，在定时任务加了重启后自动刷网络
+	# 设置开机启动
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
-	grep -qE '^@reboot[ ]*root[ ]*bash[ ]*/etc/wireguard/WARP_AutoUp.sh' /etc/crontab || echo '@reboot root bash /etc/wireguard/WARP_AutoUp.sh' >> /etc/crontab
-	echo '[[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] && wg-quick up wgcf >/dev/null 2>&1 &&' > /etc/wireguard/WARP_AutoUp.sh
-	echo 'until [[ -n $(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) && -n $(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '	do' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '		wg-quick down wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '		wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
- 	echo '	done' >> /etc/wireguard/WARP_AutoUp.sh
+	grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab
+	net
 
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 创建再次执行的快捷方式，再次运行可以用 warp 指令
-	chmod 700 menu.sh && [[ -d /usr/bin ]] && cp -f menu.sh /usr/bin/warp || cp -f menu.sh /usr/sbin/warp
+	chmod 700 menu.sh && cp -f menu.sh /usr/bin/warp
 	
 	# 删除临时文件
 	rm -f wgcf-account.toml wgcf-profile.conf
@@ -228,7 +231,8 @@ install(){
 	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 "
-	[[ $TRACE4 = plus || $TRACE6 = plus || $TRACE4 = on || $TRACE6 = on ]] && yellow " 再次运行用 warp\n 如 warp (打开菜单)\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp p (刷warp+流量)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈) " 
+	[[ $TRACE4 = plus || $TRACE6 = plus || $TRACE4 = on || $TRACE6 = on ]] && red "\n===========================================\n"
+	yellow " 再次运行用 warp\n 如 warp (打开菜单)\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp p (刷warp+流量)\n warp n (断网时刷Warp)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈) " 
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 		}
 
@@ -238,13 +242,13 @@ uninstall(){
 	systemctl disable wg-quick@wgcf >/dev/null 2>&1
 	wg-quick down wgcf >/dev/null 2>&1
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /usr/sbin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
-	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-	COUNTRY4=$(wget --no-check-certificate -T1 -t1 -qO- -4 https://ip.gs/country)
-	COUNTRY6=$(wget --no-check-certificate -T1 -t1 -qO- -6 https://ip.gs/country)
+	sed -i '/^@reboot[ ]*root[ ]*warp[ ]*n/d' /etc/crontab
+	WAN4=$(curl -s4m1 ip.gs)
+	WAN6=$(curl -s6m1 ip.gs)
+	COUNTRY4=$(curl -s4m1 https://ip.gs/country)
+	COUNTRY6=$(curl -s6m1 https://ip.gs/country)
 	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
 	}
 
@@ -314,7 +318,7 @@ menu1(){
 		case "$CHOOSE1" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 		2 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		3 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		3 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " IPv4:$WAN4\n IPv6:$WAN6\n 已开启 WARP，之后关闭： warp o " || green " 已暂停 WARP，再次开启： warp o ";;
 		4 ) 	uninstall;;
 		5 )	bbrInstall;;
 		6 )	plus;;
@@ -335,7 +339,7 @@ menu2(){
 	read -p "请输入数字:" CHOOSE2
 		case "$CHOOSE2" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		2 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		2 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " IPv4:$WAN4\n IPv6:$WAN6\n 已开启 WARP，之后关闭： warp o " || green " 已暂停 WARP，再次开启： warp o ";;
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
@@ -354,7 +358,7 @@ menu3(){
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE3
         	case "$CHOOSE3" in
-		1 ) 	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		1 ) 	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " IPv4:$WAN4\n IPv6:$WAN6\n 已开启 WARP，之后关闭： warp o " || green " 已暂停 WARP，再次开启： warp o ";;
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
 		4 )	plus;;
@@ -366,7 +370,7 @@ menu3(){
 # 参数选项 LICENSE
 LICENSE=$2
 
-# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
+# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; n=刷Warp网络; 其他或空值=菜单界面
 OPTION=$1
 case "$OPTION" in
 1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && wg-quick down wgcf >/dev/null 2>&1 && exit
@@ -376,6 +380,7 @@ case "$OPTION" in
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
 [Uu] )	uninstall;;
-[Oo] )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 warp o " ;;
+[Oo] )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " IPv4:$WAN4\n IPv6:$WAN6\n 已开启 WARP，之后关闭： warp o " || green " 已暂停 WARP，再次开启： warp o ";;
+[Nn] )	net; green " 已成功刷 Warp(+) 网络\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 * )	menu$PLAN;;
 esac
