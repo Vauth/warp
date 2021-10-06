@@ -68,7 +68,10 @@ net(){
                         wg-quick up wgcf >/dev/null 2>&1
                         WAN4=$(curl -s4m1 ip.gs)
                         WAN6=$(curl -s6m1 ip.gs)
-        done || ( red " 没有安装 WireGuard tools 或者 找不到配置文件 wgcf.conf，请重新安装 " && exit )
+        done 
+	
+	[[ $(type -P wg-quick) ]] || red " 没有安装 WireGuard tools，请重新安装 " && exit
+	[[ -e /etc/wireguard/wgcf.conf ]] || red " 找不到配置文件 wgcf.conf，请重新安装 " && exit
                 }
 
 # WARP 开关
