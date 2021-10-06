@@ -201,7 +201,7 @@ install(){
 	green " 进度  3/3： 运行 WGCF "
 	yellow " 后台获取 WARP IP 中…… "
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
-	onoff
+	net
 	COUNTRY4=$(curl -s4 https://ip.gs/country)
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 	COUNTRY6=$(curl -s6 https://ip.gs/country)
@@ -210,8 +210,7 @@ install(){
 	# 设置开机启动
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 	grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab
-	net
-
+	
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
