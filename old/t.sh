@@ -25,6 +25,8 @@ SYS=$(hostnamectl | tr A-Z a-z | grep system)
 [[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit
 
 green " 检查环境中…… "
+# 安装 curl
+[[ $(type -P curl) ]] || ( green " 安装curl中…… " && apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1 )
 
 # 判断处理器架构
 [[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
@@ -34,13 +36,13 @@ green " 检查环境中…… "
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
-		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
-		COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country) &&
-		TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
+		WAN4=$(curl -s4 ip.gs) &&
+		COUNTRY4=$(curl -s4 ip.gs) &&
+		TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
-		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs) &&
-		COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country) &&
-		TRACE6=$(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+		WAN6=$(curl -s6 ip.gs) &&
+		COUNTRY6=$(curl -s6 ip.gs) &&
+		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
@@ -59,13 +61,13 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 net(){
         [[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] &&
         wg-quick up wgcf >/dev/null 2>&1
-        WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-        WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+        WAN4=$(curl -s4m1 ip.gs)
+        WAN6=$(curl -s6m1 ip.gs)
         until [[ -n $WAN4 && -n $WAN6 ]]
                 do      wg-quick down wgcf >/dev/null 2>&1
                         wg-quick up wgcf >/dev/null 2>&1
-                        WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-                        WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+                        WAN4=$(curl -s4m1 ip.gs)
+                        WAN6=$(curl -s6m1 ip.gs)
         done
                 }
 
@@ -144,7 +146,7 @@ install(){
 	centos(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
-		yum -y install curl net-tools wireguard-tools
+		yum -y install net-tools wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
@@ -199,10 +201,10 @@ install(){
 	yellow " 后台获取 WARP IP 中…… "
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
 	onoff
-	COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country)
-	TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country)
-	TRACE6=$(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+	COUNTRY4=$(curl -s4 https://ip.gs/country)
+	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+	COUNTRY6=$(curl -s6 https://ip.gs/country)
+	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 	# 设置开机启动
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
@@ -242,10 +244,10 @@ uninstall(){
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot[ ]*root[ ]*warp[ ]*n/d' /etc/crontab
-	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-	COUNTRY4=$(wget --no-check-certificate -T1 -t1 -qO- -4 https://ip.gs/country)
-	COUNTRY6=$(wget --no-check-certificate -T1 -t1 -qO- -6 https://ip.gs/country)
+	WAN4=$(curl -s4m1 ip.gs)
+	WAN6=$(curl -s6m1 ip.gs)
+	COUNTRY4=$(curl -s4m1 https://ip.gs/country)
+	COUNTRY6=$(curl -s6m1 https://ip.gs/country)
 	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
 	}
 
