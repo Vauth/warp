@@ -33,8 +33,7 @@
 * 能让 IPv6 only VPS 上做的节点支持 Telegram
 * IPv6 建的节点能在只支持 IPv4 的 PassWall、ShadowSocksR Plus+ 上使用
 
-![image](https://user-images.githubusercontent.com/62703343/135889918-d224d2e3-c79f-47be-8bc7-fe4d48f26c56.png)
-
+<img src="https://user-images.githubusercontent.com/62703343/135889918-d224d2e3-c79f-47be-8bc7-fe4d48f26c56.png" width="80%" />
 
 ## 运行脚本
 
@@ -42,8 +41,8 @@
 wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh [option]
 ```
   | [option] 变量 | 具体动作说明 |
-  | --------------------------- | ----------- |
-  | 1 | 原生IPv4 -> （原生IPv4 + Warp IPv6） 或 原生IPv6 -> (Warp IPv4 + 原生IPv6) |
+  | ------------- | ----------- |
+  | 1 | 原生IPv4 -> （原生IPv4 + Warp IPv6) 或者 原生IPv6 -> (Warp IPv4 + 原生IPv6) |
   | 2 | 原无论任何状态 -> Warp 双栈 |
   | o | Warp 开关，脚本主动判断当前状态，自动开或关 |
   | u | 卸载 Warp |
@@ -64,13 +63,14 @@ bash menu.sh 2
 ```
 ## WARP+ License 及 ID 获取
 
-![image](https://user-images.githubusercontent.com/62703343/136070323-47f2600a-13e4-4eb0-a64d-d7eb805c28e2.png)
+<img src="https://user-images.githubusercontent.com/62703343/136070323-47f2600a-13e4-4eb0-a64d-d7eb805c28e2.png" width="70%" />
 
 ## WARP 网络接口数据，临时、永久关闭和开启
 
 WireGuard 网络接口数据，查看 ```wg```
 
-临时关闭 WARP（reboot重启后恢复开启） ```wg-quick down wgcf``` ，恢复启动 ```wg-quick up wgcf```
+临时关闭和开启 WARP（reboot重启后恢复开启） ```bash menu.sh o```
+官方原始指令 ```wg-quick down wgcf``` ，恢复启动 ```wg-quick up wgcf```
 
 禁止开机启动 ```systemctl disable wg-quick@wgcf```,恢复开机启动 ```systemctl enable wg-quick@wgcf```
 
@@ -84,20 +84,17 @@ WARP是CloudFlare提供的一项基于WireGuard的网络流量安全及加速服
 * 为仅IPv6服务器添加IPv4
 
 原理如图，IPv4的流量均被WARP网卡接管，实现了让IPv4的流量通过WARP访问外部网络。
-
-![image](https://user-images.githubusercontent.com/62703343/135735404-1389d022-e5c5-4eb8-9655-f9f065e3c92e.png)
+<img src="https://user-images.githubusercontent.com/62703343/135735404-1389d022-e5c5-4eb8-9655-f9f065e3c92e.png" width="70%" />
 
 * 为仅IPv4服务器添加IPv6
 
 原理如图，IPv6的流量均被WARP网卡接管，实现了让IPv6的流量通过WARP访问外部网络。
-
-![image](https://user-images.githubusercontent.com/62703343/135735414-01321b0b-887e-43d6-ad68-a74db20cfe84.png)
+<img src="https://user-images.githubusercontent.com/62703343/135735414-01321b0b-887e-43d6-ad68-a74db20cfe84.png" width="70%" />
 
 * 双栈服务器置换网络
 
 有时我们的服务器本身就是双栈的，但是由于种种原因我们可能并不想使用其中的某一种网络，这时也可以通过WARP接管其中的一部分网络连接隐藏自己的IP地址。至于这样做的目的，最大的意义是减少一些滥用严重机房出现验证码的概率；同时部分内容提供商将WARP的落地IP视为真实用户的原生IP对待，能够解除一些基于IP识别的封锁。
-
-![image](https://user-images.githubusercontent.com/62703343/135735419-50805ed6-20ea-4440-93b4-5bcc6f2aca9b.png)
+<img src="https://user-images.githubusercontent.com/62703343/135735419-50805ed6-20ea-4440-93b4-5bcc6f2aca9b.png" width="70%" />
 
 * 网络性能方面：内核集成＞内核模块＞wireguard-go
 
