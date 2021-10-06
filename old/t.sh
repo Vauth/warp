@@ -32,7 +32,7 @@ SYS=$(hostnamectl | tr A-Z a-z | grep system)
 # 必须以root运行脚本
 [[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit
 
-green " 检查环境中…… "
+[[ $TIME != 1 ]] && green " 检查环境中…… "
 
 # 判断处理器架构
 [[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
@@ -368,12 +368,12 @@ LICENSE=$2
 # 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
 OPTION=$1
 case "$OPTION" in
-1 )	check && [[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后安装 !! " && wg-quick down wgcf >/dev/null 2>&1 &&
-	unset SYSTEM ARCHITECTURE LXC IPV4 IPV6 CDN LAN4 LAN6 WAN4 COUNTRY4 TRACE4 WAN6 COUNTRY6 TRACE6 PLAN WG
-	check && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6) && install;;
-2 )	check && [[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后安装 !! " && wg-quick down wgcf >/dev/null 2>&1 &&
-	unset SYSTEM ARCHITECTURE LXC IPV4 IPV6 CDN LAN4 LAN6 WAN4 COUNTRY4 TRACE4 WAN6 COUNTRY6 TRACE6 PLAN WG
-	check && MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6) && install;;
+1 )	check; [[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后安装 " && wg-quick down wgcf >/dev/null 2>&1 && TIME=1
+	unset SYSTEM ARCHITECTURE LXC IPV4 IPV6 CDN LAN4 LAN6 WAN4 COUNTRY4 TRACE4 WAN6 COUNTRY6 TRACE6 PLAN WG LICENSE
+	check; MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6) && install;;
+2 )	check; [[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后安装 " && wg-quick down wgcf >/dev/null 2>&1 && TIME=1
+	unset SYSTEM ARCHITECTURE LXC IPV4 IPV6 CDN LAN4 LAN6 WAN4 COUNTRY4 TRACE4 WAN6 COUNTRY6 TRACE6 PLAN WG LICENSE
+	check; MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6) && install;;
 [Bb] )	check;	bbrInstall;;
 [Pp] )	check;	plus;;
 [Uu] )	uninstall;;
