@@ -59,7 +59,7 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 
 # 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行
 net(){
-        [[ $(type -P wg-quick) ]] || red " 没有安装 WireGuard tools，请重新安装 " && exit
+	[[ $(type -P wg-quick) ]] || red " 没有安装 WireGuard tools，请重新安装 " && exit
 	[[ -e /etc/wireguard/wgcf.conf ]] || red " 找不到配置文件 wgcf.conf，请重新安装 " && exit
         wg-quick up wgcf >/dev/null 2>&1
         WAN4=$(curl -s4m1 ip.gs)
@@ -216,7 +216,7 @@ install(){
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 创建再次执行的快捷方式，再次运行可以用 warp 指令
-	chmod 700 menu.sh && [[ -d /usr/bin ]] && cp -f menu.sh /usr/bin/warp
+	chmod 700 menu.sh && cp -f menu.sh /usr/bin/warp
 	
 	# 删除临时文件
 	rm -f wgcf-account.toml wgcf-profile.conf
