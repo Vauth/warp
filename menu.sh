@@ -93,7 +93,7 @@ install(){
 	start=$(date +%s)
 	
 	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
-	read -p " 如有 Warp+ License 请输入，没有可回车继续: " LICENSE
+	[[ -z LICENSE ]] && read -p " 如有 Warp+ License 请输入，没有可回车继续: " LICENSE
 	i=5
 	until [[ -z $LICENSE || ${#LICENSE} = 26 || $i = 1 ]]
 		do
@@ -106,8 +106,6 @@ install(){
 	green " 进度  1/3： 安装系统依赖 "
 
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
-	systemctl disable wg-quick@wgcf >/dev/null 2>&1
-	wg-quick down wgcf >/dev/null 2>&1
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
@@ -361,7 +359,10 @@ menu3(){
 		esac
 	}
 
-# 参数选项	1=为 IPv4 或者 IPv6 补全另一栈Warp;	2=安装双栈 Warp;	u=卸载 Warp;	b=升级内核、开启BBR及DD;	o=Warp开关；	p=刷 Warp+ 流量;	其他或空值=菜单界面
+# 参数选项 LICENSE
+LICENSE=$2
+
+# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
 OPTION=$1
 case "$OPTION" in
 1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && wg-quick down wgcf >/dev/null 2>&1 && exit
