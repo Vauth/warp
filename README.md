@@ -53,6 +53,7 @@ warp [option] [lisence]
   | 2 lisence | 在上面基础上把 Warp+ Lisence 添加进去，如 ```bash menu.sh 2 N5670ljg-sS9jD334-6o6g4M9F```  |
   | o | Warp 开关，脚本主动判断当前状态，自动开或关 |
   | u | 卸载 Warp |
+  | n | 断网时，用于刷Warp网络 (Warp bug) |
   | b | 升级内核、开启BBR及DD |
   | p | 刷 Warp+ 流量 |
   | 其他或空值| 菜单界面 |
