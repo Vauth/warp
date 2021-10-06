@@ -206,7 +206,7 @@ install(){
 
 	# 设置开机启动
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
-	grep -qE '^@reboot[ ]*root[ ]*warp[ ]*o' /etc/crontab || echo '@reboot root warp o' >> /etc/crontab
+	grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab
 	net
 
 	# 优先使用 IPv4 网络
@@ -240,7 +240,7 @@ uninstall(){
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
+	sed -i '/^@reboot[ ]*root[ ]*warp[ ]*n/d' /etc/crontab
 	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
 	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
 	COUNTRY4=$(wget --no-check-certificate -T1 -t1 -qO- -4 https://ip.gs/country)
