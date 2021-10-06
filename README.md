@@ -38,12 +38,14 @@
 ## 运行脚本
 
 ```bash
-wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh [option]
+wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh [option] [lisence]
 ```
   | [option] 变量 | 具体动作说明 |
   | ------------- | ----------- |
   | 1 | 原生IPv4 -> （原生IPv4 + Warp IPv6) 或者 原生IPv6 -> (Warp IPv4 + 原生IPv6) |
+  | 1 lisence | 在上面基础上把 Warp+ Lisence 添加进去，如 ```bash menu.sh 1 N5670ljg-sS9jD334-6o6g4M9F``` |
   | 2 | 原无论任何状态 -> Warp 双栈 |
+  | 2 lisence | 在上面基础上把 Warp+ Lisence 添加进去，如 ```bash menu.sh 2 N5670ljg-sS9jD334-6o6g4M9F```  |
   | o | Warp 开关，脚本主动判断当前状态，自动开或关 |
   | u | 卸载 Warp |
   | b | 升级内核、开启BBR及DD |
