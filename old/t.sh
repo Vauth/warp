@@ -66,12 +66,12 @@ net(){
                         wg-quick up wgcf >/dev/null 2>&1
                         WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
                         WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-        done || ( red " 找不到 WireGuard 指令 wg-quick 或者配置文件 wgcf.conf 不存在，请重新运行 warp " && exit )
+        done
                 }
 
 # WARP 开关
 onoff(){
-        [[ $PLAN != 3 ]] && net || wg-quick down wgcf >/dev/null 2>&1 
+        [[ $PLAN = 3 ]] && wg-quick down wgcf >/dev/null 2>&1 || net 
         }
 
 # VPS 当前状态
