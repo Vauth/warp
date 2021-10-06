@@ -111,7 +111,7 @@ install(){
 	green " 进度  1/3： 安装系统依赖 "
 
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /usr/sbin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
         # 根据系统选择需要安装的依赖
@@ -213,7 +213,7 @@ install(){
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 创建再次执行的快捷方式，再次运行可以用 warp 指令
-	chmod 700 menu.sh && [[ -d /usr/bin ]] && cp -f menu.sh /usr/bin/warp || cp -f menu.sh /usr/sbin/warp
+	chmod 700 menu.sh && [[ -d /usr/bin ]] && cp -f menu.sh /usr/bin/warp
 	
 	# 删除临时文件
 	rm -f wgcf-account.toml wgcf-profile.conf
@@ -238,7 +238,7 @@ uninstall(){
 	systemctl disable wg-quick@wgcf >/dev/null 2>&1
 	wg-quick down wgcf >/dev/null 2>&1
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /usr/sbin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
 	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
