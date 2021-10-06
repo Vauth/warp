@@ -93,7 +93,7 @@ install(){
 	start=$(date +%s)
 	
 	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
-	[[ -z LICENSE ]] && read -p " 如有 Warp+ License 请输入，没有可回车继续: " LICENSE
+	[[ -z $LICENSE ]] && read -p " 如有 Warp+ License 请输入，没有可回车继续: " LICENSE
 	i=5
 	until [[ -z $LICENSE || ${#LICENSE} = 26 || $i = 1 ]]
 		do
