@@ -10,8 +10,8 @@ yellow(){
 }
 
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
-ping -6 -c2 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
-ping -4 -c2 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
+ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
+ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
 [[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
@@ -57,23 +57,23 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 
 # 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行
 net(){
-	[[ $(type -P wg-quick) ]] || ( red " 没有安装 WireGuard tools，请重新安装 " && exit )
-	[[ -e /etc/wireguard/wgcf.conf ]] || ( red " 找不到配置文件 wgcf.conf，请重新安装 " && exit )
-        wg-quick up wgcf >/dev/null 2>&1
-        WAN4=$(wget --no-check-certificate -qO- -4 ip.gs)
-        WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
-        until [[ -n $WAN4 && -n $WAN6 ]]
-                do      wg-quick down wgcf >/dev/null 2>&1
-                        wg-quick up wgcf >/dev/null 2>&1
-                        WAN4=$(wget --no-check-certificate -qO- -4 ip.gs)
-                        WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
-        done
+	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " 没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装 " && exit ||
+	yellow " 后台获取 WARP IP 中……  "
+	wg-quick up wgcf >/dev/null 2>&1
+	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+	until [[ -n $WAN4 && -n $WAN6 ]]
+		do	wg-quick down wgcf >/dev/null 2>&1
+			wg-quick up wgcf >/dev/null 2>&1
+			WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+			WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+	done
 	}
 
 # WARP 开关
 onoff(){
-        [[ $PLAN = 3 ]] && wg-quick down wgcf >/dev/null 2>&1 || net 
-        }
+	[[ -n $(wg) ]] 2>/dev/null && wg-quick down wgcf >/dev/null 2>&1 && OFF=1 || net
+	}
 
 # VPS 当前状态
 status(){
@@ -161,11 +161,11 @@ install(){
 	green " 进度  2/3： 安装 WGCF "
 
 	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.8
-	latest=$(wget --no-check-certificate -qO- -t1 -T1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
+	latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
 	[[ -z $latest ]] && latest='2.2.8'
 
 	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈
-	wget --no-check-certificate -t1 -T1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$ARCHITECTURE
+	wget --no-check-certificate -T1 -t1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$ARCHITECTURE
 	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_${latest}_linux_$ARCHITECTURE
 
 	# 添加执行权限
@@ -197,7 +197,6 @@ install(){
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
 	green " 进度  3/3： 运行 WGCF "
-	yellow " 后台获取 WARP IP 中…… "
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
 	net
 	COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country)
@@ -231,7 +230,7 @@ install(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 "
 	red "\n==============================================================\n"
-	yellow " 再次运行用 warp\n 如 warp (打开菜单)\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp p (刷warp+流量)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈) " 
+	yellow " 再次运行用 warp\n 如 warp (打开菜单)\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp p (刷warp+流量)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 		}
 
@@ -317,7 +316,7 @@ menu1(){
 		case "$CHOOSE1" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 		2 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		3 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		3 )	onoff;  [[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " ;;
 		4 ) 	uninstall;;
 		5 )	bbrInstall;;
 		6 )	plus;;
@@ -379,7 +378,7 @@ case "$OPTION" in
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
 [Uu] )	uninstall;;
-[Oo] )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 warp o " ;;
+[Oo] )	onoff;  [[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 [Nn] )	net; green " 已成功刷 Warp 网络\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 * )	menu$PLAN;;
 esac
