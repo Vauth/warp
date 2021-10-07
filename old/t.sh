@@ -57,23 +57,23 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 
 # 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行
 net(){
-	[[ $(type -P wg-quick) ]] || ( red " 没有安装 WireGuard tools，请重新安装 " && exit )
-	[[ -e /etc/wireguard/wgcf.conf ]] || ( red " 找不到配置文件 wgcf.conf，请重新安装 " && exit )
-        wg-quick up wgcf >/dev/null 2>&1
-        WAN4=$(wget --no-check-certificate -qO- -4 ip.gs)
-        WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
-        until [[ -n $WAN4 && -n $WAN6 ]]
-                do      wg-quick down wgcf >/dev/null 2>&1
-                        wg-quick up wgcf >/dev/null 2>&1
-                        WAN4=$(wget --no-check-certificate -qO- -4 ip.gs)
-                        WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
-        done
+	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " 没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装 " && exit ||
+	yellow " 后台获取 WARP IP 中……  "
+	wg-quick up wgcf >/dev/null 2>&1
+	WAN4=$(wget --no-check-certificate -qO- -4 ip.gs)
+	WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
+	until [[ -n $WAN4 && -n $WAN6 ]]
+		do	wg-quick down wgcf >/dev/null 2>&1
+			wg-quick up wgcf >/dev/null 2>&1
+			WAN4=$(wget --no-check-certificate -qO- -4 ip.gs)
+			WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
+	done
 	}
 
 # WARP 开关
 onoff(){
-        [[ -n $(wg) ]] 2>/dev/null && wg-quick down wgcf >/dev/null 2>&1 && OFF=1 || net
-        }
+	[[ -n $(wg) ]] 2>/dev/null && wg-quick down wgcf >/dev/null 2>&1 && OFF=1 || net
+	}
 
 # VPS 当前状态
 status(){
@@ -317,7 +317,7 @@ menu1(){
 		case "$CHOOSE1" in
 		1 ) 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 		2 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		3 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		3 )	onoff;  [[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " ;;
 		4 ) 	uninstall;;
 		5 )	bbrInstall;;
 		6 )	plus;;
@@ -379,7 +379,7 @@ case "$OPTION" in
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
 [Uu] )	uninstall;;
-[Oo] )	onoff;	[[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " ;;
+[Oo] )	onoff;  [[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 [Nn] )	net; green " 已成功刷 Warp 网络\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 * )	menu$PLAN;;
 esac
