@@ -197,7 +197,6 @@ install(){
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
 	green " 进度  3/3： 运行 WGCF "
-	yellow " 后台获取 WARP IP 中…… "
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
 	net
 	COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country)
