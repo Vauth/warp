@@ -379,5 +379,6 @@ case "$OPTION" in
 [Pp] )	plus;;
 [Uu] )	uninstall;;
 [Oo] )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 warp o " ;;
+[Nn] )	net; green " 已成功刷 Warp 网络\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 * )	menu$PLAN;;
 esac
