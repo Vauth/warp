@@ -60,13 +60,13 @@ net(){
 	[[ $(type -P wg-quick) ]] || ( red " 没有安装 WireGuard tools，请重新安装 " && exit )
 	[[ -e /etc/wireguard/wgcf.conf ]] || ( red " 找不到配置文件 wgcf.conf，请重新安装 " && exit )
         wg-quick up wgcf >/dev/null 2>&1
-        WAN4=$(curl -s4m1 ip.gs)
-        WAN6=$(curl -s6m1 ip.gs)
+        WAN4=$(wget --no-check-certificate -qO- -4 ip.gs)
+        WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
         until [[ -n $WAN4 && -n $WAN6 ]]
                 do      wg-quick down wgcf >/dev/null 2>&1
                         wg-quick up wgcf >/dev/null 2>&1
-                        WAN4=$(curl -s4m1 ip.gs)
-                        WAN6=$(curl -s6m1 ip.gs)
+                        WAN4=$(wget --no-check-certificate -qO- -4 ip.gs)
+                        WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
         done
 	}
 
