@@ -10,8 +10,8 @@ yellow(){
 }
 
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
-ping -6 -c1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
-ping -4 -c1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
+ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
+ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
 [[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS ，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
@@ -60,13 +60,13 @@ net(){
 	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " 没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装 " && exit ||
 	yellow " 后台获取 WARP IP 中……  "
 	wg-quick up wgcf >/dev/null 2>&1
-	WAN4=$(wget --no-check-certificate -qO- -4 ip.gs)
-	WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
+	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
 	until [[ -n $WAN4 && -n $WAN6 ]]
 		do	wg-quick down wgcf >/dev/null 2>&1
 			wg-quick up wgcf >/dev/null 2>&1
-			WAN4=$(wget --no-check-certificate -qO- -4 ip.gs)
-			WAN6=$(wget --no-check-certificate -qO- -6 ip.gs)
+			WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
+			WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
 	done
 	}
 
@@ -161,11 +161,11 @@ install(){
 	green " 进度  2/3： 安装 WGCF "
 
 	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.8
-	latest=$(wget --no-check-certificate -qO- -t1 -T1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
+	latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
 	[[ -z $latest ]] && latest='2.2.8'
 
 	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈
-	wget --no-check-certificate -t1 -T1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$ARCHITECTURE
+	wget --no-check-certificate -T1 -t1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$ARCHITECTURE
 	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_${latest}_linux_$ARCHITECTURE
 
 	# 添加执行权限
