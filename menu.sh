@@ -200,10 +200,10 @@ install(){
 	yellow " 后台获取 WARP IP 中…… "
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
 	net
-	COUNTRY4=$(curl -s4 https://ip.gs/country)
-	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	COUNTRY6=$(curl -s6 https://ip.gs/country)
-	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+	COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country)
+	TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+	COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country)
+	TRACE6=$(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 	# 设置开机启动
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
