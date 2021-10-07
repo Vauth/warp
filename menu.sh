@@ -164,11 +164,9 @@ install(){
 	latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
 	[[ -z $latest ]] && latest='2.2.8'
 
-	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈
+	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
 	wget --no-check-certificate -T1 -t1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$ARCHITECTURE
 	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_${latest}_linux_$ARCHITECTURE
-
-	# 添加执行权限
 	chmod +x /usr/local/bin/wgcf
 
 	# 如是 LXC，安装 wireguard-go
@@ -214,8 +212,8 @@ install(){
 	# 创建再次执行的快捷方式，再次运行可以用 warp 指令
 	chmod 700 menu.sh && cp -f menu.sh /usr/bin/warp && green " 创建快捷 war 指令成功 "
 	
-	# 删除临时文件
-	rm -f wgcf-account.toml wgcf-profile.conf
+	# 保存好配置文件
+	mv -f wgcf-account.toml wgcf-profile.conf /etc/wireguard/wgcf.conf
 
 	# 结果提示，脚本运行时间
 	clear
@@ -242,7 +240,7 @@ uninstall(){
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
+	sed -i '/@reboot root warp/d' /etc/crontab
 	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
 	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
 	COUNTRY4=$(wget --no-check-certificate -T1 -t1 -qO- -4 https://ip.gs/country)
