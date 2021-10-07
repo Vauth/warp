@@ -213,7 +213,7 @@ install(){
 	chmod 700 menu.sh && cp -f menu.sh /usr/bin/warp && green " 创建快捷 war 指令成功 "
 	
 	# 保存好配置文件
-	mv -f wgcf-account.toml wgcf-profile.conf /etc/wireguard/wgcf.conf
+	mv -f wgcf-account.toml wgcf-profile.conf /etc/wireguard
 
 	# 结果提示，脚本运行时间
 	clear
