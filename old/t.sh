@@ -199,7 +199,7 @@ install(){
 	green " 进度  3/3： 运行 WGCF "
 	yellow " 后台获取 WARP IP 中…… "
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
-	onoff
+	net
 	COUNTRY4=$(curl -s4 https://ip.gs/country)
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 	COUNTRY6=$(curl -s6 https://ip.gs/country)
@@ -219,7 +219,7 @@ install(){
 	rm -f wgcf-account.toml wgcf-profile.conf
 
 	# 结果提示，脚本运行时间
-	[[ $TRACE4 = plus || $TRACE6 = plus || $TRACE4 = on || $TRACE6 = on ]] && red "\n===========================================\n"
+	[[ $TRACE4 = plus || $TRACE6 = plus || $TRACE4 = on || $TRACE6 = on ]] && red "\n==============================================================\n"
 	[[ $TRACE4 = plus ]] && green " IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
 	[[ $TRACE4 = on ]] && green " IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 "
 	[[ $TRACE4 = off || -z $TRACE4 ]] && green " IPv4：$WAN4 $COUNTRY4 "
@@ -229,7 +229,7 @@ install(){
 	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 "
-	[[ $TRACE4 = plus || $TRACE6 = plus || $TRACE4 = on || $TRACE6 = on ]] && red "\n===========================================\n"
+	[[ $TRACE4 = plus || $TRACE6 = plus || $TRACE4 = on || $TRACE6 = on ]] && red "\n==============================================================\n"
 	yellow " 再次运行用 warp\n 如 warp (打开菜单)\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp p (刷warp+流量)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈) " 
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 		}
