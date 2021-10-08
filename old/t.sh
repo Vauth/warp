@@ -109,12 +109,11 @@ install(){
 	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
 	[[ -z $LICENSE ]] && read -p " 如有 Warp+ License 请输入，没有可回车继续: " LICENSE
 	i=5
-	until [[ -z $LICENSE || ${#LICENSE} = 26 || $i = 1 ]]
+	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
 		do
 			let i--
-			read -p " License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
+			[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit || read -p " License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
-	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	
 	green " 进度  1/3： 安装系统依赖 "
 
@@ -275,12 +274,11 @@ bbrInstall() {
 input() {
 	read -p " 请输入 Warp+ ID: " ID
 	i=5
-	until [[ ${#ID} = 36 || $i = 1 ]]
+	until [[ ${#ID} = 36 ]]
 		do
 		let i--
-		read -p " Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）:" ID
+		[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit || read -p " Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）: " ID
 	done
-	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	}
 
 plus() {
