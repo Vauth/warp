@@ -187,9 +187,9 @@ install(){
 	
 	# 如有 Warp+ 账户，修改 license 并升级
 	[[ -n $LICENSE ]] && yellow " 升级 Warp+ 账户 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update > /etc/wireguard/device_name.log 2>&1 || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 " )
+	( wgcf update > /etc/wireguard/info.log 2>&1 || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 " )
 	
-	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)，并把设备名等信息保存到 device_name.log
+	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)，并把设备名等信息保存到 info.log
 	wgcf generate >/dev/null 2>&1
 
 	# 修改配置文件
@@ -231,7 +231,7 @@ install(){
 	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = off || -z $TRACE6 ]] && green " IPv6：$WAN6 $COUNTRY6 "
 	end=$(date +%s)
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒\n 设备名：$(grep name /etc/wireguard/device_name.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/device_name.log | awk '{ print $(NF-1), $NF }') "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 "
 	red "\n==============================================================\n"
 	yellow " 再次运行用 warp [option] [lisence]，如\n " && help
@@ -318,12 +318,12 @@ update() {
         done
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
-	wgcf update > /etc/wireguard/device_name.log 2>&1 &&
+	wgcf update > /etc/wireguard/info.log 2>&1 &&
 	(sed -i "s#PrivateKey =.*#PrivateKey = $(grep private_key wgcf-account.toml  | cut -d\" -f2 | sed 's#\/#\^#g')#g" wgcf.conf
 	sed -i 's#\^#\/#g' wgcf.conf
 	wg-quick down wgcf; net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
-	green " 已升级为Warp+ 账户\n 设备名：$(grep name /etc/wireguard/device_name.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/device_name.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
+	green " 已升级为Warp+ 账户\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
 	}
 
 # 同步脚本至最新版本
