@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
 VERSION=2.00
-TXT=‘1.新增免费 WARP 账户升级 WARP+ （获取方法可参照刷Warp+流量选项)， warp d ； 2.新增同步脚本至最新版本， warp v ； 3.新增帮助功能， warp h‘
+TXT='1.新增免费 WARP 账户升级 WARP+，获取方法可参照刷Warp+流量选项， warp d ； 2.新增同步脚本至最新版本， warp v ； 3.新增帮助功能， warp h'
 
 help(){
 	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
