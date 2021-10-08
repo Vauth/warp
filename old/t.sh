@@ -222,7 +222,6 @@ install(){
 	mv -f wgcf-account.toml wgcf-profile.conf /etc/wireguard
 
 	# 结果提示，脚本运行时间
-	clear
 	red "\n==============================================================\n"
 	[[ $TRACE4 = plus ]] && green " IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
 	[[ $TRACE4 = on ]] && green " IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 "
@@ -236,7 +235,7 @@ install(){
 	red "\n==============================================================\n"
 	yellow " 再次运行用 warp [option] [lisence]，如\n " && help
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
-		}
+	}
 
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
