@@ -321,7 +321,8 @@ update() {
 	wgcf update > /etc/wireguard/info.log 2>&1 &&
 	(sed -i "s#PrivateKey =.*#PrivateKey = $(grep private_key wgcf-account.toml  | cut -d\" -f2 | sed 's#\/#\^#g')#g" wgcf.conf
 	sed -i 's#\^#\/#g' wgcf.conf
-	wg-quick down wgcf; net
+	wg-quick down wgcf >/dev/null 2>&1
+	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
 	green " 已升级为Warp+ 账户\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
 	}
