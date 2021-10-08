@@ -1,5 +1,6 @@
 # 当前脚本版本号
 version=2.00
+txt=1.新增免费 WARP 账户升级 WARP+ 功能，菜单选择或者 warp d； 2.新增同步最新脚本版本功能，菜单选择或者 warp v
 
 # 字体彩色
 red(){
@@ -320,13 +321,13 @@ update() {
 	(sed -i "s#PrivateKey =.*#PrivateKey = $(grep private_key wgcf-account.toml  | cut -d\" -f2 | sed 's#\/#\^#g')#g" wgcf.conf
 	sed -i 's#\^#\/#g' wgcf.conf
 	wg-quick down wgcf; wg-quick up wgcf
-	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] && 
+	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
 	green " 已升级为Warp+ 账户" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
 	}
 
 # 同步脚本至最新版本
 ver(){
-	# wget -N $CDN https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
+	wget -N $CDN https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
 	chmod +700 menu.sh &&
 	cp -f menu.sh /usr/bin/warp &&
 	green " 成功！已同步最新脚本，版本号：$version " || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
