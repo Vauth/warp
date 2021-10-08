@@ -3,7 +3,7 @@ VERSION=2.00
 TXT='1.新增免费 WARP 账户升级 WARP+，获取方法可参照刷Warp+流量选项， warp d ； 2.新增同步脚本至最新版本， warp v ； 3.新增帮助功能， warp h'
 
 help(){
-	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
+	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp d N5670ljg-sS9jD334-6o6g4M9F ( 指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
 	}
 
 # 字体彩色
@@ -95,7 +95,7 @@ status(){
 	[[ $TRACE6 = plus ]] && green "	IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ 已开启"
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ 已开启	设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')	剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')"
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP 已开启" 	
 	[[ $TRACE4 = off && $TRACE6 = off ]] && green "	WARP 未开启"
  	red "\n======================================================================================================================\n"
@@ -109,12 +109,11 @@ install(){
 	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
 	[[ -z $LICENSE ]] && read -p " 如有 Warp+ License 请输入，没有可回车继续: " LICENSE
 	i=5
-	until [[ -z $LICENSE || ${#LICENSE} = 26 || $i = 1 ]]
+	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
 		do
 			let i--
-			read -p " License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
+			[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit || read -p " License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
-	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	
 	green " 进度  1/3： 安装系统依赖 "
 
@@ -186,9 +185,10 @@ install(){
 	   echo | wgcf register >/dev/null 2>&1
 	done
 	
-	# 如有 Warp+ 账户，修改 license 并升级
+	# 如有 Warp+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
+	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	[[ -n $LICENSE ]] && yellow " 升级 Warp+ 账户 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 " )
+	( wgcf update > /etc/wireguard/info.log 2>&1 || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 " )
 	
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
@@ -197,7 +197,6 @@ install(){
 	echo $MODIFY | sh
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
-	mkdir /etc/wireguard/ >/dev/null 2>&1
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
@@ -217,13 +216,12 @@ install(){
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 创建再次执行的快捷方式，再次运行可以用 warp 指令
-	chmod 700 menu.sh && cp -f menu.sh /usr/bin/warp && green " 创建快捷 war 指令成功 "
+	chmod 700 menu.sh && cp -f menu.sh /usr/bin/warp && green " 创建快捷 warp 指令成功 "
 	
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf /etc/wireguard
 
 	# 结果提示，脚本运行时间
-	clear
 	red "\n==============================================================\n"
 	[[ $TRACE4 = plus ]] && green " IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
 	[[ $TRACE4 = on ]] && green " IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 "
@@ -232,12 +230,12 @@ install(){
 	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = off || -z $TRACE6 ]] && green " IPv6：$WAN6 $COUNTRY6 "
 	end=$(date +%s)
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒 "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 "
 	red "\n==============================================================\n"
 	yellow " 再次运行用 warp [option] [lisence]，如\n " && help
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
-		}
+	}
 
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
@@ -275,12 +273,11 @@ bbrInstall() {
 input() {
 	read -p " 请输入 Warp+ ID: " ID
 	i=5
-	until [[ ${#ID} = 36 || $i = 1 ]]
+	until [[ ${#ID} = 36 ]]
 		do
 		let i--
-		read -p " Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）:" ID
+		[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit || read -p " Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）: " ID
 	done
-	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	}
 
 plus() {
@@ -311,22 +308,22 @@ plus() {
 update() {
 	[[ ! -e /etc/wireguard/wgcf-account.toml || ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到账户或者配置文件：/etc/wireguard/wgcf-account.toml 和 /etc/wireguard/wgcf.conf " && exit
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " 已经是 WARP+ 账户，不需要升级 " && exit
-	read -p " 请输入Warp+ License:" LICENSE
+	[[ -z $LICENSE ]] && read -p " 请输入Warp+ License:" LICENSE
 	i=5
-	until [[  ${#LICENSE} = 26 || $i = 1 ]]
+	until [[ ${#LICENSE} = 26 ]]
 	do
 	let i--
-	read -p " License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: " LICENSE
+	[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit || read -p " License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: " LICENSE
         done
-	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
-	wgcf update &&
+	wgcf update > /etc/wireguard/info.log 2>&1 &&
 	(sed -i "s#PrivateKey =.*#PrivateKey = $(grep private_key wgcf-account.toml  | cut -d\" -f2 | sed 's#\/#\^#g')#g" wgcf.conf
 	sed -i 's#\^#\/#g' wgcf.conf
-	wg-quick down wgcf; net
+	wg-quick down wgcf >/dev/null 2>&1
+	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
-	green " 已升级为Warp+ 账户" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
+	green " 已升级为Warp+ 账户\n IPv4：$WAN4\n IPv6：$WAN6\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
 	}
 
 # 同步脚本至最新版本
