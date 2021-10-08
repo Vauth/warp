@@ -187,7 +187,7 @@ install(){
 	
 	# 如有 Warp+ 账户，修改 license 并升级
 	[[ -n $LICENSE ]] && yellow " 升级 Warp+ 账户 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 " )
+	( wgcf update > /etc/wireguard/device_name.log 2>&1 || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 " )
 	
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)，并把设备名等信息保存到 device_name.log
 	wgcf generate > /etc/wireguard/device_name.log 2>&1
