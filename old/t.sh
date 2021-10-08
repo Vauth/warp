@@ -185,18 +185,18 @@ install(){
 	   echo | wgcf register >/dev/null 2>&1
 	done
 	
-	# 如有 Warp+ 账户，修改 license 并升级
+	# 如有 Warp+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
+	mkdir /etc/wireguard/
 	[[ -n $LICENSE ]] && yellow " 升级 Warp+ 账户 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
 	( wgcf update > /etc/wireguard/info.log 2>&1 || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 " )
 	
-	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)，并把设备名等信息保存到 info.log
+	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
 
 	# 修改配置文件
 	echo $MODIFY | sh
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
-	mkdir /etc/wireguard/ >/dev/null 2>&1
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
