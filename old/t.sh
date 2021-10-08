@@ -1,3 +1,6 @@
+# 当前脚本版本号
+verion=2.00
+
 # 字体彩色
 red(){
 	echo -e "\033[31m\033[01m$1\033[0m"
@@ -80,7 +83,7 @@ status(){
 	clear
 	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 Warp+ 账户，附带第三方刷 Warp+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；智能判断硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
 	red "======================================================================================================================\n"
-	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | cut -d : -f2)\n	内核：$(uname -r)\n	处理器架构：$ARCHITECTURE\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
+	green " 脚本版本：$version\n 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | cut -d : -f2)\n	内核：$(uname -r)\n	处理器架构：$ARCHITECTURE\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
 	[[ $TRACE4 = plus ]] && green "	IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
 	[[ $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 "
 	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 "
@@ -320,6 +323,13 @@ update() {
 	green " 已升级为Warp+ 账户" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
 	}
 
+# 同步脚本至最新版本
+ver(){
+	wget -N $CDN https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
+	chmod +700 menu.sh &&
+	cp -f menu.sh /usr/bin/warp &&
+	green “ 成功！已同步最新脚本，版本号：$version” || red “ 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues]”
+	}
 # 单栈
 menu1(){
 	status
@@ -329,6 +339,7 @@ menu1(){
 	green " 4. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 5. 升级内核、安装BBR、DD脚本 "
 	green " 6. 刷 Warp+ 流量 "
+	green " 7. 同步最新版本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE1
 		case "$CHOOSE1" in
@@ -338,8 +349,9 @@ menu1(){
 		4 ) 	uninstall;;
 		5 )	bbrInstall;;
 		6 )	plus;;
+		7 )	ver;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-6]"; sleep 1; menu1;;
+		* ) 	red "请输入正确数字 [0-7]"; sleep 1; menu1;;
 		esac
 	}
 
@@ -351,6 +363,7 @@ menu2(){
 	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 5. 刷 Warp+ 流量 "
+	green " 6. 同步最新版本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE2
 		case "$CHOOSE2" in
@@ -359,8 +372,9 @@ menu2(){
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
+		6 )	ver;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu2;;
+		* ) 	red "请输入正确数字 [0-6]"; sleep 1; menu2;;
 		esac
 	}
 
@@ -371,7 +385,8 @@ menu3(){
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 3. 升级内核、安装BBR、DD脚本 "
 	green " 4. 刷 Warp+ 流量 "
-	green " 5. 免费 WARP 账户升级 WARP+ 账户  "
+	green " 5. 免费 WARP 账户升级 WARP+ 账户 "
+	green " 6. 同步最新版本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE3
         	case "$CHOOSE3" in
@@ -380,8 +395,9 @@ menu3(){
 		3 )	bbrInstall;;
 		4 )	plus;;
 		5 )	update;;
+		6 )	ver;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu3;;
+		* ) 	red "请输入正确数字 [0-6]"; sleep 1; menu3;;
 		esac
 	}
 
