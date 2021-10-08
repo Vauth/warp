@@ -324,7 +324,7 @@ update() {
 	wgcf update &&
 	(sed -i "s#PrivateKey =.*#PrivateKey = $(grep private_key wgcf-account.toml  | cut -d\" -f2 | sed 's#\/#\^#g')#g" wgcf.conf
 	sed -i 's#\^#\/#g' wgcf.conf
-	wg-quick down wgcf; wg-quick up wgcf
+	wg-quick down wgcf; net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
 	green " 已升级为Warp+ 账户" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
 	}
@@ -391,7 +391,7 @@ menu3(){
 	green " 2. 永久关闭 WARP 网络接口，并删除 WGCF "
 	green " 3. 升级内核、安装BBR、DD脚本 "
 	green " 4. 刷 Warp+ 流量 "
-	green " 5. 免费 WARP 账户升级 WARP+ 账户 "
+	green " 5. 升级为 WARP+ 账户 "
 	green " 6. 同步最新版本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE3
