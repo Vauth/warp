@@ -328,7 +328,7 @@ ver(){
 	wget -N $CDN https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
 	chmod +700 menu.sh &&
 	cp -f menu.sh /usr/bin/warp &&
-	green “ 成功！已同步最新脚本，版本号：$version” || red “ 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues]”
+	green " 成功！已同步最新脚本，版本号：$version " || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 	}
 # 单栈
 menu1(){
