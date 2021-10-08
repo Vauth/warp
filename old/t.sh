@@ -415,6 +415,7 @@ case "$OPTION" in
 [Pp] )	plus;;
 [Dd] )	update;;
 [Uu] )	uninstall;;
+[Vv] )	ver;;
 [Oo] )	onoff;  [[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 [Nn] )	net; green " 已成功刷 Warp 网络\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 * )	menu$PLAN;;
