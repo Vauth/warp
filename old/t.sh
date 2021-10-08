@@ -299,7 +299,7 @@ plus() {
 		esac
 	}
 
-# 免费 Warp 账户升级 Warp+
+# 免费 Warp 账户升级 Warp+ 账户
 update() {
 	read -p " 请输入Warp+ License:" LICENSE
 	i=5
@@ -371,6 +371,7 @@ menu3(){
 	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
 	green " 3. 升级内核、安装BBR、DD脚本 "
 	green " 4. 刷 Warp+ 流量 "
+	green " 5. 免费 WARP 账户升级 WARP+ 账户  "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE3
         	case "$CHOOSE3" in
@@ -378,6 +379,7 @@ menu3(){
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
 		4 )	plus;;
+		5 )	update;;
 		0 ) 	exit 1;;
 		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu3;;
 		esac
