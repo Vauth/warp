@@ -235,7 +235,7 @@ install(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 "
 	red "\n==============================================================\n"
-	yellow " 再次运行用 warp,\n " && help
+	yellow " 再次运行用 warp [option] [lisence]，如\n " && help
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 		}
 
@@ -334,7 +334,7 @@ ver(){
 	wget -N $CDN https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
 	chmod +700 menu.sh &&
 	cp -f menu.sh /usr/bin/warp &&
-	green " 成功！已同步最新脚本，版本号：$version " || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
+	green " 成功！已同步最新脚本，版本号：$VERSION " || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 	}
 # 单栈
 menu1(){
