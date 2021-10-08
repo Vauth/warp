@@ -47,6 +47,7 @@ warp [option] [lisence]
 ```
   | [option] 变量 | 具体动作说明 |
   | ------------- | ----------- |
+  | h | 帮助 |
   | 1 | 原生IPv4 -> （原生IPv4 + Warp IPv6) 或者 原生IPv6 -> (Warp IPv4 + 原生IPv6) |
   | 1 lisence | 在上面基础上把 Warp+ Lisence 添加进去，如 ```bash menu.sh 1 N5670ljg-sS9jD334-6o6g4M9F``` |
   | 2 | 原无论任何状态 -> Warp 双栈 |
@@ -55,7 +56,9 @@ warp [option] [lisence]
   | u | 卸载 Warp |
   | n | 断网时，用于刷Warp网络 (Warp bug) |
   | b | 升级内核、开启BBR及DD |
+  | d | warp d (免费 WARP 账户升级 WARP+ ) |
   | p | 刷 Warp+ 流量 |
+  | v | 同步脚本至最新版本 |
   | 其他或空值| 菜单界面 |
 
 举例：想为 IPv4 的甲骨文添加 Warp 双栈，首次运行
