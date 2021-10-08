@@ -231,7 +231,7 @@ install(){
 	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = off || -z $TRACE6 ]] && green " IPv6：$WAN6 $COUNTRY6 "
 	end=$(date +%s)
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒\n 设备名：$(grep name result.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota result.log | awk '{ print $(NF-1), $NF }')
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒\n 设备名：$(grep name result.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota result.log | awk '{ print $(NF-1), $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 "
 	red "\n==============================================================\n"
 	yellow " 再次运行用 warp [option] [lisence]，如\n " && help
