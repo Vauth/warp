@@ -309,7 +309,7 @@ plus() {
 update() {
 	[[ ! -e /etc/wireguard/wgcf-account.toml || ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到账户或者配置文件：/etc/wireguard/wgcf-account.toml 和 /etc/wireguard/wgcf.conf " && exit
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " 已经是 WARP+ 账户，不需要升级 " && exit
-	read -p " 请输入Warp+ License:" LICENSE
+	[[ -z $LICENSE ]] && read -p " 请输入Warp+ License:" LICENSE
 	i=5
 	until [[ ${#LICENSE} = 26 ]]
 	do
