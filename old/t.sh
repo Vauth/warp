@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
 VERSION=2.00
-TXT=1.新增免费 WARP 账户升级 WARP+ 功能，菜单选择或者 warp d； 2.新增同步最新脚本版本功能，菜单选择或者 warp v
+TXT=‘1.新增免费 WARP 账户升级 WARP+ （获取方法可参照刷Warp+流量选项)， warp d ； 2.新增同步脚本至最新版本， warp v ； 3.新增帮助功能， warp h
 
 # 字体彩色
 red(){
@@ -12,6 +12,10 @@ green(){
 yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
+
+help(){
+	yellow " warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
+
 
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
 ping -6 -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
@@ -231,7 +235,7 @@ install(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 "
 	red "\n==============================================================\n"
-	yellow " 再次运行用 warp\n 如 warp (打开菜单)\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp p (刷warp+流量)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
+	yellow " 再次运行用 warp,\n help "
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 		}
 
@@ -420,5 +424,6 @@ case "$OPTION" in
 [Vv] )	ver;;
 [Oo] )	onoff;  [[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 [Nn] )	net; green " 已成功刷 Warp 网络\n IPv4:$WAN4\n IPv6:$WAN6 ";;
+[Hh] )	help
 * )	menu$PLAN;;
 esac
