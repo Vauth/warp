@@ -1,3 +1,11 @@
+# 当前脚本版本号和新增功能
+VERSION=2.00
+TXT='1.新增免费 WARP 账户升级 WARP+，获取方法可参照刷Warp+流量选项， warp d ； 2.新增同步脚本至最新版本， warp v ； 3.新增帮助功能， warp h'
+
+help(){
+	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
+	}
+
 # 字体彩色
 red(){
 	echo -e "\033[31m\033[01m$1\033[0m"
@@ -80,7 +88,7 @@ status(){
 	clear
 	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 Warp+ 账户，附带第三方刷 Warp+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；智能判断硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
 	red "======================================================================================================================\n"
-	green " 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | cut -d : -f2)\n	内核：$(uname -r)\n	处理器架构：$ARCHITECTURE\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
+	green " 脚本版本：$VERSION  功能新增：$TXT\n 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | cut -d : -f2)\n	内核：$(uname -r)\n	处理器架构：$ARCHITECTURE\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
 	[[ $TRACE4 = plus ]] && green "	IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
 	[[ $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 "
 	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 "
@@ -104,8 +112,7 @@ install(){
 	until [[ -z $LICENSE || ${#LICENSE} = 26 || $i = 1 ]]
 		do
 			let i--
-			red " License 应为26位数 "
-			read -p " 请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
+			read -p " License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
 	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	
@@ -228,7 +235,7 @@ install(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 "
 	red "\n==============================================================\n"
-	yellow " 再次运行用 warp\n 如 warp (打开菜单)\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp p (刷warp+流量)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
+	yellow " 再次运行用 warp,\n help "
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 		}
 
@@ -263,19 +270,19 @@ bbrInstall() {
 		esac
 	}
 
+
+# 刷 Warp+ 流量
 input() {
 	read -p " 请输入 Warp+ ID: " ID
 	i=5
 	until [[ ${#ID} = 36 || $i = 1 ]]
 		do
 		let i--
-		red " Warp+ ID 应为36位数 "
-		read -p " 请重新输入 Warp+ ID （剩余$i次）:" ID
+		read -p " Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）:" ID
 	done
 	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	}
 
-# 刷 Warp+ 流量
 plus() {
 	red "\n=============================================================="
 	green " 刷 Warp+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务 "
@@ -300,15 +307,45 @@ plus() {
 		esac
 	}
 
+# 免费 Warp 账户升级 Warp+ 账户
+update() {
+	[[ ! -e /etc/wireguard/wgcf-account.toml || ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到账户或者配置文件：/etc/wireguard/wgcf-account.toml 和 /etc/wireguard/wgcf.conf " && exit
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " 已经是 WARP+ 账户，不需要升级 " && exit
+	read -p " 请输入Warp+ License:" LICENSE
+	i=5
+	until [[  ${#LICENSE} = 26 || $i = 1 ]]
+	do
+	let i--
+	read -p " License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: " LICENSE
+        done
+	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
+	cd /etc/wireguard
+	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
+	wgcf update &&
+	(sed -i "s#PrivateKey =.*#PrivateKey = $(grep private_key wgcf-account.toml  | cut -d\" -f2 | sed 's#\/#\^#g')#g" wgcf.conf
+	sed -i 's#\^#\/#g' wgcf.conf
+	wg-quick down wgcf; wg-quick up wgcf
+	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
+	green " 已升级为Warp+ 账户" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
+	}
+
+# 同步脚本至最新版本
+ver(){
+	wget -N $CDN https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
+	chmod +700 menu.sh &&
+	cp -f menu.sh /usr/bin/warp &&
+	green " 成功！已同步最新脚本，版本号：$version " || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
+	}
 # 单栈
 menu1(){
 	status
 	[[ $IPV4$IPV6 = 01 ]] && green " 1. 为 IPv6 only 添加 IPv4 网络接口 " || green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
 	[[ $IPV4$IPV6 = 01 ]] && green " 2. 为 IPv6 only 添加双栈网络接口 " || green " 2. 为 IPv4 only 添加双栈网络接口 "
 	[[ $PLAN = 3 ]] && green  " 3. 暂时关闭 WARP " || green " 3. 打开 WARP "
-	green " 4. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 4. 永久关闭 WARP 网络接口，并删除 WGCF "
 	green " 5. 升级内核、安装BBR、DD脚本 "
 	green " 6. 刷 Warp+ 流量 "
+	green " 7. 同步最新版本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE1
 		case "$CHOOSE1" in
@@ -318,8 +355,9 @@ menu1(){
 		4 ) 	uninstall;;
 		5 )	bbrInstall;;
 		6 )	plus;;
+		7 )	ver;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-6]"; sleep 1; menu1;;
+		* ) 	red "请输入正确数字 [0-7]"; sleep 1; menu1;;
 		esac
 	}
 
@@ -328,9 +366,10 @@ menu2(){
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
 	[[ $PLAN = 3 ]] && green  " 2. 暂时关闭 WARP " || green " 2. 打开 WARP "
-	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 3. 永久关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 5. 刷 Warp+ 流量 "
+	green " 6. 同步最新版本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE2
 		case "$CHOOSE2" in
@@ -339,8 +378,9 @@ menu2(){
 		3 ) 	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
+		6 )	ver;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-5]"; sleep 1; menu2;;
+		* ) 	red "请输入正确数字 [0-6]"; sleep 1; menu2;;
 		esac
 	}
 
@@ -348,9 +388,11 @@ menu2(){
 menu3(){ 
 	status
 	[[ $PLAN = 3 ]] && green  " 1. 暂时关闭 WARP " || green " 1. 打开 WARP "
-	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
+	green " 2. 永久关闭 WARP 网络接口，并删除 WGCF "
 	green " 3. 升级内核、安装BBR、DD脚本 "
 	green " 4. 刷 Warp+ 流量 "
+	green " 5. 免费 WARP 账户升级 WARP+ 账户 "
+	green " 6. 同步最新版本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE3
         	case "$CHOOSE3" in
@@ -358,8 +400,10 @@ menu3(){
 		2 ) 	uninstall;;
 		3 )	bbrInstall;;
 		4 )	plus;;
+		5 )	update;;
+		6 )	ver;;
 		0 ) 	exit 1;;
-		* ) 	red "请输入正确数字 [0-4]"; sleep 1; menu3;;
+		* ) 	red "请输入正确数字 [0-6]"; sleep 1; menu3;;
 		esac
 	}
 
@@ -375,8 +419,11 @@ case "$OPTION" in
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
+[Dd] )	update;;
 [Uu] )	uninstall;;
+[Vv] )	ver;;
 [Oo] )	onoff;  [[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 [Nn] )	net; green " 已成功刷 Warp 网络\n IPv4:$WAN4\n IPv6:$WAN6 ";;
+[Hh] )	help;;
 * )	menu$PLAN;;
 esac
