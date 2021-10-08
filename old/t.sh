@@ -216,7 +216,7 @@ install(){
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 创建再次执行的快捷方式，再次运行可以用 warp 指令
-	chmod 700 menu.sh && cp -f menu.sh /usr/bin/warp && green " 创建快捷 war 指令成功 "
+	chmod 700 menu.sh && cp -f menu.sh /usr/bin/warp && green " 创建快捷 warp 指令成功 "
 	
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf /etc/wireguard
