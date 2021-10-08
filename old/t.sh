@@ -235,7 +235,7 @@ install(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " 恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " 恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒 "
 	red "\n==============================================================\n"
-	yellow " 再次运行用 warp,\n help "
+	yellow " 再次运行用 warp,\n " && help
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 		}
 
@@ -341,8 +341,8 @@ menu1(){
 	status
 	[[ $IPV4$IPV6 = 01 ]] && green " 1. 为 IPv6 only 添加 IPv4 网络接口 " || green " 1. 为 IPv4 only 添加 IPv6 网络接口 "
 	[[ $IPV4$IPV6 = 01 ]] && green " 2. 为 IPv6 only 添加双栈网络接口 " || green " 2. 为 IPv4 only 添加双栈网络接口 "
-	[[ $PLAN = 3 ]] && green  " 3. 关闭 WARP " || green " 3. 打开 WARP "
-	green " 4. 关闭 WARP 网络接口，并删除 WGCF "
+	[[ $PLAN = 3 ]] && green  " 3. 暂时关闭 WARP " || green " 3. 打开 WARP "
+	green " 4. 永久关闭 WARP 网络接口，并删除 WGCF "
 	green " 5. 升级内核、安装BBR、DD脚本 "
 	green " 6. 刷 Warp+ 流量 "
 	green " 7. 同步最新版本 "
@@ -365,8 +365,8 @@ menu1(){
 menu2(){ 
 	status
 	green " 1. 为 原生双栈 添加 WARP双栈 网络接口 "
-	[[ $PLAN = 3 ]] && green  " 2. 关闭 WARP " || green " 2. 打开 WARP "
-	green " 3. 关闭 WARP 网络接口，并删除 WGCF "
+	[[ $PLAN = 3 ]] && green  " 2. 暂时关闭 WARP " || green " 2. 打开 WARP "
+	green " 3. 永久关闭 WARP 网络接口，并删除 WGCF "
 	green " 4. 升级内核、安装BBR、DD脚本 "
 	green " 5. 刷 Warp+ 流量 "
 	green " 6. 同步最新版本 "
@@ -387,8 +387,8 @@ menu2(){
 # 已开启 warp 网络接口
 menu3(){ 
 	status
-	[[ $PLAN = 3 ]] && green  " 1. 关闭 WARP " || green " 1. 打开 WARP "
-	green " 2. 关闭 WARP 网络接口，并删除 WGCF "
+	[[ $PLAN = 3 ]] && green  " 1. 暂时关闭 WARP " || green " 1. 打开 WARP "
+	green " 2. 永久关闭 WARP 网络接口，并删除 WGCF "
 	green " 3. 升级内核、安装BBR、DD脚本 "
 	green " 4. 刷 Warp+ 流量 "
 	green " 5. 免费 WARP 账户升级 WARP+ 账户 "
