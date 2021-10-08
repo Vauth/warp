@@ -104,8 +104,7 @@ install(){
 	until [[ -z $LICENSE || ${#LICENSE} = 26 || $i = 1 ]]
 		do
 			let i--
-			red " License 应为26位数 "
-			read -p " 请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
+			read -p " License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
 	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	
@@ -263,19 +262,19 @@ bbrInstall() {
 		esac
 	}
 
+
+# 刷 Warp+ 流量
 input() {
 	read -p " 请输入 Warp+ ID: " ID
 	i=5
 	until [[ ${#ID} = 36 || $i = 1 ]]
 		do
 		let i--
-		red " Warp+ ID 应为36位数 "
-		read -p " 请重新输入 Warp+ ID （剩余$i次）:" ID
+		read -p " Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）:" ID
 	done
 	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
 	}
 
-# 刷 Warp+ 流量
 plus() {
 	red "\n=============================================================="
 	green " 刷 Warp+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务 "
@@ -298,6 +297,27 @@ plus() {
 		3 ) menu$PLAN;;
 		* ) red "请输入正确数字 [1-3]"; sleep 1; plus;;
 		esac
+	}
+
+# 免费 Warp 账户升级 Warp+
+update() {
+	read -p " 请输入Warp+ License:" LICENSE
+	i=5
+	until [[  ${#LICENSE} = 26 || $i = 1 ]]
+	do
+	let i--
+	read -p " License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: " LICENSE
+        done
+	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
+	[[ ! -e /etc/wireguard/wgcf-account.toml || ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到账户或者配置文件：/etc/wireguard/wgcf-account.toml 和 /etc/wireguard/wgcf.conf " && exit
+	cd /etc/wireguard
+	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
+	wgcf update &&
+	(sed -i "s#PrivateKey =.*#PrivateKey = $(grep private_key wgcf-account.toml  | cut -d\" -f2 | sed 's#\/#\^#g')#g" wgcf.conf
+	sed -i 's#\^#\/#g' wgcf.conf
+	wg-quick down wgcf; wg-quick up wgcf
+	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] && 
+	green " 已升级为Warp+ 账户" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
 	}
 
 # 单栈
@@ -375,6 +395,7 @@ case "$OPTION" in
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
+[Dd] )	update;;
 [Uu] )	uninstall;;
 [Oo] )	onoff;  [[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 ";;
 [Nn] )	net; green " 已成功刷 Warp 网络\n IPv4:$WAN4\n IPv6:$WAN6 ";;
