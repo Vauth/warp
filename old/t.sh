@@ -304,6 +304,9 @@ plus() {
 
 # 免费 Warp 账户升级 Warp+ 账户
 update() {
+	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
+	[[ ! -e /etc/wireguard/wgcf-account.toml || ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到账户或者配置文件：/etc/wireguard/wgcf-account.toml 和 /etc/wireguard/wgcf.conf " && exit
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " 已经是 WARP+ 账户，不需要升级 " && exit
 	read -p " 请输入Warp+ License:" LICENSE
 	i=5
 	until [[  ${#LICENSE} = 26 || $i = 1 ]]
@@ -311,8 +314,6 @@ update() {
 	let i--
 	read -p " License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: " LICENSE
         done
-	[[ $i = 1 ]] && red " 输入错误达5次，脚本退出 " && exit
-	[[ ! -e /etc/wireguard/wgcf-account.toml || ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到账户或者配置文件：/etc/wireguard/wgcf-account.toml 和 /etc/wireguard/wgcf.conf " && exit
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update &&
