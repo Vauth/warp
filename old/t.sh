@@ -95,8 +95,8 @@ status(){
 	[[ $TRACE6 = plus ]] && green "	IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ 已开启	设备名：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
-	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP 已开启" 	
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " WARP+ 已开启	设备名：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
+	[[ $TRACE4 = on || $TRACE6 = on ]] && green " WARP 已开启" 	
 	[[ $TRACE4 = off && $TRACE6 = off ]] && green "	WARP 未开启"
  	red "\n======================================================================================================================\n"
 	}
@@ -271,8 +271,8 @@ bbrInstall() {
 	case "$BBR" in
 		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
 		2 ) menu$PLAN;;
-		* ) red "请输入正确数字 [1-2]"; sleep 1; bbrInstall;;
-		esac
+		* ) red " 请输入正确数字 [1-2] "; sleep 1; bbrInstall;;
+	esac
 	}
 
 
@@ -307,8 +307,8 @@ plus() {
 		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
 		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
 		3 ) menu$PLAN;;
-		* ) red "请输入正确数字 [1-3]"; sleep 1; plus;;
-		esac
+		* ) red " 请输入正确数字 [1-3] "; sleep 1; plus;;
+	esac
 	}
 
 # 免费 Warp 账户升级 Warp+ 账户
@@ -354,15 +354,15 @@ menu1(){
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE1
 		case "$CHOOSE1" in
-		1 ) 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
-		2 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
+		1 )	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
+		2 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 		3 )	onoff;  [[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " ;;
-		4 ) 	uninstall;;
+		4 )	uninstall;;
 		5 )	bbrInstall;;
 		6 )	plus;;
 		7 )	ver;;
-		0 ) 	exit;;
-		* ) 	red "请输入正确数字 [0-7]"; sleep 1; menu1;;
+		0 )	exit;;
+		* )	red " 请输入正确数字 [0-7] "; sleep 1; menu1;;
 		esac
 	}
 
@@ -378,14 +378,14 @@ menu2(){
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE2
 		case "$CHOOSE2" in
-		1 ) 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		2 )	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
-		3 ) 	uninstall;;
+		1 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
+		2 )	onoff; [[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		3 )	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
 		6 )	ver;;
-		0 ) 	exit;;
-		* ) 	red "请输入正确数字 [0-6]"; sleep 1; menu2;;
+		0 )	exit;;
+		* )	red " 请输入正确数字 [0-6] "; sleep 1; menu2;;
 		esac
 	}
 
@@ -400,15 +400,15 @@ menu3(){
 	green " 6. 同步最新版本 "
 	green " 0. 退出脚本 \n "
 	read -p "请输入数字:" CHOOSE3
-        	case "$CHOOSE3" in
-		1 ) 	onoff;	[[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
-		2 ) 	uninstall;;
+        case "$CHOOSE3" in
+		1 )	onoff; [[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		2 )	uninstall;;
 		3 )	bbrInstall;;
 		4 )	plus;;
 		5 )	update;;
 		6 )	ver;;
-		0 ) 	exit;;
-		* ) 	red "请输入正确数字 [0-6]"; sleep 1; menu3;;
+		0 )	exit;;
+		* )	red " 请输入正确数字 [0-6] "; sleep 1; menu3;;
 		esac
 	}
 
@@ -417,6 +417,8 @@ LICENSE=$2
 
 # 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
 OPTION=$1
+
+# 设置后缀
 case "$OPTION" in
 1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && wg-quick down wgcf >/dev/null 2>&1 && exit
 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
