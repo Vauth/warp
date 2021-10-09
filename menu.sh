@@ -225,7 +225,7 @@ install(){
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard
 	
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
-	chmod 700 /etc/wireguard/menu.sh
+	chmod +700 /etc/wireguard/menu.sh
 	ln -s /etc/wireguard/menu.sh /usr/bin/warp && green " 创建快捷 warp 指令成功 "
 
 	# 结果提示，脚本运行时间
