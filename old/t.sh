@@ -330,7 +330,7 @@ update() {
 	wg-quick down wgcf >/dev/null 2>&1
 	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
-	green " 已升级为Warp+ 账户\n IPv4：$WAN4\n IPv6：$WAN6\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
+	green " 已升级为Warp+ 账户\n IPv4：$WAN4\n IPv6：$WAN6\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，使用回免费的 Warp "
 	}
 
 # 同步脚本至最新版本
