@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
-VERSION=2.00
-TXT='1.新增免费 WARP 账户升级 WARP+，获取方法可参照刷Warp+流量选项， warp d ； 2.新增同步脚本至最新版本， warp v ； 3.新增帮助功能， warp h'
+VERSION=2.01
+TXT='1.快捷指令 warp 改为软链接方式，原文件/etc/wireguard/menu.sh，软链接 /usr/bin/warp ； 2. ； 3.'
 
 help(){
 	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp d N5670ljg-sS9jD334-6o6g4M9F ( 指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
@@ -221,11 +221,12 @@ install(){
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
-	# 创建再次执行的快捷方式，再次运行可以用 warp 指令
-	chmod 700 menu.sh && cp -f menu.sh /usr/bin/warp && green " 创建快捷 warp 指令成功 "
-	
 	# 保存好配置文件
-	mv -f wgcf-account.toml wgcf-profile.conf /etc/wireguard
+	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard
+	
+	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
+	chmod 700 /etc/wireguard/menu.sh
+	ln -s /etc/wireguard/menu.sh /usr/bin/warp && green " 创建快捷 warp 指令成功 "
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
