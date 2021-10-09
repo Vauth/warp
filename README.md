@@ -56,7 +56,8 @@ warp [option] [lisence]
   | u | 卸载 Warp |
   | n | 断网时，用于刷Warp网络 (Warp bug) |
   | b | 升级内核、开启BBR及DD |
-  | d | warp d (免费 WARP 账户升级 WARP+ ) |
+  | d | 免费 WARP 账户升级 WARP+ |
+  | d lisence | 在上面基础上把 Warp+ Lisence 添加进去，如 ```bash menu.sh d N5670ljg-sS9jD334-6o6g4M9F```  |
   | p | 刷 Warp+ 流量 |
   | v | 同步脚本至最新版本 |
   | 其他或空值| 菜单界面 |
