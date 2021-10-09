@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
-VERSION=2.00
-TXT='1.新增免费 WARP 账户升级 WARP+，获取方法可参照刷Warp+流量选项， warp d ； 2.新增同步脚本至最新版本， warp v ； 3.新增帮助功能， warp h'
+VERSION=2.01
+TXT='1.快捷指令 warp 从镜像文件改为软链接方式，像windows的快捷方式，原文件/etc/wireguard/menu.sh，软链接 /usr/bin/warp'
 
 help(){
 	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp d N5670ljg-sS9jD334-6o6g4M9F ( 指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
@@ -221,11 +221,12 @@ install(){
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
-	# 创建再次执行的快捷方式，再次运行可以用 warp 指令
-	chmod 700 menu.sh && cp -f menu.sh /usr/bin/warp && green " 创建快捷 warp 指令成功 "
-	
 	# 保存好配置文件
-	mv -f wgcf-account.toml wgcf-profile.conf /etc/wireguard
+	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard
+	
+	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
+	chmod 700 /etc/wireguard/menu.sh
+	ln -s /etc/wireguard/menu.sh /usr/bin/warp && green " 创建快捷 warp 指令成功 "
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
@@ -312,8 +313,9 @@ plus() {
 
 # 免费 Warp 账户升级 Warp+ 账户
 update() {
-	[[ ! -e /etc/wireguard/wgcf-account.toml || ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到账户或者配置文件：/etc/wireguard/wgcf-account.toml 和 /etc/wireguard/wgcf.conf " && exit
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " 已经是 WARP+ 账户，不需要升级 " && exit
+	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " 找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 Warp+ License " && exit
+	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 Warp+ License " && exit
 	[[ -z $LICENSE ]] && read -p " 请输入Warp+ License:" LICENSE
 	i=5
 	until [[ ${#LICENSE} = 26 ]]
@@ -329,12 +331,12 @@ update() {
 	wg-quick down wgcf >/dev/null 2>&1
 	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
-	green " 已升级为Warp+ 账户\n IPv4：$WAN4\n IPv6：$WAN6\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续 "
+	green " 已升级为Warp+ 账户\n IPv4：$WAN4\n IPv6：$WAN6\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，继续使用免费的 Warp "
 	}
 
 # 同步脚本至最新版本
 ver(){
-	wget -N $CDN https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
+	wget -N $CDN -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
 	chmod +700 menu.sh &&
 	cp -f menu.sh /usr/bin/warp &&
 	green " 成功！已同步最新脚本，版本号：$VERSION " || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
@@ -359,7 +361,7 @@ menu1(){
 		5 )	bbrInstall;;
 		6 )	plus;;
 		7 )	ver;;
-		0 ) 	exit 1;;
+		0 ) 	exit;;
 		* ) 	red "请输入正确数字 [0-7]"; sleep 1; menu1;;
 		esac
 	}
@@ -382,7 +384,7 @@ menu2(){
 		4 )	bbrInstall;;
 		5 )	plus;;
 		6 )	ver;;
-		0 ) 	exit 1;;
+		0 ) 	exit;;
 		* ) 	red "请输入正确数字 [0-6]"; sleep 1; menu2;;
 		esac
 	}
@@ -405,7 +407,7 @@ menu3(){
 		4 )	plus;;
 		5 )	update;;
 		6 )	ver;;
-		0 ) 	exit 1;;
+		0 ) 	exit;;
 		* ) 	red "请输入正确数字 [0-6]"; sleep 1; menu3;;
 		esac
 	}
