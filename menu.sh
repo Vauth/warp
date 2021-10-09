@@ -226,7 +226,7 @@ install(){
 	
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
 	chmod +700 /etc/wireguard/menu.sh
-	ln -s /etc/wireguard/menu.sh /usr/bin/warp && green " 创建快捷 warp 指令成功 "
+	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " 创建快捷 warp 指令成功 "
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
@@ -337,7 +337,8 @@ update() {
 # 同步脚本至最新版本
 ver(){
 	wget -N $CDN -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
-	chmod +700 menu.sh >/dev/null 2>&1 &&
+	chmod +x /etc/wireguard/menu.sh &&
+	ln -sf /etc/wireguard/menu.sh /usr/bin/warp &&
 	green " 成功！已同步最新脚本，版本号：$VERSION  功能新增：$TXT " || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 	}
 # 单栈
