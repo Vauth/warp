@@ -98,7 +98,7 @@ status(){
 	[[ $TRACE6 = plus ]] && green "	IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "		WARP+ 已开启	设备名：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ 已开启	设备名：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP 已开启" 	
 	[[ $TRACE4 = off && $TRACE6 = off ]] && green "	WARP 未开启"
  	red "\n======================================================================================================================\n"
@@ -342,7 +342,7 @@ ver(){
 	wget -N $CDN -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
 	chmod +x /etc/wireguard/menu.sh &&
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp &&
-	green " 成功！已同步最新脚本，版本号：$VERSION  功能新增：$TXT " || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
+	green " 成功！已同步最新脚本，版本号：$(grep ^VERSION /etc/wireguard/menu.sh | cut -d = -f2)  功能新增：$TXT " || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 	}
 # 单栈
 menu1(){
