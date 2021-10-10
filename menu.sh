@@ -46,11 +46,11 @@ green " 检查环境中…… "
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
 		WAN4=$(curl -s4  https://ip.gs) &&
-		COUNTRY4=$(curl -s4 http://ip.gs/country) &&
+		COUNTRY4=$(curl -s4 https://ip.gs/country) &&
 		TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
 		WAN6=$(curl -s6  https://ip.gs) &&
-		COUNTRY6=$(curl -s6 http://ip.gs/country) &&
+		COUNTRY6=$(curl -s6 https://ip.gs/country) &&
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
