@@ -1,7 +1,7 @@
 # 【WGCF】连接CF WARP为服务器添加IPv4/IPv6网络
 
 * * *
-2020.10.10  2.02 更新：上游 ip.gs 用 wget 不稳定导致获取不了 IP 而一直在死刷，弃坑用 curl 替换
+2020.10.10  2.02 更新：1.上游 ip.gs 用 wget 不稳定导致获取不了 IP 而一直在死刷，弃坑用 curl 替换 2.用Rurt语言的 BoringTun 替代Go语言的 WireGuard-GO
 
 # 目录
 
@@ -20,7 +20,7 @@
 * 支持 Warp+ 账户，附带第三方刷 Warp+ 流量和升级内核 BBR 脚本
 * 普通用户友好的菜单，进阶者通过后缀选项快速搭建
 * 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；智能判断硬件结构类型：AMD 或者 ARM
-* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go
+* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞BoringTun＞wireguard-go
 * 智能判断 WGCF 作者 github库的最新版本 （Latest release）
 * 智能分析内网和公网IP生成 WGCF 配置文件
 * 输出结果，提示是否使用 WARP IP ，IP 归属地
@@ -124,6 +124,7 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 
 服务提供：
 * CloudFlare Warp(+)：https://1.1.1.1/
+* CloudFlare BoringTun：https://github.com/cloudflare/boringtun
 * WGCF 项目原作者：https://github.com/ViRb3/wgcf/
 * WireGuard-GO 官方：https://git.zx2c4.com/wireguard-go/
 * ylx2016 的成熟作品：https://github.com/ylx2016/Linux-NetSpeed
