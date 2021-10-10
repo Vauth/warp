@@ -208,7 +208,7 @@ install(){
 	net
 	COUNTRY4=$(curl -s4 https://ip.gs/country)
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	COUNTRY6=$(curl -s4 https://ip.gs/country)
+	COUNTRY6=$(curl -s6 https://ip.gs/country)
 	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 	# 设置开机启动
