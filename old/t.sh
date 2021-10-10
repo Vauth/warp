@@ -68,16 +68,17 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 
 # 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行
 net(){
+	[[ $LXC = 1 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " 没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装 " && exit ||
 	yellow " 后台获取 WARP IP 中……  "
-	wg-quick up wgcf >/dev/null 2>&1
+	echo $UP | sh >/dev/null 2>&1
 	WAN4=$(curl -s4m1 https://ip.gs)
 	WAN6=$(curl -s6m1 https://ip.gs)
 	until [[ -n $WAN4 && -n $WAN6 ]]
 		do	wg-quick down wgcf >/dev/null 2>&1
-			wg-quick up wgcf >/dev/null 2>&1
-			WAN4=$(curl -s4m1 https://ip.gs)
-			WAN6=$(curl -s6m1 https://ip.gs)
+			echo $UP | sh >/dev/null 2>&1
+			WAN4=$(curl -s4m2 https://ip.gs)
+			WAN6=$(curl -s6m2 https://ip.gs)
 	done
 	}
 
@@ -178,8 +179,9 @@ install(){
 	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_${latest}_linux_$ARCHITECTURE
 	chmod +x /usr/local/bin/wgcf
 
-	# 如是 LXC，安装 wireguard-go
-	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
+	# 如是 LXC，安装 boringtun
+	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/boringtun
+	chmod +x /usr/bin/boringtun
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 	yellow " WGCF 注册中…… "
@@ -215,7 +217,7 @@ install(){
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 	grep -qE '^@reboot[ ]*root[ ]*bash[ ]*/etc/wireguard/WARP_AutoUp.sh' /etc/crontab || echo '@reboot root bash /etc/wireguard/WARP_AutoUp.sh' >> /etc/crontab
 	echo '[[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] && wg-quick up wgcf >/dev/null 2>&1 &&' > /etc/wireguard/WARP_AutoUp.sh
-	echo 'until [[ -n $(curl -s4m1 https://ip.gs) && -n $(curl -s6m1 https://ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
+	echo 'until [[ -n $(curl -s4m2 https://ip.gs) && -n $(curl -s6m2 https://ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '	do' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '		wg-quick down wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '		wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
@@ -253,7 +255,7 @@ uninstall(){
 	systemctl disable wg-quick@wgcf >/dev/null 2>&1
 	wg-quick down wgcf >/dev/null 2>&1
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
 	WAN4=$(curl -s4m1 https://ip.gs)
