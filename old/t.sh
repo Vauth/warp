@@ -99,8 +99,8 @@ status(){
 	[[ $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 "
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "		WARP+ 已开启	设备名：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
-	[[ $TRACE4 = on || $TRACE6 = on ]] && green "		WARP 已开启" 	
-	[[ $TRACE4 = off && $TRACE6 = off ]] && green "		WARP 未开启"
+	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP 已开启" 	
+	[[ $TRACE4 = off && $TRACE6 = off ]] && green "	WARP 未开启"
  	red "\n======================================================================================================================\n"
 	}
 
