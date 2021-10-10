@@ -1,7 +1,7 @@
 # 【WGCF】连接CF WARP为服务器添加IPv4/IPv6网络
 
 * * *
-2020.10.10  2.02 更新：1.上游 ip.gs 用 wget 不稳定导致获取不了 IP 而一直在死刷，弃坑用 curl 替换 2.用Rurt语言的 BoringTun 替代Go语言的 WireGuard-GO
+2020.10.10  2.02 更新：1.上游 ip.gs 用 wget 不稳定导致获取不了 IP 而一直在死刷，弃坑用 curl 替换 2.计划用Rurt语言的 BoringTun 替代Go语言的 WireGuard-GO，但好像不太稳定
 
 # 目录
 
