@@ -71,13 +71,13 @@ net(){
 	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " 没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装 " && exit ||
 	yellow " 后台获取 WARP IP 中……  "
 	wg-quick up wgcf >/dev/null 2>&1
-	WAN4=$(curl -s4m1 https://ip.gs)
-	WAN6=$(curl -s6m1 https://ip.gs)
+	WAN4=$(curl -s4m3 https://ip.gs)
+	WAN6=$(curl -s6m3 https://ip.gs)
 	until [[ -n $WAN4 && -n $WAN6 ]]
 		do	wg-quick down wgcf >/dev/null 2>&1
 			wg-quick up wgcf >/dev/null 2>&1
-			WAN4=$(curl -s4m1 https://ip.gs)
-			WAN6=$(curl -s6m1 https://ip.gs)
+			WAN4=$(curl -s4m3 https://ip.gs)
+			WAN6=$(curl -s6m3 https://ip.gs)
 	done
 	}
 
