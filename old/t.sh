@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
-VERSION=2.01
-TXT='1.快捷指令 warp 从镜像文件改为软链接方式，像windows的快捷方式，原文件/etc/wireguard/menu.sh，软链接 /usr/bin/warp'
+VERSION=2.02
+TXT='1. 上游 ip.gs 用 wget 不稳定，弃坑用 curl 替换'
 
 help(){
 	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp d N5670ljg-sS9jD334-6o6g4M9F ( 指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
@@ -34,6 +34,9 @@ SYS=$(hostnamectl | tr A-Z a-z | grep system)
 
 green " 检查环境中…… "
 
+# 安装 curl
+[[ ! $(type -P curl) ]] && green " 安装curl中…… " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1 )
+
 # 判断处理器架构
 [[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
@@ -42,13 +45,13 @@ green " 检查环境中…… "
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
-		WAN4=$(wget --no-check-certificate -qO- -4 ip.gs) &&
-		COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country) &&
-		TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
+		WAN4=$(curl -s4  https://ip.gs) &&
+		COUNTRY4=$(curl -s4 http://ip.gs/country) &&
+		TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
-		WAN6=$(wget --no-check-certificate -qO- -6 ip.gs) &&
-		COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country) &&
-		TRACE6=$(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+		WAN6=$(curl -s6  https://ip.gs) &&
+		COUNTRY6=$(curl -s6 http://ip.gs/country) &&
+		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
@@ -68,13 +71,13 @@ net(){
 	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " 没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装 " && exit ||
 	yellow " 后台获取 WARP IP 中……  "
 	wg-quick up wgcf >/dev/null 2>&1
-	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+	WAN4=$(curl -s4m1 https://ip.gs)
+	WAN6=$(curl -s6m1 https://ip.gs)
 	until [[ -n $WAN4 && -n $WAN6 ]]
 		do	wg-quick down wgcf >/dev/null 2>&1
 			wg-quick up wgcf >/dev/null 2>&1
-			WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-			WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
+			WAN4=$(curl -s4m1 https://ip.gs)
+			WAN6=$(curl -s6m1 https://ip.gs)
 	done
 	}
 
@@ -203,16 +206,16 @@ install(){
 	green " 进度  3/3： 运行 WGCF "
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
 	net
-	COUNTRY4=$(wget --no-check-certificate -qO- -4 https://ip.gs/country)
-	TRACE4=$(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	COUNTRY6=$(wget --no-check-certificate -qO- -6 https://ip.gs/country)
-	TRACE6=$(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+	COUNTRY4=$(curl -s4 https://ip.gs/country)
+	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+	COUNTRY6=$(curl -s4 https://ip.gs/country)
+	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 	# 设置开机启动
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 	grep -qE '^@reboot[ ]*root[ ]*bash[ ]*/etc/wireguard/WARP_AutoUp.sh' /etc/crontab || echo '@reboot root bash /etc/wireguard/WARP_AutoUp.sh' >> /etc/crontab
 	echo '[[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] && wg-quick up wgcf >/dev/null 2>&1 &&' > /etc/wireguard/WARP_AutoUp.sh
-	echo 'until [[ -n $(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs) && -n $(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
+	echo 'until [[ -n $(curl -s4m1 https://ip.gs) && -n $(curl -s6m1 https://ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '	do' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '		wg-quick down wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '		wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
@@ -253,10 +256,10 @@ uninstall(){
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
-	WAN4=$(wget --no-check-certificate -T1 -t1 -qO- -4 ip.gs)
-	WAN6=$(wget --no-check-certificate -T1 -t1 -qO- -6 ip.gs)
-	COUNTRY4=$(wget --no-check-certificate -T1 -t1 -qO- -4 https://ip.gs/country)
-	COUNTRY6=$(wget --no-check-certificate -T1 -t1 -qO- -6 https://ip.gs/country)
+	WAN4=$(curl -s4m1 https://ip.gs)
+	WAN6=$(curl -s6m1 https://ip.gs)
+	COUNTRY4=$(curl -s4m1 https://ip.gs/country)
+	COUNTRY6=$(curl -s6m1 https://ip.gs/country)
 	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
 	}
 
