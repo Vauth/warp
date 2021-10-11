@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
 VERSION=2.03
-TXT='1.对刷网络作了优化，加快了两次尝试之间的间隔时间，不会出现死循环，因为已经限制次数，暂停为10次，有明确的提示 2.用Rurt语言的 BoringTun 替代Go语言的 WireGuard-GO'
+TXT='1.对刷网络作了优化，加快了两次尝试之间的间隔时间，不会出现死循环，因为已经限制次数为10，有明确的提示 2.用Rurt语言的 BoringTun 替代Go语言的 WireGuard-GO'
 
 help(){
 	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp d N5670ljg-sS9jD334-6o6g4M9F ( 指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
@@ -46,7 +46,7 @@ green " 检查环境中…… "
 # 判断虚拟化，选择 wireguard内核模块 还是 BoringTun
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && LXC=1
 [[ $LXC = 1 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
-[[ $LXC = 1 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick up wgcf'
+[[ $LXC = 1 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
@@ -91,7 +91,7 @@ net(){
 			green " $WAN4 $WAN6 "
 			[[ $i = $j ]] && echo $DOWN | sh && red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
         	done
-green " 已成功刷 WARP 网络\n IPv4:$WAN4\n IPv6:$WAN6 "
+green " 已成功获取 WARP 网络\n IPv4:$WAN4\n IPv6:$WAN6 "
 	}
 
 # WARP 开关
