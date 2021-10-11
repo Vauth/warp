@@ -35,13 +35,19 @@ SYS=$(hostnamectl | tr A-Z a-z | grep system)
 green " 检查环境中…… "
 
 # 安装 curl
-[[ ! $(type -P curl) ]] && green " 安装curl中…… " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1 ) || (apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || (yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 ))
+[[ ! $(type -P curl) ]] && 
+yellow " 安装curl中…… " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) || 
+( yellow " 先升级系统才能继续安装 curl，稍等…… " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || 
+(yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " 安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit )))
 
 # 判断处理器架构
 [[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
-# 判断虚拟化，选择 wireguard内核模块 还是 wireguard-go
+# 判断虚拟化，选择 wireguard内核模块 还是 BoringTun
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && LXC=1
+[[ $LXC = 1 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
+[[ $LXC = 1 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick up wgcf'
+
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
@@ -68,28 +74,29 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 
 # 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行,i=当前尝试次数，j=要尝试的次数
 net(){
-	[[ $LXC = 1 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " 没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装 " && exit ||
 	i=1;j=10
 	yellow " 后台获取 WARP IP 中,最大尝试$j次……  "
 	yellow " 第$i次获取 "
-	echo $UP | sh >/dev/null 2>&1
-	WAN4=$(curl -s4m3 https://ip.gs) &&
-	WAN6=$(curl -s6m3 https://ip.gs)
-	until [[ -n $WAN4 && -n $WAN6 || $i = $j ]]
+	echo $UP | sh
+	WAN4=$(curl -s4m10 https://ip.gs) &&
+	WAN6=$(curl -s6m10 https://ip.gs)
+	until [[ -n $WAN4 && -n $WAN6 ]]
 		do	let i++
 			yellow " 第$i次尝试 "
-			wg-quick down wgcf >/dev/null 2>&1 &&
-			echo $UP | sh >/dev/null 2>&1 &&
-			WAN4=$(curl -s4m3 https://ip.gs) &&
-			WAN6=$(curl -s6m3 https://ip.gs)
-		done
-	[[ $i = $j ]] && red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
+			echo $DOWN | sh
+			echo $UP | sh
+			WAN4=$(curl -s4m10 https://ip.gs) &&
+			WAN6=$(curl -s6m10 https://ip.gs)
+			green " $WAN4 $WAN6 "
+			[[ $i = $j ]] && echo $DOWN | sh && red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
+        	done
+green " 已成功刷 WARP 网络\n IPv4:$WAN4\n IPv6:$WAN6 "
 	}
 
 # WARP 开关
 onoff(){
-	[[ -n $(wg) ]] 2>/dev/null && wg-quick down wgcf >/dev/null 2>&1 && OFF=1 || net
+	[[ -n $(wg) ]] 2>/dev/null && wg-quick down wgcf >/dev/null 2>&1 && kill $(pgrep -f boringtun) >/dev/null 2>&1 && green " 已暂停 WARP，再次开启可以用 warp o " || net
 	}
 
 # VPS 当前状态
@@ -127,7 +134,7 @@ install(){
 	green " 进度  1/3： 安装系统依赖 "
 
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
         # 根据系统选择需要安装的依赖
@@ -222,7 +229,7 @@ install(){
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 	grep -qE '^@reboot[ ]*root[ ]*bash[ ]*/etc/wireguard/WARP_AutoUp.sh' /etc/crontab || echo '@reboot root bash /etc/wireguard/WARP_AutoUp.sh' >> /etc/crontab
 	echo '[[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] && wg-quick up wgcf >/dev/null 2>&1 &&' > /etc/wireguard/WARP_AutoUp.sh
-	echo 'until [[ -n $(curl -s4m2 https://ip.gs) && -n $(curl -s6m2 https://ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
+	echo 'until [[ -n $(curl -s4m10 https://ip.gs) && -n $(curl -s6m10 https://ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '	do' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '		wg-quick down wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '		wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
@@ -439,8 +446,8 @@ case "$OPTION" in
 [Dd] )	update;;
 [Uu] )	uninstall;;
 [Vv] )	ver;;
-[Oo] )	onoff;  [[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 ";;
-[Nn] )	net; green " 已成功刷 Warp 网络\n IPv4:$WAN4\n IPv6:$WAN6 ";;
+[Oo] )	onoff;;
+[Nn] )	net;;
 [Hh] )	help;;
 * )	menu$PLAN;;
 esac
