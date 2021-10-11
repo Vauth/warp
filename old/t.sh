@@ -96,7 +96,7 @@ green " 已成功刷 WARP 网络\n IPv4:$WAN4\n IPv6:$WAN6 "
 
 # WARP 开关
 onoff(){
-	[[ -n $(wg) ]] 2>/dev/null && wg-quick down wgcf >/dev/null 2>&1 && kill $(pgrep -f boringtun) >/dev/null 2>&1 && green " 已暂停 WARP，再次开启可以用 warp o " || net
+	[[ -n $(wg) ]] 2>/dev/null && echo $DOWN | sh >/dev/null 2>&1 && green " 已暂停 WARP，再次开启可以用 warp o " || net
 	}
 
 # VPS 当前状态
@@ -231,7 +231,7 @@ install(){
 	echo '[[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] && wg-quick up wgcf >/dev/null 2>&1 &&' > /etc/wireguard/WARP_AutoUp.sh
 	echo 'until [[ -n $(curl -s4m10 https://ip.gs) && -n $(curl -s6m10 https://ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '	do' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '		wg-quick down wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
+	echo '		wg-quick down wgcf >/dev/null 2>&1 && kill $(pgrep -f boringtun)' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '		wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
  	echo '	done' >> /etc/wireguard/WARP_AutoUp.sh
 
@@ -345,7 +345,7 @@ update() {
 	wgcf update > /etc/wireguard/info.log 2>&1 &&
 	(sed -i "s#PrivateKey =.*#PrivateKey = $(grep private_key wgcf-account.toml  | cut -d\" -f2 | sed 's#\/#\^#g')#g" wgcf.conf
 	sed -i 's#\^#\/#g' wgcf.conf
-	wg-quick down wgcf >/dev/null 2>&1
+	echo $DOWN | sh >/dev/null 2>&1
 	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
 	green " 已升级为Warp+ 账户\n IPv4：$WAN4\n IPv6：$WAN6\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，继续使用免费的 Warp "
