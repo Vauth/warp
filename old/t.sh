@@ -270,8 +270,8 @@ uninstall(){
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
-	WAN4=$(curl -s4m1 https://ip.gs)
-	WAN6=$(curl -s6m1 https://ip.gs)
+	WAN4=$(curl -s4m10 https://ip.gs)
+	WAN6=$(curl -s6m10 https://ip.gs)
 	COUNTRY4=$(curl -s4m1 https://ip.gs/country)
 	COUNTRY6=$(curl -s6m1 https://ip.gs/country)
 	[[ -z $(wg) ]] >/dev/null 2>&1 && green " WGCF 已彻底删除!\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " 没有清除干净，请重启(reboot)后尝试再次删除 "
