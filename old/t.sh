@@ -35,7 +35,7 @@ SYS=$(hostnamectl | tr A-Z a-z | grep system)
 green " 检查环境中…… "
 
 # 安装 curl
-[[ ! $(type -P curl) ]] && green " 安装curl中…… " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1 )
+[[ ! $(type -P curl) ]] && green " 安装curl中…… " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1 ) || (apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || (yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 ))
 
 # 判断处理器架构
 [[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
