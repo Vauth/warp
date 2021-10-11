@@ -78,14 +78,14 @@ net(){
 	i=1;j=10
 	yellow " 后台获取 WARP IP 中,最大尝试$j次……  "
 	yellow " 第$i次获取 "
-	echo $UP | sh
+	echo $UP | sh >/dev/null 2>&1
 	WAN4=$(curl -s4m10 https://ip.gs) &&
 	WAN6=$(curl -s6m10 https://ip.gs)
 	until [[ -n $WAN4 && -n $WAN6 ]]
 		do	let i++
 			yellow " 第$i次尝试 "
-			echo $DOWN | sh
-			echo $UP | sh
+			echo $DOWN | sh >/dev/null 2>&1
+			echo $UP | sh >/dev/null 2>&1
 			WAN4=$(curl -s4m10 https://ip.gs) &&
 			WAN6=$(curl -s6m10 https://ip.gs)
 			green " $WAN4 $WAN6 "
@@ -265,7 +265,7 @@ install(){
 uninstall(){
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6
 	systemctl disable wg-quick@wgcf >/dev/null 2>&1
-	wg-quick down wgcf >/dev/null 2>&1
+	echo $DOWN | sh >/dev/null 2>&1
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
@@ -437,9 +437,9 @@ OPTION=$1
 
 # 设置后缀
 case "$OPTION" in
-1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && wg-quick down wgcf >/dev/null 2>&1 && exit
+1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && echo $DOWN | sh >/dev/null 2>&1 && exit
 	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
-2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && wg-quick down wgcf >/dev/null 2>&1 && exit
+2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && echo $DOWN | sh >/dev/null 2>&1 && exit
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
