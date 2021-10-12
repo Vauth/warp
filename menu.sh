@@ -88,7 +88,6 @@ net(){
 			echo $UP | sh >/dev/null 2>&1
 			WAN4=$(curl -s4m10 https://ip.gs) &&
 			WAN6=$(curl -s6m10 https://ip.gs)
-			green " $WAN4 $WAN6 "
 			[[ $i = $j ]] && echo $DOWN | sh && red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
         	done
 green " 已成功获取 WARP 网络\n IPv4:$WAN4\n IPv6:$WAN6 "
@@ -192,7 +191,7 @@ install(){
 	chmod +x /usr/local/bin/wgcf
 
 	# 如是 LXC，安装 boringtun
-	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/boringtun
+	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/boringtun &&
 	chmod +x /usr/bin/boringtun
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
