@@ -45,7 +45,7 @@ green " 检查环境中…… "
 
 # 判断虚拟化，选择 wireguard内核模块 还是 BoringTun
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && LXC=1
-[[ $LXC = 1 ]] && (UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)') || 
+[[ $LXC = 1 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || 
 (UP='wg-quick up wgcf' && DOWN='wg-quick down wgcf')
 
 
