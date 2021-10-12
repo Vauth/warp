@@ -26,7 +26,7 @@ ping -4 -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
 SYS=$(hostnamectl | tr A-Z a-z | grep system)
 [[ $SYS =~ debian ]] && SYSTEM=debian
 [[ $SYS =~ ubuntu ]] && SYSTEM=ubuntu
-[[ $SYS =~ centos ]] && SYSTEM=centos && alias apt='yum'
+[[ $SYS =~ centos ]] && SYSTEM=centos
 [[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
 
 # 必须以root运行脚本
@@ -36,9 +36,9 @@ green " 检查环境中…… "
 
 # 安装 curl
 [[ ! $(type -P curl) ]] && 
-( yellow " 安装curl中…… " && apt -y install curl >/dev/null 2>&1 || 
-( yellow " 先更新软件包才能继续安装 curl，更新中…… " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || 
-( yellow " 安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit )))
+( yellow " 安装curl中…… " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) || 
+( yellow " 先升级系统才能继续安装 curl，稍等…… " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || 
+( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " 安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit ))))
 
 # 判断处理器架构
 [[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
@@ -47,6 +47,7 @@ green " 检查环境中…… "
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && LXC=1
 [[ $LXC = 1 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 [[ $LXC = 1 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
+
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
@@ -165,15 +166,15 @@ install(){
 		
 	centos(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		apt -y install epel-release
-		apt -y install net-tools wireguard-tools
+		yum -y install epel-release
+		yum -y install net-tools wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
-		apt -y install epel-release wireguard-dkms
+		yum -y install epel-release wireguard-dkms
 
 		# 升级所有包同时也升级软件和系统内核
-		apt -y update
+		yum -y update
 		}
 
 	$SYSTEM
@@ -265,7 +266,7 @@ uninstall(){
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6
 	systemctl disable wg-quick@wgcf >/dev/null 2>&1
 	echo $DOWN | sh >/dev/null 2>&1
-	apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
+	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
@@ -313,8 +314,8 @@ plus() {
 	read -p "请选择：" CHOOSEPLUS
 	case "$CHOOSEPLUS" in
 		1 ) input
-		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null
-		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null
+		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
+		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
 		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) input
