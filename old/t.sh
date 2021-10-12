@@ -37,7 +37,7 @@ green " 检查环境中…… "
 # 安装 curl
 [[ ! $(type -P curl) ]] && 
 ( yellow " 安装curl中…… " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) || 
-( yellow " 先升级系统才能继续安装 curl，稍等…… " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || 
+( yellow " 先升级软件库才能继续安装 curl，稍等…… " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || 
 ( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " 安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit ))))
 
 # 判断处理器架构
@@ -45,8 +45,8 @@ green " 检查环境中…… "
 
 # 判断虚拟化，选择 wireguard内核模块 还是 BoringTun
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && LXC=1
-[[ $LXC = 1 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
-[[ $LXC = 1 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
+[[ $LXC = 1 ]] && (UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)') || 
+(UP='wg-quick up wgcf' && DOWN='wg-quick down wgcf')
 
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
