@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
 VERSION=2.04
-TXT=`LXC 用户选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言的，性能比前者差点，稳定性较高)`
+TXT='LXC 用户选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言的，性能比前者差点，稳定性较高)'
 
 help(){
 	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp d N5670ljg-sS9jD334-6o6g4M9F ( 指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
@@ -128,12 +128,11 @@ install(){
 		done
 		
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案
-	[[ $LXC = 1 ]] && read -p "LXC方案:1、Wireguard-GO 或者 2、BoringTun （默认值选项为 1）,请选择:" BORINGTUN
-	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && WB=boringtun || ( UP='wg-quick up wgcf' && WB=wireguard-go )
+	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && WB=boringtun || ( UP='wg-quick up wgcf' && WB='wireguard-go' )
 	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 	
 	green " 进度  1/3： 安装系统依赖 "
-
+	
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
@@ -193,7 +192,7 @@ install(){
 	chmod +x /usr/local/bin/wgcf
 
 	# 如是 LXC，安装 Wireguard-GO 或者 BoringTun 
-	[[ LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/${WB} && chmod +x /usr/bin/$WB
+	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/$WB && chmod +x /usr/bin/$WB
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 	yellow " WGCF 注册中…… "
