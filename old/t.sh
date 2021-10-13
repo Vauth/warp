@@ -126,8 +126,9 @@ install(){
 			let i--
 			[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit || read -p " License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
-		
+
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案
+	[[ $LXC = 1 ]] && read -p " LXC方案:1、Wireguard-GO 或者 2、BoringTun （默认值选项为 1）,请选择:" BORINGTUN
 	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && WB=boringtun || ( UP='wg-quick up wgcf' && WB='wireguard-go' )
 	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 	
