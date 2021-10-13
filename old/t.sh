@@ -45,8 +45,8 @@ green " 检查环境中…… "
 
 # 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && LXC=1
-[[ $LXC = 1 || -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
-[[ $LXC = 1 || -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
+[[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
+[[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
