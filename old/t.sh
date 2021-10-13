@@ -130,7 +130,7 @@ install(){
 		done
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，如选 BoringTun ,重新定义 UP 和 DOWN 指令
-	[[ $LXC = 1 ]] && read -p " LXC方案:1、Wireguard-GO 或者 2、BoringTun （默认值选项为 1）,请选择:" BORINGTUN
+	[[ $LXC = 1 ]] && read -p " LXC方案:1. Wireguard-GO 或者 2. BoringTun （默认值选项为 1）,请选择:" BORINGTUN
 	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf'
 	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)'
 	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
@@ -373,7 +373,7 @@ menu1(){
 	green " 6. 刷 Warp+ 流量 "
 	green " 7. 同步最新版本 "
 	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" CHOOSE1
+	read -p " 请输入数字:" CHOOSE1
 		case "$CHOOSE1" in
 		1 )	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 		2 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
@@ -397,7 +397,7 @@ menu2(){
 	green " 5. 刷 Warp+ 流量 "
 	green " 6. 同步最新版本 "
 	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" CHOOSE2
+	read -p " 请输入数字:" CHOOSE2
 		case "$CHOOSE2" in
 		1 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 		2 )	onoff; [[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
@@ -420,7 +420,7 @@ menu3(){
 	green " 5. 升级为 WARP+ 账户 "
 	green " 6. 同步最新版本 "
 	green " 0. 退出脚本 \n "
-	read -p "请输入数字:" CHOOSE3
+	read -p " 请输入数字:" CHOOSE3
         case "$CHOOSE3" in
 		1 )	onoff; [[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
 		2 )	uninstall;;
