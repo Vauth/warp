@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
-VERSION=2.03
-TXT='1.对刷网络作了优化，加快了两次尝试之间的间隔时间，不会出现死循环，因为已经限制次数为10，有明确的提示\n		2.用Rust语言的 BoringTun 替代Go语言的 WireGuard-GO'
+VERSION=2.04
+TXT=LXC 用户选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言的，性能比前者差点，稳定性较高)
 
 help(){
 	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp d N5670ljg-sS9jD334-6o6g4M9F ( 指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
@@ -43,11 +43,8 @@ green " 检查环境中…… "
 # 判断处理器架构
 [[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
-# 判断虚拟化，选择 wireguard内核模块 还是 BoringTun
+# 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
 [[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && LXC=1
-[[ $LXC = 1 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
-[[ $LXC = 1 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
-
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
@@ -131,9 +128,14 @@ install(){
 		done
 	
 	green " 进度  1/3： 安装系统依赖 "
+	
+	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案
+	[[ $LXC = 1 ]] && read -p " 请选择:	1、Wireguard-GO;\n		2、BoringTun （默认值选项为 1）" BORINGTUN
+	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && WB=boringtun || ( UP='wg-quick up wgcf' && WB=wireguard-go )
+	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun wgcf-account.toml wgcf-profile.conf /usr/bin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
         # 根据系统选择需要安装的依赖
@@ -190,9 +192,8 @@ install(){
 	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_${latest}_linux_$ARCHITECTURE
 	chmod +x /usr/local/bin/wgcf
 
-	# 如是 LXC，安装 boringtun
-	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/boringtun &&
-	chmod +x /usr/bin/boringtun
+	# 如是 LXC，安装 Wireguard-GO 或者 BoringTun 
+	wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/$WB && chmod +x /usr/bin/$WB
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 	yellow " WGCF 注册中…… "
@@ -227,11 +228,11 @@ install(){
 	# 设置开机启动
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 	grep -qE '^@reboot[ ]*root[ ]*bash[ ]*/etc/wireguard/WARP_AutoUp.sh' /etc/crontab || echo '@reboot root bash /etc/wireguard/WARP_AutoUp.sh' >> /etc/crontab
-	echo '[[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] && wg-quick up wgcf >/dev/null 2>&1 &&' > /etc/wireguard/WARP_AutoUp.sh
+	echo '[[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] && '$UP' >/dev/null 2>&1 &&' > /etc/wireguard/WARP_AutoUp.sh
 	echo 'until [[ -n $(curl -s4m10 https://ip.gs) && -n $(curl -s6m10 https://ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
 	echo '	do' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '		wg-quick down wgcf >/dev/null 2>&1 && kill $(pgrep -f boringtun)' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '		wg-quick up wgcf >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
+	echo '		wg-quick down wgcf >/dev/null 2>&1 && kill $(pgrep -f '$WB')' >> /etc/wireguard/WARP_AutoUp.sh
+	echo '		'$UP' >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
  	echo '	done' >> /etc/wireguard/WARP_AutoUp.sh
 
 	# 优先使用 IPv4 网络
@@ -266,7 +267,7 @@ uninstall(){
 	systemctl disable wg-quick@wgcf >/dev/null 2>&1
 	echo $DOWN | sh >/dev/null 2>&1
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun wgcf-account.toml wgcf-profile.conf /usr/bin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
 	WAN4=$(curl -s4m10 https://ip.gs)
