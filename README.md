@@ -1,6 +1,8 @@
 # 【WGCF】连接CF WARP为服务器添加IPv4/IPv6网络
 
 * * *
+2020.10.14  2.04 更新：LXC 用户选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言的，性能比前者差点，稳定性较高)
+
 2020.10.12  2.03 更新：1.对刷网络作了优化，加快了两次尝试之间的间隔时间，不会出现死循环，因为已经限制次数为10次，有明确的提示 2.用Rust语言的 BoringTun 替代Go语言的 WireGuard-GO
 
 2020.10.10  2.02 更新：1.上游 ip.gs 用 wget 不稳定导致获取不了 IP 而一直在死刷，弃坑用 curl 替换
