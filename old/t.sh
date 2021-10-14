@@ -442,7 +442,7 @@ OPTION=$1
 # 设置后缀
 case "$OPTION" in
 1 )	[[ $PLAN = 1 ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
-	[[ $PLAN = 2 ]] && read -p " 此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入：y " DUAL &&
+	[[ $PLAN = 2 ]] && read -p " 此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y ：" DUAL &&
 	[[ $DUAL = [Yy] ]] && MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6) || exit 1
  	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	install;;
