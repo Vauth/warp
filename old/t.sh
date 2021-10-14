@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
 VERSION=2.04
-TXT='1)LXC 用户选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言的，性能比前者差点，稳定性较高);2)增加原生双栈VPS用 bash menu.sh 1 安装单栈的限制，会建议改为Warp双栈;3)脚本中止后，用 echo $? 显示 1，原来为 0'
+TXT='1)LXC 用户选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言的，性能比前者差点，稳定性较高);2)增加原生双栈VPS用 bash menu.sh 1 安装单栈的限制，会建议改为Warp双栈;3)脚本中止后，用 echo $? 显示 1,即代表不成功 (原来为代表运行成功的0)'
 
 help(){
 	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp d N5670ljg-sS9jD334-6o6g4M9F ( 指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
@@ -20,7 +20,7 @@ yellow(){
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
 ping -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
 ping -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
-[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上安装中止，可能是由于Warp断网或许是大陆 VPS。如前者，输入 wg-quick down wgcf; kill \$(pgrep -f wireguard-go); kill \$(pgrep -f boringtun)，再重新执行，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
+[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上安装中止，可能是由于Warp断网或许是大陆 VPS。如前者，输入 wg-quick down wgcf; kill \$(pgrep -f wireguard); kill \$(pgrep -f boringtun)，再重新执行，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 SYS=$(hostnamectl | tr A-Z a-z | grep system)
