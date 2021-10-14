@@ -20,17 +20,17 @@ yellow(){
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
 ping -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
 ping -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
-[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS。如 WARP 断网，输入 wg-quick down wgcf ; kill \$(pgrep -f boringtun)，再重新执行，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
+[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器连接不上，安装中止，或许是大陆 VPS。如 WARP 断网，输入 wg-quick down wgcf ; kill \$(pgrep -f boringtun)，再重新执行，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 SYS=$(hostnamectl | tr A-Z a-z | grep system)
 [[ $SYS =~ debian ]] && SYSTEM=debian
 [[ $SYS =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $SYS =~ centos ]] && SYSTEM=centos
-[[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
+[[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
 
 # 必须以root运行脚本
-[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit
+[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit 1
 
 green " 检查环境中…… "
 
@@ -38,7 +38,7 @@ green " 检查环境中…… "
 [[ ! $(type -P curl) ]] && 
 ( yellow " 安装curl中…… " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) || 
 ( yellow " 先升级软件库才能继续安装 curl，时间较长，请耐心等待…… " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || 
-( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " 安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit ))))
+( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " 安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1 ))))
 
 # 判断处理器架构
 [[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
@@ -73,7 +73,7 @@ MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wg
 
 # 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行,i=当前尝试次数，j=要尝试的次数
 net(){
-	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " 没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装 " && exit ||
+	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " 没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装 " && exit 1 ||
 	i=1;j=10
 	yellow " 后台获取 WARP IP 中,最大尝试$j次……  "
 	yellow " 第$i次尝试 "
@@ -87,7 +87,7 @@ net(){
 			echo $UP | sh >/dev/null 2>&1
 			WAN4=$(curl -s4m10 https://ip.gs) &&
 			WAN6=$(curl -s6m10 https://ip.gs)
-			[[ $i = $j ]] && echo $DOWN | sh && red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit
+			[[ $i = $j ]] && echo $DOWN | sh && red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
         	done
 green " 已成功获取 WARP 网络\n IPv4:$WAN4\n IPv6:$WAN6 "
 	}
@@ -126,7 +126,7 @@ install(){
 	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
 		do
 			let i--
-			[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit || read -p " License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
+			[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit 1 || read -p " License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，如选 BoringTun ,重新定义 UP 和 DOWN 指令
@@ -303,7 +303,7 @@ input() {
 	until [[ ${#ID} = 36 ]]
 		do
 		let i--
-		[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit || read -p " Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）: " ID
+		[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit 1 || read -p " Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）: " ID
 	done
 	}
 
@@ -333,15 +333,15 @@ plus() {
 
 # 免费 Warp 账户升级 Warp+ 账户
 update() {
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " 已经是 WARP+ 账户，不需要升级 " && exit
-	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " 找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 Warp+ License " && exit
-	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 Warp+ License " && exit
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " 已经是 WARP+ 账户，不需要升级 " && exit 1
+	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " 找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 Warp+ License " && exit 1
+	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 Warp+ License " && exit 1
 	[[ -z $LICENSE ]] && read -p " 请输入Warp+ License:" LICENSE
 	i=5
 	until [[ ${#LICENSE} = 26 ]]
 	do
 	let i--
-	[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit || read -p " License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: " LICENSE
+	[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit 1 || read -p " License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: " LICENSE
         done
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
@@ -441,9 +441,12 @@ OPTION=$1
 
 # 设置后缀
 case "$OPTION" in
-1 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && echo $DOWN | sh >/dev/null 2>&1 && exit
-	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
-2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && echo $DOWN | sh >/dev/null 2>&1 && exit
+1 )	[[ $PLAN = 1 ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
+	[[ $PLAN = 2 ]] && read -p " 此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入：y " DUAL &&
+	[[ $DUAL = [Yy] ]] && MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6) || exit 1
+ 	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
+	install;;
+2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
