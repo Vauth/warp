@@ -22,14 +22,14 @@ ping -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6
 ping -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
 if [[ $IPV4$IPV6 = 00 ]]; then
 	if [[ -n $(wg) ]]; then
-	wg-quick down wgcf >/dev/null 2>&1
-	kill $(pgrep -f wireguard) >/dev/null 2>&1
-	kill $(pgrep -f boringtun) >/dev/null 2>&1
-	ping -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
-	ping -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
+		wg-quick down wgcf >/dev/null 2>&1
+		kill $(pgrep -f wireguard) >/dev/null 2>&1
+		kill $(pgrep -f boringtun) >/dev/null 2>&1
+		ping -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
+		ping -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
 	else
-	red " 与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 和 2606:4700:d0::a29f:c001，如能连通可再次运行脚本 "
-	exit 1
+		red " 与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 和 2606:4700:d0::a29f:c001，如能连通可再次运行脚本 "
+		exit 1
 	fi
 fi
 
