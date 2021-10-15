@@ -1,7 +1,7 @@
 # 【WGCF】连接CF WARP为服务器添加IPv4/IPv6网络
 
 * * *
-2020.10.14  2.04 更新：1)LXC 用户自主选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言的，性能比前者差点，稳定性高);2)增加原生双栈VPS用 bash menu.sh 1 安装单栈的限制，会建议改为Warp双栈; 3) Warp断网后，运行warp会自动关闭通道和杀掉进程; 4)脚本中止后，用 echo $? 显示 1,即代表不成功 (原来为代表运行成功的0)
+2020.10.14  2.04 更新：1)LXC 用户自主选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言，性能比前者差点，稳定性高);2)增加限制：原生双栈VPS只能用Warp双栈，bash menu.sh 1 会建议改为Warp双栈或退出; 3) Warp断网后，运行warp会自动关闭通道和杀掉进程; 4)脚本中止后，用 echo $? 显示 1,即代表不成功 (原来为代表运行成功的0)
 
 2020.10.12  2.03 更新：1)对刷网络作了优化，加快了两次尝试之间的间隔时间，不会出现死循环，因为已经限制次数为10次，有明确的提示 2)用Rust语言的 BoringTun 替代Go语言的 WireGuard-GO
 
