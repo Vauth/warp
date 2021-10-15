@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
-VERSION=2.04
-TXT='1)LXC 用户选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言的，性能比前者差点，稳定性较高); 2)Warp断网时的自动处理;3)增加原生双栈VPS用 bash menu.sh 1 安装单栈的限制，会建议改为Warp双栈; 3) Warp断网后，运行warp会自动关闭通道和杀掉进程; 4)脚本中止后，用 echo $? 显示 1,即代表不成功 (原来为代表运行成功的0)'
+VERSION=2.05
+TXT='升级了重启后运行 Warp 的处理方法，不再依赖另外的文件。如果之前运行过本脚本的，可以输入以下命令删除旧的和升级：sed -i '/WARP_AutoUp/d' /etc/crontab; grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab; rm -f /etc/wireguard/WARP_AutoUp.sh'
 
 help(){
 	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp d N5670ljg-sS9jD334-6o6g4M9F ( 指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
@@ -241,13 +241,7 @@ install(){
 
 	# 设置开机启动
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
-	grep -qE '^@reboot[ ]*root[ ]*bash[ ]*/etc/wireguard/WARP_AutoUp.sh' /etc/crontab || echo '@reboot root bash /etc/wireguard/WARP_AutoUp.sh' >> /etc/crontab
-	echo '[[ $(type -P wg-quick) ]] && [[ -e /etc/wireguard/wgcf.conf ]] && '$UP' >/dev/null 2>&1 &&' > /etc/wireguard/WARP_AutoUp.sh
-	echo 'until [[ -n $(curl -s4m10 https://ip.gs) && -n $(curl -s6m10 https://ip.gs) ]]' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '	do' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '		wg-quick down wgcf >/dev/null 2>&1 && kill $(pgrep -f '$WB')' >> /etc/wireguard/WARP_AutoUp.sh
-	echo '		'$UP' >/dev/null 2>&1' >> /etc/wireguard/WARP_AutoUp.sh
- 	echo '	done' >> /etc/wireguard/WARP_AutoUp.sh
+	grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab
 
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
@@ -283,7 +277,7 @@ uninstall(){
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	sed -i '/^@reboot.*WARP_AutoUp/d' /etc/crontab
+	sed -i '/warp[ ]n/d' /etc/crontab
 	WAN4=$(curl -s4m10 https://ip.gs)
 	WAN6=$(curl -s6m10 https://ip.gs)
 	COUNTRY4=$(curl -s4m10 https://ip.gs/country)
