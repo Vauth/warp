@@ -197,7 +197,7 @@ install(){
 	# 安装并认证 WGCF
 	green " 进度  2/3： 安装 WGCF "
 
-	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.8
+	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.9
 	latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
 	[[ -z $latest ]] && latest='2.2.9'
 
