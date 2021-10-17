@@ -98,7 +98,8 @@ net(){
 			echo $UP | sh >/dev/null 2>&1
 			WAN4=$(curl -s4m10 https://ip.gs) &&
 			WAN6=$(curl -s6m10 https://ip.gs)
-			[[ $i = $j ]] && echo $DOWN | sh && red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
+			[[ $i = $j ]] && echo $DOWN | sh >/dev/null 2>&1
+			[[ $i = $j ]] && red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
         	done
 green " 已成功获取 WARP 网络\n IPv4:$WAN4\n IPv6:$WAN6 "
 	}
