@@ -89,17 +89,16 @@ net(){
 	yellow " 后台获取 WARP IP 中,最大尝试$j次……  "
 	yellow " 第$i次尝试 "
 	echo $UP | sh >/dev/null 2>&1
-	WAN4=$(curl -s4m10 https://ip.gs) &&
-	WAN6=$(curl -s6m10 https://ip.gs)
+	WAN4=$(curl -s4m1 https://i1p.gs) &&
+	WAN6=$(curl -s6m1 https://i1p.gs)
 	until [[ -n $WAN4 && -n $WAN6 ]]
 		do	let i++
 			yellow " 第$i次尝试 "
 			echo $DOWN | sh >/dev/null 2>&1
 			echo $UP | sh >/dev/null 2>&1
-			WAN4=$(curl -s4m10 https://ip.gs) &&
-			WAN6=$(curl -s6m10 https://ip.gs)
-			[[ $i = $j ]] && echo $DOWN | sh >/dev/null 2>&1
-			[[ $i = $j ]] && red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
+			WAN4=$(curl -s4m1 https://i1p.gs) &&
+			WAN6=$(curl -s6m1 https://i1p.gs)
+			[[ $i = $j ]] && (echo $DOWN | sh >/dev/null 2>&1; red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] ") && exit 1
         	done
 green " 已成功获取 WARP 网络\n IPv4:$WAN4\n IPv6:$WAN6 "
 	}
