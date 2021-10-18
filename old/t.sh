@@ -88,24 +88,24 @@ net(){
 	i=1;j=10
 	yellow " 后台获取 WARP IP 中,最大尝试$j次……  "
 	yellow " 第$i次尝试 "
-	echo $UP | sh >/dev/null 2>&1
+	$UP >/dev/null 2>&1
 	WAN4=$(curl -s4m10 https://ip.gs) &&
 	WAN6=$(curl -s6m10 https://ip.gs)
 	until [[ -n $WAN4 && -n $WAN6 ]]
 		do	let i++
 			yellow " 第$i次尝试 "
-			echo $DOWN | sh >/dev/null 2>&1
-			echo $UP | sh >/dev/null 2>&1
+			$DOWN /dev/null 2>&1
+			$UP /dev/null 2>&1
 			WAN4=$(curl -s4m10 https://ip.gs) &&
 			WAN6=$(curl -s6m10 https://ip.gs)
-			[[ $i = $j ]] && (echo $DOWN | sh >/dev/null 2>&1; red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] ") && exit 1
+			[[ $i = $j ]] && ($DOWN >/dev/null 2>&1; red " 失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] ") && exit 1
         	done
 green " 已成功获取 WARP 网络\n IPv4:$WAN4\n IPv6:$WAN6 "
 	}
 
 # WARP 开关
 onoff(){
-	[[ -n $(wg) ]] 2>/dev/null && echo $DOWN | sh >/dev/null 2>&1 && green " 已暂停 WARP，再次开启可以用 warp o " || net
+	[[ -n $(wg) ]] 2>/dev/null && $DOWN >/dev/null 2>&1 && green " 已暂停 WARP，再次开启可以用 warp o " || net
 	}
 
 # VPS 当前状态
@@ -139,23 +139,19 @@ install(){
 			let i--
 			[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit 1 || read -p " License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
-
-	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，如选 BoringTun ,重新定义 UP 和 DOWN 指令
-	[[ $LXC = 1 ]] && read -p " LXC方案:1. Wireguard-GO 或者 2. BoringTun （默认值选项为 1）,请选择:" BORINGTUN
-	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' &&
-				DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' &&
-				WB=boringtun ||
-				(UP='wg-quick up wgcf' &&
-				DOWN='wg-quick down wgcf' &&
-				WB=wireguard-go)
-	
-	green " 进度  1/3： 安装系统依赖 UP=$UP DOWN=$DOWN"
 	
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun
-	/usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
+	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，如选 BoringTun ,重新定义 UP 和 DOWN 指令
+	[[ $LXC = 1 ]] && read -p " LXC方案:1. Wireguard-GO 或者 2. BoringTun （默认值选项为 1）,请选择:" BORINGTUN
+	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || DOWN='wg-quick down wgcf'
+	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
+	[[ $BORINGTUN = 2 ]] &&	WB=boringtun || WB=wireguard-go
+
+	green " 进度  1/3： 安装系统依赖 "
+
         # 根据系统选择需要安装的依赖
 	debian(){
 		# 更新源
@@ -174,7 +170,7 @@ install(){
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		[[ $WG = 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r) && apt -y --no-install-recommends install wireguard-dkms
 		}
-		
+
 	ubuntu(){
 		# 更新源
 		apt -y update
@@ -182,7 +178,7 @@ install(){
 		# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 		}
-		
+
 	centos(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		yum -y install epel-release
@@ -229,7 +225,7 @@ install(){
 	wgcf generate >/dev/null 2>&1
 
 	# 修改配置文件
-	echo $MODIFY | sh
+	$MODIFY
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
@@ -277,7 +273,7 @@ install(){
 uninstall(){
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6
 	systemctl disable wg-quick@wgcf >/dev/null 2>&1
-	echo $DOWN | sh >/dev/null 2>&1
+	$DOWN >/dev/null 2>&1
 	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
@@ -357,7 +353,7 @@ update() {
 	wgcf update > /etc/wireguard/info.log 2>&1 &&
 	(sed -i "s#PrivateKey =.*#PrivateKey = $(grep private_key wgcf-account.toml  | cut -d\" -f2 | sed 's#\/#\^#g')#g" wgcf.conf
 	sed -i 's#\^#\/#g' wgcf.conf
-	echo $DOWN | sh >/dev/null 2>&1
+	DOWN >/dev/null 2>&1
 	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
 	green " 已升级为Warp+ 账户\n IPv4：$WAN4\n IPv6：$WAN6\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，继续使用免费的 Warp "
@@ -453,9 +449,9 @@ case "$OPTION" in
 1 )	[[ $PLAN = 2 ]] && read -p " 此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他退出 ：" DUAL &&
 	[[ $DUAL != [Yy] ]] && exit 1 || MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
 	[[ $PLAN = 1 ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
- 	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
+ 	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && $DOWN >/dev/null 2>&1 && exit 1
 	install;;
-2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
+2 )	[[ $PLAN = 3 ]] && yellow " 检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !! " && $DOWN>/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 [Bb] )	bbrInstall;;
 [Pp] )	plus;;
