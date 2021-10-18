@@ -144,12 +144,16 @@ install(){
 	[[ $LXC = 1 ]] && read -p " LXC方案:1. Wireguard-GO 或者 2. BoringTun （默认值选项为 1）,请选择:" BORINGTUN
 	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' &&
 				DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' &&
-				WB=boringtun || WB=wireguard-go
+				WB=boringtun ||
+				(UP='wg-quick up wgcf' &&
+				DOWN='wg-quick down wgcf' &&
+				WB=wireguard-go)
 	
-	green " 进度  1/3： 安装系统依赖 "
+	green " 进度  1/3： 安装系统依赖 UP=$UP DOWN=$DOWN"
 	
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun
+	/usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
         # 根据系统选择需要安装的依赖
