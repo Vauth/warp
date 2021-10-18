@@ -186,7 +186,7 @@ install(){
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
-		yum -y install epel-release wireguard-dkms
+		yum -y install wireguard-dkms
 
 		# 升级所有包同时也升级软件和系统内核
 		yum -y update
