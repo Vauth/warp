@@ -140,11 +140,11 @@ install(){
 			[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit 1 || read -p " License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次）: " LICENSE
 		done
 
-	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，如选 BoringTun ,重新定义 UP 和 DOWN 指令
+	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
 	[[ $LXC = 1 ]] && read -p " LXC方案:1. Wireguard-GO 或者 2. BoringTun （默认值选项为 1）,请选择:" BORINGTUN
 	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
-	[[ $BORINGTUN = 2 ]] &&	WB=boringtun || WB=wireguard-go
+	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
 	
 	green " 进度  1/3： 安装系统依赖 "
 	
@@ -247,10 +247,10 @@ install(){
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 保存好配置文件
-	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard
+	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
 	
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
-	chmod +x /etc/wireguard/menu.sh
+	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " 创建快捷 warp 指令成功 "
 
 	# 结果提示，脚本运行时间
