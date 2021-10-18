@@ -142,9 +142,9 @@ install(){
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，如选 BoringTun ,重新定义 UP 和 DOWN 指令
 	[[ $LXC = 1 ]] && read -p " LXC方案:1. Wireguard-GO 或者 2. BoringTun （默认值选项为 1）,请选择:" BORINGTUN
-	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf'
-	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)'
-	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
+	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' &&
+				DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' &&
+				WB=boringtun || WB=wireguard-go
 	
 	green " 进度  1/3： 安装系统依赖 "
 	
