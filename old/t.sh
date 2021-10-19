@@ -339,6 +339,7 @@ plus() {
 # 免费 Warp 账户升级 Warp+ 账户
 update() {
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " 已经是 WARP+ 账户，不需要升级 " && exit 1
+	[[ $LXC != 1 ]] && red " KVM VPS 不能用与方法升级，请 warp u 御载后重新下载安装文件，务必在开始时候输入 Warp+ License " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " 找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 Warp+ License " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 Warp+ License " && exit 1
 	[[ -z $LICENSE ]] && read -p " 请输入Warp+ License:" LICENSE
