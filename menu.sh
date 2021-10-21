@@ -351,8 +351,8 @@ update() {
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update > /etc/wireguard/info.log 2>&1 &&
-	wgcf generate >/dev/null 2>&1 &&
-	(sed -i "2s/.*/$(sed -ne 2p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
+	(wgcf generate >/dev/null 2>&1
+	sed -i "2s/.*/$(sed -ne 2p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
 	sed -i "3s/.*/$(sed -ne 3p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
 	sed -i "4s/.*/$(sed -ne 4p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
 	sed -i 's#\^#\/#g' wgcf.conf
