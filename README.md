@@ -1,7 +1,8 @@
 # 【WGCF】连接CF WARP为服务器添加IPv4/IPv6网络
 
 * * *
-【求助】关于 Warp+ 升级以下操作不清楚为什么不行。在装有免费License的KVM VPS上，1)更换wgcf-account.toml里license_key; 2)wgcf update; 3)把得到的private_key替换到wgcf.conf。最后 wg-quick up wgcf 之后没有网络。换回之前免费的private_key又可以。如一开始运行脚本的时候填入 Warp+ License 也是OK的。这个情况在LXC的VPS不会发生的，是由于wireguard内核模块的原因吗？知道的请issues我
+已找到原因，待更新
+~~【求助】关于 Warp+ 升级以下操作不清楚为什么不行。在装有免费License的KVM VPS上，1)更换wgcf-account.toml里license_key; 2)wgcf update; 3)把得到的private_key替换到wgcf.conf。最后 wg-quick up wgcf 之后没有网络。换回之前免费的private_key又可以。如一开始运行脚本的时候填入 Warp+ License 也是OK的。这个情况在LXC的VPS不会发生的，是由于wireguard内核模块的原因吗？知道的请issues我~~
 
 2021.10.15  2.05 更新：1)WGCF自动同步最新的2.2.9； 2）升级了重启后运行 Warp 的处理方法，不再依赖另外的文件。如果之前曾经运行本脚本的，可以输入以下命令删除旧的和升级：`sed -i '/WARP_AutoUp/d' /etc/crontab; grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab; rm -f /etc/wireguard/WARP_AutoUp.sh`
 
