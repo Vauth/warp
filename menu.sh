@@ -149,7 +149,7 @@ install(){
 	green " 进度  1/3： 安装系统依赖 "
 	
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
+	rm -rf /usr/local/bin/wgcf /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
         # 根据系统选择需要安装的依赖
@@ -339,7 +339,6 @@ plus() {
 # 免费 Warp 账户升级 Warp+ 账户
 update() {
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " 已经是 WARP+ 账户，不需要升级 " && exit 1
-	[[ $LXC != 1 ]] && red " KVM VPS 不能用与方法升级，请 warp u 御载后重新下载安装文件，务必在开始时候输入 Warp+ License " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " 找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 Warp+ License " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " 找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 Warp+ License " && exit 1
 	[[ -z $LICENSE ]] && read -p " 请输入Warp+ License:" LICENSE
@@ -352,7 +351,10 @@ update() {
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update > /etc/wireguard/info.log 2>&1 &&
-	(sed -i "s#PrivateKey =.*#PrivateKey = $(grep private_key wgcf-account.toml  | cut -d\" -f2 | sed 's#\/#\^#g')#g" wgcf.conf
+	wgcf generate >/dev/null 2>&1 &&
+	(sed -i "2s/.*/$(sed -ne 2p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
+	sed -i "3s/.*/$(sed -ne 3p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
+	sed -i "4s/.*/$(sed -ne 4p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
 	sed -i 's#\^#\/#g' wgcf.conf
 	echo $DOWN | sh >/dev/null 2>&1
 	net
