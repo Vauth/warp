@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
-VERSION=2.05
-TXT="1)WGCF升级为最新的2.2.9； 2)升级了重启后运行 Warp 的处理方法，不再依赖另外的文件。如果之前曾经运行本脚本的，可以输入以下命令删除旧的和升级：sed -i '/WARP_AutoUp/d' /etc/crontab; grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab; rm -f /etc/wireguard/WARP_AutoUp.sh; 3)修复 KVM 由免费账户升级为 Warp+ 账户的bug"
+VERSION=2.06
+TXT="1)提高脚本适配性，支持 hax VPS"
 
 help(){
 	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 双栈)\n " 
@@ -34,10 +34,13 @@ if [[ $IPV4$IPV6 = 00 ]]; then
 fi
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
-SYS=$(hostnamectl | tr A-Z a-z | grep system)
+SYS=$(hostnamectl | grep -i system | cut -d : -f2)
+[[ -n $SYS ]] || SYS=$(cat /etc/issue)
+shopt -s nocasematch
 [[ $SYS =~ debian ]] && SYSTEM=debian
 [[ $SYS =~ ubuntu ]] && SYSTEM=ubuntu
-[[ $SYS =~ centos ]] && SYSTEM=centos
+[[ $SYS =~ centos|kernel ]] && SYSTEM=centos
+shopt -u nocasematch
 [[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
 
 # 必须以root运行脚本
@@ -52,10 +55,10 @@ green " 检查环境中…… "
 ( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " 安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1 ))))
 
 # 判断处理器架构
-[[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
+[[ $(arch | tr A-Z a-z) =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
 # 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
-[[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && LXC=1
+[[ $(systemd-detect-virt | tr A-Z a-z) =~ openvz|lxc ]] && LXC=1
 [[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 [[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 
@@ -105,7 +108,7 @@ green " 已成功获取 WARP 网络\n IPv4:$WAN4\n IPv6:$WAN6 "
 
 # WARP 开关
 onoff(){
-	[[ -n $(wg) ]] 2>/dev/null && echo $DOWN | sh >/dev/null 2>&1 && green " 已暂停 WARP，再次开启可以用 warp o " || net
+	[[ -n $(wg) ]] 2>/dev/null && (echo $DOWN | sh >/dev/null 2>&1; green " 已暂停 WARP，再次开启可以用 warp o ") || net
 	}
 
 # VPS 当前状态
@@ -113,7 +116,7 @@ status(){
 	clear
 	yellow "本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 Warp+ 账户，附带第三方刷 Warp+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；智能判断硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞boringtun＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
 	red "======================================================================================================================\n"
-	green " 脚本版本：$VERSION  功能新增：$TXT\n 系统信息：\n	当前操作系统：$(hostnamectl | grep -i operating | cut -d : -f2)\n	内核：$(uname -r)\n	处理器架构：$ARCHITECTURE\n	虚拟化：$(hostnamectl | grep -i virtualization | cut -d : -f2) "
+	green " 脚本版本：$VERSION  功能新增：$TXT\n 系统信息：\n	当前操作系统：$SYS\n	内核：$(uname -r)\n	处理器架构：$ARCHITECTURE\n	虚拟化：$(systemd-detect-virt) "
 	[[ $TRACE4 = plus ]] && green "	IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
 	[[ $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 "
 	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 "
@@ -384,7 +387,7 @@ menu1(){
 		case "$CHOOSE1" in
 		1 )	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 		2 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		3 )	onoff;  [[ $OFF =  1 ]] && green " 已暂停 WARP，再次开启可以用 warp o " || green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " ;;
+		3 )	onoff;;
 		4 )	uninstall;;
 		5 )	bbrInstall;;
 		6 )	plus;;
@@ -407,7 +410,7 @@ menu2(){
 	read -p " 请输入数字:" CHOOSE2
 		case "$CHOOSE2" in
 		1 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		2 )	onoff; [[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		2 )	onoff;;
 		3 )	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
@@ -429,7 +432,7 @@ menu3(){
 	green " 0. 退出脚本 \n "
 	read -p " 请输入数字:" CHOOSE3
         case "$CHOOSE3" in
-		1 )	onoff; [[ -n $(wg) ]] 2>/dev/null && green " 已开启 WARP\n IPv4:$WAN4\n IPv6:$WAN6 " || green " 已暂停 WARP，再次开启可以用 bash menu.sh o " ;;
+		1 )	onoff;;
 		2 )	uninstall;;
 		3 )	bbrInstall;;
 		4 )	plus;;
