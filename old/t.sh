@@ -108,7 +108,7 @@ green " 已成功获取 WARP 网络\n IPv4:$WAN4\n IPv6:$WAN6 "
 
 # WARP 开关
 onoff(){
-	[[ -n $(wg) ]] 2>/dev/null && echo $DOWN | sh >/dev/null 2>&1 && green " 已暂停 WARP，再次开启可以用 warp o " || net
+	[[ -n $(wg) ]] 2>/dev/null && (echo $DOWN | sh >/dev/null 2>&1; green " 已暂停 WARP，再次开启可以用 warp o ") || net
 	}
 
 # VPS 当前状态
