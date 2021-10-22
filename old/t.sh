@@ -34,7 +34,7 @@ if [[ $IPV4$IPV6 = 00 ]]; then
 fi
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
-SYS=$(hostnamectl | tr A-Z a-z | grep system) >/dev/null 2>&1 || SYS=$(cat /etc/issue | tr A-Z a-z) >/dev/null 2>&1
+SYS=$(hostnamectl  >/dev/null 2>&1 | tr A-Z a-z | grep system) || SYS=$(cat /etc/issue | tr A-Z a-z)
 [[ $SYS =~ debian ]] && SYSTEM=debian
 [[ $SYS =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $SYS =~ centos|kernel ]] && SYSTEM=centos
