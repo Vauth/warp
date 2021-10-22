@@ -1,9 +1,9 @@
 # 当前脚本版本号和新增功能
 VERSION=2.05
-TXT="1)WGCF升级为最新的2.2.9； 2）升级了重启后运行 Warp 的处理方法，不再依赖另外的文件。如果之前曾经运行本脚本的，可以输入以下命令删除旧的和升级：sed -i '/WARP_AutoUp/d' /etc/crontab; grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab; rm -f /etc/wireguard/WARP_AutoUp.sh"
+TXT="1)WGCF升级为最新的2.2.9； 2)升级了重启后运行 Warp 的处理方法，不再依赖另外的文件。如果之前曾经运行本脚本的，可以输入以下命令删除旧的和升级：sed -i '/WARP_AutoUp/d' /etc/crontab; grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab; rm -f /etc/wireguard/WARP_AutoUp.sh; 3)修复 KVM 由免费账户升级为 Warp+ 账户的bug"
 
 help(){
-	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+ )\n warp d N5670ljg-sS9jD334-6o6g4M9F ( 指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F ( 指定 Warp+ License Warp 双栈)\n " 
+	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 双栈)\n " 
 	}
 
 # 字体彩色
@@ -352,10 +352,9 @@ update() {
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update > /etc/wireguard/info.log 2>&1 &&
 	(wgcf generate >/dev/null 2>&1
-	sed -i "2s/.*/$(sed -ne 2p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
-	sed -i "3s/.*/$(sed -ne 3p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
-	sed -i "4s/.*/$(sed -ne 4p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
-	sed -i 's#\^#\/#g' wgcf.conf
+	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#" wgcf.conf
+	sed -i "3s#.*#$(sed -ne 3p wgcf-profile.conf)#" wgcf.conf
+	sed -i "4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
 	echo $DOWN | sh >/dev/null 2>&1
 	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
