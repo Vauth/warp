@@ -54,7 +54,7 @@ green " 检查环境中…… "
 ( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " 安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1 ))))
 
 # 判断处理器架构
-[[ $(dpkg --print-architecture | tr A-Z a-z) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
+[[ $(arch | tr A-Z a-z) =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
 # 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
 [[ $(systemd-detect-virt | tr A-Z a-z) =~ openvz|lxc ]] && LXC=1
