@@ -34,10 +34,10 @@ if [[ $IPV4$IPV6 = 00 ]]; then
 fi
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
-SYS=$(hostnamectl | tr A-Z a-z | grep system)
+SYS=$(hostnamectl | tr A-Z a-z | grep system) >/dev/null 2>&1 || SYS=$(cat /etc/issue | tr A-Z a-z) >/dev/null 2>&1
 [[ $SYS =~ debian ]] && SYSTEM=debian
 [[ $SYS =~ ubuntu ]] && SYSTEM=ubuntu
-[[ $SYS =~ centos ]] && SYSTEM=centos
+[[ $SYS =~ centos|kernel ]] && SYSTEM=centos
 [[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
 
 # 必须以root运行脚本
@@ -52,10 +52,10 @@ green " 检查环境中…… "
 ( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " 安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1 ))))
 
 # 判断处理器架构
-[[ $(hostnamectl | tr A-Z a-z | grep architecture) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
+[[ $(dpkg --print-architecture | tr A-Z a-z) =~ arm ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
 # 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
-[[ $(hostnamectl | tr A-Z a-z | grep virtualization) =~ openvz|lxc ]] && LXC=1
+[[ $(systemd-detect-virt | tr A-Z a-z) =~ openvz|lxc ]] && LXC=1
 [[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 [[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 
