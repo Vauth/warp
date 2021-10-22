@@ -352,10 +352,9 @@ update() {
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update > /etc/wireguard/info.log 2>&1 &&
 	(wgcf generate >/dev/null 2>&1
-	sed -i "2s/.*/$(sed -ne 2p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
-	sed -i "3s/.*/$(sed -ne 3p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
-	sed -i "4s/.*/$(sed -ne 4p wgcf-profile.conf | sed 's#\/#\^#g')/" wgcf.conf
-	sed -i 's#\^#\/#g' wgcf.conf
+	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#" wgcf.conf
+	sed -i "3s#.*#$(sed -ne 3p wgcf-profile.conf)#" wgcf.conf
+	sed -i "4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
 	echo $DOWN | sh >/dev/null 2>&1
 	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
