@@ -35,7 +35,8 @@ fi
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 SYS=$(hostnamectl | grep -i system | cut -d : -f2)
-[[ -n $SYS ]] || SYS=$(cat /etc/issue | cut -d '\' -f1)
+[[ -n $SYS ]] || SYS=$(cat /etc/redhat-release)
+[[ -n $SYS ]] || SYS=$(cat /etc/issue | cut -d '\' -f1 | sed '/^[ ]*$/d')
 [[ $(echo $SYS | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
 [[ $(echo $SYS | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel ]] && SYSTEM=centos
