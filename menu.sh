@@ -35,12 +35,11 @@ fi
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 SYS=$(hostnamectl | grep -i system | cut -d : -f2)
-[[ -n $SYS ]] || SYS=$(cat /etc/issue)
-shopt -s nocasematch
-[[ $SYS =~ debian ]] && SYSTEM=debian
-[[ $SYS =~ ubuntu ]] && SYSTEM=ubuntu
-[[ $SYS =~ centos|kernel ]] && SYSTEM=centos
-shopt -u nocasematch
+[[ -n $SYS ]] || SYS=$(cat /etc/redhat-release)
+[[ -n $SYS ]] || SYS=$(cat /etc/issue | cut -d '\' -f1 | sed '/^[ ]*$/d')
+[[ $(echo $SYS | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
+[[ $(echo $SYS | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
+[[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel ]] && SYSTEM=centos
 [[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
 
 # 必须以root运行脚本
@@ -361,7 +360,7 @@ update() {
 	echo $DOWN | sh >/dev/null 2>&1
 	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
-	green " 已升级为Warp+ 账户\n IPv4：$WAN4\n IPv6：$WAN6\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，继续使用免费的 Warp "
+	green " 已升级为Warp+ 账户\n 设备名：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " 升级失败，Warp+ 账户错误或者已激活超过5台设备，继续使用免费的 Warp "
 	}
 
 # 同步脚本至最新版本
