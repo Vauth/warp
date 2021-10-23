@@ -1,6 +1,6 @@
 # 当前脚本版本号和新增功能
 VERSION=2.06
-TXT="1)添加自动检查是否开启 Tun 模块； 2)提高脚本适配性，支持 hax VPS"
+TXT="1)添加自动检查是否开启 Tun 模块； 2)提高脚本适配性，支持 hax VPS； 3)支持Amazon Linux 2"
 
 help(){
 	yellow " warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 双栈)\n " 
@@ -48,6 +48,7 @@ SYS=$(hostnamectl | grep -i system | cut -d : -f2)
 [[ $(echo $SYS | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
 [[ $(echo $SYS | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel ]] && SYSTEM=centos
+[[ $(echo $SYS | tr A-Z a-z) =~ 'amazon linux' ]] && SYSTEM=centos && COMPANY=amazon
 [[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
 
 green " 检查环境中…… "
@@ -188,6 +189,7 @@ install(){
 		
 	centos(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+		[[ $COMPANY = amazon ]] && yum -y upgrade && amazon-linux-extras install -y epel		
 		yum -y install epel-release
 		yum -y install net-tools wireguard-tools
 
