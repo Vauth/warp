@@ -35,12 +35,10 @@ fi
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 SYS=$(hostnamectl | grep -i system | cut -d : -f2)
-[[ -n $SYS ]] || SYS=$(cat /etc/issue)
-shopt -s nocasematch
-[[ $SYS =~ debian ]] && SYSTEM=debian
-[[ $SYS =~ ubuntu ]] && SYSTEM=ubuntu
-[[ $SYS =~ centos|kernel ]] && SYSTEM=centos
-shopt -u nocasematch
+[[ -n $SYS ]] || SYS=$(cat /etc/issue | cut -d '\' -f1)
+[[ $(echo $SYS | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
+[[ $(echo $SYS | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
+[[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel ]] && SYSTEM=centos
 [[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
 
 # 必须以root运行脚本
