@@ -21,9 +21,8 @@ yellow(){
 [[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit 1
 
 # 必须加载 Tun 模块
-cat /dev/net/tun > ~/temp  2>&1
-[[ -n $(grep -i "not permit" ~/temp) ]] && red " 没有加载 Tun 模块，请在管理后台开启或联系供应商，问题反馈:[https://github.com/fscarmen/warp/issues]" && rm -f ~/temp && exit 1
-rm -f ~/temp
+TUN=$(cat /dev/net/tun 2>&1 | tr A-Z a-z)
+[[ $TUN =~ 'not permit' ]] && red " 没有加载 Tun 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit 1
 
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
 ping -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
