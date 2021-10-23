@@ -48,6 +48,7 @@ SYS=$(hostnamectl | grep -i system | cut -d : -f2)
 [[ $(echo $SYS | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
 [[ $(echo $SYS | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel ]] && SYSTEM=centos
+[[ $(echo $SYS | tr A-Z a-z) =~ 'amazon linux' ]] && SYSTEM=centos && COMPANY=amazon
 [[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
 
 green " 检查环境中…… "
@@ -188,6 +189,7 @@ install(){
 		
 	centos(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+		[[ $COMPANY = amazon ]] && yum -y upgrade && amazon-linux-extras install -y epel		
 		yum -y install epel-release
 		yum -y install net-tools wireguard-tools
 
