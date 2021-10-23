@@ -17,6 +17,14 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 
+# 必须以root运行脚本
+[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit 1
+
+# 必须加载 Tun 模块
+cat /dev/net/tun > ~/temp  2>&1
+[[ -n $(grep -i "not permit" ~/temp) ]] && red " 没有加载 Tun 模块，请在管理后台开启或联系供应商，问题反馈:[https://github.com/fscarmen/warp/issues]" && rm -f ~/temp && exit 1
+rm -f ~/temp
+
 # 判断是否大陆 VPS，如连不通 CloudFlare 的 IP，则 WARP 项目不可用
 ping -c1 -W1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
 ping -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
@@ -41,9 +49,6 @@ SYS=$(hostnamectl | grep -i system | cut -d : -f2)
 [[ $(echo $SYS | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel ]] && SYSTEM=centos
 [[ -z $SYSTEM ]] && red " 本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
-
-# 必须以root运行脚本
-[[ $(id -u) != 0 ]] && red " 必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit 1
 
 green " 检查环境中…… "
 
