@@ -252,7 +252,7 @@ install(){
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
 	green " 进度  3/3： 运行 WGCF "
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
-	[[ $COMPANY = amazon ]] && red " $COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启 " && exit || net
+	[[ $COMPANY = amazon ]] && red " $COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启 " && reboot || net
 	COUNTRY4=$(curl -s4 https://ip.gs/country)
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 	COUNTRY6=$(curl -s6 https://ip.gs/country)
