@@ -25,16 +25,16 @@ TUN=$(cat /dev/net/tun 2>&1 | tr A-Z a-z)
 [[ ! $TUN =~ 'in bad state' ]] && red " 没有加载 Tun 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit 1
 
 # 判断是否大陆 VPS。先尝试连接 CloudFlare WARP 服务的 Endpoint IP，如遇到 WARP 断网则先关闭、杀进程后重试一次，仍然不通则 WARP 项目不可用。
-ping6 -c1 -w1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
-ping -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
+ping6 -c1 -w2 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
+ping -c1 -W2 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
 if [[ $IPV4$IPV6 = 00 && -n $(wg) ]]; then
 	wg-quick down wgcf >/dev/null 2>&1
 	kill $(pgrep -f wireguard) >/dev/null 2>&1
 	kill $(pgrep -f boringtun) >/dev/null 2>&1
-	ping6 -c1 -w1 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
-	ping -c1 -W1 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4
+	ping6 -c1 -w2 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
+	ping -c1 -W2 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4
 fi
-[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 和 2606:4700:d0::a29f:c001，如能连通可再次运行脚本 " && exit 1
+[[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本 " && exit 1
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
 SYS=$(hostnamectl | grep -i system | cut -d : -f2)
@@ -235,15 +235,6 @@ install(){
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
-	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
-	green " 进度  3/3： 运行 WGCF "
-	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
-	net
-	COUNTRY4=$(curl -s4 https://ip.gs/country)
-	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	COUNTRY6=$(curl -s6 https://ip.gs/country)
-	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-
 	# 设置开机启动
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 	grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab
@@ -257,6 +248,15 @@ install(){
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " 创建快捷 warp 指令成功 "
+	
+	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
+	green " 进度  3/3： 运行 WGCF "
+	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
+	[[ $COMPANY = amazon ]] && red " $COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启 " && reboot || net
+	COUNTRY4=$(curl -s4 https://ip.gs/country)
+	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+	COUNTRY6=$(curl -s6 https://ip.gs/country)
+	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
