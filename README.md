@@ -2,7 +2,7 @@
 
 * * *
 ## 更新信息：
-2021.10.23  2.06 更新：1)添加自动检查是否开启 Tun 模块； 2)提高脚本适配性，支持 hax VPS； 3)支持Amazon Linux 2"
+2021.10.23  2.06 更新：1)添加自动检查是否开启 Tun 模块； 2)提高脚本适配性; 3)新增 hax、Amazon Linux 2 和 Oracle Linux 支持"
 
 2021.10.15  2.05 更新：1)WGCF自动同步最新的2.2.9； 2）升级了重启后运行 Warp 的处理方法，不再依赖另外的文件。如果之前曾经运行本脚本的，可以输入以下命令删除旧的和升级：`sed -i '/WARP_AutoUp/d' /etc/crontab; grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab; rm -f /etc/wireguard/WARP_AutoUp.sh`
 3) 修复 KVM 由免费账户升级为 Warp+ 账户的bug
