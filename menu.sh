@@ -25,14 +25,14 @@ TUN=$(cat /dev/net/tun 2>&1 | tr A-Z a-z)
 [[ ! $TUN =~ 'in bad state' ]] && red " 没有加载 Tun 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]" && exit 1
 
 # 判断是否大陆 VPS。先尝试连接 CloudFlare WARP 服务的 Endpoint IP，如遇到 WARP 断网则先关闭、杀进程后重试一次，仍然不通则 WARP 项目不可用。
-ping6 -c1 -w2 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
-ping -c1 -W2 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
+ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
+ping -c2 -W10 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
 if [[ $IPV4$IPV6 = 00 && -n $(wg) ]]; then
 	wg-quick down wgcf >/dev/null 2>&1
 	kill $(pgrep -f wireguard) >/dev/null 2>&1
 	kill $(pgrep -f boringtun) >/dev/null 2>&1
-	ping6 -c1 -w2 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
-	ping -c1 -W2 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4
+	ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
+	ping -c2 -W10 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4
 fi
 [[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本 " && exit 1
 
