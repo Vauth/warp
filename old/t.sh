@@ -27,16 +27,18 @@ TUN=$(cat /dev/net/tun 2>&1 | tr A-Z a-z)
 # 判断是否大陆 VPS。先尝试连接 CloudFlare WARP 服务的 Endpoint IP，如遇到 WARP 断网则先关闭、杀进程后重试一次，仍然不通则 WARP 项目不可用。
 ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
 ping -c2 -W10 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
-[[ $IPV4$IPV6 = 00 && -n $(wg) ]] && 
-(wg-quick down wgcf >/dev/null 2>&1
-kill $(pgrep -f wireguard) >/dev/null 2>&1
-kill $(pgrep -f boringtun) >/dev/null 2>&1
-ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
-ping -c2 -W10 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4)
+if [[ $IPV4$IPV6 = 00 && -n $(wg) ]]; then
+	wg-quick down wgcf >/dev/null 2>&1
+	kill $(pgrep -f wireguard) >/dev/null 2>&1
+	kill $(pgrep -f boringtun) >/dev/null 2>&1
+	ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
+	ping -c2 -W10 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4
+fi
 [[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本 " && exit 1
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
-SYS=$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)
+SYS=$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)
+[[ -n $SYS ]] || SYS=$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)
 [[ -n $SYS ]] || SYS=$(lsb_release -sd 2>/dev/null)
 [[ -n $SYS ]] || SYS=$(cat /etc/redhat-release 2>/dev/null)
 [[ -n $SYS ]] || SYS=$(cat /etc/issue 2>/dev/null | cut -d '\' -f1 | sed '/^[ ]*$/d')
