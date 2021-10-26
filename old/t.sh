@@ -40,6 +40,7 @@ fi
 [[ -f /etc/os-release ]] && SYS=$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)
 [[ -z $SYS ]] && SYS=$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)
 [[ -z $SYS ]] && SYS=$(lsb_release -sd 2>/dev/null)
+[[ -z $SYS && -f /etc/lsb-release ]] && SYS=$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)
 [[ -z $SYS && -f /etc/redhat-release ]] && SYS=$(grep . /etc/redhat-release 2>/dev/null)
 [[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d '\' -f1 | sed '/^[ ]*$/d')
 [[ $(echo $SYS | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
