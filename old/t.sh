@@ -37,11 +37,11 @@ fi
 [[ $IPV4$IPV6 = 00 ]] && red " 与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本 " && exit 1
 
 # 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
-SYS=$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)
-[[ -n $SYS ]] || SYS=$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)
-[[ -n $SYS ]] || SYS=$(lsb_release -sd 2>/dev/null)
-[[ -n $SYS ]] || SYS=$(cat /etc/redhat-release 2>/dev/null)
-[[ -n $SYS ]] || SYS=$(cat /etc/issue 2>/dev/null | cut -d '\' -f1 | sed '/^[ ]*$/d')
+[[ -f /etc/os-release ]] && SYS=$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)
+[[ -z $SYS ]] && SYS=$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)
+[[ -z $SYS ]] && SYS=$(lsb_release -sd 2>/dev/null)
+[[ -z $SYS && -f /etc/redhat-release ]] && SYS=$(grep . /etc/redhat-release 2>/dev/null)
+[[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d '\' -f1 | sed '/^[ ]*$/d')
 [[ $(echo $SYS | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
 [[ $(echo $SYS | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel|'oracle linux' ]] && SYSTEM=centos
