@@ -2,10 +2,11 @@
 
 * * *
 ## 更新信息：
+2021.10.29  2.07 更新：Support Chinese and English ；支持中英文，用户可自行选择
+
 2021.10.23  2.06 更新：1)添加自动检查是否开启 Tun 模块； 2)提高脚本适配性; 3)新增 hax、Amazon Linux 2 和 Oracle Linux 支持"
 
-2021.10.15  2.05 更新：1)WGCF自动同步最新的2.2.9； 2）升级了重启后运行 Warp 的处理方法，不再依赖另外的文件。如果之前曾经运行本脚本的，可以输入以下命令删除旧的和升级：`sed -i '/WARP_AutoUp/d' /etc/crontab; grep -qE '^@reboot[ ]*root[ ]*warp[ ]*n' /etc/crontab || echo '@reboot root warp n' >> /etc/crontab; rm -f /etc/wireguard/WARP_AutoUp.sh`
-3) 修复 KVM 由免费账户升级为 Warp+ 账户的bug
+2021.10.15  2.05 更新：1)WGCF自动同步最新的2.2.9； 2）升级了重启后运行 Warp 的处理方法，不再依赖另外的文件; 3) 修复 KVM 由免费账户升级为 Warp+ 账户的bug
 
 2021.10.14  2.04 更新：1)LXC 用户自主选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言，性能比前者差点，稳定性高);2)增加限制：原生双栈VPS只能用Warp双栈，bash menu.sh 1 会建议改为Warp双栈或退出; 3) Warp断网后，运行warp会自动关闭通道和杀掉进程; 4)脚本中止后，用 echo $? 显示 1,即代表不成功 (原来为代表运行成功的0)
 
