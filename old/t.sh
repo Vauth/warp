@@ -217,13 +217,13 @@ OPTION=$1
 
 # 设置后缀
 case "$OPTION" in
-[Hh] )	help;;
-[Bb] )	bbrInstall;;
-[Pp] )	plus;;
-[Uu] )	uninstall;;
-[Vv] )	ver;;
-[Nn] )	net;;
-[Oo] )	onoff;;
+[Hh] )	help; exit 0;;
+[Bb] )	bbrInstall; exit 0;;
+[Pp] )	plus; exit 0;;
+[Uu] )	uninstall; exit 0;;
+[Vv] )	ver; exit 0;;
+[Nn] )	net; exit 0;;
+[Oo] )	onoff; exit 0;;
 esac
 
 # 必须加载 Tun 模块
