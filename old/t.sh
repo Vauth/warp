@@ -10,7 +10,7 @@ yellow(){
 }
 
 [[ -n $1 && $1 != [Hh] ]] || read -p " 1.English	2.简体中文	Choose language (default is 1.English): " LANGUAGE
-[[ $LANGUAGE != 2 ]] && T1="Support Chinese and English" || T1="支持中英文，用户可自行选择"
+[[ $LANGUAGE != 2 ]] && T1="1.Support Chinese and English; 2.Optimize running speed" || T1="1.支持中英文，用户可自行选择; 2.大幅优化速度"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The Tun module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 Tun 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -133,7 +133,7 @@ plus() {
 	green " $T54\n "
 	yellow " 1.$T55 "
 	yellow " 2.$T56 "
-	yellow " 3.$T49 "
+	[[ -n $IPV4$IPV6 ]] && yellow " 3.$T49 " || yellow " 3.$T76 "
 	red "=============================================================="
 	read -p " $T50: " CHOOSEPLUS
 	case "$CHOOSEPLUS" in
@@ -147,7 +147,7 @@ plus() {
 		    wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
 		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
 		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
-		3 ) menu$PLAN;;
+		[[ -n $IPV4$IPV6 ]] && 3 ) menu$PLAN;; || 3 ) exit;;
 		* ) red " $T51 [1-3] "; sleep 1; plus;;
 	esac
 	}
