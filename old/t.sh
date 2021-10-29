@@ -171,9 +171,9 @@ uninstall(){
 
 # 同步脚本至最新版本
 ver(){
-	wget -N $CDN -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
-	chmod +x /etc/wireguard/menu.sh &&
-	ln -sf /etc/wireguard/menu.sh /usr/bin/warp &&
+	wget -N $CDN -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || wget -N $CDN -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh
+	chmod +x /etc/wireguard/menu.sh
+	ln -sf /etc/wireguard/menu.sh /usr/bin/warp
 	[[ $LANGUAGE != 2 ]] && CUT=-f2 || CUT=-f4
 	green " $T64:$(grep ^VERSION /etc/wireguard/menu.sh | cut -d = -f2)  $T18：$(grep T1= /etc/wireguard/menu.sh | cut -d \" $CUT | head -1) " || red " $T65 "
 	exit
