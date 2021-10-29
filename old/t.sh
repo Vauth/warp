@@ -20,7 +20,6 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T8="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..." || T8="先升级软件库才能继续安装 curl，时间较长，请耐心等待……"
 [[ $LANGUAGE != 2 ]] && T9="Failed to install curl. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T9="安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T10="WireGuard tools are not installed or the configuration file wgcf.conf cannot be found, please reinstall." || T10="没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装。"
-[[ $LANGUAGE != 2 ]] && T13="There have been more than \$i failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T13="失败已超过\$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T14="Get the WARP IP successfully." || T14="已成功获取 WARP 网络"
 [[ $LANGUAGE != 2 ]] && T15="WARP is turned off. It could be turned on again by [warp o]" || T15="已暂停 WARP，再次开启可以用 warp o"
 [[ $LANGUAGE != 2 ]] && T16="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support Warp+ account. Third-party increase quota Warp+ and upgrade kernel BBR script.\n	* Not only menus, but also commands with suffixes.\n	* Intelligent analysis of vps operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8. Be sure to choose the LTS system；Intelligent analysis of architecture：AMD or ARM\n	* Automatically select three WireGuard solutions. Performance: Kernel integration WireGuard＞Install kernel module＞boringtun＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Intelligent analysis of lan and wan IP to generate WGCF configuration file.\n	* Output the result: WARP status and the IP region\n" || T16="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 Warp+ 账户，附带第三方刷 Warp+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；智能判断硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞boringtun＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
@@ -171,6 +170,7 @@ net(){
 	i=1;j=10
 	[[ $LANGUAGE != 2 ]] && T11="Maximum $j attempts to get WARP IP..." || T11="后台获取 WARP IP 中,最大尝试$j次……"
 	[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
+	[[ $LANGUAGE != 2 ]] && T13="There have been more than $j failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T13="失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 	yellow " $T11 "
 	yellow " $T12 "
 	echo $UP | sh >/dev/null 2>&1
