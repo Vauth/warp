@@ -462,74 +462,6 @@ install(){
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " $T44 "
 	}
 
-# 关闭 WARP 网络接口，并删除 WGCF
-uninstall(){
-	unset WAN4 WAN6 COUNTRY4 COUNTRY6
-	systemctl disable wg-quick@wgcf >/dev/null 2>&1
-	echo $DOWN | sh >/dev/null 2>&1
-	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
-	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	sed -i '/warp[ ]n/d' /etc/crontab
-	WAN4=$(curl -s4m10 https://ip.gs)
-	WAN6=$(curl -s6m10 https://ip.gs)
-	COUNTRY4=$(curl -s4m10 https://ip.gs/country)
-	COUNTRY6=$(curl -s6m10 https://ip.gs/country)
-	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " $T46 "
-	}
-
-# 安装BBR
-bbrInstall() {
-	red "\n=============================================================="
-	green " $T47 "
-	yellow " 1.$T48 "
-	yellow " 2.$T49 "
-	red "=============================================================="
-	read -p " $T50: " BBR
-	case "$BBR" in
-		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-		2 ) menu$PLAN;;
-		* ) red " $T51 [1-2]"; sleep 1; bbrInstall;;
-	esac
-	}
-
-
-# 刷 WARP+ 流量
-input() {
-	read -p " $T52 " ID
-	i=5
-	until [[ ${#ID} = 36 ]]
-		do
-		let i--
-		[[ $LANGUAGE != 2 ]] && T53="Warp+ ID should be 36 characters, please re-enter ($i times remaining):" || T53="Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）:"
-		[[ $i = 0 ]] && red " $T29 " && exit 1 || read -p " $T53 " ID
-	done
-	}
-
-plus() {
-	red "\n=============================================================="
-	green " $T54\n "
-	yellow " 1.$T55 "
-	yellow " 2.$T56 "
-	yellow " 3.$T49 "
-	red "=============================================================="
-	read -p " $T50: " CHOOSEPLUS
-	case "$CHOOSEPLUS" in
-		1 ) input
-		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
-		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
-		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
-		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
-		2 ) input
-		    read -p " $T57" MISSION
-		    wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
-		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
-		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
-		3 ) menu$PLAN;;
-		* ) red " $T51 [1-3] "; sleep 1; plus;;
-	esac
-	}
-
 # 免费 Warp 账户升级 Warp+ 账户
 update() {
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
@@ -556,15 +488,6 @@ update() {
 	green " $T62\n $T27：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n $T63：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " $T36 "
 	}
 
-# 同步脚本至最新版本
-ver(){
-	wget -N $CDN -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
-	chmod +x /etc/wireguard/menu.sh &&
-	ln -sf /etc/wireguard/menu.sh /usr/bin/warp &&
-	[[ $LANGUAGE != 2 ]] && CUT=-f2 || CUT=-f4
-	green " $T64:$(grep ^VERSION /etc/wireguard/menu.sh | cut -d = -f2)  $T18：$(grep T1= /etc/wireguard/menu.sh | cut -d \" $CUT) " || red " $T65 "
-	exit
-	}
 # 单栈
 menu1(){
 	status
@@ -635,7 +558,6 @@ menu3(){
 		* )	red " $T51 [0-6] "; sleep 1; menu3;;
 		esac
 	}
-
 
 # 设置后缀
 case "$OPTION" in
