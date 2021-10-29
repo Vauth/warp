@@ -25,7 +25,7 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T15="WARP is turned off. It could be turned on again by [warp o]" || T15="已暂停 WARP，再次开启可以用 warp o"
 [[ $LANGUAGE != 2 ]] && T16="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support Warp+ account. Third-party increase quota Warp+ and upgrade kernel BBR script.\n	* Not only menus, but also commands with suffixes.\n	* Intelligent analysis of vps operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8. Be sure to choose the LTS system；Intelligent analysis of architecture：AMD or ARM\n	* Automatically select three WireGuard solutions. Performance: Kernel integration WireGuard＞Install kernel module＞boringtun＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Intelligent analysis of lan and wan IP to generate WGCF configuration file.\n	* Output the result: WARP status and the IP region\n" || T16="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 Warp+ 账户，附带第三方刷 Warp+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；智能判断硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞boringtun＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
 [[ $LANGUAGE != 2 ]] && T17="Version" || T17="脚本版本"
-[[ $LANGUAGE != 2 ]] && T18="new features" || T18="功能新增"
+[[ $LANGUAGE != 2 ]] && T18="New features" || T18="功能新增"
 [[ $LANGUAGE != 2 ]] && T19="System infomations" || T19="系统信息"
 [[ $LANGUAGE != 2 ]] && T20="Operating System" || T20="当前操作系统"
 [[ $LANGUAGE != 2 ]] && T21="Kernel" || T21="内核"
@@ -46,7 +46,6 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T37="Checking VPS infomations..." || T37="检查环境中……"
 [[ $LANGUAGE != 2 ]] && T38="Create shortcut [warp] successfully" || T38="创建快捷 warp 指令成功"
 [[ $LANGUAGE != 2 ]] && T39="Step 3/3: Running WARP" || T39="进度  3/3： 运行 WARP"
-[[ $LANGUAGE != 2 ]] && T40="$COMPANY vps needs to restart and run [warp n] to open WARP." || T40="$COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启"
 [[ $LANGUAGE != 2 ]] && T43="Run again with warp [option] [lisence], such as" || T43="再次运行用 warp [option] [lisence]，如"
 [[ $LANGUAGE != 2 ]] && T44="WARP installation failed. Feedback: [https://github.com/fscarmen/warp/issues]" || T44="WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T45="WGCF has been completely deleted!" || T45="WGCF 已彻底删除!"
@@ -79,12 +78,11 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T73="Upgrade kernel, turn on BBR, change Linux system" || T73="升级内核、安装BBR、DD脚本"
 [[ $LANGUAGE != 2 ]] && T74="Getting WARP+ quota by scripts" || T74="刷 Warp+ 流量"
 [[ $LANGUAGE != 2 ]] && T75="Sync the latest version" || T75="同步最新版本"
-[[ $LANGUAGE != 2 ]] && T76="exit" || T76="退出脚本"
+[[ $LANGUAGE != 2 ]] && T76="Exit" || T76="退出脚本"
 [[ $LANGUAGE != 2 ]] && T77="Turn off WARP" || T77="暂时关闭 WARP"
 [[ $LANGUAGE != 2 ]] && T78="Upgrade to WARP+ account" || T78="升级为 WARP+ 账户"
 [[ $LANGUAGE != 2 ]] && T79="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit" || T79="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出"
 [[ $LANGUAGE != 2 ]] && T80="The WARP is working. It will be closed, please run the previous command to install or enter !!" || T80="检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !!"
-
 
 # 当前脚本版本号和新增功能
 VERSION=2.07
@@ -337,6 +335,7 @@ install(){
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
 	green " $T39 "
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
+	[[ $LANGUAGE != 2 ]] && T40="$COMPANY vps needs to restart and run [warp n] to open WARP." || T40="$COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启"
 	[[ $COMPANY = amazon ]] && red " $T40 " && reboot || net
 	COUNTRY4=$(curl -s4 https://ip.gs/country)
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
@@ -461,7 +460,7 @@ ver(){
 	chmod +x /etc/wireguard/menu.sh &&
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp &&
 	[[ $LANGUAGE != 2 ]] && CUT=-f2 || CUT=-f4
-	green " $T64:$(grep ^VERSION /etc/wireguard/menu.sh | cut -d = -f2)  $T18：$(grep ^TXT /etc/wireguard/menu.sh | cut -d \" $CUT) " || red " $T65 "
+	green " $T64:$(grep ^VERSION /etc/wireguard/menu.sh | cut -d = -f2)  $T18：$(grep T1= /etc/wireguard/menu.sh | cut -d \" $CUT) " || red " $T65 "
 	exit
 	}
 # 单栈
