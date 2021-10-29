@@ -87,34 +87,16 @@ yellow(){
 VERSION=2.07
 TXT=" $T1 "
 
+# 参数选项 LICENSE
+LICENSE=$2
+
+# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
+OPTION=$1
+
 help(){
 	yellow " $T6 " 
 	}
 
-# 必须以root运行脚本
-[[ $(id -u) != 0 ]] && red " $T2 " && exit 1
-
-# 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
-VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
-[[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr A-Z a-z | grep virtualization | cut -d : -f2)
-[[ $VIRT =~ openvz|lxc ]] && LXC=1
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
-
-# 安装BBR
-bbrInstall() {
-	red "\n=============================================================="
-	green " $T47\n "
-	yellow " 1.$T48 "
-	[[ -n $IPV4$IPV6 ]] && yellow " 2.$T49 " || yellow " 2.$T76 "
-	red "=============================================================="
-	read -p " $T50: " BBR
-	case "$BBR" in
-		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-		2 ) [[ -n $IPV4$IPV6 ]] && menu$PLAN || exit;;
-		* ) red " $T51 [1-2]"; sleep 1; bbrInstall;;
-	esac
-	}
 
 # 刷 WARP+ 流量
 input() {
@@ -152,6 +134,37 @@ plus() {
 	esac
 	}
 
+# 设置部分后缀 1/3
+case "$OPTION" in
+[Hh] )	help; exit 0;;
+[Pp] )	plus; exit 0;;
+esac
+
+# 必须以root运行脚本
+[[ $(id -u) != 0 ]] && red " $T2 " && exit 1
+
+# 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
+VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
+[[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr A-Z a-z | grep virtualization | cut -d : -f2)
+[[ $VIRT =~ openvz|lxc ]] && LXC=1
+[[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
+[[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
+
+# 安装BBR
+bbrInstall() {
+	red "\n=============================================================="
+	green " $T47\n "
+	yellow " 1.$T48 "
+	[[ -n $IPV4$IPV6 ]] && yellow " 2.$T49 " || yellow " 2.$T76 "
+	red "=============================================================="
+	read -p " $T50: " BBR
+	case "$BBR" in
+		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
+		2 ) [[ -n $IPV4$IPV6 ]] && menu$PLAN || exit;;
+		* ) red " $T51 [1-2]"; sleep 1; bbrInstall;;
+	esac
+	}
+
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6
@@ -167,7 +180,6 @@ uninstall(){
 	COUNTRY6=$(curl -s6m10 https://ip.gs/country)
 	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " $T46 "
 	}
-
 
 # 同步脚本至最新版本
 ver(){
@@ -201,7 +213,7 @@ net(){
 			WAN6=$(curl -s6m10 https://ip.gs)
 			[[ $i = $j ]] && (echo $DOWN | sh >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
-green " $T14\n IPv4:$WAN4\n IPv6:$WAN6 "
+	green " $T14\n IPv4:$WAN4\n IPv6:$WAN6 "
 	}
 
 # WARP 开关
@@ -209,17 +221,9 @@ onoff(){
 	[[ -n $(wg) ]] 2>/dev/null && (echo $DOWN | sh >/dev/null 2>&1; green " $T15 ") || net
 	}
 
-# 参数选项 LICENSE
-LICENSE=$2
-
-# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
-OPTION=$1
-
-# 设置后缀
+# 设置部分后缀 2/3
 case "$OPTION" in
-[Hh] )	help; exit 0;;
 [Bb] )	bbrInstall; exit 0;;
-[Pp] )	plus; exit 0;;
 [Uu] )	uninstall; exit 0;;
 [Vv] )	ver; exit 0;;
 [Nn] )	net; exit 0;;
@@ -559,7 +563,7 @@ menu3(){
 		esac
 	}
 
-# 设置后缀
+# 设置部分后缀 3/3
 case "$OPTION" in
 1 )	[[ $PLAN = 2 ]] && read -p " $T79 " DUAL &&
 	[[ $DUAL != [Yy] ]] && exit 1 || MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
