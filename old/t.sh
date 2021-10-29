@@ -175,7 +175,7 @@ ver(){
 	chmod +x /etc/wireguard/menu.sh &&
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp &&
 	[[ $LANGUAGE != 2 ]] && CUT=-f2 || CUT=-f4
-	green " $T64:$(grep ^VERSION /etc/wireguard/menu.sh | cut -d = -f2)  $T18：$(grep T1= /etc/wireguard/menu.sh | cut -d \" $CUT) " || red " $T65 "
+	green " $T64:$(grep ^VERSION /etc/wireguard/menu.sh | cut -d = -f2)  $T18：$(grep T1= /etc/wireguard/menu.sh | cut -d \" $CUT | head -1) " || red " $T65 "
 	exit
 	}
 
