@@ -36,7 +36,7 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T27="Device name" || T27="设备名"
 [[ $LANGUAGE != 2 ]] && T28="If there is a WARP+ License, please enter it, otherwise press Enter to continue" || T28="如有 WARP+ License 请输入，没有可回车继续"
 [[ $LANGUAGE != 2 ]] && T29="Input errors up to 5 times.The script is aborted." || T29="输入错误达5次，脚本退出"
-[[ $LANGUAGE != 2 ]] && T31="LXC VPS choose:1. Wireguard-GO or 2. BoringTun （default is 1. Wireguard-GO）,choose" || T31="LXC方案:1. Wireguard-GO 或者 2. BoringTun （默认值选项为 1. Wireguard-GO）,请选择"
+[[ $LANGUAGE != 2 ]] && T31="LXC VPS choose:1. Wireguard-GO 	or 	2. BoringTun （default is 1. Wireguard-GO）,choose" || T31="LXC方案:1. Wireguard-GO 	或者 	2. BoringTun （默认值选项为 1. Wireguard-GO）,请选择"
 [[ $LANGUAGE != 2 ]] && T32="Step 1/3: Install dependencies" || T32="进度  1/3： 安装系统依赖"
 [[ $LANGUAGE != 2 ]] && T33="Step 2/3: Install WGCF" || T33="进度  2/3： 安装 WGCF"
 [[ $LANGUAGE != 2 ]] && T34="Register new WARP account..." || T34="WARP 注册中……"
@@ -106,12 +106,12 @@ bbrInstall() {
 	red "\n=============================================================="
 	green " $T47 "
 	yellow " 1.$T48 "
-	yellow " 2.$T49 "
+	[[ -n $IPV4$IPV6 ]] && yellow " 2.$T49 " || yellow " 2.$T76 "
 	red "=============================================================="
 	read -p " $T50: " BBR
 	case "$BBR" in
 		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-		2 ) menu$PLAN;;
+		2 ) [[ -n $IPV4$IPV6 ]] && menu$PLAN || exit;;
 		* ) red " $T51 [1-2]"; sleep 1; bbrInstall;;
 	esac
 	}
@@ -147,7 +147,7 @@ plus() {
 		    wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
 		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
 		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
-		[[ -n $IPV4$IPV6 ]] && 3 ) menu$PLAN;; || 3 ) exit;;
+		3 ) [[ -n $IPV4$IPV6 ]] && menu$PLAN || exit;;
 		* ) red " $T51 [1-3] "; sleep 1; plus;;
 	esac
 	}
