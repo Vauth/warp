@@ -10,7 +10,7 @@ yellow(){
 }
 
 [[ -n $1 && $1 != [Hh] ]] || read -p " 1.English	2.简体中文	Choose language (default is 1.English): " LANGUAGE
-[[ $LANGUAGE != 2 ]] && T1="Support Chinese and English" || T1="支持中英文，用户可自行选择"
+[[ $LANGUAGE != 2 ]] && T1="1.Support Chinese and English; 2.Optimize running speed" || T1="1.支持中英文，用户可自行选择; 2.大幅优化速度"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The Tun module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 Tun 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -36,7 +36,7 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T27="Device name" || T27="设备名"
 [[ $LANGUAGE != 2 ]] && T28="If there is a WARP+ License, please enter it, otherwise press Enter to continue" || T28="如有 WARP+ License 请输入，没有可回车继续"
 [[ $LANGUAGE != 2 ]] && T29="Input errors up to 5 times.The script is aborted." || T29="输入错误达5次，脚本退出"
-[[ $LANGUAGE != 2 ]] && T31="LXC VPS choose:1. Wireguard-GO or 2. BoringTun （default is 1. Wireguard-GO）,choose" || T31="LXC方案:1. Wireguard-GO 或者 2. BoringTun （默认值选项为 1. Wireguard-GO）,请选择"
+[[ $LANGUAGE != 2 ]] && T31="LXC VPS choose: 1. Wireguard-GO 	or 	2. BoringTun （default is 1. Wireguard-GO）,choose" || T31="LXC方案:1. Wireguard-GO 	或者 	2. BoringTun （默认值选项为 1. Wireguard-GO）,请选择"
 [[ $LANGUAGE != 2 ]] && T32="Step 1/3: Install dependencies" || T32="进度  1/3： 安装系统依赖"
 [[ $LANGUAGE != 2 ]] && T33="Step 2/3: Install WGCF" || T33="进度  2/3： 安装 WGCF"
 [[ $LANGUAGE != 2 ]] && T34="Register new WARP account..." || T34="WARP 注册中……"
@@ -50,14 +50,14 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T45="WGCF has been completely deleted!" || T45="WGCF 已彻底删除!"
 [[ $LANGUAGE != 2 ]] && T46="Not cleaned up, please reboot and try again." || T46="没有清除干净，请重启(reboot)后尝试再次删除"
 [[ $LANGUAGE != 2 ]] && T47="Upgrade kernel, turn on BBR, change Linux system by other authors [ylx2016],[https://github.com/ylx2016/Linux-NetSpeed]" || T47="BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
-[[ $LANGUAGE != 2 ]] && T48="Running scripts " || T48="安装脚本【推荐原版BBR+FQ】"
+[[ $LANGUAGE != 2 ]] && T48="Run script " || T48="安装脚本【推荐原版BBR+FQ】"
 [[ $LANGUAGE != 2 ]] && T49="Return to main menu" || T49="回退主目录"
 [[ $LANGUAGE != 2 ]] && T50="Choose" || T50="请选择"
 [[ $LANGUAGE != 2 ]] && T51="Please enter the correct number" || T51="请输入正确数字"
 [[ $LANGUAGE != 2 ]] && T52="Please input WARP+ ID:" || T52="请输入 WARP+ ID:"
 [[ $LANGUAGE != 2 ]] && T54="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen." || T54="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
-[[ $LANGUAGE != 2 ]] && T55="run [ALIILAPRO] script" || T55="运行[ALIILAPRO]脚本"
-[[ $LANGUAGE != 2 ]] && T56="run[mixool] script" || T56="运行[mixool]脚本"
+[[ $LANGUAGE != 2 ]] && T55="Run [ALIILAPRO] script" || T55="运行 [ALIILAPRO] 脚本"
+[[ $LANGUAGE != 2 ]] && T56="Run [mixool] script" || T56="运行 [mixool] 脚本"
 [[ $LANGUAGE != 2 ]] && T57="The target quota you want to get. The unit is GB, the default value is 10:" || T57="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10 :"
 [[ $LANGUAGE != 2 ]] && T58="This is the WARP+ account, no need to upgrade." || T58="已经是 WARP+ 账户，不需要升级"
 [[ $LANGUAGE != 2 ]] && T59="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License" || T59="找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
@@ -93,6 +93,138 @@ help(){
 
 # 必须以root运行脚本
 [[ $(id -u) != 0 ]] && red " $T2 " && exit 1
+
+# 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
+VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
+[[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr A-Z a-z | grep virtualization | cut -d : -f2)
+[[ $VIRT =~ openvz|lxc ]] && LXC=1
+[[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
+[[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
+
+# 安装BBR
+bbrInstall() {
+	red "\n=============================================================="
+	green " $T47\n "
+	yellow " 1.$T48 "
+	[[ -n $IPV4$IPV6 ]] && yellow " 2.$T49 " || yellow " 2.$T76 "
+	red "=============================================================="
+	read -p " $T50: " BBR
+	case "$BBR" in
+		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
+		2 ) [[ -n $IPV4$IPV6 ]] && menu$PLAN || exit;;
+		* ) red " $T51 [1-2]"; sleep 1; bbrInstall;;
+	esac
+	}
+
+# 刷 WARP+ 流量
+input() {
+	read -p " $T52 " ID
+	i=5
+	until [[ ${#ID} = 36 ]]
+		do
+		let i--
+		[[ $LANGUAGE != 2 ]] && T53="Warp+ ID should be 36 characters, please re-enter ($i times remaining):" || T53="Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）:"
+		[[ $i = 0 ]] && red " $T29 " && exit 1 || read -p " $T53 " ID
+	done
+	}
+
+plus() {
+	red "\n=============================================================="
+	green " $T54\n "
+	yellow " 1.$T55 "
+	yellow " 2.$T56 "
+	[[ -n $IPV4$IPV6 ]] && yellow " 3.$T49 " || yellow " 3.$T76 "
+	red "=============================================================="
+	read -p " $T50: " CHOOSEPLUS
+	case "$CHOOSEPLUS" in
+		1 ) input
+		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
+		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
+		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
+		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
+		2 ) input
+		    read -p " $T57" MISSION
+		    wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
+		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
+		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
+		3 ) [[ -n $IPV4$IPV6 ]] && menu$PLAN || exit;;
+		* ) red " $T51 [1-3] "; sleep 1; plus;;
+	esac
+	}
+
+# 关闭 WARP 网络接口，并删除 WGCF
+uninstall(){
+	unset WAN4 WAN6 COUNTRY4 COUNTRY6
+	systemctl disable wg-quick@wgcf >/dev/null 2>&1
+	echo $DOWN | sh >/dev/null 2>&1
+	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
+	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
+	sed -i '/warp[ ]n/d' /etc/crontab
+	WAN4=$(curl -s4m10 https://ip.gs)
+	WAN6=$(curl -s6m10 https://ip.gs)
+	COUNTRY4=$(curl -s4m10 https://ip.gs/country)
+	COUNTRY6=$(curl -s6m10 https://ip.gs/country)
+	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " $T46 "
+	}
+
+
+# 同步脚本至最新版本
+ver(){
+	wget -N $CDN -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
+	chmod +x /etc/wireguard/menu.sh &&
+	ln -sf /etc/wireguard/menu.sh /usr/bin/warp &&
+	[[ $LANGUAGE != 2 ]] && CUT=-f2 || CUT=-f4
+	green " $T64:$(grep ^VERSION /etc/wireguard/menu.sh | cut -d = -f2)  $T18：$(grep T1= /etc/wireguard/menu.sh | cut -d \" $CUT) " || red " $T65 "
+	exit
+	}
+
+# 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行,i=当前尝试次数，j=要尝试的次数
+net(){
+	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " $T10 " && exit 1 ||
+	i=1;j=10
+	[[ $LANGUAGE != 2 ]] && T11="Maximum $j attempts to get WARP IP..." || T11="后台获取 WARP IP 中,最大尝试$j次……"
+	[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
+	[[ $LANGUAGE != 2 ]] && T13="There have been more than $j failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T13="失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+	yellow " $T11 "
+	yellow " $T12 "
+	echo $UP | sh >/dev/null 2>&1
+	WAN4=$(curl -s4m10 https://ip.gs) &&
+	WAN6=$(curl -s6m10 https://ip.gs)
+	until [[ -n $WAN4 && -n $WAN6 ]]
+		do	let i++
+			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
+			yellow " $T12 "
+			echo $DOWN | sh >/dev/null 2>&1
+			echo $UP | sh >/dev/null 2>&1
+			WAN4=$(curl -s4m10 https://ip.gs) &&
+			WAN6=$(curl -s6m10 https://ip.gs)
+			[[ $i = $j ]] && (echo $DOWN | sh >/dev/null 2>&1; red " $T13 ") && exit 1
+        	done
+green " $T14\n IPv4:$WAN4\n IPv6:$WAN6 "
+	}
+
+# WARP 开关
+onoff(){
+	[[ -n $(wg) ]] 2>/dev/null && (echo $DOWN | sh >/dev/null 2>&1; green " $T15 ") || net
+	}
+
+# 参数选项 LICENSE
+LICENSE=$2
+
+# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
+OPTION=$1
+
+# 设置后缀
+case "$OPTION" in
+[Hh] )	help; exit 0;;
+[Bb] )	bbrInstall; exit 0;;
+[Pp] )	plus; exit 0;;
+[Uu] )	uninstall; exit 0;;
+[Vv] )	ver; exit 0;;
+[Nn] )	net; exit 0;;
+[Oo] )	onoff; exit 0;;
+esac
 
 # 必须加载 Tun 模块
 TUN=$(cat /dev/net/tun 2>&1 | tr A-Z a-z)
@@ -163,36 +295,6 @@ MODIFYD01='sed -i "7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wg
 MODIFYS10='sed -i "/0\.\0\/0/d" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 MODIFYD10='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/" wgcf-profile.conf && sed -i "9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/" wgcf-profile.conf && sed -i "s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf && sed -i "s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
-
-# 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行,i=当前尝试次数，j=要尝试的次数
-net(){
-	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " $T10 " && exit 1 ||
-	i=1;j=10
-	[[ $LANGUAGE != 2 ]] && T11="Maximum $j attempts to get WARP IP..." || T11="后台获取 WARP IP 中,最大尝试$j次……"
-	[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
-	[[ $LANGUAGE != 2 ]] && T13="There have been more than $j failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T13="失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
-	yellow " $T11 "
-	yellow " $T12 "
-	echo $UP | sh >/dev/null 2>&1
-	WAN4=$(curl -s4m10 https://ip.gs) &&
-	WAN6=$(curl -s6m10 https://ip.gs)
-	until [[ -n $WAN4 && -n $WAN6 ]]
-		do	let i++
-			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
-			yellow " $T12 "
-			echo $DOWN | sh >/dev/null 2>&1
-			echo $UP | sh >/dev/null 2>&1
-			WAN4=$(curl -s4m10 https://ip.gs) &&
-			WAN6=$(curl -s6m10 https://ip.gs)
-			[[ $i = $j ]] && (echo $DOWN | sh >/dev/null 2>&1; red " $T13 ") && exit 1
-        	done
-green " $T14\n IPv4:$WAN4\n IPv6:$WAN6 "
-	}
-
-# WARP 开关
-onoff(){
-	[[ -n $(wg) ]] 2>/dev/null && (echo $DOWN | sh >/dev/null 2>&1; green " $T15 ") || net
-	}
 
 # VPS 当前状态
 status(){
@@ -360,74 +462,6 @@ install(){
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " $T44 "
 	}
 
-# 关闭 WARP 网络接口，并删除 WGCF
-uninstall(){
-	unset WAN4 WAN6 COUNTRY4 COUNTRY6
-	systemctl disable wg-quick@wgcf >/dev/null 2>&1
-	echo $DOWN | sh >/dev/null 2>&1
-	[[ $SYSTEM = centos ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
-	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	sed -i '/warp[ ]n/d' /etc/crontab
-	WAN4=$(curl -s4m10 https://ip.gs)
-	WAN6=$(curl -s6m10 https://ip.gs)
-	COUNTRY4=$(curl -s4m10 https://ip.gs/country)
-	COUNTRY6=$(curl -s6m10 https://ip.gs/country)
-	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " $T46 "
-	}
-
-# 安装BBR
-bbrInstall() {
-	red "\n=============================================================="
-	green " $T47 "
-	yellow " 1.$T48 "
-	yellow " 2.$T49 "
-	red "=============================================================="
-	read -p " $T50: " BBR
-	case "$BBR" in
-		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-		2 ) menu$PLAN;;
-		* ) red " $T51 [1-2]"; sleep 1; bbrInstall;;
-	esac
-	}
-
-
-# 刷 WARP+ 流量
-input() {
-	read -p " $T52 " ID
-	i=5
-	until [[ ${#ID} = 36 ]]
-		do
-		let i--
-		[[ $LANGUAGE != 2 ]] && T53="Warp+ ID should be 36 characters, please re-enter ($i times remaining):" || T53="Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）:"
-		[[ $i = 0 ]] && red " $T29 " && exit 1 || read -p " $T53 " ID
-	done
-	}
-
-plus() {
-	red "\n=============================================================="
-	green " $T54\n "
-	yellow " 1.$T55 "
-	yellow " 2.$T56 "
-	yellow " 3.$T49 "
-	red "=============================================================="
-	read -p " $T50: " CHOOSEPLUS
-	case "$CHOOSEPLUS" in
-		1 ) input
-		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
-		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
-		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
-		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
-		2 ) input
-		    read -p " $T57" MISSION
-		    wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
-		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
-		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
-		3 ) menu$PLAN;;
-		* ) red " $T51 [1-3] "; sleep 1; plus;;
-	esac
-	}
-
 # 免费 Warp 账户升级 Warp+ 账户
 update() {
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
@@ -454,15 +488,6 @@ update() {
 	green " $T62\n $T27：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n $T63：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " $T36 "
 	}
 
-# 同步脚本至最新版本
-ver(){
-	wget -N $CDN -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh &&
-	chmod +x /etc/wireguard/menu.sh &&
-	ln -sf /etc/wireguard/menu.sh /usr/bin/warp &&
-	[[ $LANGUAGE != 2 ]] && CUT=-f2 || CUT=-f4
-	green " $T64:$(grep ^VERSION /etc/wireguard/menu.sh | cut -d = -f2)  $T18：$(grep T1= /etc/wireguard/menu.sh | cut -d \" $CUT) " || red " $T65 "
-	exit
-	}
 # 单栈
 menu1(){
 	status
@@ -534,12 +559,6 @@ menu3(){
 		esac
 	}
 
-# 参数选项 LICENSE
-LICENSE=$2
-
-# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
-OPTION=$1
-
 # 设置后缀
 case "$OPTION" in
 1 )	[[ $PLAN = 2 ]] && read -p " $T79 " DUAL &&
@@ -549,13 +568,6 @@ case "$OPTION" in
 	install;;
 2 )	[[ $PLAN = 3 ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-[Bb] )	bbrInstall;;
-[Pp] )	plus;;
 [Dd] )	update;;
-[Uu] )	uninstall;;
-[Vv] )	ver;;
-[Oo] )	onoff;;
-[Nn] )	net;;
-[Hh] )	help;;
 * )	menu$PLAN;;
 esac
