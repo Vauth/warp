@@ -209,6 +209,12 @@ onoff(){
 	[[ -n $(wg) ]] 2>/dev/null && (echo $DOWN | sh >/dev/null 2>&1; green " $T15 ") || net
 	}
 
+# 参数选项 LICENSE
+LICENSE=$2
+
+# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
+OPTION=$1
+
 # 设置后缀
 case "$OPTION" in
 [Hh] )	help;;
@@ -630,11 +636,6 @@ menu3(){
 		esac
 	}
 
-# 参数选项 LICENSE
-LICENSE=$2
-
-# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
-OPTION=$1
 
 # 设置后缀
 case "$OPTION" in
