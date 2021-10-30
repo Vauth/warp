@@ -431,6 +431,7 @@ install(){
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
 	# 设置开机启动
+	systemctl start wg-quick@wgcf
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 	grep -qE '^@reboot root bash /usr/bin/warp n' /etc/crontab || echo '@reboot root bash /usr/bin/warp n' >> /etc/crontab
 
