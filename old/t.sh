@@ -345,6 +345,12 @@ install(){
 	rm -rf /usr/local/bin/wgcf /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
+	# 对于 IPv4 only VPS 开启 IPv6 支持
+    	[[ $IPV4$IPV6 = 10 ]] && [[ $(sysctl -a | grep 'disable_ipv6.*=.*1') || $(grep -s "disable_ipv6.*=.*1" /etc/sysctl.{conf,d/*} ) ]] &&
+	(sed -i '/disable_ipv6/d' /etc/sysctl.{conf,d/*}
+        echo 'net.ipv6.conf.all.disable_ipv6 = 0' >/etc/sysctl.d/ipv6.conf
+        sysctl -w net.ipv6.conf.all.disable_ipv6=0)
+	
         # 根据系统选择需要安装的依赖
 	debian(){
 		# 更新源
