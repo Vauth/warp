@@ -10,7 +10,7 @@ yellow(){
 }
 
 [[ -n $1 && $1 != [Hh] ]] || read -p " 1.English	2.简体中文	Choose language (default is 1.English): " LANGUAGE
-[[ $LANGUAGE != 2 ]] && T1="1.Support Chinese and English; 2.Optimize running speed" || T1="1.支持中英文，用户可自行选择; 2.大幅优化速度"
+[[ $LANGUAGE != 2 ]] && T1="1.Support Chinese and English; 2.Optimize running speed; 3.fix startup at reboot bug" || T1="1.支持中英文，用户可自行选择; 2.大幅优化速度; 3.修复重启后启动的bug"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The Tun module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 Tun 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -36,7 +36,7 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T27="Device name" || T27="设备名"
 [[ $LANGUAGE != 2 ]] && T28="If there is a WARP+ License, please enter it, otherwise press Enter to continue" || T28="如有 WARP+ License 请输入，没有可回车继续"
 [[ $LANGUAGE != 2 ]] && T29="Input errors up to 5 times.The script is aborted." || T29="输入错误达5次，脚本退出"
-[[ $LANGUAGE != 2 ]] && T31="LXC VPS choose: 1. Wireguard-GO 	or 	2. BoringTun （default is 1. Wireguard-GO）,choose" || T31="LXC方案:1. Wireguard-GO 	或者 	2. BoringTun （默认值选项为 1. Wireguard-GO）,请选择"
+[[ $LANGUAGE != 2 ]] && T31="LXC VPS choose: 1. Wireguard-GO  or  2. BoringTun （default is 1. Wireguard-GO）,choose" || T31="LXC方案:1. Wireguard-GO  或者  2. BoringTun （默认值选项为 1. Wireguard-GO）,请选择"
 [[ $LANGUAGE != 2 ]] && T32="Step 1/3: Install dependencies" || T32="进度  1/3： 安装系统依赖"
 [[ $LANGUAGE != 2 ]] && T33="Step 2/3: Install WGCF" || T33="进度  2/3： 安装 WGCF"
 [[ $LANGUAGE != 2 ]] && T34="Register new WARP account..." || T34="WARP 注册中……"
@@ -148,7 +148,7 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 [[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr A-Z a-z | grep virtualization | cut -d : -f2)
 [[ $VIRT =~ openvz|lxc ]] && LXC=1
 [[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
+[[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill -9 $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 
 # 安装BBR
 bbrInstall() {
@@ -170,14 +170,15 @@ uninstall(){
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6
 	systemctl disable wg-quick@wgcf >/dev/null 2>&1
 	echo $DOWN | sh >/dev/null 2>&1
+	systemctl stop wg-quick@wgcf >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 	sed -i '/warp[ ]n/d' /etc/crontab
-	WAN4=$(curl -s4m10 https://ip.gs)
-	WAN6=$(curl -s6m10 https://ip.gs)
-	COUNTRY4=$(curl -s4m10 https://ip.gs/country)
-	COUNTRY6=$(curl -s6m10 https://ip.gs/country)
+	WAN4=$(curl -s4m4 https://ip.gs)
+	WAN6=$(curl -s6m4 https://ip.gs)
+	COUNTRY4=$(curl -s4m4 https://ip.gs/country)
+	COUNTRY6=$(curl -s6m4 https://ip.gs/country)
 	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " $T46 "
 	}
 
@@ -193,13 +194,15 @@ ver(){
 
 # 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行,i=当前尝试次数，j=要尝试的次数
 net(){
-	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " $T10 " && exit 1 ||
+	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " $T10 " && exit 1
 	i=1;j=10
 	[[ $LANGUAGE != 2 ]] && T11="Maximum $j attempts to get WARP IP..." || T11="后台获取 WARP IP 中,最大尝试$j次……"
 	[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
 	[[ $LANGUAGE != 2 ]] && T13="There have been more than $j failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T13="失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 	yellow " $T11 "
 	yellow " $T12 "
+	[[ $(systemctl is-active wg-quick@wgcf) != active ]] && echo $DOWN | sh >/dev/null 2>&1
+	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo $UP | sh >/dev/null 2>&1
 	WAN4=$(curl -s4m10 https://ip.gs) &&
 	WAN6=$(curl -s6m10 https://ip.gs)
@@ -320,9 +323,6 @@ status(){
 
 # WGCF 安装
 install(){
-	# 脚本开始时间
-	start=$(date +%s)
-	
 	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
 	[[ -z $LICENSE ]] && read -p " $T28: " LICENSE
 	i=5
@@ -339,11 +339,19 @@ install(){
 	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
 	
+	# 脚本开始时间
+	start=$(date +%s)
 	green " $T32 "
 	
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
 	rm -rf /usr/local/bin/wgcf /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
+	
+	# 对于 IPv4 only VPS 开启 IPv6 支持
+    	[[ $IPV4$IPV6 = 10 ]] && [[ $(sysctl -a | grep 'disable_ipv6.*=.*1') || $(grep -s "disable_ipv6.*=.*1" /etc/sysctl.{conf,d/*} ) ]] &&
+	(sed -i '/disable_ipv6/d' /etc/sysctl.{conf,d/*}
+        echo 'net.ipv6.conf.all.disable_ipv6 = 0' >/etc/sysctl.d/ipv6.conf
+        sysctl -w net.ipv6.conf.all.disable_ipv6=0)
 	
         # 根据系统选择需要安装的依赖
 	debian(){
@@ -425,11 +433,12 @@ install(){
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
 	# 设置开机启动
+	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
-	grep -qE '^@reboot root bash /usr/bin/warp n' /etc/crontab || echo '@reboot root bash /usr/bin/warp n' >> /etc/crontab
+	[[ $BORINGTUN != 2 ]] && echo '@reboot sleep 10 && root bash warp n' >> /etc/crontab
 
 	# 优先使用 IPv4 网络
-	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
+	[[ -e /etc/gai.conf ]] && [[ ! $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] && echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
@@ -565,7 +574,7 @@ menu3(){
 
 # 设置部分后缀 3/3
 case "$OPTION" in
-1 )	[[ $PLAN = 2 ]] && read -p " $T79 " DUAL &&
+1 )	[[ $PLAN = 2 ]] && read -p " $T79: " DUAL &&
 	[[ $DUAL != [Yy] ]] && exit 1 || MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
 	[[ $PLAN = 1 ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
  	[[ $PLAN = 3 ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
