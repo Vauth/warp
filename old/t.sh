@@ -194,7 +194,7 @@ ver(){
 
 # 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行,i=当前尝试次数，j=要尝试的次数
 net(){
-	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " $T10 " && exit 1 ||
+	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " $T10 " && exit 1
 	i=1;j=10
 	[[ $LANGUAGE != 2 ]] && T11="Maximum $j attempts to get WARP IP..." || T11="后台获取 WARP IP 中,最大尝试$j次……"
 	[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
