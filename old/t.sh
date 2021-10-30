@@ -201,7 +201,8 @@ net(){
 	[[ $LANGUAGE != 2 ]] && T13="There have been more than $j failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T13="失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 	yellow " $T11 "
 	yellow " $T12 "
-	[[ $(systemctl is-active wg-quick@wgcf) != active ]] && echo $DOWN | sh >/dev/null 2>&1 && systemctl start wg-quick@wgcf >/dev/null 2>&1
+	[[ $(systemctl is-active wg-quick@wgcf) != active ]] && echo $DOWN | sh >/dev/null 2>&1
+	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo $UP | sh >/dev/null 2>&1
 	WAN4=$(curl -s4m10 https://ip.gs) &&
 	WAN6=$(curl -s6m10 https://ip.gs)
