@@ -435,10 +435,10 @@ install(){
 	# 设置开机启动
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
-	grep -qE '^@reboot sleep 10 && root bash warp n' /etc/crontab || echo '@reboot sleep 10 && root bash warp n' >> /etc/crontab
+	[[ $BORINGTUN != 2 ]] && echo '@reboot sleep 10 && root bash warp n' >> /etc/crontab
 
 	# 优先使用 IPv4 网络
-	[[ -e /etc/gai.conf && $BORINGTUN != 2 ]] && echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
+	[[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
