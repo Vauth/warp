@@ -36,7 +36,7 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T27="Device name" || T27="设备名"
 [[ $LANGUAGE != 2 ]] && T28="If there is a WARP+ License, please enter it, otherwise press Enter to continue" || T28="如有 WARP+ License 请输入，没有可回车继续"
 [[ $LANGUAGE != 2 ]] && T29="Input errors up to 5 times.The script is aborted." || T29="输入错误达5次，脚本退出"
-[[ $LANGUAGE != 2 ]] && T31="LXC VPS choose: 1. Wireguard-GO 	or 	2. BoringTun （default is 1. Wireguard-GO）,choose" || T31="LXC方案:1. Wireguard-GO 	或者 	2. BoringTun （默认值选项为 1. Wireguard-GO）,请选择"
+[[ $LANGUAGE != 2 ]] && T31="LXC VPS choose: 1. Wireguard-GO  or  2. BoringTun （default is 1. Wireguard-GO）,choose" || T31="LXC方案:1. Wireguard-GO  或者  2. BoringTun （默认值选项为 1. Wireguard-GO）,请选择"
 [[ $LANGUAGE != 2 ]] && T32="Step 1/3: Install dependencies" || T32="进度  1/3： 安装系统依赖"
 [[ $LANGUAGE != 2 ]] && T33="Step 2/3: Install WGCF" || T33="进度  2/3： 安装 WGCF"
 [[ $LANGUAGE != 2 ]] && T34="Register new WARP account..." || T34="WARP 注册中……"
@@ -201,6 +201,7 @@ net(){
 	[[ $LANGUAGE != 2 ]] && T13="There have been more than $j failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T13="失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 	yellow " $T11 "
 	yellow " $T12 "
+	[[ $(systemctl is-active wg-quick@wgcf) != active ]] && echo $DOWN | sh >/dev/null 2>&1 && systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo $UP | sh >/dev/null 2>&1
 	WAN4=$(curl -s4m10 https://ip.gs) &&
 	WAN6=$(curl -s6m10 https://ip.gs)
@@ -434,7 +435,7 @@ install(){
 	# 设置开机启动
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
-	grep -qE '^@reboot root bash /usr/bin/warp n' /etc/crontab || echo '@reboot root bash /usr/bin/warp n' >> /etc/crontab
+	grep -qE '^@reboot root bash warp n' /etc/crontab || echo '@reboot root bash warp n' >> /etc/crontab
 
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
@@ -573,7 +574,7 @@ menu3(){
 
 # 设置部分后缀 3/3
 case "$OPTION" in
-1 )	[[ $PLAN = 2 ]] && read -p " $T79 " DUAL &&
+1 )	[[ $PLAN = 2 ]] && read -p " $T79: " DUAL &&
 	[[ $DUAL != [Yy] ]] && exit 1 || MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
 	[[ $PLAN = 1 ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
  	[[ $PLAN = 3 ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
