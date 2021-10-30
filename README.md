@@ -2,7 +2,7 @@
 
 * * *
 ## 更新信息：
-2021.10.29  2.07 更新：1)Support Chinese and English; 2)Optimize running speed; 1)支持中英文，用户可自行选择; 2)大幅优化速度
+2021.10.29  2.07 更新：1)Support Chinese and English; 2)Optimize running speed; 3)fix startup at reboot bug;  1)支持中英文，用户可自行选择; 2)大幅优化速度; 3)修复重启后启动WARP的bug
 
 2021.10.23  2.06 更新：1)添加自动检查是否开启 Tun 模块； 2)提高脚本适配性; 3)新增 hax、Amazon Linux 2 和 Oracle Linux 支持"
 
