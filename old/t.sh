@@ -436,7 +436,7 @@ install(){
 	# 设置开机启动
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
-	grep -qE '^@reboot root bash warp n' /etc/crontab || echo '@reboot root bash warp n' >> /etc/crontab
+	grep -qE '^@reboot sleep 10 && root bash warp n' /etc/crontab || echo '@reboot root bash warp n' >> /etc/crontab
 
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
