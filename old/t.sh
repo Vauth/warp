@@ -201,7 +201,7 @@ net(){
 	[[ $LANGUAGE != 2 ]] && T13="There have been more than $j failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T13="失败已超过$i次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 	yellow " $T11 "
 	yellow " $T12 "
-	[[ $(systemctl is-active wg-quick@wgcf) != active || -e /usr/bin/boringtun ]] && echo $DOWN | sh >/dev/null 2>&1
+	[[ $(systemctl is-active wg-quick@wgcf) != active ]] && echo $DOWN | sh >/dev/null 2>&1
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo $UP | sh >/dev/null 2>&1
 	WAN4=$(curl -s4m10 https://ip.gs) &&
@@ -323,9 +323,6 @@ status(){
 
 # WGCF 安装
 install(){
-	# 脚本开始时间
-	start=$(date +%s)
-	
 	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
 	[[ -z $LICENSE ]] && read -p " $T28: " LICENSE
 	i=5
@@ -342,6 +339,8 @@ install(){
 	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
 	
+	# 脚本开始时间
+	start=$(date +%s)
 	green " $T32 "
 	
 	# 先删除之前安装，可能导致失败的文件，添加环境变量
@@ -439,7 +438,7 @@ install(){
 	grep -qE '^@reboot sleep 10 && root bash warp n' /etc/crontab || echo '@reboot sleep 10 && root bash warp n' >> /etc/crontab
 
 	# 优先使用 IPv4 网络
-	[[ -e /etc/gai.conf ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
+	[[ -e /etc/gai.conf && $BORINGTUN != 2 ]] && [[ $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] || echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
 
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
