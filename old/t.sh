@@ -170,6 +170,7 @@ uninstall(){
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6
 	systemctl disable wg-quick@wgcf >/dev/null 2>&1
 	echo $DOWN | sh >/dev/null 2>&1
+	systemctl stop wg-quick@wgcf >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
@@ -431,7 +432,7 @@ install(){
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
 	# 设置开机启动
-	systemctl start wg-quick@wgcf
+	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	systemctl enable wg-quick@wgcf >/dev/null 2>&1
 	grep -qE '^@reboot root bash /usr/bin/warp n' /etc/crontab || echo '@reboot root bash /usr/bin/warp n' >> /etc/crontab
 
