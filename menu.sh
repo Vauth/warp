@@ -168,13 +168,13 @@ bbrInstall() {
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6
-	systemctl disable wg-quick@wgcf >/dev/null 2>&1
 	echo $DOWN | sh >/dev/null 2>&1
 	systemctl stop wg-quick@wgcf >/dev/null 2>&1
+	systemctl disable wg-quick@wgcf >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-	sed -i '/warp[ ]n/d' /etc/crontab
+#	sed -i '/warp[ ]n/d' /etc/crontab
 	WAN4=$(curl -s4m4 https://ip.gs)
 	WAN6=$(curl -s6m4 https://ip.gs)
 	COUNTRY4=$(curl -s4m4 https://ip.gs/country)
@@ -433,9 +433,9 @@ install(){
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
 	# 设置开机启动
-	systemctl start wg-quick@wgcf >/dev/null 2>&1
-	systemctl enable wg-quick@wgcf >/dev/null 2>&1
-	[[ $BORINGTUN != 2 ]] && echo '@reboot sleep 10 && root bash warp n' >> /etc/crontab
+	[[ $BORINGTUN != 2 ]] && systemctl start wg-quick@wgcf >/dev/null 2>&1
+	[[ $BORINGTUN != 2 ]] && systemctl enable wg-quick@wgcf >/dev/null 2>&1
+#	[[ $BORINGTUN != 2 ]] && echo '@reboot sleep 10 && root bash warp n' >> /etc/crontab
 
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ ! $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] && echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
