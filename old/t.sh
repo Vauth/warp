@@ -175,6 +175,12 @@ uninstall(){
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
 #	sed -i '/warp[ ]n/d' /etc/crontab
+	IP4=$(curl -s4m5 https://ip.gs/json)
+	IP6=$(curl -s6m5 https://ip.gs/json)
+	WAN4=$(echo $IP4 | cut -d \" -f4)
+	WAN6=$(echo $IP6 | cut -d \" -f4)
+	COUNTRY4=$(echo $IP4 | cut -d \" -f10)
+	COUNTRY6=$(echo $IP6 | cut -d \" -f10)
 	WAN4=$(curl -s4m4 https://ip.gs)
 	WAN6=$(curl -s6m4 https://ip.gs)
 	COUNTRY4=$(curl -s4m4 https://ip.gs/country)
@@ -204,19 +210,23 @@ net(){
 	[[ $(systemctl is-active wg-quick@wgcf) != active ]] && echo $DOWN | sh >/dev/null 2>&1
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo $UP | sh >/dev/null 2>&1
-	WAN4=$(curl -s4m10 https://ip.gs) &&
-	WAN6=$(curl -s6m10 https://ip.gs)
-	until [[ -n $WAN4 && -n $WAN6 ]]
+	IP4=$(curl -s4m5 https://ip.gs/json) &&
+	IP6=$(curl -s6m5 https://ip.gs/json)
+	until [[ -n $IP4 && -n $IP6 ]]
 		do	let i++
 			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
 			yellow " $T12 "
 			echo $DOWN | sh >/dev/null 2>&1
 			echo $UP | sh >/dev/null 2>&1
-			WAN4=$(curl -s4m10 https://ip.gs) &&
-			WAN6=$(curl -s6m10 https://ip.gs)
+			IP4=$(curl -s4m5 https://ip.gs/json) &&
+			IP6=$(curl -s6m5 https://ip.gs/json)
 			[[ $i = $j ]] && (echo $DOWN | sh >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
-	green " $T14\n IPv4:$WAN4\n IPv6:$WAN6 "
+	WAN4=$(echo $IP4 | cut -d \" -f4)
+	WAN6=$(echo $IP6 | cut -d \" -f4)
+	COUNTRY4=$(echo $IP4 | cut -d \" -f10)
+	COUNTRY6=$(echo $IP6 | cut -d \" -f10)
+	green " $T14\n IPv4:$WAN4 $COUNTRY4\n IPv6:$WAN6 $COUNTRY6 "
 	}
 
 # WARP 开关
@@ -282,12 +292,14 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 
 # 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
-		WAN4=$(curl -s4  https://ip.gs) &&
-		COUNTRY4=$(curl -s4 https://ip.gs/country) &&
+		IP4=$(curl -s4m4 https://ip.gs/json) &&
+		WAN4=$(echo $IP4 | cut -d \" -f4) &&
+		COUNTRY4=$(echo $IP4 | cut -d \" -f10) &&
 		TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
-		WAN6=$(curl -s6  https://ip.gs) &&
-		COUNTRY6=$(curl -s6 https://ip.gs/country) &&
+		IP6=$(curl -s6m4 https://ip.gs/json) &&
+		WAN6=$(echo $IP6 | cut -d \" -f4) &&
+		COUNTRY6=$(echo $IP6 | cut -d \" -f10) &&
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
@@ -452,9 +464,7 @@ install(){
 	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
 	[[ $LANGUAGE != 2 ]] && T40="$COMPANY vps needs to restart and run [warp n] to open WARP." || T40="$COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启"
 	[[ $COMPANY = amazon ]] && red " $T40 " && reboot || net
-	COUNTRY4=$(curl -s4 https://ip.gs/country)
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	COUNTRY6=$(curl -s6 https://ip.gs/country)
 	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 	# 结果提示，脚本运行时间
