@@ -181,10 +181,6 @@ uninstall(){
 	WAN6=$(echo $IP6 | cut -d \" -f4)
 	COUNTRY4=$(echo $IP4 | cut -d \" -f10)
 	COUNTRY6=$(echo $IP6 | cut -d \" -f10)
-	WAN4=$(curl -s4m4 https://ip.gs)
-	WAN6=$(curl -s6m4 https://ip.gs)
-	COUNTRY4=$(curl -s4m4 https://ip.gs/country)
-	COUNTRY6=$(curl -s6m4 https://ip.gs/country)
 	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " $T46 "
 	}
 
