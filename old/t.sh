@@ -445,7 +445,7 @@ install(){
 	# 反复测试最佳 MTU，从1472起，最大值1500，最小值1280。1472 + 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) = 1500，得出结果必须加回 28
 	yellow " $T81 "
 	MTU=1472
-	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 || ping -c1 -W1 -s $MTU -M do 162.159.192.1
+	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
 	until [[ $? =  0 ]]
 	do
 	MTU=$(($MTU-10))
