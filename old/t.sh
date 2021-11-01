@@ -181,8 +181,8 @@ uninstall(){
 	WAN6=$(echo $IP6 | cut -d \" -f4)
 	COUNTRY4=$(echo $IP4 | cut -d \" -f10)
 	COUNTRY6=$(echo $IP6 | cut -d \" -f10)
-	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
-	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
+	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g")
+	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g")
 	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 " || red " $T46 "
 	}
 
@@ -225,8 +225,8 @@ net(){
 	WAN6=$(echo $IP6 | cut -d \" -f4)
 	COUNTRY4=$(echo $IP4 | cut -d \" -f10)
 	COUNTRY6=$(echo $IP6 | cut -d \" -f10)
-	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
-	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
+	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g")
+	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g")
 	green " $T14\n IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
@@ -296,13 +296,13 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 		IP4=$(curl -s4m4 https://ip.gs/json) &&
 		WAN4=$(echo $IP4 | cut -d \" -f4) &&
 		COUNTRY4=$(echo $IP4 | cut -d \" -f10) &&
-		ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g") &&
+		ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g") &&
 		TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
 		IP6=$(curl -s6m4 https://ip.gs/json) &&
 		WAN6=$(echo $IP6 | cut -d \" -f4) &&
 		COUNTRY6=$(echo $IP6 | cut -d \" -f10) &&
-		ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g") &&
+		ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g") &&
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
