@@ -446,21 +446,21 @@ install(){
 	yellow " $T81 "
 	MTU=1472
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
-	until [[ $? =  0 ]]
+	until [[ $? = 0 || MTU -le 1252 ]]
 	do
 	MTU=$(($MTU-10))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
 	done
-	MTU=$(($MTU+9))
+	[[ $MTU -lt 1472 ]] && MTU=$(($MTU+9))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
-	until [[ $? = 0 ]]
+	until [[ $? = 0 || MTU -le 1252 ]]
 	do
         MTU=$(($MTU-1))
         [[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1      
 	done
 	MTU=$(($MTU+28))
 	[[ $MTU -lt 1280 ]] && MTU=1280
-	
+
 	# 修改配置文件
 	sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf
 	echo $MODIFY | sh
