@@ -167,7 +167,7 @@ bbrInstall() {
 
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
-	unset WAN4 WAN6 COUNTRY4 COUNTRY6
+	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
 	echo $DOWN | sh >/dev/null 2>&1
 	systemctl stop wg-quick@wgcf >/dev/null 2>&1
 	systemctl disable wg-quick@wgcf >/dev/null 2>&1
@@ -181,7 +181,9 @@ uninstall(){
 	WAN6=$(echo $IP6 | cut -d \" -f4)
 	COUNTRY4=$(echo $IP4 | cut -d \" -f10)
 	COUNTRY6=$(echo $IP6 | cut -d \" -f10)
-	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4\n IPv6：$WAN6 $COUNTRY6 " || red " $T46 "
+	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
+	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
+	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 " || red " $T46 "
 	}
 
 # 同步脚本至最新版本
@@ -196,6 +198,7 @@ ver(){
 
 # 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行,i=当前尝试次数，j=要尝试的次数
 net(){
+	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
 	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " $T10 " && exit 1
 	i=1;j=10
 	[[ $LANGUAGE != 2 ]] && T11="Maximum $j attempts to get WARP IP..." || T11="后台获取 WARP IP 中,最大尝试$j次……"
@@ -222,7 +225,9 @@ net(){
 	WAN6=$(echo $IP6 | cut -d \" -f4)
 	COUNTRY4=$(echo $IP4 | cut -d \" -f10)
 	COUNTRY6=$(echo $IP6 | cut -d \" -f10)
-	green " $T14\n IPv4:$WAN4 $COUNTRY4\n IPv6:$WAN6 $COUNTRY6 "
+	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
+	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
+	green " $T14\n IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
 # WARP 开关
@@ -291,11 +296,13 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 		IP4=$(curl -s4m4 https://ip.gs/json) &&
 		WAN4=$(echo $IP4 | cut -d \" -f4) &&
 		COUNTRY4=$(echo $IP4 | cut -d \" -f10) &&
+		ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g") &&
 		TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
 		IP6=$(curl -s6m4 https://ip.gs/json) &&
 		WAN6=$(echo $IP6 | cut -d \" -f4) &&
 		COUNTRY6=$(echo $IP6 | cut -d \" -f10) &&
+		ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g") &&
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
@@ -317,12 +324,12 @@ status(){
 	yellow " $T16 "
 	red "======================================================================================================================\n"
 	green " $T17：$VERSION  $T18：$TXT\n $T19：\n	$T20：$SYS\n	$T21：$(uname -r)\n	$T22：$ARCHITECTURE\n	$T23：$VIRT "
-	[[ $TRACE4 = plus ]] && green "	IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
-	[[ $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 "
-	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 "
-	[[ $TRACE6 = plus ]] && green "	IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 "
-	[[ $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
-	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 "
+	[[ $TRACE4 = plus ]] && green "	IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4  $ASNORG4 "
+	[[ $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 $ASNORG4 "
+	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
+	[[ $TRACE6 = plus ]] && green "	IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 $ASNORG6 "
+	[[ $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 $ASNORG6 "
+	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
 	[[ $PLAN != 3 ]] && green "	WARP $T26"
@@ -457,7 +464,7 @@ install(){
 	
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
 	green " $T39 "
-	unset WAN4 WAN6 COUNTRY4 COUNTRY6 TRACE4 TRACE6
+	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6
 	[[ $LANGUAGE != 2 ]] && T40="$COMPANY vps needs to restart and run [warp n] to open WARP." || T40="$COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启"
 	[[ $COMPANY = amazon ]] && red " $T40 " && reboot || net
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
@@ -465,12 +472,12 @@ install(){
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
-	[[ $TRACE4 = plus ]] && green " IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 "
-	[[ $TRACE4 = on ]] && green " IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 "
-	[[ $TRACE4 = off || -z $TRACE4 ]] && green " IPv4：$WAN4 $COUNTRY4 "
-	[[ $TRACE6 = plus ]] && green " IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 "
-	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 "
-	[[ $TRACE6 = off || -z $TRACE6 ]] && green " IPv6：$WAN6 $COUNTRY6 "
+	[[ $TRACE4 = plus ]] && green " IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 $ASNORG4 "
+	[[ $TRACE4 = on ]] && green " IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 $ASNORG4 "
+	[[ $TRACE4 = off || -z $TRACE4 ]] && green " IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
+	[[ $TRACE6 = plus ]] && green " IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 $ASNORG6 "
+	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 $ASNORG6 "
+	[[ $TRACE6 = off || -z $TRACE6 ]] && green " IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	end=$(date +%s)
 	[[ $LANGUAGE != 2 ]] && T41="Congratulations! WARP+ is turned on. Spend time:$(( $end - $start )) seconds\n Device name：$(grep -s name /etc/wireguard/info.log | awk '{ print $NF }')\n Quota：$(grep -s Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" || T41="恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒\n 设备名：$(grep -s name /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep -s Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')"
 	[[ $LANGUAGE != 2 ]] && T42="Congratulations! WARP is turned on. Spend time:$(( $end - $start )) seconds" || T42="恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒"
