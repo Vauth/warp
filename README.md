@@ -2,9 +2,11 @@
 
 * * *
 ## 更新信息：
+2021.11.01  2.08 更新：1)Serching the best MTU value for WARP interface automatically; 2)asn organisation for the VPS; 1)自动设置最优 MTU; 2)显示asn组织(线路提供商)
+
 2021.10.29  2.07 更新：1)Support Chinese and English; 2)Optimize running speed; 3)fix startup at reboot bug;  1)支持中英文，用户可自行选择; 2)大幅优化速度; 3)修复重启后启动WARP的bug
 
-2021.10.23  2.06 更新：1)添加自动检查是否开启 Tun 模块； 2)提高脚本适配性; 3)新增 hax、Amazon Linux 2 和 Oracle Linux 支持"
+2021.10.23  2.06 更新：1)添加自动检查是否开启 Tun 模块； 2)提高脚本适配性; 3)新增 hax、Amazon Linux 2 和 Oracle Linux 支持
 
 2021.10.15  2.05 更新：1)WGCF自动同步最新的2.2.9； 2）升级了重启后运行 Warp 的处理方法，不再依赖另外的文件; 3) 修复 KVM 由免费账户升级为 Warp+ 账户的bug
 
