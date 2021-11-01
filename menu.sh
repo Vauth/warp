@@ -10,7 +10,7 @@ yellow(){
 }
 
 [[ -n $1 && $1 != [Hh] ]] || read -p " 1.English	2.简体中文	Choose language (default is 1.English): " LANGUAGE
-[[ $LANGUAGE != 2 ]] && T1="1.Support Chinese and English; 2.Optimize running speed; 3.fix startup at reboot bug" || T1="1.支持中英文，用户可自行选择; 2.大幅优化速度; 3.修复重启后启动的bug"
+[[ $LANGUAGE != 2 ]] && T1="1.Serching the best MTU value for WARP interface automatically; 2.asn organisation for the VPS" || T1="1.自动设置最优 MTU; 2.显示asn组织(线路提供商)"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The Tun module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 Tun 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -20,7 +20,7 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T8="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..." || T8="先升级软件库才能继续安装 curl，时间较长，请耐心等待……"
 [[ $LANGUAGE != 2 ]] && T9="Failed to install curl. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T9="安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T10="WireGuard tools are not installed or the configuration file wgcf.conf cannot be found, please reinstall." || T10="没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装。"
-[[ $LANGUAGE != 2 ]] && T14="Get the WARP IP successfully." || T14="已成功获取 WARP 网络"
+[[ $LANGUAGE != 2 ]] && T14="Got the WARP IP successfully." || T14="已成功获取 WARP 网络"
 [[ $LANGUAGE != 2 ]] && T15="WARP is turned off. It could be turned on again by [warp o]" || T15="已暂停 WARP，再次开启可以用 warp o"
 [[ $LANGUAGE != 2 ]] && T16="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support Warp+ account. Third-party increase quota Warp+ and upgrade kernel BBR script.\n	* Not only menus, but also commands with suffixes.\n	* Intelligent analysis of vps operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8. Be sure to choose the LTS system；Intelligent analysis of architecture：AMD or ARM\n	* Automatically select three WireGuard solutions. Performance: Kernel integration WireGuard＞Install kernel module＞boringtun＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Intelligent analysis of lan and wan IP to generate WGCF configuration file.\n	* Output the result: WARP status and the IP region\n" || T16="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 Warp+ 账户，附带第三方刷 Warp+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；智能判断硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞boringtun＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
 [[ $LANGUAGE != 2 ]] && T17="Version" || T17="脚本版本"
@@ -82,9 +82,10 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T78="Upgrade to WARP+ account" || T78="升级为 WARP+ 账户"
 [[ $LANGUAGE != 2 ]] && T79="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit" || T79="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出"
 [[ $LANGUAGE != 2 ]] && T80="The WARP is working. It will be closed, please run the previous command to install or enter !!" || T80="检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !!"
+[[ $LANGUAGE != 2 ]] && T81="Searching for the best MTU value..." || T81="寻找 MTU 最优值……"
 
 # 当前脚本版本号和新增功能
-VERSION=2.07
+VERSION=2.08
 TXT=" $T1 "
 
 # 参数选项 LICENSE
@@ -181,8 +182,8 @@ uninstall(){
 	WAN6=$(echo $IP6 | cut -d \" -f4)
 	COUNTRY4=$(echo $IP4 | cut -d \" -f10)
 	COUNTRY6=$(echo $IP6 | cut -d \" -f10)
-	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
-	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
+	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g")
+	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g")
 	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 " || red " $T46 "
 	}
 
@@ -225,8 +226,8 @@ net(){
 	WAN6=$(echo $IP6 | cut -d \" -f4)
 	COUNTRY4=$(echo $IP4 | cut -d \" -f10)
 	COUNTRY6=$(echo $IP6 | cut -d \" -f10)
-	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
-	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g")
+	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g")
+	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g")
 	green " $T14\n IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
@@ -296,13 +297,13 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 		IP4=$(curl -s4m4 https://ip.gs/json) &&
 		WAN4=$(echo $IP4 | cut -d \" -f4) &&
 		COUNTRY4=$(echo $IP4 | cut -d \" -f10) &&
-		ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g") &&
+		ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g") &&
 		TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
 		IP6=$(curl -s6m4 https://ip.gs/json) &&
 		WAN6=$(echo $IP6 | cut -d \" -f4) &&
 		COUNTRY6=$(echo $IP6 | cut -d \" -f10) &&
-		ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "user_agent" '{print $1}' | awk -F "hostname" '{print $1}'| sed "s/,//g;s/\"/ /g;s/://g") &&
+		ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "[hostname user_agent]" '{print $1}' | sed "s/[,\":]//g") &&
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
@@ -415,7 +416,7 @@ install(){
 	green " $T33 "
 
 	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.9
-	latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/\"//g;s/v//g;s/,//g;s/ //g')
+	latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 	[[ -z $latest ]] && latest='2.2.9'
 
 	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
@@ -440,8 +441,28 @@ install(){
 	
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
-
+	
+	# 反复测试最佳 MTU，从1472起，最大值1500，最小值1280。1472 + 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) = 1500，得出结果必须加回 28
+	yellow " $T81 "
+	MTU=1472
+	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
+	until [[ $? =  0 ]]
+	do
+	MTU=$(($MTU-10))
+	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
+	done
+	MTU=$(($MTU+9))
+	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
+	until [[ $? = 0 ]]
+	do
+        MTU=$(($MTU-1))
+        [[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1      
+	done
+	MTU=$(($MTU+28))
+	[[ $MTU -lt 1280 ]] && MTU=1280
+	
 	# 修改配置文件
+	sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf
 	echo $MODIFY | sh
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
