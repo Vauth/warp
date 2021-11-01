@@ -464,7 +464,7 @@ install(){
 	# 修改配置文件
 	sed -i "s/MTU.*/MTU = '$MTU'/g" wgcf-profile.conf
 	echo $MODIFY | sh
-	
+
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
