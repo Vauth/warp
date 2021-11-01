@@ -82,7 +82,7 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T78="Upgrade to WARP+ account" || T78="升级为 WARP+ 账户"
 [[ $LANGUAGE != 2 ]] && T79="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit" || T79="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出"
 [[ $LANGUAGE != 2 ]] && T80="The WARP is working. It will be closed, please run the previous command to install or enter !!" || T80="检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !!"
-[[ $LANGUAGE != 2 ]] && T81="searching for the best MTU value" || T81="寻找 MTU 最优值……"
+[[ $LANGUAGE != 2 ]] && T81="Searching for the best MTU value" || T81="寻找 MTU 最优值……"
 
 # 当前脚本版本号和新增功能
 VERSION=2.07
