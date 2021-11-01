@@ -85,7 +85,7 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T81="Searching for the best MTU value..." || T81="寻找 MTU 最优值……"
 
 # 当前脚本版本号和新增功能
-VERSION=2.07
+VERSION=2.08
 TXT=" $T1 "
 
 # 参数选项 LICENSE
