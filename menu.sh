@@ -442,23 +442,23 @@ install(){
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
 	
-	# 反复测试最佳 MTU，从1472起，最大值1500，最小值1280。1472 + 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) = 1500，得出结果必须加回 28
+	# 反复测试最佳 MTU，最大值1420，最小值1280。 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。先参照P3terx大神修车，再找资料
 	yellow " $T81 "
 	MTU=1472
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
-	until [[ $? = 0 || MTU -le 1252 ]]
+	until [[ $? = 0 || MTU -le 1332 ]]
 	do
 	MTU=$(($MTU-10))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
 	done
 	[[ $MTU -lt 1472 ]] && MTU=$(($MTU+9))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
-	until [[ $? = 0 || MTU -le 1252 ]]
+	until [[ $? = 0 || MTU -le 1332 ]]
 	do
         MTU=$(($MTU-1))
         [[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1      
 	done
-	MTU=$(($MTU+28))
+	MTU=$(($MTU-52))
 	[[ $MTU -lt 1280 ]] && MTU=1280
 
 	# 修改配置文件
