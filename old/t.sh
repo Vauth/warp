@@ -9,7 +9,7 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 reading(){
-	read -p "$(green "$1")"
+	read -p "$(green "$1")" $2
 }
 
 [[ -n $1 && $1 != [Hh] ]] || reading "1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
