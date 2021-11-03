@@ -8,8 +8,11 @@ green(){
 yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
+reading(){
+	read -p "$(green "$1")"
+}
 
-[[ -n $1 && $1 != [Hh] ]] || read -p "$(green " 1.English\n 2.简体中文\n Choose language (default is 1.English): ")" LANGUAGE
+[[ -n $1 && $1 != [Hh] ]] || reading "1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
 [[ $LANGUAGE != 2 ]] && T1="1.Serching the best MTU value for WARP interface automatically; 2.asn organisation for the VPS" || T1="1.自动设置最优 MTU; 2.显示asn组织(线路提供商)"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The Tun module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 Tun 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -52,13 +55,13 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T47="Upgrade kernel, turn on BBR, change Linux system by other authors [ylx2016],[https://github.com/ylx2016/Linux-NetSpeed]" || T47="BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
 [[ $LANGUAGE != 2 ]] && T48="Run script " || T48="安装脚本【推荐原版BBR+FQ】"
 [[ $LANGUAGE != 2 ]] && T49="Return to main menu" || T49="回退主目录"
-[[ $LANGUAGE != 2 ]] && T50="Choose" || T50="请选择"
+[[ $LANGUAGE != 2 ]] && T50="Choose:" || T50="请选择:"
 [[ $LANGUAGE != 2 ]] && T51="Please enter the correct number" || T51="请输入正确数字"
 [[ $LANGUAGE != 2 ]] && T52="Please input WARP+ ID:" || T52="请输入 WARP+ ID:"
 [[ $LANGUAGE != 2 ]] && T54="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen." || T54="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
 [[ $LANGUAGE != 2 ]] && T55="Run [ALIILAPRO] script" || T55="运行 [ALIILAPRO] 脚本"
 [[ $LANGUAGE != 2 ]] && T56="Run [mixool] script" || T56="运行 [mixool] 脚本"
-[[ $LANGUAGE != 2 ]] && T57="The target quota you want to get. The unit is GB, the default value is 10:" || T57="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10 :"
+[[ $LANGUAGE != 2 ]] && T57="The target quota you want to get. The unit is GB, the default value is 10:" || T57="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
 [[ $LANGUAGE != 2 ]] && T58="This is the WARP+ account, no need to upgrade." || T58="已经是 WARP+ 账户，不需要升级"
 [[ $LANGUAGE != 2 ]] && T59="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License" || T59="找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
 [[ $LANGUAGE != 2 ]] && T60="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License" || T60="找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 Warp+ License"
@@ -80,7 +83,7 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T76="Exit" || T76="退出脚本"
 [[ $LANGUAGE != 2 ]] && T77="Turn off WARP" || T77="暂时关闭 WARP"
 [[ $LANGUAGE != 2 ]] && T78="Upgrade to WARP+ account" || T78="升级为 WARP+ 账户"
-[[ $LANGUAGE != 2 ]] && T79="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit" || T79="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出"
+[[ $LANGUAGE != 2 ]] && T79="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit:" || T79="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出:"
 [[ $LANGUAGE != 2 ]] && T80="The WARP is working. It will be closed, please run the previous command to install or enter !!" || T80="检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !!"
 [[ $LANGUAGE != 2 ]] && T81="Searching for the best MTU value..." || T81="寻找 MTU 最优值……"
 
@@ -101,24 +104,24 @@ help(){
 
 # 刷 WARP+ 流量
 input() {
-	read -p " $T52 " ID
+	reading " $T52 " ID
 	i=5
 	until [[ ${#ID} = 36 ]]
 		do
 		let i--
 		[[ $LANGUAGE != 2 ]] && T53="Warp+ ID should be 36 characters, please re-enter ($i times remaining):" || T53="Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）:"
-		[[ $i = 0 ]] && red " $T29 " && exit 1 || read -p " $T53 " ID
+		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T53 " ID
 	done
 	}
 
 plus() {
 	red "\n=============================================================="
-	green " $T54\n "
-	yellow " 1.$T55 "
-	yellow " 2.$T56 "
-	[[ -n $IPV4$IPV6 ]] && yellow " 3.$T49 " || yellow " 3.$T76 "
+	yellow " $T54\n "
+	green " 1.$T55 "
+	green " 2.$T56 "
+	[[ -n $IPV4$IPV6 ]] && green " 3.$T49 " || green " 3.$T76 "
 	red "=============================================================="
-	read -p " $T50: " CHOOSEPLUS
+	reading " $T50 " CHOOSEPLUS
 	case "$CHOOSEPLUS" in
 		1 ) input
 		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
@@ -126,7 +129,7 @@ plus() {
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
 		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) input
-		    read -p " $T57" MISSION
+		    reading " $T57 " MISSION
 		    wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
 		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
 		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
@@ -154,11 +157,11 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 # 安装BBR
 bbrInstall() {
 	red "\n=============================================================="
-	green " $T47\n "
-	yellow " 1.$T48 "
-	[[ -n $IPV4$IPV6 ]] && yellow " 2.$T49 " || yellow " 2.$T76 "
+	yellow " $T47\n "
+	green " 1.$T48 "
+	[[ -n $IPV4$IPV6 ]] && green " 2.$T49 " || green " 2.$T76 "
 	red "=============================================================="
-	read -p " $T50: " BBR
+	reading " $T50 " BBR
 	case "$BBR" in
 		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
 		2 ) [[ -n $IPV4$IPV6 ]] && menu$PLAN || exit;;
@@ -340,17 +343,17 @@ status(){
 # WGCF 安装
 install(){
 	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
-	[[ -z $LICENSE ]] && read -p " $T28: " LICENSE
+	[[ -z $LICENSE ]] && reading " $T28: " LICENSE
 	i=5
 	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
 		do
 			let i--
 			[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining)" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次)"
-			[[ $i = 0 ]] && red " $T29 " && exit 1 || read -p " $T30: " LICENSE
+			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
 		done
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
-	[[ $LXC = 1 ]] && read -p "$(green " $T31 ")" BORINGTUN
+	[[ $LXC = 1 ]] && reading " $T31 " BORINGTUN
 	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
@@ -515,13 +518,13 @@ update() {
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " $T59 " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " $T60 " && exit 1
-	[[ -z $LICENSE ]] && read -p " $T61 " LICENSE
+	[[ -z $LICENSE ]] && reading " $T61 " LICENSE
 	i=5
 	until [[ ${#LICENSE} = 26 ]]
 	do
 	let i--
 	[[ $LANGUAGE != 2 ]] && T62=" License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining) " || T62=" License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: "
-	[[ $i = 0 ]] && red " $T29 " && exit 1 || read -p " $T62 " LICENSE
+	[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T62 " LICENSE
         done
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
@@ -547,7 +550,7 @@ menu1(){
 	green " 6. $T74 "
 	green " 7. $T75 "
 	green " 0. $T76 \n "
-	read -p " $T50:" CHOOSE1
+	reading " $T50 " CHOOSE1
 		case "$CHOOSE1" in
 		1 )	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 		2 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
@@ -571,7 +574,7 @@ menu2(){
 	green " 5. $T74 "
 	green " 6. $T75 "
 	green " 0. $T76 \n "
-	read -p " $T50:" CHOOSE2
+	reading " $T50 " CHOOSE2
 		case "$CHOOSE2" in
 		1 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
 		2 )	net;;
@@ -594,7 +597,7 @@ menu3(){
 	green " 5. $T78 "
 	green " 6. $T75 "
 	green " 0. $T76 \n "
-	read -p " $T50:" CHOOSE3
+	reading " $T50 " CHOOSE3
         case "$CHOOSE3" in
 		1 )	onoff;;
 		2 )	uninstall;;
@@ -609,7 +612,7 @@ menu3(){
 
 # 设置部分后缀 3/3
 case "$OPTION" in
-1 )	[[ $PLAN = 2 ]] && read -p " $T79: " DUAL &&
+1 )	[[ $PLAN = 2 ]] && reading " $T79 " DUAL &&
 	[[ $DUAL != [Yy] ]] && exit 1 || MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
 	[[ $PLAN = 1 ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
  	[[ $PLAN = 3 ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
