@@ -12,7 +12,7 @@ reading(){
 	read -p "$(green "$1")" $2
 }
 
-[[ -n $1 && $1 != [Hh] ]] || reading "1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
+[[ -n $1 && $1 != [Hh] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
 [[ $LANGUAGE != 2 ]] && T1="1.Serching the best MTU value for WARP interface automatically; 2.asn organisation for the VPS" || T1="1.自动设置最优 MTU; 2.显示asn组织(线路提供商)"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The Tun module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 Tun 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
