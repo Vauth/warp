@@ -9,7 +9,7 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 
-[[ -n $1 && $1 != [Hh] ]] || read -p " 1.English	2.简体中文	Choose language (default is 1.English): " LANGUAGE
+[[ -n $1 && $1 != [Hh] ]] || read -p "$(green " 1.English\n 2.简体中文\n Choose language (default is 1.English): ")" LANGUAGE
 [[ $LANGUAGE != 2 ]] && T1="1.Serching the best MTU value for WARP interface automatically; 2.asn organisation for the VPS" || T1="1.自动设置最优 MTU; 2.显示asn组织(线路提供商)"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The Tun module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 Tun 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -36,7 +36,7 @@ yellow(){
 [[ $LANGUAGE != 2 ]] && T27="Device name" || T27="设备名"
 [[ $LANGUAGE != 2 ]] && T28="If there is a WARP+ License, please enter it, otherwise press Enter to continue" || T28="如有 WARP+ License 请输入，没有可回车继续"
 [[ $LANGUAGE != 2 ]] && T29="Input errors up to 5 times.The script is aborted." || T29="输入错误达5次，脚本退出"
-[[ $LANGUAGE != 2 ]] && T31="LXC VPS choose: 1. Wireguard-GO  or  2. BoringTun （default is 1. Wireguard-GO）,choose" || T31="LXC方案:1. Wireguard-GO  或者  2. BoringTun （默认值选项为 1. Wireguard-GO）,请选择"
+[[ $LANGUAGE != 2 ]] && T31="LXC VPS choose（default is 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n Choose:" || T31="LXC方案（默认值选项为 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n 请选择："
 [[ $LANGUAGE != 2 ]] && T32="Step 1/3: Install dependencies" || T32="进度  1/3： 安装系统依赖"
 [[ $LANGUAGE != 2 ]] && T33="Step 2/3: Install WGCF" || T33="进度  2/3： 安装 WGCF"
 [[ $LANGUAGE != 2 ]] && T34="Register new WARP account..." || T34="WARP 注册中……"
@@ -350,7 +350,7 @@ install(){
 		done
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
-	[[ $LXC = 1 ]] && read -p " $T31:" BORINGTUN
+	[[ $LXC = 1 ]] && read -p "$(green " $T31 ")" BORINGTUN
 	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
@@ -452,7 +452,7 @@ install(){
 	MTU=$(($MTU-10))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
 	done
-	[[ $MTU -lt 1472 ]] && MTU=$(($MTU+9))
+	[[ $MTU -lt $((1500-28)) ]] && MTU=$(($MTU+9))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
 	until [[ $? = 0 || MTU -le $((1280+80-28)) ]]
 	do
