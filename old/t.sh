@@ -406,7 +406,8 @@ install(){
 		yum -y install net-tools wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo &&
+		VERSION_ID=$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)
+		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-$VERSION_ID/jdoss-wireguard-epel-$VERSION_ID.repo &&
 		yum -y install wireguard-dkms
 
 		# 升级所有包同时也升级软件和系统内核
@@ -478,8 +479,8 @@ install(){
 #	[[ $BORINGTUN != 2 ]] && echo '@reboot sleep 10 && root bash warp n' >> /etc/crontab
 
 	# 部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常，使用wireguard-go
-	[[ $LXC = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active ||  $(systemctl is-enabled wg-quick@wgcf) != enabled ]] &&
-	wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
+#	[[ $LXC = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active ||  $(systemctl is-enabled wg-quick@wgcf) != enabled ]] &&
+#	wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
 
 	# 优先使用 IPv4 网络
 	[[ -e /etc/gai.conf ]] && [[ ! $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] && echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
