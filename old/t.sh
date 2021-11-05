@@ -478,7 +478,7 @@ install(){
 #	[[ $BORINGTUN != 2 ]] && echo '@reboot sleep 10 && root bash warp n' >> /etc/crontab
 
 	# 部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常，使用wireguard-go
-	[[ $LXC = 1 ]] && [[ systemctl is-active wg-quick@wgcf != active ||  systemctl is-enabled wg-quick@wgcf != enabled ]] &&
+	[[ $LXC = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active ||  $(systemctl is-enabled wg-quick@wgcf) != enabled ]] &&
 	wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
 
 	# 优先使用 IPv4 网络
