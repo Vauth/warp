@@ -25,7 +25,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T10="WireGuard tools are not installed or the configuration file wgcf.conf cannot be found, please reinstall." || T10="没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装。"
 [[ $LANGUAGE != 2 ]] && T14="Got the WARP IP successfully." || T14="已成功获取 WARP 网络"
 [[ $LANGUAGE != 2 ]] && T15="WARP is turned off. It could be turned on again by [warp o]" || T15="已暂停 WARP，再次开启可以用 warp o"
-[[ $LANGUAGE != 2 ]] && T16="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support Warp+ account. Third-party increase quota Warp+ and upgrade kernel BBR script.\n	* Not only menus, but also commands with suffixes.\n	* Intelligent analysis of vps operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8. Be sure to choose the LTS system；Intelligent analysis of architecture：AMD or ARM\n	* Automatically select three WireGuard solutions. Performance: Kernel integration WireGuard＞Install kernel module＞boringtun＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Intelligent analysis of lan and wan IP to generate WGCF configuration file.\n	* Output the result: WARP status and the IP region\n" || T16="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 Warp+ 账户，附带第三方刷 Warp+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断vps操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；智能判断硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞boringtun＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地\n"
+[[ $LANGUAGE != 2 ]] && T16="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support WARP+ account. Third-party scripts are use to increase WARP+ quota or upgrade kernel.\n	* Not only menus, but commands with option.\n	* Intelligent analysis of operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8. Be sure to choose the LTS system. And architecture：AMD or ARM\n	* Automatically select four WireGuard solutions. Performance: Kernel with WireGuard integration＞Install kernel module＞BoringTUN＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Intelligent analysis of lan and wan IP to generate WGCF configuration file.\n	* Output WARP status, IP region and asn\n" || T16="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 WARP+ 账户，附带第三方刷 WARP+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选4个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞BoringTUN＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地和线路提供商\n"
 [[ $LANGUAGE != 2 ]] && T17="Version" || T17="脚本版本"
 [[ $LANGUAGE != 2 ]] && T18="New features" || T18="功能新增"
 [[ $LANGUAGE != 2 ]] && T19="System infomations" || T19="系统信息"
@@ -183,10 +183,10 @@ uninstall(){
 	IP6=$(curl -s6m5 https://ip.gs/json)
 	WAN4=$(echo $IP4 | cut -d \" -f4)
 	WAN6=$(echo $IP6 | cut -d \" -f4)
-	COUNTRY4=$(echo $IP4 | cut -d \" -f10)
-	COUNTRY6=$(echo $IP6 | cut -d \" -f10)
-	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' |sed "s/[,\":]//g")
-	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' |sed "s/[,\":]//g")
+	[[ $LANGUAGE != 2 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -s "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
+	[[ $LANGUAGE != 2 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -s "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
+	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 " || red " $T46 "
 	}
 
@@ -227,10 +227,10 @@ net(){
         	done
 	WAN4=$(echo $IP4 | cut -d \" -f4)
 	WAN6=$(echo $IP6 | cut -d \" -f4)
-	COUNTRY4=$(echo $IP4 | cut -d \" -f10)
-	COUNTRY6=$(echo $IP6 | cut -d \" -f10)
-	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' |sed "s/[,\":]//g")
-	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' |sed "s/[,\":]//g")
+	[[ $LANGUAGE != 2 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -s "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
+	[[ $LANGUAGE != 2 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -s "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
+	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	green " $T14\n IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
@@ -300,14 +300,17 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 		IP4=$(curl -s4m4 https://ip.gs/json) &&
 		WAN4=$(echo $IP4 | cut -d \" -f4) &&
 		COUNTRY4=$(echo $IP4 | cut -d \" -f10) &&
-		ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' |sed "s/[,\":]//g") &&
+		ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g") &&
 		TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)				
 [[ $IPV6 = 1 ]] && LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
 		IP6=$(curl -s6m4 https://ip.gs/json) &&
 		WAN6=$(echo $IP6 | cut -d \" -f4) &&
 		COUNTRY6=$(echo $IP6 | cut -d \" -f10) &&
-		ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' |sed "s/[,\":]//g") &&
+		ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g") &&
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+		
+[[ $LANGUAGE = 2 && $IPV4 = 1 ]] && COUNTRY4=$(curl -s "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
+[[ $LANGUAGE = 2 && $IPV6 = 1 ]] && COUNTRY6=$(curl -s "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
