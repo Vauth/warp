@@ -86,6 +86,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T79="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit:" || T79="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出:"
 [[ $LANGUAGE != 2 ]] && T80="The WARP is working. It will be closed, please run the previous command to install or enter !!" || T80="检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !!"
 [[ $LANGUAGE != 2 ]] && T81="Searching for the best MTU value..." || T81="寻找 MTU 最优值……"
+[[ $LANGUAGE != 2 ]] && T82="Success" || T81="成功"
 
 # 当前脚本版本号和新增功能
 VERSION=2.08
@@ -178,7 +179,6 @@ uninstall(){
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
-#	sed -i '/warp[ ]n/d' /etc/crontab
 	IP4=$(curl -s4m5 https://ip.gs/json)
 	IP6=$(curl -s6m5 https://ip.gs/json)
 	WAN4=$(echo $IP4 | cut -d \" -f4)
@@ -281,9 +281,10 @@ green " $T37 "
 
 # 安装 curl
 [[ ! $(type -P curl) ]] && 
-( yellow " $T7 " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) || 
-( yellow " $T8 " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || 
+( yellow " $T7 \c " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) || 
+( yellow " $T8 \c " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || 
 ( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " $T9 " && exit 1 ))))
+yellow " $T82 "
 
 # 判断处理器架构
 [[ $(arch | tr A-Z a-z) =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
@@ -428,27 +429,24 @@ install(){
 	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_${latest}_linux_$ARCHITECTURE
 	chmod +x /usr/local/bin/wgcf
 
-	# 如是 LXC，安装 Wireguard-GO 或者 BoringTun 
-	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/$WB && chmod +x /usr/bin/$WB
-
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-	yellow " $T34 "
+	yellow " $T34 \c "
 	until [[ -e wgcf-account.toml ]]
 	  do
 	   echo | wgcf register >/dev/null 2>&1
 	done
-	
+	yellow " $T82 "
 	# 如有 Warp+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
-	[[ -n $LICENSE ]] && yellow " $T35 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update > /etc/wireguard/info.log 2>&1 || red " $T36 " )
+	[[ -n $LICENSE ]] && yellow " $T35 \c " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
+	( wgcf update > /etc/wireguard/info.log 2>&1 && yellow " $T82 "|| red " \n$T36 " )
 	
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
 	
 	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
 	# 详细说明：<[WireGuard] Header / MTU sizes for Wireguard>：https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
-	yellow " $T81 "
+	yellow " $T81 \c "
 	MTU=$((1500-28))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
 	until [[ $? = 0 || MTU -le $((1280+80-28)) ]]
@@ -465,6 +463,7 @@ install(){
 	done
 	MTU=$(($MTU+28-80))
 	[[ $MTU -lt 1280 ]] && MTU=1280
+	yellow " $T82 "
 
 	# 修改配置文件
 	sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf
@@ -476,9 +475,9 @@ install(){
 	# 设置开机启动
 	[[ $BORINGTUN != 2 ]] && systemctl start wg-quick@wgcf >/dev/null 2>&1
 	[[ $BORINGTUN != 2 ]] && systemctl enable wg-quick@wgcf >/dev/null 2>&1
-#	[[ $BORINGTUN != 2 ]] && echo '@reboot sleep 10 && root bash warp n' >> /etc/crontab
 
-	# 部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常，使用wireguard-go
+	# 如是 LXC，安装 Wireguard-GO 或者 BoringTun。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
+	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/$WB && chmod +x /usr/bin/$WB
 	[[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]] &&
 	wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
 
