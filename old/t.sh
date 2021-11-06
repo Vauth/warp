@@ -336,7 +336,7 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 [[ $LANGUAGE != 2 && $IPV4 = 1 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
 [[ $LANGUAGE != 2 && $IPV6 = 1 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
-[[ $(type -P warp-cli >/dev/null 2>&1) ]] && CLIENT=1 || CLIENT=0
+[[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
 [[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
 [[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ '127.0.0.1:40000' ]] && CLIENT=3
 
@@ -549,7 +549,7 @@ install(){
 
 proxy(){
  	# 安装 WARP Linux 客户端
-	if [[ -z $(type -P warp-cli >/dev/null 2>&1) ]]; then
+	if [[ -z $(type -P warp-cli 2>/dev/null) ]]; then
   	green " $T83 "
 	[[ $SYSTEM = centos ]] && rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm &&
 	yum -y upgrade && yum -y install cloudflare-warp
