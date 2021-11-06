@@ -2,17 +2,19 @@
 
 * * *
 ## 更新信息：
-2021.11.01  2.08 更新：1)Serching the best MTU value for WARP interface automatically; 2)asn organisation for the VPS; 1)自动设置最优 MTU; 2)显示asn组织(线路提供商)
+2021.11.07  2.09 更新：1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000"  || T1="1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000
 
-2021.10.29  2.07 更新：1)Support Chinese and English; 2)Optimize running speed; 3)fix startup at reboot bug;  1)支持中英文，用户可自行选择; 2)大幅优化速度; 3)修复重启后启动WARP的bug
+2021.11.01  2.08 更新：1.Serching the best MTU value for WARP interface automatically; 2.asn organisation for the VPS; 1.自动设置最优 MTU; 2.显示asn组织(线路提供商)
 
-2021.10.23  2.06 更新：1)添加自动检查是否开启 Tun 模块； 2)提高脚本适配性; 3)新增 hax、Amazon Linux 2 和 Oracle Linux 支持
+2021.10.29  2.07 更新：1.Support Chinese and English; 2.Optimize running speed; 3)fix startup at reboot bug;  1.支持中英文，用户可自行选择; 2.大幅优化速度; 3)修复重启后启动WARP的bug
 
-2021.10.15  2.05 更新：1)WGCF自动同步最新的2.2.9； 2）升级了重启后运行 Warp 的处理方法，不再依赖另外的文件; 3) 修复 KVM 由免费账户升级为 Warp+ 账户的bug
+2021.10.23  2.06 更新：1.添加自动检查是否开启 Tun 模块； 2.提高脚本适配性; 3.新增 hax、Amazon Linux 2 和 Oracle Linux 支持
 
-2021.10.14  2.04 更新：1)LXC 用户自主选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言，性能比前者差点，稳定性高);2)增加限制：原生双栈VPS只能用Warp双栈，bash menu.sh 1 会建议改为Warp双栈或退出; 3) Warp断网后，运行warp会自动关闭通道和杀掉进程; 4)脚本中止后，用 echo $? 显示 1,即代表不成功 (原来为代表运行成功的0)
+2021.10.15  2.05 更新：1.WGCF自动同步最新的2.2.9； 2.升级了重启后运行 Warp 的处理方法，不再依赖另外的文件; 3.修复 KVM 由免费账户升级为 Warp+ 账户的bug
 
-2021.10.12  2.03 更新：1)对刷网络作了优化，加快了两次尝试之间的间隔时间，不会出现死循环，因为已经限制次数为10次，有明确的提示 ~~2)用Rust语言的 BoringTun 替代Go语言的 WireGuard-GO~~
+2021.10.14  2.04 更新：1.LXC 用户自主选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言，性能比前者差点，稳定性高); 2.增加限制：原生双栈VPS只能用Warp双栈，bash menu.sh 1 会建议改为Warp双栈或退出; 3.Warp断网后，运行warp会自动关闭通道和杀掉进程; 4.脚本中止后，用 echo $? 显示 1,即代表不成功 (原来为代表运行成功的0)
+
+2021.10.12  2.03 更新：1.对刷网络作了优化，加快了两次尝试之间的间隔时间，不会出现死循环，因为已经限制次数为10次，有明确的提示 ~~2.用Rust语言的 BoringTun 替代Go语言的 WireGuard-GO~~
 
 2021.10.10  2.02 更新：上游 ip.gs 用 wget 不稳定导致获取不了 IP 而一直在死刷，弃坑用 curl 替换，脚本检查到没有的话自动安装
 
@@ -75,6 +77,8 @@ warp [option] [lisence]
   | d | 免费 WARP 账户升级 WARP+ |
   | d lisence | 在上面基础上把 Warp+ Lisence 添加进去，如 ```bash menu.sh d N5670ljg-sS9jD334-6o6g4M9F```  |
   | p | 刷 Warp+ 流量 |
+  | c | 安装 WARP Linux Client，开启 Socks5 代理模式 |
+  | r | WARP Linux Client 开关 |
   | v | 同步脚本至最新版本 |
   | 其他或空值| 菜单界面 |
 
@@ -133,16 +137,18 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 ## 致谢下列作者和项目（排名不分先后）：  
 
 技术指导:
-* P3terx：https://p3terx.com/archives/use-cloudflare-warp-to-add-extra-ipv4-or-ipv6-network-support-to-vps-servers-for-free.html
-* Luminous：https://luotianyi.vc/5252.html
-* Hiram：https://hiram.wang/cloudflare-wrap-vps
+* P3terx: https://p3terx.com/archives/use-cloudflare-warp-to-add-extra-ipv4-or-ipv6-network-support-to-vps-servers-for-free.html
+* Luminous: https://luotianyi.vc/5252.html
+* Hiram: https://hiram.wang/cloudflare-wrap-vps
+* Cloudflare: https://developers.cloudflare.com/warp-client/setting-up/linux
+* WireGuard: https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
 
 服务提供：
-* CloudFlare Warp(+)：https://1.1.1.1/
-* CloudFlare BoringTun：https://github.com/cloudflare/boringtun
-* WGCF 项目原作者：https://github.com/ViRb3/wgcf/
-* WireGuard-GO 官方：https://git.zx2c4.com/wireguard-go/
-* ylx2016 的成熟作品：https://github.com/ylx2016/Linux-NetSpeed
-* ALIILAPRO 的成熟作品：https://github.com/ALIILAPRO/warp-plus-cloudflare
-* mixool 的成熟作品：https://github.com/mixool/across/tree/master/wireguard
-* 获取公网 IP 及归属地查询：https://ip.gs/
+* CloudFlare Warp(+): https://1.1.1.1/
+* CloudFlare BoringTun: https://github.com/cloudflare/boringtun
+* WGCF 项目原作者: https://github.com/ViRb3/wgcf/
+* WireGuard-GO 官方: https://git.zx2c4.com/wireguard-go/
+* ylx2016 的成熟作品: https://github.com/ylx2016/Linux-NetSpeed
+* ALIILAPRO 的成熟作品: https://github.com/ALIILAPRO/warp-plus-cloudflare
+* mixool 的成熟作品: https://github.com/mixool/across/tree/master/wireguard
+* 获取公网 IP 及归属地查询: https://ip.gs/
