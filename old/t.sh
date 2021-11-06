@@ -76,7 +76,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T69="Add WARP dualstack interface to IPv4 only VPS" || T69="为 IPv4 only 添加双栈网络接口"
 [[ $LANGUAGE != 2 ]] && T70="Add WARP dualstack interface to native dualstack" || T70="为 原生双栈 添加 WARP双栈 网络接口"
 [[ $LANGUAGE != 2 ]] && T71="Turn on WARP" || T71="打开 WARP"
-[[ $LANGUAGE != 2 ]] && T72="Turn off and uninstall WARP interface" || T72="永久关闭 WARP 网络接口，并删除 WARP"
+[[ $LANGUAGE != 2 ]] && T72="Turn off, uninstall WARP interface and Linux Client" || T72="永久关闭 WARP 网络接口，并删除 WARP 和 Linux Client"
 [[ $LANGUAGE != 2 ]] && T73="Upgrade kernel, turn on BBR, change Linux system" || T73="升级内核、安装BBR、DD脚本"
 [[ $LANGUAGE != 2 ]] && T74="Getting WARP+ quota by scripts" || T74="刷 Warp+ 流量"
 [[ $LANGUAGE != 2 ]] && T75="Sync the latest version" || T75="同步最新版本"
@@ -336,10 +336,12 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 [[ $LANGUAGE != 2 && $IPV4 = 1 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
 [[ $LANGUAGE != 2 && $IPV6 = 1 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
-[[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=1
+[[ $(type -P warp-cli >/dev/null 2>&1) ]] && CLIENT=1 || CLIENT=0
+[[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
+[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ '127.0.0.1:40000' ]] && CLIENT=3
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
-[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on || $CLIENT = 1 ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
+[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on || $CLIENT = 3 ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $LXC != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && WG=1
@@ -366,7 +368,7 @@ status(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
 	[[ $PLAN != 3 ]] && green "	WARP $T26 "
-	[[ $CLIENT = 1 ]] && green "	Socks5 Client $T24	127.0.0.1:40000 " || green "	Socks5 Client $T26 "
+	[[ $CLIENT = 3 ]] && green "	Socks5 Client $T24	127.0.0.1:40000 " || green "	Socks5 Client $T26 "
  	red "\n======================================================================================================================\n"
 	}
 
