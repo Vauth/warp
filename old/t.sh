@@ -98,6 +98,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T91="Client is disconnect. It could be connect again by [warp r]" || T91="已断开 Client ，再次连接可以用 warp r"
 [[ $LANGUAGE != 2 ]] && T92="Client is installed already. It could be uninstalled by [warp u]" || T92="Client 已安装，如要卸载，可以用 warp u"
 [[ $LANGUAGE != 2 ]] && T93="Client is not installed. It could be installed by [warp c]" || T93="Client 未安装，如需安装，可以用 warp c"
+[[ $LANGUAGE != 2 ]] && T95="Client register API require IPv4. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T95="Client 注册账户 API 需要 IPv4，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 
 # 当前脚本版本号和新增功能
 VERSION=2.09
@@ -548,16 +549,18 @@ install(){
 	}
 
 proxy(){
+	[[ $IPV4 != 1 ]] && red " $T95 " && exit 1
  	# 安装 WARP Linux Client
 	if [[ -z $(type -P warp-cli 2>/dev/null) ]]; then
-  	green " $T83 "
+  	start=$(date +%s)
+	green " $T83 "
 	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm
 	yum -y upgrade; yum -y install cloudflare-warp)
 	[[ $SYSTEM != centos ]] && apt -y update && apt -y install lsb-release
 	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && apt -y install gnupg
 	[[ $SYSTEM = debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && apt -y install apt-transport-https
-	[[ $SYSTEM != centos ]] && (curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo apt-key add -
-	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+	[[ $SYSTEM != centos ]] && (curl https://pkg.cloudflareclient.com/pubkey.gpg | apt-key add -
+	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
 	apt -y update; apt -y install cloudflare-warp)
 
 	# 设置为代理模式
@@ -577,6 +580,9 @@ proxy(){
 	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
+	end=$(date +%s)
+	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working. Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中，总耗时:$(( $end - $start ))秒"
+	green " $T94 "
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 
