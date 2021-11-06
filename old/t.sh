@@ -257,9 +257,10 @@ onoff(){
 
 # PROXY 开关
 proxy_onoff(){
-    [[ $(warp-cli --accept-tos status | tr A-Z a-z) =~ connecting ]] && 
-    (warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && warp-cli --accept-tos disconnect >/dev/null 2>&1 && green " $T91 " ||
-    (warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && green " $T90 "))
+    [[ $(warp-cli --accept-tos status | tr A-Z a-z) =~ connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 &&
+    	warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && green " $T91 "
+    [[ $(warp-cli --accept-tos status | tr A-Z a-z) =~ disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 &&
+    	warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && green " $T90 "
     }
 
 # 设置部分后缀 2/3
