@@ -19,8 +19,8 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T5="The script supports Debian, Ubuntu or CentOS systems only. Feedback: [https://github.com/fscarmen/warp/issues]" || T5="本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T6="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp d (Upgrade to WARP+ account)\n warp d N5670ljg-sS9jD334-6o6g4M9F (Upgrade to WARP+ account with the license)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp 1 (Add WARP IPv6 interface to native IPv4 VPS or WARP IPv4 interface to native IPv6 VPS)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (Add IPv4 or IPV6 WARP+ interface with the license)\n warp 2 (Add WARP dualstack interface IPv4 + IPv6)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (Add WARP dualstack interface with the license)\n" || T6="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 双栈)\n"
-[[ $LANGUAGE != 2 ]] && T7="Installing curl..." || T7="安装curl中..."
-[[ $LANGUAGE != 2 ]] && T8="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..." || T8="先升级软件库才能继续安装 curl，时间较长，请耐心等待..."
+[[ $LANGUAGE != 2 ]] && T7="Installing curl..." || T7="安装curl中……"
+[[ $LANGUAGE != 2 ]] && T8="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..." || T8="先升级软件库才能继续安装 curl，时间较长，请耐心等待……"
 [[ $LANGUAGE != 2 ]] && T9="Failed to install curl. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T9="安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T10="WireGuard tools are not installed or the configuration file wgcf.conf cannot be found, please reinstall." || T10="没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装。"
 [[ $LANGUAGE != 2 ]] && T14="Got the WARP IP successfully." || T14="已成功获取 WARP 网络"
@@ -42,10 +42,10 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T31="LXC VPS choose（default is 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n Choose:" || T31="LXC方案（默认值选项为 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n 请选择："
 [[ $LANGUAGE != 2 ]] && T32="Step 1/3: Install dependencies" || T32="进度  1/3： 安装系统依赖"
 [[ $LANGUAGE != 2 ]] && T33="Step 2/3: Install WGCF" || T33="进度  2/3： 安装 WGCF"
-[[ $LANGUAGE != 2 ]] && T34="Register new WARP account..." || T34="WARP 注册中..."
-[[ $LANGUAGE != 2 ]] && T35="Update WARP+ account..." || T35="升级 WARP+ 账户中..."
+[[ $LANGUAGE != 2 ]] && T34="Register new WARP account..." || T34="WARP 注册中……"
+[[ $LANGUAGE != 2 ]] && T35="Update WARP+ account..." || T35="升级 WARP+ 账户中……"
 [[ $LANGUAGE != 2 ]] && T36="The upgrade failed, WARP+ account error or more than 5 devices have been activated. Free WARP account to continu." || T36="升级失败，WARP+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续"
-[[ $LANGUAGE != 2 ]] && T37="Checking VPS infomations..." || T37="检查环境中..."
+[[ $LANGUAGE != 2 ]] && T37="Checking VPS infomations..." || T37="检查环境中……"
 [[ $LANGUAGE != 2 ]] && T38="Create shortcut [warp] successfully" || T38="创建快捷 warp 指令成功"
 [[ $LANGUAGE != 2 ]] && T39="Step 3/3: Running WARP" || T39="进度  3/3： 运行 WARP"
 [[ $LANGUAGE != 2 ]] && T43="Run again with warp [option] [lisence], such as" || T43="再次运行用 warp [option] [lisence]，如"
@@ -85,8 +85,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T78="Upgrade to WARP+ account" || T78="升级为 WARP+ 账户"
 [[ $LANGUAGE != 2 ]] && T79="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit:" || T79="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出:"
 [[ $LANGUAGE != 2 ]] && T80="The WARP is working. It will be closed, please run the previous command to install or enter !!" || T80="检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !!"
-[[ $LANGUAGE != 2 ]] && T81="Searching for the best MTU value..." || T81="寻找 MTU 最优值..."
-[[ $LANGUAGE != 2 ]] && T82="Success" || T81="成功"
+[[ $LANGUAGE != 2 ]] && T81="Searching for the best MTU value..." || T81="寻找 MTU 最优值……"
 
 # 当前脚本版本号和新增功能
 VERSION=2.08
@@ -281,9 +280,9 @@ green " $T37 "
 
 # 安装 curl
 [[ ! $(type -P curl) ]] && 
-( yellow " $T7 \c " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) && yellow " $T82 \n " || 
-( yellow " $T8 \c " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 && yellow " $T82 \n " || 
-( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 && yellow " $T82 \n " || ( yellow " $T9 " && exit 1 ))))
+( yellow " $T7 " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) || 
+( yellow " $T8 " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || 
+( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " $T9 " && exit 1 ))))
 
 # 判断处理器架构
 [[ $(arch | tr A-Z a-z) =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
@@ -429,24 +428,23 @@ install(){
 	chmod +x /usr/local/bin/wgcf
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-	yellow " $T34 \c "
+	yellow " $T34 "
 	until [[ -e wgcf-account.toml ]]
 	  do
 	   echo | wgcf register >/dev/null 2>&1
 	done
-	yellow " $T82 \n "
 	
 	# 如有 Warp+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
-	[[ -n $LICENSE ]] && yellow " $T35 \c " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update > /etc/wireguard/info.log 2>&1 && yellow " $T82 \n "|| red " \n$T36 " )
+	[[ -n $LICENSE ]] && yellow " $T35 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
+	( wgcf update > /etc/wireguard/info.log 2>&1 || red " $T36 " )
 	
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
 	
 	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
 	# 详细说明：<[WireGuard] Header / MTU sizes for Wireguard>：https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
-	yellow " $T81 \c "
+	yellow " $T81 "
 	MTU=$((1500-28))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
 	until [[ $? = 0 || MTU -le $((1280+80-28)) ]]
@@ -463,7 +461,6 @@ install(){
 	done
 	MTU=$(($MTU+28-80))
 	[[ $MTU -lt 1280 ]] && MTU=1280
-	yellow " $T82 \n "
 
 	# 修改配置文件
 	sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf
