@@ -258,11 +258,11 @@ onoff(){
 
 # PROXY 开关
 proxy_onoff(){
-    PROXY=$(warp-cli --accept-tos status 2>/dev/null | tr A-Z a-z)
+    PROXY=$(warp-cli --accept-tos status 2>/dev/null)
     [[ -z $PROXY ]] && red " $T93 "
-    [[ $PROXY =~ connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 &&
+    [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 &&
     	warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && green " $T91 "
-    [[ $PROXY =~ disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 &&
+    [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 &&
     	warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && green " $T90 "
     }
 
