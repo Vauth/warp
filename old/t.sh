@@ -542,17 +542,18 @@ install(){
 
 proxy(){
  	# 安装 WARP Linux 客户端
-	if [[ ! $(warp-cli --accept-tos status | tr A-Z a-z) =~ connecting ]]; then
+	if [[ ! $(warp-cli --accept-tos status >/dev/null 2>&1 | tr A-Z a-z) =~ connecting ]]; then
   	green " $T83 "
-	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm
-	yum -y install cloudflare-warp ||
-	(apt -y update && apt -y install lsb-release && curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo apt-key add -
-	echo 'deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main' | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
-	apt -y install cloudflare-warp))
+	[[ $SYSTEM = centos ]] && rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm &&
+	yum -y install cloudflare-warp
+	[[ $SYSTEM != centos ]] && apt -y update && apt -y install lsb-release && curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo apt-key add - &&
+	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list &&
+	apt -y update && apt -y install cloudflare-warp
 
 	# 设置为代理模式
 	green " $T84 "
 	warp-cli --accept-tos register >/dev/null 2>&1
+	warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
 	warp-cli --accept-tos connect >/dev/null 2>&1
 	warp-cli --accept-tos enable-always-on >/dev/null 2>&1
 	[[ $(systemctl is-active warp-svc) = active && $(systemctl is-enabled warp-svc) = enabled ]] && green " $T86 " || red " $T87 "
