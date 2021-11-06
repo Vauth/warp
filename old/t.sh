@@ -99,6 +99,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T92="Client is installed already. It could be uninstalled by [warp u]" || T92="Client 已安装，如要卸载，可以用 warp u"
 [[ $LANGUAGE != 2 ]] && T93="Client is not installed. It could be installed by [warp c]" || T93="Client 未安装，如需安装，可以用 warp c"
 [[ $LANGUAGE != 2 ]] && T95="Client register API require IPv4. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T95="Client 注册账户 API 需要 IPv4，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T96="Client connecting failure. It may be a CloudFlare IPv4." || T96="Client 连接失败，可能是 CloudFlare IPv4."
 
 # 当前脚本版本号和新增功能
 VERSION=2.09
@@ -261,10 +262,11 @@ onoff(){
 proxy_onoff(){
     PROXY=$(warp-cli --accept-tos status 2>/dev/null)
     [[ -z $PROXY ]] && red " $T93 "
-    [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 &&
-    	warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && green " $T91 "
-    [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 &&
-    	warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && green " $T90 "
+    [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && 
+    [[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && green " $T91 "
+    [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && sleep 1 && STATUS=1
+    [[ $STATUS = 1 && $(ss -nltp) =~ '127.0.0.1:40000' ]] && green " $T90 "
+    [[ $STATUS = 1 && $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " $T96 " && exit 1
     }
 
 # 设置部分后缀 2/3
@@ -549,9 +551,24 @@ install(){
 	}
 
 proxy(){
+	settings(){
+		# 设置为代理模式
+		green " $T84 "
+		warp-cli --accept-tos register >/dev/null 2>&1
+		sleep 1
+		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
+		sleep 1
+		warp-cli --accept-tos connect >/dev/null 2>&1
+		sleep 1
+		warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+		sleep 1
+		[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
+		}
+	
 	[[ $IPV4 != 1 ]] && red " $T95 " && exit 1
+	
  	# 安装 WARP Linux Client
-	if [[ -z $(type -P warp-cli 2>/dev/null) ]]; then
+	if [[ ! $(type -P warp-cli 2>/dev/null) ]]; then
   	start=$(date +%s)
 	green " $T83 "
 	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm
@@ -562,18 +579,7 @@ proxy(){
 	[[ $SYSTEM != centos ]] && (curl https://pkg.cloudflareclient.com/pubkey.gpg | apt-key add -
 	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
 	apt -y update; apt -y install cloudflare-warp)
-
-	# 设置为代理模式
-	green " $T84 "
-	warp-cli --accept-tos register >/dev/null 2>&1
-	sleep 1
-	warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
-	sleep 1
-	warp-cli --accept-tos connect >/dev/null 2>&1
-	sleep 1
-	warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-	sleep 1
-	[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
+	settings
 
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
@@ -586,6 +592,10 @@ proxy(){
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 
+	else if 
+	[[ $(type -P warp-cli 2>/dev/null) && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing' ]]; then
+	settings
+	
 	else
 	red " $T85 " 
 	fi
