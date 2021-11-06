@@ -193,7 +193,7 @@ uninstall(){
 	warp-cli --accept-tos disconnect >/dev/null 2>&1
 	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
 	warp-cli --accept-tos delete >/dev/null 2>&1
-	[[ $(type -P yum ) ]] && yum -y cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
+	[[ $(type -P yum ) ]] && yum -y autoremove cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
 	systemctl stop warp-svc >/dev/null 2>&1
 	systemctl disable warp-svc >/dev/null 2>&1
 	IP4=$(curl -s4m5 https://ip.gs/json)
@@ -551,14 +551,14 @@ proxy(){
  	# 安装 WARP Linux Client
 	if [[ -z $(type -P warp-cli 2>/dev/null) ]]; then
   	green " $T83 "
-	[[ $SYSTEM = centos ]] && rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm &&
-	yum -y upgrade && yum -y install cloudflare-warp
+	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm
+	yum -y upgrade; yum -y install cloudflare-warp)
 	[[ $SYSTEM != centos ]] && apt -y update && apt -y install lsb-release
 	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && apt -y install gnupg
 	[[ $SYSTEM = debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && apt -y install apt-transport-https
-	[[ $SYSTEM != centos ]] && curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo apt-key add - &&
-	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list &&
-	apt -y update && apt -y install cloudflare-warp
+	[[ $SYSTEM != centos ]] && (curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo apt-key add -
+	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+	apt -y update; apt -y install cloudflare-warp)
 
 	# 设置为代理模式
 	green " $T84 "
