@@ -13,19 +13,19 @@ reading(){
 }
 
 [[ -n $1 && $1 != [Hh] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
-[[ $LANGUAGE != 2 ]] && T1="1.Serching the best MTU value for WARP interface automatically; 2.asn organisation for the VPS" || T1="1.自动设置最优 MTU; 2.显示asn组织(线路提供商)"
+[[ $LANGUAGE != 2 ]] && T1="1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000"  || T1="1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T5="The script supports Debian, Ubuntu or CentOS systems only. Feedback: [https://github.com/fscarmen/warp/issues]" || T5="本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T6="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp d (Upgrade to WARP+ account)\n warp d N5670ljg-sS9jD334-6o6g4M9F (Upgrade to WARP+ account with the license)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp 1 (Add WARP IPv6 interface to native IPv4 VPS or WARP IPv4 interface to native IPv6 VPS)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (Add IPv4 or IPV6 WARP+ interface with the license)\n warp 2 (Add WARP dualstack interface IPv4 + IPv6)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (Add WARP dualstack interface with the license)\n" || T6="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载warp)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 双栈)\n"
+[[ $LANGUAGE != 2 ]] && T6="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp d (Upgrade to WARP+ account)\n warp d N5670ljg-sS9jD334-6o6g4M9F (Upgrade to WARP+ account with the license)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp c (Install WARP Linux Client)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 1 (Add WARP IPv6 interface to native IPv4 VPS or WARP IPv4 interface to native IPv6 VPS)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (Add IPv4 or IPV6 WARP+ interface with the license)\n warp 2 (Add WARP dualstack interface IPv4 + IPv6)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (Add WARP dualstack interface with the license)\n" || T6="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp r (WARP Linux Client 开关)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 双栈)\n"
 [[ $LANGUAGE != 2 ]] && T7="Installing curl..." || T7="安装curl中……"
 [[ $LANGUAGE != 2 ]] && T8="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..." || T8="先升级软件库才能继续安装 curl，时间较长，请耐心等待……"
 [[ $LANGUAGE != 2 ]] && T9="Failed to install curl. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T9="安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T10="WireGuard tools are not installed or the configuration file wgcf.conf cannot be found, please reinstall." || T10="没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装。"
 [[ $LANGUAGE != 2 ]] && T14="Got the WARP IP successfully." || T14="已成功获取 WARP 网络"
 [[ $LANGUAGE != 2 ]] && T15="WARP is turned off. It could be turned on again by [warp o]" || T15="已暂停 WARP，再次开启可以用 warp o"
-[[ $LANGUAGE != 2 ]] && T16="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support WARP+ account. Third-party scripts are use to increase WARP+ quota or upgrade kernel.\n	* Not only menus, but commands with option.\n	* Intelligent analysis of operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8. Be sure to choose the LTS system. And architecture：AMD or ARM\n	* Automatically select four WireGuard solutions. Performance: Kernel with WireGuard integration＞Install kernel module＞BoringTUN＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Intelligent analysis of lan and wan IP to generate WGCF configuration file.\n	* Output WARP status, IP region and asn\n" || T16="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 WARP+ 账户，附带第三方刷 WARP+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选4个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞BoringTUN＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 智能分析内网和公网IP生成 WGCF 配置文件\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地和线路提供商\n"
+[[ $LANGUAGE != 2 ]] && T16="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support WARP+ account. Third-party scripts are use to increase WARP+ quota or upgrade kernel.\n	* Not only menus, but commands with option.\n	* Intelligent analysis of operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8. Be sure to choose the LTS system. And architecture：AMD or ARM\n	* Automatically select four WireGuard solutions. Performance: Kernel with WireGuard integration＞Install kernel module＞BoringTUN＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Suppert WARP Linux client.\n	* Output WARP status, IP region and asn\n" || T16="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 WARP+ 账户，附带第三方刷 WARP+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选4个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞BoringTUN＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 支持 WARP Linux Socks5 Client\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地和线路提供商\n"
 [[ $LANGUAGE != 2 ]] && T17="Version" || T17="脚本版本"
 [[ $LANGUAGE != 2 ]] && T18="New features" || T18="功能新增"
 [[ $LANGUAGE != 2 ]] && T19="System infomations" || T19="系统信息"
@@ -76,7 +76,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T69="Add WARP dualstack interface to IPv4 only VPS" || T69="为 IPv4 only 添加双栈网络接口"
 [[ $LANGUAGE != 2 ]] && T70="Add WARP dualstack interface to native dualstack" || T70="为 原生双栈 添加 WARP双栈 网络接口"
 [[ $LANGUAGE != 2 ]] && T71="Turn on WARP" || T71="打开 WARP"
-[[ $LANGUAGE != 2 ]] && T72="Turn off and uninstall WARP interface" || T72="永久关闭 WARP 网络接口，并删除 WARP"
+[[ $LANGUAGE != 2 ]] && T72="Turn off, uninstall WARP interface and Linux Client" || T72="永久关闭 WARP 网络接口，并删除 WARP 和 Linux Client"
 [[ $LANGUAGE != 2 ]] && T73="Upgrade kernel, turn on BBR, change Linux system" || T73="升级内核、安装BBR、DD脚本"
 [[ $LANGUAGE != 2 ]] && T74="Getting WARP+ quota by scripts" || T74="刷 Warp+ 流量"
 [[ $LANGUAGE != 2 ]] && T75="Sync the latest version" || T75="同步最新版本"
@@ -86,9 +86,21 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T79="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit:" || T79="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出:"
 [[ $LANGUAGE != 2 ]] && T80="The WARP is working. It will be closed, please run the previous command to install or enter !!" || T80="检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !!"
 [[ $LANGUAGE != 2 ]] && T81="Searching for the best MTU value..." || T81="寻找 MTU 最优值……"
+[[ $LANGUAGE != 2 ]] && T82="Install WARP Client for Linux and Proxy Mode" || T82="安装 WARP 的 Linux Client 和代理模式"
+[[ $LANGUAGE != 2 ]] && T83="Step 1/2: Installing WARP Client..." || T83="进度  1/2： 安装 Client……"
+[[ $LANGUAGE != 2 ]] && T84="Step 2/2: Setting to Proxy Mode" || T84="进度  1/2： 设置代理模式"
+[[ $LANGUAGE != 2 ]] && T85="Client was installed. You can connect/disconnect by [warp r]" || T85="Linux Client 已安装，连接/断开 Client 可以用 warp r"
+[[ $LANGUAGE != 2 ]] && T86="Client is working. Socks5 proxy listening on: 127.0.0.1:40000" || T86="Linux Client 正常运行中。 Socks5 代理监听:127.0.0.1:40000"
+[[ $LANGUAGE != 2 ]] && T87="Fail. Feedback: [https://github.com/fscarmen/warp/issues]" || T87="Linux Client 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T88="Connect the client" || T88="连接 Client"
+[[ $LANGUAGE != 2 ]] && T89="Disconnect the client" || T89="断开 Client"
+[[ $LANGUAGE != 2 ]] && T90="Client is connected" || T90="Client 已连接"
+[[ $LANGUAGE != 2 ]] && T91="Client is disconnect. It could be connect again by [warp r]" || T91="已断开 Client ，再次连接可以用 warp r"
+[[ $LANGUAGE != 2 ]] && T92="Client is installed already. It could be uninstalled by [warp u]" || T92="Client 已安装，如要卸载，可以用 warp u"
+[[ $LANGUAGE != 2 ]] && T93="Client is not installed. It could be installed by [warp c]" || T93="Client 未安装，如需安装，可以用 warp c"
 
 # 当前脚本版本号和新增功能
-VERSION=2.08
+VERSION=2.09
 TXT=" $T1 "
 
 # 参数选项 LICENSE
@@ -178,6 +190,12 @@ uninstall(){
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
+	warp-cli --accept-tos disconnect >/dev/null 2>&1
+	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
+	warp-cli --accept-tos delete >/dev/null 2>&1
+	[[ $(type -P yum ) ]] && yum -y cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
+	systemctl stop warp-svc >/dev/null 2>&1
+	systemctl disable warp-svc >/dev/null 2>&1
 	IP4=$(curl -s4m5 https://ip.gs/json)
 	IP6=$(curl -s6m5 https://ip.gs/json)
 	WAN4=$(echo $IP4 | cut -d \" -f4)
@@ -238,6 +256,16 @@ onoff(){
 	[[ -n $(wg) ]] 2>/dev/null && (echo $DOWN | sh >/dev/null 2>&1; green " $T15 ") || net
 	}
 
+# PROXY 开关
+proxy_onoff(){
+    PROXY=$(warp-cli --accept-tos status 2>/dev/null)
+    [[ -z $PROXY ]] && red " $T93 "
+    [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 &&
+    	warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && green " $T91 "
+    [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 &&
+    	warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && green " $T90 "
+    }
+
 # 设置部分后缀 2/3
 case "$OPTION" in
 [Bb] )	bbrInstall; exit 0;;
@@ -245,6 +273,7 @@ case "$OPTION" in
 [Vv] )	ver; exit 0;;
 [Nn] )	net; exit 0;;
 [Oo] )	onoff; exit 0;;
+[Rr] )	proxy_onoff; exit 0;;
 esac
 
 # 必须加载 TUN 模块
@@ -269,7 +298,7 @@ fi
 [[ -z $SYS ]] && SYS=$(lsb_release -sd 2>/dev/null)
 [[ -z $SYS && -f /etc/lsb-release ]] && SYS=$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)
 [[ -z $SYS && -f /etc/redhat-release ]] && SYS=$(grep . /etc/redhat-release 2>/dev/null)
-[[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d '\' -f1 | sed '/^[ ]*$/d')
+[[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')
 [[ $(echo $SYS | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
 [[ $(echo $SYS | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel|'oracle linux' ]] && SYSTEM=centos
@@ -294,7 +323,7 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 [[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 [[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 
-# 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
+# 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
 		IP4=$(curl -s4m4 https://ip.gs/json) &&
 		WAN4=$(echo $IP4 | cut -d \" -f4) &&
@@ -307,9 +336,12 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 [[ $LANGUAGE != 2 && $IPV4 = 1 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
 [[ $LANGUAGE != 2 && $IPV6 = 1 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
+[[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
+[[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
+[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ '127.0.0.1:40000' ]] && CLIENT=3
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
-[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
+[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on || $CLIENT = 3 ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $LXC != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && WG=1
@@ -335,7 +367,8 @@ status(){
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
-	[[ $PLAN != 3 ]] && green "	WARP $T26"
+	[[ $PLAN != 3 ]] && green "	WARP $T26 "
+	[[ $CLIENT = 3 ]] && green "	Socks5 Client $T24	127.0.0.1:40000 " || green "	Socks5 Client $T26 "
  	red "\n======================================================================================================================\n"
 	}
 
@@ -433,15 +466,15 @@ install(){
 	  do
 	   echo | wgcf register >/dev/null 2>&1
 	done
-	
+
 	# 如有 Warp+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	[[ -n $LICENSE ]] && yellow " $T35 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
 	( wgcf update > /etc/wireguard/info.log 2>&1 || red " $T36 " )
-	
+
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
-	
+
 	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
 	# 详细说明：<[WireGuard] Header / MTU sizes for Wireguard>：https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
 	yellow " $T81 "
@@ -483,7 +516,7 @@ install(){
 
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
-	
+
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
@@ -512,6 +545,44 @@ install(){
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " $T44 "
+	}
+
+proxy(){
+ 	# 安装 WARP Linux Client
+	if [[ -z $(type -P warp-cli 2>/dev/null) ]]; then
+  	green " $T83 "
+	[[ $SYSTEM = centos ]] && rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm &&
+	yum -y upgrade && yum -y install cloudflare-warp
+	[[ $SYSTEM != centos ]] && apt -y update && apt -y install lsb-release
+	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && apt -y install gnupg
+	[[ $SYSTEM = debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && apt -y install apt-transport-https
+	[[ $SYSTEM != centos ]] && curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo apt-key add - &&
+	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list &&
+	apt -y update && apt -y install cloudflare-warp
+
+	# 设置为代理模式
+	green " $T84 "
+	warp-cli --accept-tos register >/dev/null 2>&1
+	sleep 1
+	warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
+	sleep 1
+	warp-cli --accept-tos connect >/dev/null 2>&1
+	sleep 1
+	warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+	sleep 1
+	[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
+
+	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
+	mkdir -p /etc/wireguard/ >/dev/null 2>&1
+	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
+	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
+	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
+	red "\n==============================================================\n"
+	yellow " $T43\n " && help
+
+	else
+	red " $T85 " 
+	fi
 	}
 
 # 免费 Warp 账户升级 Warp+ 账户
@@ -550,6 +621,8 @@ menu1(){
 	green " 5. $T73 "
 	green " 6. $T74 "
 	green " 7. $T75 "
+	green " 8. $T82 "
+	green " 9. $T88 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE1
 		case "$CHOOSE1" in
@@ -560,8 +633,10 @@ menu1(){
 		5 )	bbrInstall;;
 		6 )	plus;;
 		7 )	ver;;
+		8 )	proxy;;
+		9 )	proxy_onoff;;
 		0 )	exit;;
-		* )	red " $T51 [0-7] "; sleep 1; menu1;;
+		* )	red " $T51 [0-9] "; sleep 1; menu1;;
 		esac
 	}
 
@@ -574,6 +649,8 @@ menu2(){
 	green " 4. $T73 "
 	green " 5. $T74 "
 	green " 6. $T75 "
+	green " 7. $T82 "
+	green " 8. $T88 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE2
 		case "$CHOOSE2" in
@@ -583,8 +660,10 @@ menu2(){
 		4 )	bbrInstall;;
 		5 )	plus;;
 		6 )	ver;;
+		7 )	proxy;;
+		8 )	proxy_onoff;;
 		0 )	exit;;
-		* )	red " $T51 [0-6] "; sleep 1; menu2;;
+		* )	red " $T51 [0-8] "; sleep 1; menu2;;
 		esac
 	}
 
@@ -597,6 +676,7 @@ menu3(){
 	green " 4. $T74 "
 	green " 5. $T78 "
 	green " 6. $T75 "
+	green " 7. $T89 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE3
         case "$CHOOSE3" in
@@ -606,6 +686,7 @@ menu3(){
 		4 )	plus;;
 		5 )	update;;
 		6 )	ver;;
+		7 )	proxy_onoff;;
 		0 )	exit;;
 		* )	red " $T51 [0-6] "; sleep 1; menu3;;
 		esac
@@ -620,6 +701,7 @@ case "$OPTION" in
 	install;;
 2 )	[[ $PLAN = 3 ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
+[Cc] )	[[ $CLIENT = 1 ]] && red " $T92 " && exit 1 || proxy;;
 [Dd] )	update;;
 * )	menu$PLAN;;
 esac
