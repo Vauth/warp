@@ -94,9 +94,10 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T87="Fail. Feedback: [https://github.com/fscarmen/warp/issues]" || T87="Linux 客户端安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T88="Connect the client" || T88="连接客户端"
 [[ $LANGUAGE != 2 ]] && T89="Disconnect the client" || T89="断开客户端"
-[[ $LANGUAGE != 2 ]] && T90="Client is connect" || T90="客户端已连接"
+[[ $LANGUAGE != 2 ]] && T90="Client is connected" || T90="客户端已连接"
 [[ $LANGUAGE != 2 ]] && T91="Client is disconnect. It could be connect again by [warp r]" || T91="已断开客户端，再次连接可以用 warp r"
 [[ $LANGUAGE != 2 ]] && T92="Client is installed already. It could be uninstalled by [warp u]" || T92="客户端已安装，如要卸载，可以用 warp u"
+[[ $LANGUAGE != 2 ]] && T93="Client is not installed. It could be installed by [warp c]" || T93="客户端未安装，如需安装，可以用 warp c"
 
 # 当前脚本版本号和新增功能
 VERSION=2.09
@@ -257,9 +258,11 @@ onoff(){
 
 # PROXY 开关
 proxy_onoff(){
-    [[ $(warp-cli --accept-tos status | tr A-Z a-z) =~ connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 &&
+    PROXY=$(warp-cli --accept-tos status >/dev/null 2>&1 | tr A-Z a-z)
+    [[ -z $PROXY ]] && red " $T93 "
+    [[ $PROXY =~ connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 &&
     	warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && green " $T91 "
-    [[ $(warp-cli --accept-tos status | tr A-Z a-z) =~ disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 &&
+    [[ $PROXY =~ disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 &&
     	warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && green " $T90 "
     }
 
@@ -362,7 +365,8 @@ status(){
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
-	[[ $PLAN != 3 ]] && green "	WARP $T26"
+	[[ $PLAN != 3 ]] && green "	WARP $T26 "
+	[[ $CLIENT = 1 ]] && green "	Socks5 Client $T24	127.0.0.1:40000 " || green " Socks5 Client $T26 "
  	red "\n======================================================================================================================\n"
 	}
 
@@ -560,6 +564,7 @@ proxy(){
 	warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
 	warp-cli --accept-tos connect >/dev/null 2>&1
 	warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+	sleep 2
 	[[ $(ss -nltp) =~ '127.0.0.1:40000' ]] && green " $T86 " || red " $T87 "
 
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
