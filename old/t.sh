@@ -281,9 +281,9 @@ green " $T37 "
 
 # 安装 curl
 [[ ! $(type -P curl) ]] && 
-( yellow " $T7 \c " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) && yellow " $T82 " || 
-( yellow " $T8 \c " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 && yellow " $T82 " || 
-( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 && yellow " $T82 " || ( yellow " $T9 " && exit 1 ))))
+( yellow " $T7 \c " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) && yellow " $T82 \n " || 
+( yellow " $T8 \c " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 && yellow " $T82 \n " || 
+( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 && yellow " $T82 \n " || ( yellow " $T9 " && exit 1 ))))
 
 # 判断处理器架构
 [[ $(arch | tr A-Z a-z) =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
@@ -434,12 +434,12 @@ install(){
 	  do
 	   echo | wgcf register >/dev/null 2>&1
 	done
-	yellow " $T82 "
+	yellow " $T82 \n "
 	
 	# 如有 Warp+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	[[ -n $LICENSE ]] && yellow " $T35 \c " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update > /etc/wireguard/info.log 2>&1 && yellow " $T82 "|| red " \n$T36 " )
+	( wgcf update > /etc/wireguard/info.log 2>&1 && yellow " $T82 \n "|| red " \n$T36 " )
 	
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
@@ -463,7 +463,7 @@ install(){
 	done
 	MTU=$(($MTU+28-80))
 	[[ $MTU -lt 1280 ]] && MTU=1280
-	yellow " $T82 "
+	yellow " $T82 \n "
 
 	# 修改配置文件
 	sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf
