@@ -542,7 +542,7 @@ install(){
 
 proxy(){
  	# 安装 WARP Linux 客户端
-	if [[ $TRACE4 = off && $TRACE6 = off && ! $(warp-cli --accept-tos status | tr A-Z a-z) =~ connecting ]]; then
+	if [[ ! $(warp-cli --accept-tos status | tr A-Z a-z) =~ connecting ]]; then
   	green " $T83 "
 	[[ $SYSTEM = centos ]] && rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm &&
 	yum -y install cloudflare-warp ||
