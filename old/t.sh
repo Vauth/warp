@@ -86,6 +86,14 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T79="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit:" || T79="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出:"
 [[ $LANGUAGE != 2 ]] && T80="The WARP is working. It will be closed, please run the previous command to install or enter !!" || T80="检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !!"
 [[ $LANGUAGE != 2 ]] && T81="Searching for the best MTU value..." || T81="寻找 MTU 最优值……"
+[[ $LANGUAGE != 2 ]] && T82="Install WARP Client for Linux and Proxy Mode" || T82="安装 WARP 的 Linux 客户端和代理模式"
+[[ $LANGUAGE != 2 ]] && T83="Step 1/2: Installing WARP Client..." || T83="进度  1/2： 安装客户端……"
+[[ $LANGUAGE != 2 ]] && T84="Step 2/2: Setting to Proxy Mode" || T84="进度  1/2： 设置代理模式"
+[[ $LANGUAGE != 2 ]] && T85="Client is connecting or WARP is working. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T85="Linux 客户端正在连接中，或者 WARP 正在运行。安装中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T86="Client is working. Sock5 proxy listening on: 127.0.0.1:40000" || T86="Linux 客户端正常运行中. Sock5 代理监听:127.0.0.1:40000"
+[[ $LANGUAGE != 2 ]] && T87="Fail. Feedback: [https://github.com/fscarmen/warp/issues]" || T87="Linux 客户端安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T88="Connect the client]" || T88="连接客户端"
+[[ $LANGUAGE != 2 ]] && T89="Disconnect the client]" || T89="断开客户端"
 
 # 当前脚本版本号和新增功能
 VERSION=2.08
@@ -178,6 +186,10 @@ uninstall(){
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
+	warp-cli --accept-tos disconnect >/dev/null 2>&1
+	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
+	warp-cli --accept-tos delete >/dev/null 2>&1
+	[[ $(type -P yum ) ]] && yum -y cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
 	IP4=$(curl -s4m5 https://ip.gs/json)
 	IP6=$(curl -s6m5 https://ip.gs/json)
 	WAN4=$(echo $IP4 | cut -d \" -f4)
@@ -269,7 +281,7 @@ fi
 [[ -z $SYS ]] && SYS=$(lsb_release -sd 2>/dev/null)
 [[ -z $SYS && -f /etc/lsb-release ]] && SYS=$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)
 [[ -z $SYS && -f /etc/redhat-release ]] && SYS=$(grep . /etc/redhat-release 2>/dev/null)
-[[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d '\' -f1 | sed '/^[ ]*$/d')
+#[[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d '\' -f1 | sed '/^[ ]*$/d')
 [[ $(echo $SYS | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
 [[ $(echo $SYS | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel|'oracle linux' ]] && SYSTEM=centos
@@ -294,7 +306,7 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 [[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 [[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 
-# 判断当前 IPv4 与 IPv6 ，归属 及 WARP 是否开启
+# 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
 		IP4=$(curl -s4m4 https://ip.gs/json) &&
 		WAN4=$(echo $IP4 | cut -d \" -f4) &&
@@ -307,6 +319,9 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 [[ $LANGUAGE != 2 && $IPV4 = 1 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
 [[ $LANGUAGE != 2 && $IPV6 = 1 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
+[[ $(systemctl is-active warp-svc) != active || $(systemctl is-enabled warp-svc) != enabled ]] && CLIENT=1
+  
+
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
@@ -514,6 +529,32 @@ install(){
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " $T44 "
 	}
 
+proxy(){
+ 	# 安装 WARP Linux 客户端
+	if [[ $TRACE4 = off && $TRACE6 = off ]]; then
+  	green " $T83 "
+	[[ $SYSTEM = centos ]] && rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm &&
+	yum -y install cloudflare-warp ||
+	(apt -y update && apt -y install lsb-release && curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo apt-key add - &&
+	echo 'deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main' | sudo tee /etc/apt/sources.list.d/cloudflare-client.list &&
+	apt -y install cloudflare-warp)
+
+	# 设置为代理模式
+	green " $T84 "
+	warp-cli --accept-tos register >/dev/null 2>&1
+	warp-cli --accept-tos connect >/dev/null 2>&1
+	warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+	[[ $(systemctl is-active warp-svc) = active && $(systemctl is-enabled warp-svc) = enabled ]] && green " $T86 " || red " $T87 "
+
+	else
+	red " $T85 " 
+	}
+
+proxy_onoff(){
+    warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && warp-cli --accept-tos disconnect >/dev/null 2>&1
+}
+
+
 # 免费 Warp 账户升级 Warp+ 账户
 update() {
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
@@ -550,6 +591,8 @@ menu1(){
 	green " 5. $T73 "
 	green " 6. $T74 "
 	green " 7. $T75 "
+	green " 8. $T82 "
+	green " 9. $T88 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE1
 		case "$CHOOSE1" in
@@ -561,7 +604,7 @@ menu1(){
 		6 )	plus;;
 		7 )	ver;;
 		0 )	exit;;
-		* )	red " $T51 [0-7] "; sleep 1; menu1;;
+		* )	red " $T51 [0-9] "; sleep 1; menu1;;
 		esac
 	}
 
@@ -574,6 +617,8 @@ menu2(){
 	green " 4. $T73 "
 	green " 5. $T74 "
 	green " 6. $T75 "
+	green " 7. $T82 "
+	green " 8. $T88 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE2
 		case "$CHOOSE2" in
@@ -584,7 +629,7 @@ menu2(){
 		5 )	plus;;
 		6 )	ver;;
 		0 )	exit;;
-		* )	red " $T51 [0-6] "; sleep 1; menu2;;
+		* )	red " $T51 [0-8] "; sleep 1; menu2;;
 		esac
 	}
 
@@ -620,6 +665,7 @@ case "$OPTION" in
 	install;;
 2 )	[[ $PLAN = 3 ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
+[Cc] )	proxy;;
 [Dd] )	update;;
 * )	menu$PLAN;;
 esac
