@@ -562,11 +562,14 @@ proxy(){
 
 	# 设置为代理模式
 	green " $T84 "
-	warp-cli --accept-tos register >/dev/null 2>&1 &&
-	warp-cli --accept-tos set-mode proxy >/dev/null 2>&1 &&
-	warp-cli --accept-tos connect >/dev/null 2>&1 &&
-	warp-cli --accept-tos enable-always-on >/dev/null 2>&1 &&
-	sleep 2
+	warp-cli --accept-tos register >/dev/null 2>&1
+	sleep 1
+	warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
+	sleep 1
+	warp-cli --accept-tos connect >/dev/null 2>&1
+	sleep 1
+	warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+	sleep 1
 	[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
 
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
