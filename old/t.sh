@@ -193,7 +193,7 @@ uninstall(){
 	warp-cli --accept-tos disconnect >/dev/null 2>&1
 	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
 	warp-cli --accept-tos delete >/dev/null 2>&1
-	[[ $(type -P yum ) ]] && yum -y cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
+	[[ $(type -P yum ) ]] && yum -y autoremove cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
 	systemctl stop warp-svc >/dev/null 2>&1
 	systemctl disable warp-svc >/dev/null 2>&1
 	IP4=$(curl -s4m5 https://ip.gs/json)
