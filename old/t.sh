@@ -567,6 +567,7 @@ proxy(){
 	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
+	yellow " $T43\n " && help
 
 	else
 	red " $T85 " 
