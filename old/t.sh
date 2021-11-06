@@ -92,8 +92,10 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T85="Client is connecting or WARP is working. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T85="Linux 客户端正在连接中，或者 WARP 正在运行。安装中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T86="Client is working. Sock5 proxy listening on: 127.0.0.1:40000" || T86="Linux 客户端正常运行中. Sock5 代理监听:127.0.0.1:40000"
 [[ $LANGUAGE != 2 ]] && T87="Fail. Feedback: [https://github.com/fscarmen/warp/issues]" || T87="Linux 客户端安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T88="Connect the client]" || T88="连接客户端"
-[[ $LANGUAGE != 2 ]] && T89="Disconnect the client]" || T89="断开客户端"
+[[ $LANGUAGE != 2 ]] && T88="Connect the client" || T88="连接客户端"
+[[ $LANGUAGE != 2 ]] && T89="Disconnect the client" || T89="断开客户端"
+[[ $LANGUAGE != 2 ]] && T90="Client is connect" || T90="客户端已连接"
+[[ $LANGUAGE != 2 ]] && T91="Client is disconnect. It could be connect again by [warp r]" || T91="已断开客户端，再次连接可以用 warp r"
 
 # 当前脚本版本号和新增功能
 VERSION=2.08
@@ -250,6 +252,13 @@ onoff(){
 	[[ -n $(wg) ]] 2>/dev/null && (echo $DOWN | sh >/dev/null 2>&1; green " $T15 ") || net
 	}
 
+# PROXY 开关
+proxy_onoff(){
+    [[ $(warp-cli --accept-tos status | tr A-Z a-z) =~ connecting ]] && 
+    (warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && warp-cli --accept-tos disconnect >/dev/null 2>&1 && green " $T91 " ||
+    (warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && green " $T90 "))
+    }
+
 # 设置部分后缀 2/3
 case "$OPTION" in
 [Bb] )	bbrInstall; exit 0;;
@@ -257,6 +266,7 @@ case "$OPTION" in
 [Vv] )	ver; exit 0;;
 [Nn] )	net; exit 0;;
 [Oo] )	onoff; exit 0;;
+[Rr] )	proxy_onoff; exit 0;;
 esac
 
 # 必须加载 TUN 模块
@@ -281,7 +291,7 @@ fi
 [[ -z $SYS ]] && SYS=$(lsb_release -sd 2>/dev/null)
 [[ -z $SYS && -f /etc/lsb-release ]] && SYS=$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)
 [[ -z $SYS && -f /etc/redhat-release ]] && SYS=$(grep . /etc/redhat-release 2>/dev/null)
-#[[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d '\' -f1 | sed '/^[ ]*$/d')
+[[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')
 [[ $(echo $SYS | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
 [[ $(echo $SYS | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel|'oracle linux' ]] && SYSTEM=centos
@@ -319,12 +329,10 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 [[ $LANGUAGE != 2 && $IPV4 = 1 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
 [[ $LANGUAGE != 2 && $IPV6 = 1 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
-[[ $(systemctl is-active warp-svc) != active || $(systemctl is-enabled warp-svc) != enabled ]] && CLIENT=1
-  
-
+[[ $(systemctl is-active warp-svc >/dev/null 2>&1) = active || $(systemctl is-enabled warp-svc >/dev/null 2>&1) = enabled ]] && CLIENT=1
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
-[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
+[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on || $CLIENT = 1 ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $LXC != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && WG=1
@@ -531,7 +539,7 @@ install(){
 
 proxy(){
  	# 安装 WARP Linux 客户端
-	if [[ $TRACE4 = off && $TRACE6 = off ]]; then
+	if [[ $TRACE4 = off && $TRACE6 = off && ! $(warp-cli --accept-tos status | tr A-Z a-z) =~ connecting ]]; then
   	green " $T83 "
 	[[ $SYSTEM = centos ]] && rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm &&
 	yum -y install cloudflare-warp ||
@@ -548,13 +556,8 @@ proxy(){
 
 	else
 	red " $T85 " 
+	fi
 	}
-
-proxy_onoff(){
-    warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && warp-cli --accept-tos disconnect >/dev/null 2>&1
-}
-
-
 # 免费 Warp 账户升级 Warp+ 账户
 update() {
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
@@ -603,6 +606,8 @@ menu1(){
 		5 )	bbrInstall;;
 		6 )	plus;;
 		7 )	ver;;
+		8 )	proxy;;
+		9 )	proxy_onoff;;
 		0 )	exit;;
 		* )	red " $T51 [0-9] "; sleep 1; menu1;;
 		esac
@@ -628,6 +633,8 @@ menu2(){
 		4 )	bbrInstall;;
 		5 )	plus;;
 		6 )	ver;;
+		7 )	proxy;;
+		8 )	proxy_onoff;;
 		0 )	exit;;
 		* )	red " $T51 [0-8] "; sleep 1; menu2;;
 		esac
@@ -642,6 +649,7 @@ menu3(){
 	green " 4. $T74 "
 	green " 5. $T78 "
 	green " 6. $T75 "
+	green " 7. $T89 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE3
         case "$CHOOSE3" in
@@ -651,6 +659,7 @@ menu3(){
 		4 )	plus;;
 		5 )	update;;
 		6 )	ver;;
+		7 )	proxy_onoff;;
 		0 )	exit;;
 		* )	red " $T51 [0-6] "; sleep 1; menu3;;
 		esac
