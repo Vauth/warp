@@ -366,7 +366,7 @@ status(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
 	[[ $PLAN != 3 ]] && green "	WARP $T26 "
-	[[ $CLIENT = 1 ]] && green "	Socks5 Client $T24	127.0.0.1:40000 " || green " Socks5 Client $T26 "
+	[[ $CLIENT = 1 ]] && green "	Socks5 Client $T24	127.0.0.1:40000 " || green "	Socks5 Client $T26 "
  	red "\n======================================================================================================================\n"
 	}
 
