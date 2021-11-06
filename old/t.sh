@@ -96,6 +96,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T89="Disconnect the client" || T89="断开客户端"
 [[ $LANGUAGE != 2 ]] && T90="Client is connect" || T90="客户端已连接"
 [[ $LANGUAGE != 2 ]] && T91="Client is disconnect. It could be connect again by [warp r]" || T91="已断开客户端，再次连接可以用 warp r"
+[[ $LANGUAGE != 2 ]] && T92="Client is installed already. It could be uninstalled by [warp u]" || T92="客户端已安装，如要卸载，可以用 warp u"
 
 # 当前脚本版本号和新增功能
 VERSION=2.08
@@ -192,6 +193,8 @@ uninstall(){
 	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
 	warp-cli --accept-tos delete >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
+	systemctl stop warp-svc >/dev/null 2>&1
+	systemctl disable warp-svc >/dev/null 2>&1
 	IP4=$(curl -s4m5 https://ip.gs/json)
 	IP6=$(curl -s6m5 https://ip.gs/json)
 	WAN4=$(echo $IP4 | cut -d \" -f4)
@@ -674,7 +677,7 @@ case "$OPTION" in
 	install;;
 2 )	[[ $PLAN = 3 ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-[Cc] )	proxy;;
+[Cc] )	[[ PROXY = 1 ]] && || proxy;;
 [Dd] )	update;;
 * )	menu$PLAN;;
 esac
