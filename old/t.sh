@@ -677,7 +677,7 @@ case "$OPTION" in
 	install;;
 2 )	[[ $PLAN = 3 ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-[Cc] )	[[ PROXY = 1 ]] && || proxy;;
+[Cc] )	[[ $CLIENT = 1 ]] && red " $T92 " && exit 1 || proxy;;
 [Dd] )	update;;
 * )	menu$PLAN;;
 esac
