@@ -258,7 +258,7 @@ onoff(){
 
 # PROXY 开关
 proxy_onoff(){
-    PROXY=$(warp-cli --accept-tos status >/dev/null 2>&1 | tr A-Z a-z)
+    PROXY=$(warp-cli --accept-tos status 2>/dev/null | tr A-Z a-z)
     [[ -z $PROXY ]] && red " $T93 "
     [[ $PROXY =~ connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 &&
     	warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && green " $T91 "
@@ -572,6 +572,7 @@ proxy(){
 	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
+	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 
 	else
