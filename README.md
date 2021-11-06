@@ -2,7 +2,7 @@
 
 * * *
 ## 更新信息：
-2021.11.07  2.09 更新：1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000"  || T1="1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000
+2021.11.06  2.09 更新：1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000; 1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000
 
 2021.11.01  2.08 更新：1.Serching the best MTU value for WARP interface automatically; 2.asn organisation for the VPS; 1.自动设置最优 MTU; 2.显示asn组织(线路提供商)
 
