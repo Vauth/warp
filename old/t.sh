@@ -565,7 +565,7 @@ proxy(){
 	warp-cli --accept-tos connect >/dev/null 2>&1
 	warp-cli --accept-tos enable-always-on >/dev/null 2>&1
 	sleep 2
-	[[ $(ss -nltp) =~ '127.0.0.1:40000' ]] && green " $T86 " || red " $T87 "
+	[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
 
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
