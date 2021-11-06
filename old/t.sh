@@ -562,10 +562,10 @@ proxy(){
 
 	# 设置为代理模式
 	green " $T84 "
-	warp-cli --accept-tos register >/dev/null 2>&1
-	warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
-	warp-cli --accept-tos connect >/dev/null 2>&1
-	warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+	warp-cli --accept-tos register 2>/dev/null
+	warp-cli --accept-tos set-mode proxy 2>/dev/null
+	warp-cli --accept-tos connect 2>/dev/null
+	warp-cli --accept-tos enable-always-on 2>/dev/null
 	sleep 2
 	[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
 
