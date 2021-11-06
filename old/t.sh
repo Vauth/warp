@@ -459,15 +459,15 @@ install(){
 	  do
 	   echo | wgcf register >/dev/null 2>&1
 	done
-	
+
 	# 如有 Warp+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	[[ -n $LICENSE ]] && yellow " $T35 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
 	( wgcf update > /etc/wireguard/info.log 2>&1 || red " $T36 " )
-	
+
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
-	
+
 	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
 	# 详细说明：<[WireGuard] Header / MTU sizes for Wireguard>：https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
 	yellow " $T81 "
@@ -509,7 +509,7 @@ install(){
 
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
-	
+
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
@@ -545,8 +545,11 @@ proxy(){
 	if [[ -z $(type -P warp-cli >/dev/null 2>&1) ]]; then
   	green " $T83 "
 	[[ $SYSTEM = centos ]] && rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm &&
-	yum -y install cloudflare-warp
-	[[ $SYSTEM != centos ]] && apt -y update && apt -y install lsb-release && curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo apt-key add - &&
+	yum -y upgrade && yum -y install cloudflare-warp
+	[[ $SYSTEM != centos ]] && apt -y update && apt -y install lsb-release
+	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && apt -y install gnupg
+	[[ $SYSTEM = debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && apt -y install apt-transport-https
+	[[ $SYSTEM != centos ]] && curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo apt-key add - &&
 	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list &&
 	apt -y update && apt -y install cloudflare-warp
 
@@ -557,7 +560,7 @@ proxy(){
 	warp-cli --accept-tos connect >/dev/null 2>&1
 	warp-cli --accept-tos enable-always-on >/dev/null 2>&1
 	[[ $(ss -nltp) =~ '127.0.0.1:40000' ]] && green " $T86 " || red " $T87 "
-	
+
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
