@@ -198,8 +198,8 @@ uninstall(){
 	[[ $(type -P yum ) ]] && yum -y autoremove cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
 	systemctl stop warp-svc >/dev/null 2>&1
 	systemctl disable warp-svc >/dev/null 2>&1
-	IP4=$(curl -s4m5 https://ip.gs/json)
-	IP6=$(curl -s6m5 https://ip.gs/json)
+	IP4=$(curl -s4m7 https://ip.gs/json)
+	IP6=$(curl -s6m7 https://ip.gs/json)
 	WAN4=$(echo $IP4 | cut -d \" -f4)
 	WAN6=$(echo $IP6 | cut -d \" -f4)
 	[[ $LANGUAGE != 2 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
