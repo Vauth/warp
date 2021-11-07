@@ -88,7 +88,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T81="Searching for the best MTU value..." || T81="寻找 MTU 最优值……"
 [[ $LANGUAGE != 2 ]] && T82="Install WARP Client for Linux and Proxy Mode" || T82="安装 WARP 的 Linux Client 和代理模式"
 [[ $LANGUAGE != 2 ]] && T83="Step 1/2: Installing WARP Client..." || T83="进度  1/2： 安装 Client……"
-[[ $LANGUAGE != 2 ]] && T84="Step 2/2: Setting to Proxy Mode" || T84="进度  1/2： 设置代理模式"
+[[ $LANGUAGE != 2 ]] && T84="Step 2/2: Setting to Proxy Mode" || T84="进度  2/2： 设置代理模式"
 [[ $LANGUAGE != 2 ]] && T85="Client was installed. You can connect/disconnect by [warp r]" || T85="Linux Client 已安装，连接/断开 Client 可以用 warp r"
 [[ $LANGUAGE != 2 ]] && T86="Client is working. Socks5 proxy listening on: 127.0.0.1:40000" || T86="Linux Client 正常运行中。 Socks5 代理监听:127.0.0.1:40000"
 [[ $LANGUAGE != 2 ]] && T87="Fail to establish Socks5 proxy. Feedback: [https://github.com/fscarmen/warp/issues]" || T87="创建 Socks5 代理失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
