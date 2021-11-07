@@ -91,7 +91,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T84="Step 2/2: Setting to Proxy Mode" || T84="进度  1/2： 设置代理模式"
 [[ $LANGUAGE != 2 ]] && T85="Client was installed. You can connect/disconnect by [warp r]" || T85="Linux Client 已安装，连接/断开 Client 可以用 warp r"
 [[ $LANGUAGE != 2 ]] && T86="Client is working. Socks5 proxy listening on: 127.0.0.1:40000" || T86="Linux Client 正常运行中。 Socks5 代理监听:127.0.0.1:40000"
-[[ $LANGUAGE != 2 ]] && T87="Fail. Feedback: [https://github.com/fscarmen/warp/issues]" || T87="Linux Client 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T87="Fail to establish Socks5 proxy. Feedback: [https://github.com/fscarmen/warp/issues]" || T87="创建 Socks5 代理失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T88="Connect the client" || T88="连接 Client"
 [[ $LANGUAGE != 2 ]] && T89="Disconnect the client" || T89="断开 Client"
 [[ $LANGUAGE != 2 ]] && T90="Client is connected" || T90="Client 已连接"
@@ -592,7 +592,7 @@ proxy(){
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 
-	else if	[[ $(type -P warp-cli 2>/dev/null) && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing' ]]; then
+	else if	[[ $(type -P warp-cli 2>/dev/null) && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing'|'' ]]; then
 	settings
 	
 	else
@@ -716,7 +716,7 @@ case "$OPTION" in
 	install;;
 2 )	[[ $PLAN = 3 ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-[Cc] )	[[ $CLIENT = 1 ]] && red " $T92 " && exit 1 || proxy;;
+[Cc] )	[[ $CLIENT = 3 ]] && red " $T92 " && exit 1 || proxy;;
 [Dd] )	update;;
 * )	menu$PLAN;;
 esac
