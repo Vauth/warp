@@ -592,7 +592,7 @@ proxy(){
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 
-	else if	[[ $(type -P warp-cli 2>/dev/null) && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing'|'' ]]; then
+	elif	[[ $(type -P warp-cli 2>/dev/null) && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing'|'' ]]; then
 	settings
 	
 	else
