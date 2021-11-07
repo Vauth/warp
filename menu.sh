@@ -91,13 +91,15 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T84="Step 2/2: Setting to Proxy Mode" || T84="进度  1/2： 设置代理模式"
 [[ $LANGUAGE != 2 ]] && T85="Client was installed. You can connect/disconnect by [warp r]" || T85="Linux Client 已安装，连接/断开 Client 可以用 warp r"
 [[ $LANGUAGE != 2 ]] && T86="Client is working. Socks5 proxy listening on: 127.0.0.1:40000" || T86="Linux Client 正常运行中。 Socks5 代理监听:127.0.0.1:40000"
-[[ $LANGUAGE != 2 ]] && T87="Fail. Feedback: [https://github.com/fscarmen/warp/issues]" || T87="Linux Client 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T87="Fail to establish Socks5 proxy. Feedback: [https://github.com/fscarmen/warp/issues]" || T87="创建 Socks5 代理失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T88="Connect the client" || T88="连接 Client"
 [[ $LANGUAGE != 2 ]] && T89="Disconnect the client" || T89="断开 Client"
 [[ $LANGUAGE != 2 ]] && T90="Client is connected" || T90="Client 已连接"
 [[ $LANGUAGE != 2 ]] && T91="Client is disconnect. It could be connect again by [warp r]" || T91="已断开 Client ，再次连接可以用 warp r"
 [[ $LANGUAGE != 2 ]] && T92="Client is installed already. It could be uninstalled by [warp u]" || T92="Client 已安装，如要卸载，可以用 warp u"
 [[ $LANGUAGE != 2 ]] && T93="Client is not installed. It could be installed by [warp c]" || T93="Client 未安装，如需安装，可以用 warp c"
+[[ $LANGUAGE != 2 ]] && T95="Client register API require IPv4. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T95="Client 注册账户 API 需要 IPv4，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T96="Client connecting failure. It may be a CloudFlare IPv4." || T96="Client 连接失败，可能是 CloudFlare IPv4."
 
 # 当前脚本版本号和新增功能
 VERSION=2.09
@@ -260,10 +262,11 @@ onoff(){
 proxy_onoff(){
     PROXY=$(warp-cli --accept-tos status 2>/dev/null)
     [[ -z $PROXY ]] && red " $T93 "
-    [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 &&
-    	warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && green " $T91 "
-    [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 &&
-    	warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && green " $T90 "
+    [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && 
+    [[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && green " $T91 "
+    [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && sleep 1 && STATUS=1
+    [[ $STATUS = 1 && $(ss -nltp) =~ '127.0.0.1:40000' ]] && green " $T90 "
+    [[ $STATUS = 1 && $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " $T96 " && exit 1
     }
 
 # 设置部分后缀 2/3
@@ -479,18 +482,18 @@ install(){
 	# 详细说明：<[WireGuard] Header / MTU sizes for Wireguard>：https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
 	yellow " $T81 "
 	MTU=$((1500-28))
-	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
+	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
 	until [[ $? = 0 || MTU -le $((1280+80-28)) ]]
 	do
 	MTU=$(($MTU-10))
-	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
+	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
 	done
 	[[ $MTU -lt $((1500-28)) ]] && MTU=$(($MTU+9))
-	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1
+	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
 	until [[ $? = 0 || MTU -le $((1280+80-28)) ]]
 	do
         MTU=$(($MTU-1))
-        [[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -M do 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -M do 162.159.192.1 >/dev/null 2>&1      
+        [[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1      
 	done
 	MTU=$(($MTU+28-80))
 	[[ $MTU -lt 1280 ]] && MTU=1280
@@ -548,38 +551,50 @@ install(){
 	}
 
 proxy(){
+	settings(){
+		# 设置为代理模式
+		green " $T84 "
+		warp-cli --accept-tos register >/dev/null 2>&1
+		sleep 1
+		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
+		sleep 1
+		warp-cli --accept-tos connect >/dev/null 2>&1
+		sleep 1
+		warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+		sleep 1
+		[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
+		}
+	
+	[[ $IPV4 != 1 ]] && red " $T95 " && exit 1
+	
  	# 安装 WARP Linux Client
-	if [[ -z $(type -P warp-cli 2>/dev/null) ]]; then
-  	green " $T83 "
+	if [[ ! $(type -P warp-cli 2>/dev/null) ]]; then
+  	start=$(date +%s)
+	green " $T83 "
 	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm
 	yum -y upgrade; yum -y install cloudflare-warp)
 	[[ $SYSTEM != centos ]] && apt -y update && apt -y install lsb-release
 	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && apt -y install gnupg
 	[[ $SYSTEM = debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && apt -y install apt-transport-https
-	[[ $SYSTEM != centos ]] && (curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo apt-key add -
-	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+	[[ $SYSTEM != centos ]] && (curl https://pkg.cloudflareclient.com/pubkey.gpg | apt-key add -
+	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
 	apt -y update; apt -y install cloudflare-warp)
-
-	# 设置为代理模式
-	green " $T84 "
-	warp-cli --accept-tos register >/dev/null 2>&1
-	sleep 1
-	warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
-	sleep 1
-	warp-cli --accept-tos connect >/dev/null 2>&1
-	sleep 1
-	warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-	sleep 1
-	[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
+	settings
 
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
+	end=$(date +%s)
+	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working. Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中，总耗时:$(( $end - $start ))秒"
+	green " $T94 "
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 
+	else if	[[ $(type -P warp-cli 2>/dev/null) && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing'|'' ]]; then
+	settings
+	
 	else
 	red " $T85 " 
 	fi
@@ -701,7 +716,7 @@ case "$OPTION" in
 	install;;
 2 )	[[ $PLAN = 3 ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-[Cc] )	[[ $CLIENT = 1 ]] && red " $T92 " && exit 1 || proxy;;
+[Cc] )	[[ $CLIENT = 3 ]] && red " $T92 " && exit 1 || proxy;;
 [Dd] )	update;;
 * )	menu$PLAN;;
 esac
