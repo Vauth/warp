@@ -232,16 +232,16 @@ net(){
 	[[ $(systemctl is-active wg-quick@wgcf) != active ]] && echo $DOWN | sh >/dev/null 2>&1
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo $UP | sh >/dev/null 2>&1
-	IP4=$(curl -s4m5 https://ip.gs/json) &&
-	IP6=$(curl -s6m5 https://ip.gs/json)
+	IP4=$(curl -s4m7 https://ip.gs/json) &&
+	IP6=$(curl -s6m7 https://ip.gs/json)
 	until [[ -n $IP4 && -n $IP6 ]]
 		do	let i++
 			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
 			yellow " $T12 "
 			echo $DOWN | sh >/dev/null 2>&1
 			echo $UP | sh >/dev/null 2>&1
-			IP4=$(curl -s4m5 https://ip.gs/json) &&
-			IP6=$(curl -s6m5 https://ip.gs/json)
+			IP4=$(curl -s4m7 https://ip.gs/json) &&
+			IP6=$(curl -s6m7 https://ip.gs/json)
 			[[ $i = $j ]] && (echo $DOWN | sh >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
 	WAN4=$(echo $IP4 | cut -d \" -f4)
