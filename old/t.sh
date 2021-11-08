@@ -558,12 +558,15 @@ install(){
 
 proxy(){
 	settings(){
-		# 设置为代理模式
+		# 设置为代理模式，如有 Warp+ 账户，修改 license 并升级
 		green " $T84 "
 		warp-cli --accept-tos register >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos connect >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos enable-always-on >/dev/null 2>&1; sleep 1
+		[[ -n $LICENSE ]] && yellow " $T35 " && warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1; sleep 1
+		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+		[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
 		[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
 		}
 	
