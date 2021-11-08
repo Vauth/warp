@@ -12,8 +12,8 @@ reading(){
 	read -p "$(green "$1")" $2
 }
 
-[[ -n $1 && $1 != [Hh] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
-[[ $LANGUAGE != 2 ]] && T1="1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000"  || T1="1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000"
+[[ -n $1 && $1 != [CcHhDdPpBbVv12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
+[[ $LANGUAGE != 2 ]] && T1="1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000; 2.WARP+ license on Client supported."  || T1="1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000; 2.Client 支持 WARP+ 账户升级和安装"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -50,7 +50,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T39="Step 3/3: Running WARP" || T39="进度  3/3： 运行 WARP"
 [[ $LANGUAGE != 2 ]] && T43="Run again with warp [option] [lisence], such as" || T43="再次运行用 warp [option] [lisence]，如"
 [[ $LANGUAGE != 2 ]] && T44="WARP installation failed. Feedback: [https://github.com/fscarmen/warp/issues]" || T44="WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T45="WGCF has been completely deleted!" || T45="WGCF 已彻底删除!"
+[[ $LANGUAGE != 2 ]] && T45="WGCF and WARP Linux Client have been completely deleted!" || T45="WGCF 和 WARP Linux Client 已彻底删除!"
 [[ $LANGUAGE != 2 ]] && T46="Not cleaned up, please reboot and try again." || T46="没有清除干净，请重启(reboot)后尝试再次删除"
 [[ $LANGUAGE != 2 ]] && T47="Upgrade kernel, turn on BBR, change Linux system by other authors [ylx2016],[https://github.com/ylx2016/Linux-NetSpeed]" || T47="BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
 [[ $LANGUAGE != 2 ]] && T48="Run script " || T48="安装脚本【推荐原版BBR+FQ】"
@@ -98,8 +98,10 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T91="Client is disconnect. It could be connect again by [warp r]" || T91="已断开 Client ，再次连接可以用 warp r"
 [[ $LANGUAGE != 2 ]] && T92="Client is installed already. It could be uninstalled by [warp u]" || T92="Client 已安装，如要卸载，可以用 warp u"
 [[ $LANGUAGE != 2 ]] && T93="Client is not installed. It could be installed by [warp c]" || T93="Client 未安装，如需安装，可以用 warp c"
-[[ $LANGUAGE != 2 ]] && T95="Client register API require IPv4. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T95="Client 注册账户 API 需要 IPv4，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T95="Client works with non-WARP IPv4. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T95="Client 在非 WARP IPv4 下才能工作正常，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T96="Client connecting failure. It may be a CloudFlare IPv4." || T96="Client 连接失败，可能是 CloudFlare IPv4."
+[[ $LANGUAGE != 2 ]] && T97="It is a WARP+ account already. Update is aborted." || T97="已经是 WARP+ 账户，不需要升级"
+[[ $LANGUAGE != 2 ]] && T98="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:" || T98="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
 
 # 当前脚本版本号和新增功能
 VERSION=2.09
@@ -198,8 +200,8 @@ uninstall(){
 	[[ $(type -P yum ) ]] && yum -y autoremove cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
 	systemctl stop warp-svc >/dev/null 2>&1
 	systemctl disable warp-svc >/dev/null 2>&1
-	IP4=$(curl -s4m5 https://ip.gs/json)
-	IP6=$(curl -s6m5 https://ip.gs/json)
+	IP4=$(curl -s4m7 https://ip.gs/json)
+	IP6=$(curl -s6m7 https://ip.gs/json)
 	WAN4=$(echo $IP4 | cut -d \" -f4)
 	WAN6=$(echo $IP6 | cut -d \" -f4)
 	[[ $LANGUAGE != 2 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
@@ -232,16 +234,16 @@ net(){
 	[[ $(systemctl is-active wg-quick@wgcf) != active ]] && echo $DOWN | sh >/dev/null 2>&1
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo $UP | sh >/dev/null 2>&1
-	IP4=$(curl -s4m5 https://ip.gs/json) &&
-	IP6=$(curl -s6m5 https://ip.gs/json)
+	IP4=$(curl -s4m7 https://ip.gs/json) &&
+	IP6=$(curl -s6m7 https://ip.gs/json)
 	until [[ -n $IP4 && -n $IP6 ]]
 		do	let i++
 			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
 			yellow " $T12 "
 			echo $DOWN | sh >/dev/null 2>&1
 			echo $UP | sh >/dev/null 2>&1
-			IP4=$(curl -s4m5 https://ip.gs/json) &&
-			IP6=$(curl -s6m5 https://ip.gs/json)
+			IP4=$(curl -s4m7 https://ip.gs/json) &&
+			IP6=$(curl -s6m7 https://ip.gs/json)
 			[[ $i = $j ]] && (echo $DOWN | sh >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
 	WAN4=$(echo $IP4 | cut -d \" -f4)
@@ -342,6 +344,9 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 [[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
 [[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
 [[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ '127.0.0.1:40000' ]] && CLIENT=3
+[[ $TRACE4 = plus ]] && PLUS4=+
+[[ $TRACE4 = plus ]] && PLUS6=+
+[[ $(warp-cli --accept-tos account 2>/dev/null) =~ Limited ]] && AC=+
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on || $CLIENT = 3 ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
@@ -362,30 +367,32 @@ status(){
 	yellow " $T16 "
 	red "======================================================================================================================\n"
 	green " $T17：$VERSION  $T18：$TXT\n $T19：\n	$T20：$SYS\n	$T21：$(uname -r)\n	$T22：$ARCHITECTURE\n	$T23：$VIRT "
-	[[ $TRACE4 = plus ]] && green "	IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4  $ASNORG4 "
-	[[ $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 $ASNORG4 "
+	[[ $TRACE4 = plus || $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP$PLUS4 IPv4 ) $COUNTRY4  $ASNORG4 "
 	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
-	[[ $TRACE6 = plus ]] && green "	IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 $ASNORG6 "
-	[[ $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 $ASNORG6 "
+	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
 	[[ $PLAN != 3 ]] && green "	WARP $T26 "
-	[[ $CLIENT = 3 ]] && green "	Socks5 Client $T24	127.0.0.1:40000 " || green "	Socks5 Client $T26 "
+	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	127.0.0.1:40000 " || green "	WARP$AC Socks5 Client $T26 "
  	red "\n======================================================================================================================\n"
 	}
 
+# 输入 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
+input_license(){
+[[ -z $LICENSE ]] && reading " $T28: " LICENSE
+i=5
+until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
+	do
+		let i--
+		[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining)" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次)"
+		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
+	done
+}
+
 # WGCF 安装
 install(){
-	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
-	[[ -z $LICENSE ]] && reading " $T28: " LICENSE
-	i=5
-	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
-		do
-			let i--
-			[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining)" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次)"
-			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
-		done
+	input_license
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
 	[[ $LXC = 1 ]] && reading " $T31 " BORINGTUN
@@ -552,24 +559,24 @@ install(){
 
 proxy(){
 	settings(){
-		# 设置为代理模式
+		# 设置为代理模式，如有 Warp+ 账户，修改 license 并升级
 		green " $T84 "
-		warp-cli --accept-tos register >/dev/null 2>&1
-		sleep 1
-		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
-		sleep 1
-		warp-cli --accept-tos connect >/dev/null 2>&1
-		sleep 1
-		warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-		sleep 1
+		warp-cli --accept-tos register >/dev/null 2>&1; sleep 1
+		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1; sleep 1
+		warp-cli --accept-tos connect >/dev/null 2>&1; sleep 1
+		warp-cli --accept-tos enable-always-on >/dev/null 2>&1; sleep 1
+		[[ -n $LICENSE ]] && yellow " $T35 " && warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1; sleep 1
+		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+		[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
 		[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
 		}
 	
-	[[ $IPV4 != 1 ]] && red " $T95 " && exit 1
-	
+	[[ $TRACE4 != off ]] && red " $T95 " && exit 1
+
  	# 安装 WARP Linux Client
-	if [[ ! $(type -P warp-cli 2>/dev/null) ]]; then
-  	start=$(date +%s)
+	input_license
+	start=$(date +%s)
+	if [[ $CLIENT = 0 ]]; then
 	green " $T83 "
 	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm
 	yum -y upgrade; yum -y install cloudflare-warp)
@@ -581,38 +588,46 @@ proxy(){
 	apt -y update; apt -y install cloudflare-warp)
 	settings
 
+	elif [[ $CLIENT = 2 ]] && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing'|'' ]]; then
+	settings
+
+	else
+	red " $T85 " 
+	fi
+
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
+	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	end=$(date +%s)
-	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working. Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中，总耗时:$(( $end - $start ))秒"
-	green " $T94 "
+	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working.\n Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中\n 总耗时:$(( $end - $start ))秒"
+	[[ $LANGUAGE != 2 ]] && T99="Congratulations! WARP+ Linux Client is working.\n Spend time:$(( $end - $start )) seconds\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || T99="恭喜！WARP+ Linux Client 工作中\n 总耗时:$(( $end - $start ))秒\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB"
+	[[ $ACCOUNT =~ Free ]] && green " $T94 "
+	[[ $ACCOUNT =~ Limited ]] && green " $T99 "
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
-
-	elif	[[ $(type -P warp-cli 2>/dev/null) && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing'|'' ]]; then
-	settings
-	
-	else
-	red " $T85 " 
-	fi
 	}
 
 # 免费 Warp 账户升级 Warp+ 账户
-update() {
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
-	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " $T59 " && exit 1
-	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " $T60 " && exit 1
+update(){
+	update_license(){
 	[[ -z $LICENSE ]] && reading " $T61 " LICENSE
 	i=5
 	until [[ ${#LICENSE} = 26 ]]
 	do
 	let i--
 	[[ $LANGUAGE != 2 ]] && T62=" License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining) " || T62=" License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: "
-	[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T62 " LICENSE
+	[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T61 " LICENSE
         done
+	}
+	
+	wgcf_account(){
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
+	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " $T59 " && exit 1
+	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " $T60 " && exit 1
+	update_license
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update > /etc/wireguard/info.log 2>&1 &&
@@ -625,6 +640,20 @@ update() {
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
 	green " $T62\n $T27：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n $T63：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " $T36 "
 	}
+	
+	client_account(){
+	[[ $(warp-cli --accept-tos account) =~ Limited ]] && red " $T97 " && exit 1
+	update_license
+	warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1; sleep 1
+	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+	[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
+	}
+	
+	reading " $T98 " MODE
+		case "$MODE" in
+		1 ) wgcf_account;;		2 ) client_account;;		* ) red " $T51 [1-2] "; sleep 1; update;;
+		esac
+}
 
 # 单栈
 menu1(){
