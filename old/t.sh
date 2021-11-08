@@ -377,17 +377,21 @@ status(){
  	red "\n======================================================================================================================\n"
 	}
 
+# 输入 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
+input_license(){
+[[ -z $LICENSE ]] && reading " $T28: " LICENSE
+i=5
+until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
+	do
+		let i--
+		[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining)" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次)"
+		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
+	done
+}
+
 # WGCF 安装
 install(){
-	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
-	[[ -z $LICENSE ]] && reading " $T28: " LICENSE
-	i=5
-	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
-		do
-			let i--
-			[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining)" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次)"
-			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
-		done
+	input_license
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
 	[[ $LXC = 1 ]] && reading " $T31 " BORINGTUN
@@ -566,6 +570,7 @@ proxy(){
 	[[ $TRACE4 != off ]] && red " $T95 " && exit 1
 
  	# 安装 WARP Linux Client
+	input_license
 	start=$(date +%s)
 	if [[ $CLIENT = 0 ]]; then
 	green " $T83 "
@@ -600,7 +605,7 @@ proxy(){
 
 # 免费 Warp 账户升级 Warp+ 账户
 update(){
-	input_license(){
+	update_license(){
 	[[ -z $LICENSE ]] && reading " $T61 " LICENSE
 	i=5
 	until [[ ${#LICENSE} = 26 ]]
@@ -615,7 +620,7 @@ update(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " $T59 " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " $T60 " && exit 1
-	input_license
+	update_license
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update > /etc/wireguard/info.log 2>&1 &&
@@ -631,7 +636,7 @@ update(){
 	
 	client_account(){
 	[[ $(warp-cli --accept-tos account) =~ Limited ]] && red " $T97 " && exit 1
-	input_license
+	update_license
 	warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1; sleep 1
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
