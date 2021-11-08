@@ -620,7 +620,7 @@ update(){
 	do
 	let i--
 	[[ $LANGUAGE != 2 ]] && T62=" License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining) " || T62=" License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: "
-	[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T61 " LICENSE
+	[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T62 " LICENSE
         done
 	}
 	
