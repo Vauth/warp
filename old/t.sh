@@ -160,6 +160,8 @@ case "$OPTION" in
 [Pp] )	plus; exit 0;;
 esac
 
+green " $T37 "
+
 # 必须以root运行脚本
 [[ $(id -u) != 0 ]] && red " $T2 " && exit 1
 
@@ -309,8 +311,6 @@ fi
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel|'oracle linux' ]] && SYSTEM=centos
 [[ $(echo $SYS | tr A-Z a-z) =~ 'amazon linux' ]] && SYSTEM=centos && COMPANY=amazon
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
-
-green " $T37 "
 
 # 安装 curl
 [[ ! $(type -P curl) ]] && 
@@ -602,10 +602,9 @@ proxy(){
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	end=$(date +%s)
-	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working.\n Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中\n 总耗时:$(( $end - $start ))秒"
-	[[ $LANGUAGE != 2 ]] && T99="Congratulations! WARP+ Linux Client is working.\n Spend time:$(( $end - $start )) seconds\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || T99="恭喜！WARP+ Linux Client 工作中\n 总耗时:$(( $end - $start ))秒\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB"
-	[[ $ACCOUNT =~ Free ]] && green " $T94 "
-	[[ $ACCOUNT =~ Limited ]] && green " $T99 "
+	[[ $LANGUAGE != 2 && $ACCOUNT =~ Free ]] && T94="Congratulations! WARP Linux Client is working.\n Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中\n 总耗时:$(( $end - $start ))秒"
+	[[ $LANGUAGE != 2 && $ACCOUNT =~ Limited ]] && T94="Congratulations! WARP+ Linux Client is working.\n Spend time:$(( $end - $start )) seconds\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || T94="恭喜！WARP+ Linux Client 工作中\n 总耗时:$(( $end - $start ))秒\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB"
+	green " $T94 "
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 	}
