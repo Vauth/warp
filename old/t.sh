@@ -650,10 +650,13 @@ update(){
 	[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
 	}
 	
-	reading " $T98 " MODE
+	[[ $(type -P wg-quick) && ! $(type -P warp-cli) ]] && wgcf_account
+	[[ ! $(type -P wg-quick) && $(type -P warp-cli) ]] && client_account
+	[[ $(type -P wg-quick) && $(type -P warp-cli) ]] && 
+	(reading " $T98 " MODE
 		case "$MODE" in
 		1 ) wgcf_account;;		2 ) client_account;;		* ) red " $T51 [1-2] "; sleep 1; update;;
-		esac
+		esac)
 }
 
 # 单栈
