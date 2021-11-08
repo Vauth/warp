@@ -632,8 +632,9 @@ update(){
 	client_account(){
 	[[ $(warp-cli --accept-tos account) =~ Limited ]] && red " $T97 " && exit 1
 	input_license
-	warp-cli --accept-tos set-license $LICENSE > /etc/wireguard/client.log 2>&1 &&
-	green " $T62\n $T63：$(($(grep Quota /etc/wireguard/client.log | cut -d : -f2)/1000000000000)) TB " || red " $T36 "
+	warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1; sleep 1
+	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+	[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
 	}
 	
 	reading " $T98 " MODE
