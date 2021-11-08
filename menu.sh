@@ -18,7 +18,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T3="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T5="The script supports Debian, Ubuntu or CentOS systems only. Feedback: [https://github.com/fscarmen/warp/issues]" || T5="本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T6="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp d (Upgrade to WARP+ account)\n warp d N5670ljg-sS9jD334-6o6g4M9F (Upgrade to WARP+ account with the license)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp c (Install WARP Linux Client)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 1 (Add WARP IPv6 interface to native IPv4 VPS or WARP IPv4 interface to native IPv6 VPS)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (Add IPv4 or IPV6 WARP+ interface with the license)\n warp 2 (Add WARP dualstack interface IPv4 + IPv6)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (Add WARP dualstack interface with the license)\n" || T6="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp r (WARP Linux Client 开关)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 单栈)\n warp 2 (Warp双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License Warp 双栈)\n"
+[[ $LANGUAGE != 2 ]] && T6="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp d (Upgrade to WARP+ account)\n warp d N5670ljg-sS9jD334-6o6g4M9F (Upgrade to WARP+ account with the license)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 1 (Add WARP IPv6 interface to native IPv4 VPS or WARP IPv4 interface to native IPv6 VPS)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (Add IPv4 or IPV6 WARP+ interface with the license)\n warp 2 (Add WARP dualstack interface IPv4 + IPv6)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (Add WARP+ dualstack interface with the license)\n warp c (Install WARP Linux Client)\n warp c N5670ljg-sS9jD334-6o6g4M9F(Install WARP+ Linux Client with the license)\n" || T6="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F (指定 WARP+ License Warp 单栈)\n warp 2 (WARP 双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F (指定 WARP+ License 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp c N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License 安装 WARP Linux Client，开启 Socks5 代理模式)"
 [[ $LANGUAGE != 2 ]] && T7="Installing curl..." || T7="安装curl中……"
 [[ $LANGUAGE != 2 ]] && T8="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..." || T8="先升级软件库才能继续安装 curl，时间较长，请耐心等待……"
 [[ $LANGUAGE != 2 ]] && T9="Failed to install curl. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T9="安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -159,6 +159,8 @@ case "$OPTION" in
 [Hh] )	help; exit 0;;
 [Pp] )	plus; exit 0;;
 esac
+
+green " $T37 "
 
 # 必须以root运行脚本
 [[ $(id -u) != 0 ]] && red " $T2 " && exit 1
@@ -309,8 +311,6 @@ fi
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel|'oracle linux' ]] && SYSTEM=centos
 [[ $(echo $SYS | tr A-Z a-z) =~ 'amazon linux' ]] && SYSTEM=centos && COMPANY=amazon
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
-
-green " $T37 "
 
 # 安装 curl
 [[ ! $(type -P curl) ]] && 
@@ -601,9 +601,10 @@ proxy(){
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+	[[ $ACCOUNT =~ Limited ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000))
 	end=$(date +%s)
 	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working.\n Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中\n 总耗时:$(( $end - $start ))秒"
-	[[ $LANGUAGE != 2 ]] && T99="Congratulations! WARP+ Linux Client is working.\n Spend time:$(( $end - $start )) seconds\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || T99="恭喜！WARP+ Linux Client 工作中\n 总耗时:$(( $end - $start ))秒\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB"
+	[[ $LANGUAGE != 2 ]] && T99="Congratulations! WARP+ Linux Client is working.\n Spend time:$(( $end - $start )) seconds\n $T63：$QUOTA TB " || T99="恭喜！WARP+ Linux Client 工作中\n 总耗时:$(( $end - $start ))秒\n $T63：$QUOTA TB"
 	[[ $ACCOUNT =~ Free ]] && green " $T94 "
 	[[ $ACCOUNT =~ Limited ]] && green " $T99 "
 	red "\n==============================================================\n"
