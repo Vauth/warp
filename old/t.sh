@@ -12,7 +12,7 @@ reading(){
 	read -p "$(green "$1")" $2
 }
 
-[[ -n $1 && $1 != [HhDdPpBbVv12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
+[[ -n $1 && $1 != [CcHhDdPpBbVv12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
 [[ $LANGUAGE != 2 ]] && T1="1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000; 2.WARP+ license on Client supported."  || T1="1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000; 2.Client 支持 WARP+ 账户升级和安装"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
