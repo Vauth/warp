@@ -102,6 +102,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T96="Client connecting failure. It may be a CloudFlare IPv4." || T96="Client 连接失败，可能是 CloudFlare IPv4."
 [[ $LANGUAGE != 2 ]] && T97="It is a WARP+ account already. Update is aborted." || T97="已经是 WARP+ 账户，不需要升级"
 [[ $LANGUAGE != 2 ]] && T98="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:" || T98="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
+[[ $LANGUAGE != 2 ]] && T101="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T101="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
 
 # 当前脚本版本号和新增功能
 VERSION=2.09
@@ -565,12 +566,15 @@ proxy(){
 		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos connect >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos enable-always-on >/dev/null 2>&1; sleep 1
-		[[ -n $LICENSE ]] && yellow " $T35 " && warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1; sleep 1
-		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-		[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
+		[[ -n $LICENSE ]] && ( yellow " $T35 " && 
+		warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1 && sleep 1 &&
+		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
+		[[ $ACCOUNT =~ Limited ]] && green " $T62 " ||
+		red " $T36 " )
 		[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
 		}
 	
+	[[ $ARCHITECTURE = arm64 ]] && red " $T101 " && exit 1
 	[[ $TRACE4 != off ]] && red " $T95 " && exit 1
 
  	# 安装 WARP Linux Client
@@ -619,8 +623,8 @@ update(){
 	until [[ ${#LICENSE} = 26 ]]
 	do
 	let i--
-	[[ $LANGUAGE != 2 ]] && T62=" License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining) " || T62=" License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: "
-	[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T61 " LICENSE
+	[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: "
+	[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
         done
 	}
 	
@@ -643,6 +647,7 @@ update(){
 	}
 	
 	client_account(){
+	[[ $ARCHITECTURE = arm64 ]] && red " $T101 " && exit 1
 	[[ $(warp-cli --accept-tos account) =~ Limited ]] && red " $T97 " && exit 1
 	update_license
 	warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1; sleep 1
@@ -650,10 +655,13 @@ update(){
 	[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
 	}
 	
-	reading " $T98 " MODE
+	[[ $(type -P wg-quick) && ! $(type -P warp-cli) ]] && wgcf_account
+	[[ ! $(type -P wg-quick) && $(type -P warp-cli) ]] && client_account
+	[[ $(type -P wg-quick) && $(type -P warp-cli) ]] && 
+	(reading " $T98 " MODE
 		case "$MODE" in
 		1 ) wgcf_account;;		2 ) client_account;;		* ) red " $T51 [1-2] "; sleep 1; update;;
-		esac
+		esac)
 }
 
 # 单栈
