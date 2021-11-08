@@ -102,6 +102,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T96="Client connecting failure. It may be a CloudFlare IPv4." || T96="Client 连接失败，可能是 CloudFlare IPv4."
 [[ $LANGUAGE != 2 ]] && T97="It is a WARP+ account already. Update is aborted." || T97="已经是 WARP+ 账户，不需要升级"
 [[ $LANGUAGE != 2 ]] && T98="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:" || T98="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
+[[ $LANGUAGE != 2 ]] && T101="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T97="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
 
 # 当前脚本版本号和新增功能
 VERSION=2.09
@@ -571,6 +572,7 @@ proxy(){
 		[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
 		}
 	
+	[[ $ARCHITECTURE = arm64 ]] && red " $T101 " && exit 1
 	[[ $TRACE4 != off ]] && red " $T95 " && exit 1
 
  	# 安装 WARP Linux Client
@@ -643,6 +645,7 @@ update(){
 	}
 	
 	client_account(){
+	[[ $ARCHITECTURE = arm64 ]] && red " $T101 " && exit 1
 	[[ $(warp-cli --accept-tos account) =~ Limited ]] && red " $T97 " && exit 1
 	update_license
 	warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1; sleep 1
