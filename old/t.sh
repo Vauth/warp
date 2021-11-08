@@ -12,7 +12,7 @@ reading(){
 	read -p "$(green "$1")" $2
 }
 
-[[ -n $1 && $1 != [Hh] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
+[[ -n $1 && $1 != [Hh12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
 [[ $LANGUAGE != 2 ]] && T1="1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000"  || T1="1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -100,6 +100,8 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T93="Client is not installed. It could be installed by [warp c]" || T93="Client 未安装，如需安装，可以用 warp c"
 [[ $LANGUAGE != 2 ]] && T95="Client works with non-WARP IPv4. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T95="Client 在非 WARP IPv4 下才能工作正常，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T96="Client connecting failure. It may be a CloudFlare IPv4." || T96="Client 连接失败，可能是 CloudFlare IPv4."
+[[ $LANGUAGE != 2 ]] && T97="It is a WARP+ account already. Update is aborted." || T97="已经是 WARP+ 账户，不需要升级"
+[[ $LANGUAGE != 2 ]] && T98="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:" || T98="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
 
 # 当前脚本版本号和新增功能
 VERSION=2.09
@@ -598,17 +600,22 @@ proxy(){
 
 # 免费 Warp 账户升级 Warp+ 账户
 update() {
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
-	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " $T59 " && exit 1
-	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " $T60 " && exit 1
+	input_license(){
 	[[ -z $LICENSE ]] && reading " $T61 " LICENSE
 	i=5
 	until [[ ${#LICENSE} = 26 ]]
 	do
 	let i--
 	[[ $LANGUAGE != 2 ]] && T62=" License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining) " || T62=" License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: "
-	[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T62 " LICENSE
+	[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T61 " LICENSE
         done
+	}
+	
+	wgcf_account(){
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
+	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " $T59 " && exit 1
+	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " $T60 " && exit 1
+	input_license
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update > /etc/wireguard/info.log 2>&1 &&
@@ -621,6 +628,18 @@ update() {
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
 	green " $T62\n $T27：$(grep name /etc/wireguard/info.log | awk '{ print $NF }')\n $T63：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " $T36 "
 	}
+	
+	client_account(){
+	[[ $(warp-cli --accept-tos account) =~ Limited ]] && red " $T97 " && exit 1
+	input_license
+	warp-cli --accept-tos set-license $LICENSE > /etc/wireguard/client.log 2>&1 &&
+	green " $T62\n $T63：$(($(grep Quota /etc/wireguard/client.log | cut -d : -f2)/1000000000000)) TB " || red " $T36 "
+	}
+	
+	reading " $T98 " MODE
+		case "$MODE" in
+		1 ) wgcf_account;;		2 ) client_account;;		* ) red " $T51 [1-2] "; sleep 1; update;;
+		esac
 
 # 单栈
 menu1(){
