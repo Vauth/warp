@@ -566,8 +566,8 @@ proxy(){
 		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos connect >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos enable-always-on >/dev/null 2>&1; sleep 1
-		[[ -n $LICENSE ]] && yellow " $T35 " && 
-		( warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1 && sleep 1 &&
+		[[ -n $LICENSE ]] && ( yellow " $T35 " && 
+		warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1 && sleep 1 &&
 		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
 		[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " ||
 		red " $T36 " )
