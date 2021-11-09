@@ -2,7 +2,7 @@
 
 * * *
 ## 更新信息：
-2021.11.06  2.09 更新：1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000. Register and connnect need non-WARP IPv4 interface. Native IPv4 + WARP IPv6 is ok; 2.WARP+ license on Client supported. 1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000,注册和连接需要非 WARP 的原生 IPv4，可以是：原生IPv4+ WARP IPv6; 2.Client 支持 WARP+ 账户升级和安装
+2021.11.06  2.09 更新：1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000. Register and connnect need non-WARP IPv4 interface. Native IPv4 + WARP IPv6 is ok; 2.WARP+ license on Client supported; 3.Customize the WARP+ device name. 1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000,注册和连接需要非 WARP 的原生 IPv4，可以是：原生IPv4+ WARP IPv6; 2.Client 支持 WARP+ 账户升级和安装; 3.自定义 WARP+ 设备名
 
 2021.11.01  2.08 更新：1.Serching the best MTU value for WARP interface automatically; 2.asn organisation for the VPS; 1.自动设置最优 MTU; 2.显示asn组织(线路提供商)
 
@@ -63,13 +63,13 @@ wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh [optio
 ```bash
 warp [option] [lisence]
 ```
-  | [option] 变量 | 具体动作说明 |
-  | ------------- | ----------- |
+  | [option] 变量1 变量2 | 具体动作说明 |
+  | ----------------- | --------------- |
   | h | 帮助 |
   | 1 | 原生IPv4 -> （原生IPv4 + Warp IPv6) 或者 原生IPv6 -> (Warp IPv4 + 原生IPv6) |
-  | 1 lisence | 在上面基础上把 Warp+ Lisence 添加进去，如 ```bash menu.sh 1 N5670ljg-sS9jD334-6o6g4M9F``` |
+  | 1 lisence name | 在上面基础上把 Warp+ Lisence 和设备名添加进去，如 ```bash menu.sh 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck``` |
   | 2 | 原无论任何状态 -> Warp 双栈 |
-  | 2 lisence | 在上面基础上把 Warp+ Lisence 添加进去，如 ```bash menu.sh 2 N5670ljg-sS9jD334-6o6g4M9F```  |
+  | 2 lisence name | 在上面基础上把 Warp+ Lisence 和设备名添加进去，如 ```bash menu.sh 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck```  |
   | o | Warp 开关，脚本主动判断当前状态，自动开或关 |
   | u | 卸载 Warp |
   | n | 断网时，用于刷Warp网络 (Warp bug) |
