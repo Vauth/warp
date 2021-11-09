@@ -390,7 +390,7 @@ until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
 		[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining)" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次)"
 		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
 	done
-reading " $T102 " NAME
+[[ -n $LICENSE ]] && reading " $T102 " NAME
 [[ -n $NAME ]] && DEVICE="--name $NAME"
 }
 
@@ -404,7 +404,7 @@ let i--
 [[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: "
 [[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
        done
-reading " $T102 " NAME
+[[ -n $LICENSE ]] && reading " $T102 " NAME
 [[ -n $NAME ]] && DEVICE="--name $NAME"
 }
 
