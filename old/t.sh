@@ -475,7 +475,7 @@ install(){
 	yellow " $T34 "
 	until [[ -e wgcf-account.toml ]]
 	  do
-	   echo | wgcf register >/dev/null 2>&1
+	   wgcf register --accept-tos >/dev/null 2>&1
 	done
 
 	# 如有 Warp+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
