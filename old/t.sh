@@ -402,12 +402,12 @@ update_license(){
 [[ -z $LICENSE ]] && reading " $T61 " LICENSE
 i=5
 until [[ ${#LICENSE} = 26 ]]
-do
-let i--
-[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 WARP+ License（剩余$i次）: "
-[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
+	do
+		let i--
+		[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 WARP+ License（剩余$i次）: "
+		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
        done
-[[ -n $LICENSE ]] && reading " $T102 " NAME
+[[ -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
 [[ -n $NAME ]] && DEVICE="--name $NAME"
 }
 
