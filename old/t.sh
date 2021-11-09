@@ -393,7 +393,7 @@ until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
 		[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining)" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次)"
 		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
 	done
-[[ -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
+[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
 [[ -n $NAME ]] && DEVICE="--name $NAME"
 }
 
@@ -407,13 +407,13 @@ until [[ ${#LICENSE} = 26 ]]
 		[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 WARP+ License（剩余$i次）: "
 		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
        done
-[[ -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
+[[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
 [[ -n $NAME ]] && DEVICE="--name $NAME"
 }
 
 # WGCF 安装
 install(){
-	input_license
+	INPUT_LICENSE=1 && input_license
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
 	[[ $LXC = 1 ]] && reading " $T31 " BORINGTUN
@@ -641,7 +641,7 @@ update(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " $T59 " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " $T60 " && exit 1
-	update_license
+	UPDATE_LICENSE=1 && update_license
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update $DEVICE > /etc/wireguard/info.log 2>&1 &&
