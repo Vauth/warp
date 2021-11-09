@@ -197,7 +197,7 @@ uninstall(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
 	echo $DOWN | sh >/dev/null 2>&1
 	systemctl stop wg-quick@wgcf >/dev/null 2>&1
-	systemctl disable wg-quick@wgcf >/dev/null 2>&1
+	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
@@ -206,7 +206,7 @@ uninstall(){
 	warp-cli --accept-tos delete >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
 	systemctl stop warp-svc >/dev/null 2>&1
-	systemctl disable warp-svc >/dev/null 2>&1
+	systemctl disable --now warp-svc >/dev/null 2>&1
 	IP4=$(curl -s4m7 https://ip.gs/json)
 	IP6=$(curl -s6m7 https://ip.gs/json)
 	WAN4=$(echo $IP4 | cut -d \" -f4)
@@ -393,7 +393,7 @@ until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
 		[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining)" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次)"
 		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
 	done
-[[ -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
+[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
 [[ -n $NAME ]] && DEVICE="--name $NAME"
 }
 
@@ -407,13 +407,13 @@ until [[ ${#LICENSE} = 26 ]]
 		[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 WARP+ License（剩余$i次）: "
 		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
        done
-[[ -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
+[[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
 [[ -n $NAME ]] && DEVICE="--name $NAME"
 }
 
 # WGCF 安装
 install(){
-	input_license
+	INPUT_LICENSE=1 && input_license
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
 	[[ $LXC = 1 ]] && reading " $T31 " BORINGTUN
@@ -535,7 +535,7 @@ install(){
 
 	# 设置开机启动
 	[[ $BORINGTUN != 2 ]] && systemctl start wg-quick@wgcf >/dev/null 2>&1
-	[[ $BORINGTUN != 2 ]] && systemctl enable wg-quick@wgcf >/dev/null 2>&1
+	[[ $BORINGTUN != 2 ]] && systemctl enable --now wg-quick@wgcf >/dev/null 2>&1
 
 	# 如是 LXC，安装 Wireguard-GO 或者 BoringTun。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
 	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/$WB && chmod +x /usr/bin/$WB
@@ -641,7 +641,7 @@ update(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " $T59 " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " $T60 " && exit 1
-	update_license
+	UPDATE_LICENSE=1 && update_license
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update $DEVICE > /etc/wireguard/info.log 2>&1 &&
