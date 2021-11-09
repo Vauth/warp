@@ -37,7 +37,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T25="Device name" || T25="设备名"
 [[ $LANGUAGE != 2 ]] && T26="is off" || T26="未开启"
 [[ $LANGUAGE != 2 ]] && T27="Device name" || T27="设备名"
-[[ $LANGUAGE != 2 ]] && T28="If there is a WARP+ License, please enter it, otherwise press Enter to continue" || T28="如有 WARP+ License 请输入，没有可回车继续"
+[[ $LANGUAGE != 2 ]] && T28="If there is a WARP+ License, please enter it, otherwise press Enter to continue:" || T28="如有 WARP+ License 请输入，没有可回车继续:"
 [[ $LANGUAGE != 2 ]] && T29="Input errors up to 5 times.The script is aborted." || T29="输入错误达5次，脚本退出"
 [[ $LANGUAGE != 2 ]] && T31="LXC VPS choose（default is 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n Choose:" || T31="LXC方案（默认值选项为 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n 请选择："
 [[ $LANGUAGE != 2 ]] && T32="Step 1/3: Install dependencies" || T32="进度  1/3： 安装系统依赖"
@@ -103,6 +103,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T97="It is a WARP+ account already. Update is aborted." || T97="已经是 WARP+ 账户，不需要升级"
 [[ $LANGUAGE != 2 ]] && T98="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:" || T98="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
 [[ $LANGUAGE != 2 ]] && T101="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T101="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T102="Please customize the WARP+ device name (It will automatically generate 5 random strings if it is blank):" || T52="请自定义 WARP+ 设备名 (如果不输入，会自动生成随机的5位字符串):"
 
 # 当前脚本版本号和新增功能
 VERSION=2.09
@@ -381,7 +382,7 @@ status(){
 
 # 输入 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
 input_license(){
-[[ -z $LICENSE ]] && reading " $T28: " LICENSE
+[[ -z $LICENSE ]] && reading " $T28 " LICENSE
 i=5
 until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
 	do
@@ -389,6 +390,22 @@ until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
 		[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining)" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次)"
 		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
 	done
+reading " $T102 " NAME
+[[ -n $NAME ]] && DEVICE="--name $NAME"
+}
+
+# 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
+update_license(){
+[[ -z $LICENSE ]] && reading " $T61 " LICENSE
+i=5
+until [[ ${#LICENSE} = 26 ]]
+do
+let i--
+[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: "
+[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
+       done
+reading " $T102 " NAME
+[[ -n $NAME ]] && DEVICE="--name $NAME"
 }
 
 # WGCF 安装
@@ -481,7 +498,7 @@ install(){
 	# 如有 Warp+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	[[ -n $LICENSE ]] && yellow " $T35 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update > /etc/wireguard/info.log 2>&1 || red " $T36 " )
+	( wgcf update $DEVICE > /etc/wireguard/info.log 2>&1 || red " $T36 " )
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
@@ -617,17 +634,6 @@ proxy(){
 
 # 免费 Warp 账户升级 Warp+ 账户
 update(){
-	update_license(){
-	[[ -z $LICENSE ]] && reading " $T61 " LICENSE
-	i=5
-	until [[ ${#LICENSE} = 26 ]]
-	do
-	let i--
-	[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: "
-	[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
-        done
-	}
-	
 	wgcf_account(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " $T59 " && exit 1
@@ -635,7 +641,7 @@ update(){
 	update_license
 	cd /etc/wireguard
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
-	wgcf update > /etc/wireguard/info.log 2>&1 &&
+	wgcf update $DEVICE > /etc/wireguard/info.log 2>&1 &&
 	(wgcf generate >/dev/null 2>&1
 	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#" wgcf.conf
 	sed -i "3s#.*#$(sed -ne 3p wgcf-profile.conf)#" wgcf.conf
