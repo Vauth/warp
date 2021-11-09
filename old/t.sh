@@ -1,4 +1,4 @@
-# 字体彩色
+# 自定义字体彩色和 read 函数
 red(){
 	echo -e "\033[31m\033[01m$1\033[0m"
     }
@@ -44,7 +44,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T33="Step 2/3: Install WGCF" || T33="进度  2/3： 安装 WGCF"
 [[ $LANGUAGE != 2 ]] && T34="Register new WARP account..." || T34="WARP 注册中……"
 [[ $LANGUAGE != 2 ]] && T35="Update WARP+ account..." || T35="升级 WARP+ 账户中……"
-[[ $LANGUAGE != 2 ]] && T36="The upgrade failed, WARP+ account error or more than 5 devices have been activated. Free WARP account to continu." || T36="升级失败，WARP+ 账户错误或者已激活超过5台设备，自动更换免费 Warp 账户继续"
+[[ $LANGUAGE != 2 ]] && T36="The upgrade failed, WARP+ account error or more than 5 devices have been activated. Free WARP account to continu." || T36="升级失败，WARP+ 账户错误或者已激活超过5台设备，自动更换免费 WARP 账户继续"
 [[ $LANGUAGE != 2 ]] && T37="Checking VPS infomations..." || T37="检查环境中……"
 [[ $LANGUAGE != 2 ]] && T38="Create shortcut [warp] successfully" || T38="创建快捷 warp 指令成功"
 [[ $LANGUAGE != 2 ]] && T39="Step 3/3: Running WARP" || T39="进度  3/3： 运行 WARP"
@@ -58,13 +58,13 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T50="Choose:" || T50="请选择:"
 [[ $LANGUAGE != 2 ]] && T51="Please enter the correct number" || T51="请输入正确数字"
 [[ $LANGUAGE != 2 ]] && T52="Please input WARP+ ID:" || T52="请输入 WARP+ ID:"
-[[ $LANGUAGE != 2 ]] && T54="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen." || T54="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 Warp+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
+[[ $LANGUAGE != 2 ]] && T54="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen." || T54="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
 [[ $LANGUAGE != 2 ]] && T55="Run [ALIILAPRO] script" || T55="运行 [ALIILAPRO] 脚本"
 [[ $LANGUAGE != 2 ]] && T56="Run [mixool] script" || T56="运行 [mixool] 脚本"
 [[ $LANGUAGE != 2 ]] && T57="The target quota you want to get. The unit is GB, the default value is 10:" || T57="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
 [[ $LANGUAGE != 2 ]] && T58="This is the WARP+ account, no need to upgrade." || T58="已经是 WARP+ 账户，不需要升级"
 [[ $LANGUAGE != 2 ]] && T59="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License" || T59="找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
-[[ $LANGUAGE != 2 ]] && T60="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License" || T60="找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 Warp+ License"
+[[ $LANGUAGE != 2 ]] && T60="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License" || T60="找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 WARP+ License"
 [[ $LANGUAGE != 2 ]] && T61="Please Input WARP+ license:" || T61="请输入WARP+ License:"
 [[ $LANGUAGE != 2 ]] && T62="Successfully upgraded to a WARP+ account" || T62="已升级为 WARP+ 账户"
 [[ $LANGUAGE != 2 ]] && T63="WARP+ quota" || T63="剩余流量"
@@ -78,7 +78,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T71="Turn on WARP" || T71="打开 WARP"
 [[ $LANGUAGE != 2 ]] && T72="Turn off, uninstall WARP interface and Linux Client" || T72="永久关闭 WARP 网络接口，并删除 WARP 和 Linux Client"
 [[ $LANGUAGE != 2 ]] && T73="Upgrade kernel, turn on BBR, change Linux system" || T73="升级内核、安装BBR、DD脚本"
-[[ $LANGUAGE != 2 ]] && T74="Getting WARP+ quota by scripts" || T74="刷 Warp+ 流量"
+[[ $LANGUAGE != 2 ]] && T74="Getting WARP+ quota by scripts" || T74="刷 WARP+ 流量"
 [[ $LANGUAGE != 2 ]] && T75="Sync the latest version" || T75="同步最新版本"
 [[ $LANGUAGE != 2 ]] && T76="Exit" || T76="退出脚本"
 [[ $LANGUAGE != 2 ]] && T77="Turn off WARP" || T77="暂时关闭 WARP"
@@ -109,7 +109,7 @@ reading(){
 VERSION=2.09
 TXT=" $T1 "
 
-# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈Warp; 2=安装双栈 Warp; u=卸载 Warp; b=升级内核、开启BBR及DD; o=Warp开关； p=刷 Warp+ 流量; 其他或空值=菜单界面
+# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关； p=刷 WARP+ 流量; 其他或空值=菜单界面
 OPTION=$1
 
 # 参数选项 LICENSE
@@ -130,7 +130,7 @@ input() {
 	until [[ ${#ID} = 36 ]]
 		do
 		let i--
-		[[ $LANGUAGE != 2 ]] && T53="Warp+ ID should be 36 characters, please re-enter ($i times remaining):" || T53="Warp+ ID 应为36位字符，请重新输入 Warp+ ID （剩余$i次）:"
+		[[ $LANGUAGE != 2 ]] && T53="WARP+ ID should be 36 characters, please re-enter ($i times remaining):" || T53="WARP+ ID 应为36位字符，请重新输入 （剩余$i次）:"
 		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T53 " ID
 	done
 	}
@@ -404,7 +404,7 @@ i=5
 until [[ ${#LICENSE} = 26 ]]
 do
 let i--
-[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 Warp+ License（剩余$i次）: "
+[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 WARP+ License（剩余$i次）: "
 [[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
        done
 [[ -n $LICENSE ]] && reading " $T102 " NAME
@@ -498,7 +498,7 @@ install(){
 	   wgcf register --accept-tos >/dev/null 2>&1
 	done
 
-	# 如有 Warp+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
+	# 如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	[[ -n $LICENSE ]] && yellow " $T35 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
 	( wgcf update $DEVICE > /etc/wireguard/info.log 2>&1 || red " $T36 " )
@@ -580,7 +580,7 @@ install(){
 
 proxy(){
 	settings(){
-		# 设置为代理模式，如有 Warp+ 账户，修改 license 并升级
+		# 设置为代理模式，如有 WARP+ 账户，修改 license 并升级
 		green " $T84 "
 		warp-cli --accept-tos register >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1; sleep 1
@@ -635,7 +635,7 @@ proxy(){
 	yellow " $T43\n " && help
 	}
 
-# 免费 Warp 账户升级 Warp+ 账户
+# 免费 WARP 账户升级 WARP+ 账户
 update(){
 	wgcf_account(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " $T58 " && exit 1
