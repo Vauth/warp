@@ -92,6 +92,8 @@ warp 2
 ```
 ## WARP+ License 及 ID 获取
 
+引用Luminous大神原话：实际测试WARP+在访问非CF的网站速度上和免费版没有差异，只有在访问CloudFlare的站点时付费版会通过Argo类似的技术通过与目标较近的数据中心前往源站，而免费版是仅限于连接地前往源站，仅此而已。
+
 <img src="https://user-images.githubusercontent.com/62703343/136070323-47f2600a-13e4-4eb0-a64d-d7eb805c28e2.png" width="70%" />
 
 ## WARP 网络接口数据，临时、永久关闭和开启
