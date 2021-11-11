@@ -430,7 +430,8 @@ stack_priority(){
 		3 )	;;
 		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
 	esac
-[[ $(curl -sm8 https://ip.gs) =~ ':' ]] && T108=$T106 || T108=$T107
+[[ $(curl -sm8 https://ip.gs) =~ ':' ]] && T108=$T106
+[[ $(curl -sm8 https://ip.gs) =~ '.' ]] && T108=$T107
 }
 
 # WGCF 安装
