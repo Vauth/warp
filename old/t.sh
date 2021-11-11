@@ -105,7 +105,9 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T102="Please customize the WARP+ device name (It will automatically generate 6-digit random string if it is blank):" || T102="请自定义 WARP+ 设备名 (如果不输入，会自动生成随机的6位字符串):"
 [[ $LANGUAGE != 2 ]] && T103="Port 40000 is in use. Please input another Port:" || T103="40000 端口占用中，请使用另一端口:"
 [[ $LANGUAGE != 2 ]] && T104="Please customize the Client port (default to 40000 if it is blank):" || T104="请自定义 Client 端口号 (如果不输入，会默认40000):"
-
+[[ $LANGUAGE != 2 ]] && T105="Please choose the priority of IPv4 or IPv6 (default 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.Restore initial settings\n Choose:" || T105="请选择优先级别 (默认 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.还原 VPS 初始设置\n 请选择:"
+[[ $LANGUAGE != 2 ]] && T106="IPv6 priority" || T106="IPv6 优先"
+[[ $LANGUAGE != 2 ]] && T107="IPv4 priority" || T107="IPv4 优先"
 
 # 当前脚本版本号和新增功能
 VERSION=2.09
@@ -419,6 +421,17 @@ input_port(){
 	PORT=${PORT:-40000}
 }
 
+stack_priority(){
+        sed -i '/^precedence \:\:ffff\:0\:0/d' /etc/gai.conf
+        sed -i '/^label 2002\:\:\/16/d' /etc/gai.conf
+	case "$PRIORITY" in
+		2 )	echo "label 2002::/16   2" >> /etc/gai.conf;;
+		3 )	;;
+		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
+	esac
+[[ $(curl -sm8 https://ip.gs) =~ : ]] && green " T106 " || green " T107 "
+}
+
 # WGCF 安装
 install(){
 	INPUT_LICENSE=1 && input_license
@@ -428,6 +441,9 @@ install(){
 	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
+	
+	# 选择优先使用 IPv4 /IPv6 网络
+	[[ -e /etc/gai.conf ]] && reading " $T105 " PRIORITY
 	
 	# 脚本开始时间
 	start=$(date +%s)
@@ -550,8 +566,8 @@ install(){
 	[[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]] &&
 	wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
 
-	# 优先使用 IPv4 网络
-	[[ -e /etc/gai.conf ]] && [[ ! $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] && echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
+	# 优先使用 IPv4 /IPv6 网络
+	stack_priority
 
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
