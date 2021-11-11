@@ -430,8 +430,6 @@ stack_priority(){
 		3 )	;;
 		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
 	esac
-[[ $(curl -sm8 https://ip.gs) =~ ':' ]] && T108=$T106
-[[ $(curl -sm8 https://ip.gs) =~ '.' ]] && T108=$T107
 }
 
 # WGCF 安装
@@ -578,13 +576,14 @@ install(){
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
 	
-	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地
+	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地，IPv4 / IPv6 优先级别
 	green " $T39 "
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6
 	[[ $LANGUAGE != 2 ]] && T40="$COMPANY vps needs to restart and run [warp n] to open WARP." || T40="$COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启"
 	[[ $COMPANY = amazon ]] && red " $T40 " && reboot || net
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
+	[[ $(curl -sm8 https://ip.gs) = $WAN6 ]] && T108=$T106 || T108=$T107
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
