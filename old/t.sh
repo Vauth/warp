@@ -429,7 +429,7 @@ stack_priority(){
 		3 )	;;
 		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
 	esac
-[[ $(curl -sm8 https://ip.gs) =~ : ]] && green " $T106 " || green " $T107 "
+[[ $(curl -sm8 https://ip.gs) =~ : ]] && T108=$T106 || T108=$T107
 }
 
 # WGCF 安装
@@ -597,6 +597,7 @@ install(){
 	[[ $LANGUAGE != 2 ]] && T42="Congratulations! WARP is turned on. Spend time:$(( $end - $start )) seconds" || T42="恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒"
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $T41 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $T42 "
+	green " $T108 "
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " $T44 "
