@@ -350,7 +350,7 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 [[ $LANGUAGE != 2 && $IPV6 = 1 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
 [[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
 [[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
-[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ '127.0.0.1:40000' ]] && CLIENT=3
+[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3
 [[ $TRACE4 = plus ]] && PLUS4=+
 [[ $TRACE4 = plus ]] && PLUS6=+
 [[ $(warp-cli --accept-tos account 2>/dev/null) =~ Limited ]] && AC=+
