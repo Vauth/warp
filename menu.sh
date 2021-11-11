@@ -13,7 +13,7 @@ reading(){
 }
 
 [[ -n $1 && $1 != [CcHhDdPpBbVv12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
-[[ $LANGUAGE != 2 ]] && T1="1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000; 2.WARP+ license on Client supported; 3.Customize the WARP+ device name."  || T1="1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000; 2.Client 支持 WARP+ 账户升级和安装; 3.自定义 WARP+ 设备名"
+[[ $LANGUAGE != 2 ]] && T1="1.Customize the priority of IPv4 / IPv6; 2.Customize the port of Client Socks5;"  || T1="1.自定义 IPv4 / IPv6 优先组别; 2.自定义 Client Socks5 代理端口"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -90,7 +90,6 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T83="Step 1/2: Installing WARP Client..." || T83="进度  1/2： 安装 Client……"
 [[ $LANGUAGE != 2 ]] && T84="Step 2/2: Setting to Proxy Mode" || T84="进度  2/2： 设置代理模式"
 [[ $LANGUAGE != 2 ]] && T85="Client was installed. You can connect/disconnect by [warp r]" || T85="Linux Client 已安装，连接/断开 Client 可以用 warp r"
-[[ $LANGUAGE != 2 ]] && T86="Client is working. Socks5 proxy listening on: 127.0.0.1:40000" || T86="Linux Client 正常运行中。 Socks5 代理监听:127.0.0.1:40000"
 [[ $LANGUAGE != 2 ]] && T87="Fail to establish Socks5 proxy. Feedback: [https://github.com/fscarmen/warp/issues]" || T87="创建 Socks5 代理失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T88="Connect the client" || T88="连接 Client"
 [[ $LANGUAGE != 2 ]] && T89="Disconnect the client" || T89="断开 Client"
@@ -104,9 +103,14 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T98="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:" || T98="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
 [[ $LANGUAGE != 2 ]] && T101="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T101="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T102="Please customize the WARP+ device name (It will automatically generate 6-digit random string if it is blank):" || T102="请自定义 WARP+ 设备名 (如果不输入，会自动生成随机的6位字符串):"
+[[ $LANGUAGE != 2 ]] && T103="Port 40000 is in use. Please input another Port:" || T103="40000 端口占用中，请使用另一端口:"
+[[ $LANGUAGE != 2 ]] && T104="Please customize the Client port (default to 40000 if it is blank):" || T104="请自定义 Client 端口号 (如果不输入，会默认40000):"
+[[ $LANGUAGE != 2 ]] && T105="Please choose the priority of IPv4 or IPv6 (default 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.Restore initial settings\n Choose:" || T105="请选择优先级别 (默认 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.还原 VPS 初始设置\n 请选择:"
+[[ $LANGUAGE != 2 ]] && T106="IPv6 priority" || T106="IPv6 优先"
+[[ $LANGUAGE != 2 ]] && T107="IPv4 priority" || T107="IPv4 优先"
 
 # 当前脚本版本号和新增功能
-VERSION=2.09
+VERSION=2.10
 TXT=" $T1 "
 
 # 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关； p=刷 WARP+ 流量; 其他或空值=菜单界面
@@ -200,7 +204,8 @@ uninstall(){
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
-	[[ -e /etc/gai.conf ]] && sed -i '/^precedence[ ]*::ffff:0:0\/96[ ]*100/d' /etc/gai.conf
+	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d' /etc/gai.conf
+	[[ -e /etc/gai.conf ]] && sed -i '/^label 2002\:\:\/16/d' /etc/gai.conf
 	warp-cli --accept-tos disconnect >/dev/null 2>&1
 	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
 	warp-cli --accept-tos delete >/dev/null 2>&1
@@ -348,7 +353,7 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 [[ $LANGUAGE != 2 && $IPV6 = 1 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
 [[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
 [[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
-[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ '127.0.0.1:40000' ]] && CLIENT=3
+[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3
 [[ $TRACE4 = plus ]] && PLUS4=+
 [[ $TRACE4 = plus ]] && PLUS6=+
 [[ $(warp-cli --accept-tos account 2>/dev/null) =~ Limited ]] && AC=+
@@ -379,7 +384,7 @@ status(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
 	[[ $PLAN != 3 ]] && green "	WARP $T26 "
-	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	127.0.0.1:40000 " || green "	WARP$AC Socks5 Client $T26 "
+	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	$(ss -nltp | grep warp | grep -oP '       \K\S+') " || green "	WARP$AC Socks5 Client $T26 "
  	red "\n======================================================================================================================\n"
 	}
 
@@ -411,6 +416,24 @@ until [[ ${#LICENSE} = 26 ]]
 [[ -n $NAME ]] && DEVICE="--name $NAME"
 }
 
+# 输入 Linux Client 端口，先检查默认的40000是否被占用
+input_port(){
+	[[ -n $(ss -nltp | grep 40000) ]] && reading " $T103 " PORT || reading " $T104 " PORT
+	PORT=${PORT:-40000}
+}
+
+stack_priority(){
+        sed -i '/^precedence \:\:ffff\:0\:0/d' /etc/gai.conf
+        sed -i '/^label 2002\:\:\/16/d' /etc/gai.conf
+	case "$PRIORITY" in
+		2 )	echo "label 2002::/16   2" >> /etc/gai.conf;;
+		3 )	;;
+		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
+	esac
+[[ $(curl -sm8 https://ip.gs) =~ ':' ]] && T108=$T106
+[[ $(curl -sm8 https://ip.gs) =~ '.' ]] && T108=$T107
+}
+
 # WGCF 安装
 install(){
 	INPUT_LICENSE=1 && input_license
@@ -420,6 +443,9 @@ install(){
 	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
+	
+	# 选择优先使用 IPv4 /IPv6 网络
+	[[ -e /etc/gai.conf ]] && reading " $T105 " PRIORITY
 	
 	# 脚本开始时间
 	start=$(date +%s)
@@ -542,8 +568,8 @@ install(){
 	[[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]] &&
 	wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
 
-	# 优先使用 IPv4 网络
-	[[ -e /etc/gai.conf ]] && [[ ! $(grep '^[ ]*precedence[ ]*::ffff:0:0/96[ ]*100' /etc/gai.conf) ]] && echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
+	# 优先使用 IPv4 /IPv6 网络
+	stack_priority
 
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
@@ -573,6 +599,7 @@ install(){
 	[[ $LANGUAGE != 2 ]] && T42="Congratulations! WARP is turned on. Spend time:$(( $end - $start )) seconds" || T42="恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒"
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $T41 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $T42 "
+	green " $T108 "
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " $T44 "
@@ -584,6 +611,7 @@ proxy(){
 		green " $T84 "
 		warp-cli --accept-tos register >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1; sleep 1
+		warp-cli --accept-tos set-proxy-port $PORT >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos connect >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos enable-always-on >/dev/null 2>&1; sleep 1
 		[[ -n $LICENSE ]] && ( yellow " $T35 " && 
@@ -591,7 +619,8 @@ proxy(){
 		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
 		[[ $ACCOUNT =~ Limited ]] && green " $T62 " ||
 		red " $T36 " )
-		[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
+		[[ $LANGUAGE != 2 ]] && T86="Client is working. Socks5 proxy listening on: $(ss -nltp | grep warp | grep -oP '       \K\S+')" || T86="Linux Client 正常运行中。 Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '       \K\S+')"
+		[[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " $T87 " && exit 1 || green " $T86 "
 		}
 	
 	[[ $ARCHITECTURE = arm64 ]] && red " $T101 " && exit 1
@@ -599,6 +628,7 @@ proxy(){
 
  	# 安装 WARP Linux Client
 	input_license
+	input_port
 	start=$(date +%s)
 	if [[ $CLIENT = 0 ]]; then
 	green " $T83 "
@@ -627,8 +657,8 @@ proxy(){
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	[[ $ACCOUNT =~ Limited ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000))
 	end=$(date +%s)
-	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working.\n Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中\n 总耗时:$(( $end - $start ))秒"
-	[[ $LANGUAGE != 2 ]] && T99="Congratulations! WARP+ Linux Client is working.\n Spend time:$(( $end - $start )) seconds\n $T63：$QUOTA TB " || T99="恭喜！WARP+ Linux Client 工作中\n 总耗时:$(( $end - $start ))秒\n $T63：$QUOTA TB"
+	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working on Socks5 proxy:$(ss -nltp | grep warp | grep -oP '       \K\S+').\n Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中, Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '       \K\S+')\n 总耗时:$(( $end - $start ))秒"
+	[[ $LANGUAGE != 2 ]] && T99="Congratulations! WARP+ Linux Client is working on Socks5 proxy:$(ss -nltp | grep warp | grep -oP '       \K\S+').\n Spend time:$(( $end - $start )) seconds\n $T63：$QUOTA TB " || T99="恭喜！WARP+ Linux Client 工作中, Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '       \K\S+')\n 总耗时:$(( $end - $start ))秒\n $T63：$QUOTA TB"
 	[[ $ACCOUNT =~ Free ]] && green " $T94 "
 	[[ $ACCOUNT =~ Limited ]] && green " $T99 "
 	red "\n==============================================================\n"
