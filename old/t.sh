@@ -104,6 +104,9 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T98="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:" || T98="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
 [[ $LANGUAGE != 2 ]] && T101="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T101="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T102="Please customize the WARP+ device name (It will automatically generate 6-digit random string if it is blank):" || T102="请自定义 WARP+ 设备名 (如果不输入，会自动生成随机的6位字符串):"
+[[ $LANGUAGE != 2 ]] && T103="Port 40000 is in use. Please input another Port:" || T103="40000 端口占用中，请使用另一端口:"
+[[ $LANGUAGE != 2 ]] && T104="Please customize the Client port (default to 40000 if it is blank):" || T104="请自定义 Client 端口号 (如果不输入，会默认40000):"
+
 
 # 当前脚本版本号和新增功能
 VERSION=2.09
@@ -379,7 +382,7 @@ status(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
 	[[ $PLAN != 3 ]] && green "	WARP $T26 "
-	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	127.0.0.1:40000 " || green "	WARP$AC Socks5 Client $T26 "
+	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	$(ss -nltp | grep warp | grep -oP '       \K\S+') " || green "	WARP$AC Socks5 Client $T26 "
  	red "\n======================================================================================================================\n"
 	}
 
@@ -409,6 +412,12 @@ until [[ ${#LICENSE} = 26 ]]
        done
 [[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
 [[ -n $NAME ]] && DEVICE="--name $NAME"
+}
+
+# 输入 Linux Client 端口，先检查默认的40000是否被占用
+input_port(){
+	[[ -n $(ss -nltp | grep 40000) ]] && reading " $T103 " PORT || reading " $T104 " PORT
+	PORT=${PORT:-40000}
 }
 
 # WGCF 安装
@@ -584,6 +593,7 @@ proxy(){
 		green " $T84 "
 		warp-cli --accept-tos register >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1; sleep 1
+		warp-cli --accept-tos set-proxy-port $PORT >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos connect >/dev/null 2>&1; sleep 1
 		warp-cli --accept-tos enable-always-on >/dev/null 2>&1; sleep 1
 		[[ -n $LICENSE ]] && ( yellow " $T35 " && 
@@ -591,7 +601,7 @@ proxy(){
 		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
 		[[ $ACCOUNT =~ Limited ]] && green " $T62 " ||
 		red " $T36 " )
-		[[ ! $(ss -nltp) =~ '127.0.0.1:40000' ]] && red " $T87 " && exit 1 || green " $T86 "
+		[[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " $T87 " && exit 1 || green " $T86 "
 		}
 	
 	[[ $ARCHITECTURE = arm64 ]] && red " $T101 " && exit 1
@@ -599,6 +609,7 @@ proxy(){
 
  	# 安装 WARP Linux Client
 	input_license
+	input_port
 	start=$(date +%s)
 	if [[ $CLIENT = 0 ]]; then
 	green " $T83 "
@@ -627,8 +638,8 @@ proxy(){
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	[[ $ACCOUNT =~ Limited ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000))
 	end=$(date +%s)
-	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working.\n Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中\n 总耗时:$(( $end - $start ))秒"
-	[[ $LANGUAGE != 2 ]] && T99="Congratulations! WARP+ Linux Client is working.\n Spend time:$(( $end - $start )) seconds\n $T63：$QUOTA TB " || T99="恭喜！WARP+ Linux Client 工作中\n 总耗时:$(( $end - $start ))秒\n $T63：$QUOTA TB"
+	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working on Socks5 proxy:$(ss -nltp | grep warp | grep -oP '       \K\S+').\n Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中, Socks5 proxy:$(ss -nltp | grep warp | grep -oP '       \K\S+')\n 总耗时:$(( $end - $start ))秒"
+	[[ $LANGUAGE != 2 ]] && T99="Congratulations! WARP+ Linux Client is working on Socks5 proxy:$(ss -nltp | grep warp | grep -oP '       \K\S+').\n Spend time:$(( $end - $start )) seconds\n $T63：$QUOTA TB " || T99="恭喜！WARP+ Linux Client 工作中, Socks5 proxy:$(ss -nltp | grep warp | grep -oP '       \K\S+')\n 总耗时:$(( $end - $start ))秒\n $T63：$QUOTA TB"
 	[[ $ACCOUNT =~ Free ]] && green " $T94 "
 	[[ $ACCOUNT =~ Limited ]] && green " $T99 "
 	red "\n==============================================================\n"
