@@ -385,7 +385,7 @@ status(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
 	[[ $PLAN != 3 ]] && green "	WARP $T26 "
-	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	$(ss -nltp | grep warp | grep -oP '       \K\S+') " || green "	WARP$AC Socks5 Client $T26 "
+	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') " || green "	WARP$AC Socks5 Client $T26 "
  	red "\n======================================================================================================================\n"
 	}
 
@@ -626,7 +626,7 @@ proxy(){
 		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
 		[[ $ACCOUNT =~ Limited ]] && green " $T62 " ||
 		red " $T36 " )
-		[[ $LANGUAGE != 2 ]] && T86="Client is working. Socks5 proxy listening on: $(ss -nltp | grep warp | grep -oP '       \K\S+')" || T86="Linux Client 正常运行中。 Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '       \K\S+')"
+		[[ $LANGUAGE != 2 ]] && T86="Client is working. Socks5 proxy listening on: $(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')" || T86="Linux Client 正常运行中。 Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')"
 		[[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " $T87 " && exit 1 || green " $T86 "
 		}
 	
@@ -664,8 +664,8 @@ proxy(){
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	[[ $ACCOUNT =~ Limited ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000))
 	end=$(date +%s)
-	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working on Socks5 proxy:$(ss -nltp | grep warp | grep -oP '       \K\S+').\n Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中, Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '       \K\S+')\n 总耗时:$(( $end - $start ))秒"
-	[[ $LANGUAGE != 2 ]] && T99="Congratulations! WARP+ Linux Client is working on Socks5 proxy:$(ss -nltp | grep warp | grep -oP '       \K\S+').\n Spend time:$(( $end - $start )) seconds\n $T63：$QUOTA TB " || T99="恭喜！WARP+ Linux Client 工作中, Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '       \K\S+')\n 总耗时:$(( $end - $start ))秒\n $T63：$QUOTA TB"
+	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working on Socks5 proxy:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+').\n Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中, Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')\n 总耗时:$(( $end - $start ))秒"
+	[[ $LANGUAGE != 2 ]] && T99="Congratulations! WARP+ Linux Client is working on Socks5 proxy:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+').\n Spend time:$(( $end - $start )) seconds\n $T63：$QUOTA TB " || T99="恭喜！WARP+ Linux Client 工作中, Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')\n 总耗时:$(( $end - $start ))秒\n $T63：$QUOTA TB"
 	[[ $ACCOUNT =~ Free ]] && green " $T94 "
 	[[ $ACCOUNT =~ Limited ]] && green " $T99 "
 	red "\n==============================================================\n"
