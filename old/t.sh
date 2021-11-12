@@ -393,38 +393,39 @@ status(){
 
 # 输入 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
 input_license(){
-[[ -z $LICENSE ]] && reading " $T28 " LICENSE
-i=5
-until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
-	do
-		let i--
-		[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining)" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次)"
-		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
-	done
-[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
-[[ -n $NAME ]] && DEVICE="--name $NAME"
+	[[ -z $LICENSE ]] && reading " $T28 " LICENSE
+	i=5
+	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
+		do	let i--
+			[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining)" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续（剩余$i次)"
+			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
+		done
+	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
+	[[ -n $NAME ]] && DEVICE="--name $NAME"
 }
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
 update_license(){
-[[ -z $LICENSE ]] && reading " $T61 " LICENSE
-i=5
-until [[ ${#LICENSE} = 26 ]]
-	do
-		let i--
-		[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 WARP+ License（剩余$i次）: "
-		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
-       done
-[[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
-[[ -n $NAME ]] && DEVICE="--name $NAME"
+	[[ -z $LICENSE ]] && reading " $T61 " LICENSE
+	i=5
+	until [[ ${#LICENSE} = 26 ]]
+		do	let i--
+			[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 WARP+ License（剩余$i次）: "
+			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
+	       done
+	[[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
+	[[ -n $NAME ]] && DEVICE="--name $NAME"
 }
 
 # 输入 Linux Client 端口，先检查默认的40000是否被占用
 input_port(){
 	[[ -n $(ss -nltp | grep ':40000') ]] && reading " $T103 " PORT || reading " $T104 " PORT
 	PORT=${PORT:-40000}
+	i=5
 	until [[ $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") && ! $(ss -nltp) =~ ":$PORT" ]]
-		do	[[ ! $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && reading " $T111 " PORT
+		do	let i--
+			[[ $i = 0 ]] && red " $T29 " && exit 1
+			[[ ! $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && reading " $T111 " PORT
 			[[  $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && [[ $(ss -nltp) =~ ":$PORT" ]] && reading " $T103 " PORT
 		done
 }
