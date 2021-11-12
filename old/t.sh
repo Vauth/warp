@@ -108,6 +108,8 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T105="Please choose the priority of IPv4 or IPv6 (default 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.Restore initial settings\n Choose:" || T105="请选择优先级别 (默认 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.还原 VPS 初始设置\n 请选择:"
 [[ $LANGUAGE != 2 ]] && T106="IPv6 priority" || T106="IPv6 优先"
 [[ $LANGUAGE != 2 ]] && T107="IPv4 priority" || T107="IPv4 优先"
+[[ $LANGUAGE != 2 ]] && T109="Socks5 Proxy Client on IPv4 VPS is working now. You can only choose the WARP IPv6 interface, please enter [y] to continue, and other keys to exit:" || T109="IPv4 only VPS，并且 Socks5 代理正在运行中，只能选择单栈方案，继续请输入 y，其他按键退出:"
+[[ $LANGUAGE != 2 ]] && T110="Socks5 Proxy Client on native dualstack VPS is working now. WARP interface could not be installed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T110="原生双栈 VPS，并且 Socks5 代理正在运行中。WARP 网络接口不能安装，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 
 # 当前脚本版本号和新增功能
 VERSION=2.10
@@ -434,6 +436,11 @@ stack_priority(){
 
 # WGCF 安装
 install(){
+	# 在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
+	[[ $CLIENT = 3 && $IPV4$IPV6 = 10 && $MODIFY = MODIFYD10 ]] && reading " $T109 " CHANGE &&
+	[[ $CHANGE != [Yy] ]] && exit 1 || MODIFY=MODIFYS10
+	[[ $CLIENT = 3 && $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
+	
 	INPUT_LICENSE=1 && input_license
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
