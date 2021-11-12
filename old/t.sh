@@ -423,11 +423,11 @@ until [[ ${#LICENSE} = 26 ]]
 input_port(){
 	[[ -n $(ss -nltp | grep ':40000') ]] && reading " $T103 " PORT || reading " $T104 " PORT
 	PORT=${PORT:-40000}
-	until [[ ! $(ss -nltp) =~ ":$PORT" ]]
-		do	red " $T103 " && reading " $T104 " PORT
-			until [[ $(echo $PORT | egrep "^[1-9][0-9]{3,4}$" ]]
-				do	red " $T111 " && reading " $T104 " PORT
-				done
+	until [[ false ]]
+		do	[[ ! $(ss -nltp) =~ ":$PORT" ]] && red " $T103 "
+			[[ $(echo $PORT | egrep "^[1-9][0-9]{3,4}$" ]] && " $T111 "
+			reading " $T104 " PORT
+			[[ ! $(ss -nltp) =~ ":$PORT" ]] && [[ $(echo $PORT | egrep "^[1-9][0-9]{3,4}$" ]] && break
 		done
 }
 
