@@ -794,7 +794,7 @@ case "$OPTION" in
 2 )	[[ $CLIENT != 3 && $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
 	# 在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
-	[[ $CLIENT = 3 && $IPV4$IPV6 = 10 ]] && reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=MODIFYS10
+	[[ $CLIENT = 3 && $IPV4$IPV6 = 10 ]] && reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=$MODIFYS10
 	[[ $CLIENT = 3 && $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
 	install;;
 
