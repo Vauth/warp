@@ -787,17 +787,16 @@ menu3(){
 
 # 设置部分后缀 3/3
 case "$OPTION" in
-1 )	[[ $PLAN = 2 ]] && reading " $T79 " DUAL &&
-	[[ $DUAL != [Yy] ]] && exit 1 || MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
+1 )	[[ $PLAN = 2 ]] && reading " $T79 " DUAL && [[ $DUAL != [Yy] ]] && exit 1 || MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
 	[[ $PLAN = 1 ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
  	[[ $CLIENT != 3 && $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	install;;
 2 )	[[ $CLIENT != 3 && $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
-	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install
+	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
 	# 在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
-	[[ $CLIENT = 3 && $IPV4$IPV6 = 10 ]] && reading " $T109 " CHANGE &&
-	[[ $CHANGE != [Yy] ]] && exit 1 || MODIFY=MODIFYS10
-	[[ $CLIENT = 3 && $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1;;
+	[[ $CLIENT = 3 && $IPV4$IPV6 = 10 ]] && reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=MODIFYS10
+	[[ $CLIENT = 3 && $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
+	install;;
 
 [Cc] )	[[ $CLIENT = 3 ]] && red " $T92 " && exit 1 || proxy;;
 [Dd] )	update;;
