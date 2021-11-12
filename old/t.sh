@@ -280,9 +280,9 @@ proxy_onoff(){
     [[ -z $PROXY ]] && red " $T93 "
     [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && 
     [[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " $T91 "
-    [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && sleep 1 && STATUS=1
-    [[ $STATUS = 1 && $(ss -nltp) =~ 'warp-svc' ]] && green " $T90 "
-    [[ $STATUS = 1 && $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " $T96 " && exit 1
+    [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 &&
+    [[ $(ss -nltp) =~ 'warp-svc' ]] && green " $T90 "
+    [[ $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " $T96 " && exit 1
     }
 
 # 设置部分后缀 2/3
