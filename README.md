@@ -80,6 +80,7 @@ warp [option] [lisence]
   | d lisence | 在上面基础上把 WARP+ Lisence 添加进去，如 ```bash menu.sh d N5670ljg-sS9jD334-6o6g4M9F```  |
   | p | 刷 Warp+ 流量 |
   | c | 安装 WARP Linux Client，开启 Socks5 代理模式 |
+  | c lisence | 在上面基础上把 WARP+ Lisence 添加进去，如 ```bash menu.sh c N5670ljg-sS9jD334-6o6g4M9F```  |
   | r | WARP Linux Client 开关 |
   | v | 同步脚本至最新版本 |
   | 其他或空值| 菜单界面 |
