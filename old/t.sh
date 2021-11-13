@@ -451,7 +451,7 @@ install(){
 	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
 	
 	# 选择优先使用 IPv4 /IPv6 网络
-	[[ -e /etc/gai.conf ]] && reading " $T105 " PRIORITY
+	reading " $T105 " PRIORITY
 	
 	# 脚本开始时间
 	start=$(date +%s)
