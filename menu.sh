@@ -324,10 +324,9 @@ fi
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
 
 # 安装 curl
-[[ ! $(type -P curl) ]] && 
-( yellow " $T7 " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) || 
-( yellow " $T8 " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || 
-( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " $T9 " && exit 1 ))))
+[[ ! $(type -P curl) ]] && yellow " $T7 " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1)
+[[ ! $(type -P curl) ]] && yellow " $T8 " && (apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1)
+[[ ! $(type -P curl) ]] && yellow " $T9 " && exit 1
 
 # 判断处理器架构
 [[ $(arch | tr A-Z a-z) =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
@@ -451,7 +450,7 @@ install(){
 	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
 	
 	# 选择优先使用 IPv4 /IPv6 网络
-	[[ -e /etc/gai.conf ]] && reading " $T105 " PRIORITY
+	reading " $T105 " PRIORITY
 	
 	# 脚本开始时间
 	start=$(date +%s)
@@ -800,7 +799,7 @@ case "$OPTION" in
 2 )	[[ $CLIENT != 3 && $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
 	# 在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
-	[[ $CLIENT = 3 && $IPV4$IPV6 = 10 ]] && reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=$MODIFYS10
+	[[ $CLIENT = 3 && $IPV4$IPV6 = 10 ]] && (reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=$MODIFYS10)
 	[[ $CLIENT = 3 && $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
 	install;;
 
