@@ -324,8 +324,10 @@ fi
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
 
 # 安装 curl
-[[ ! $(type -P curl) ]] && yellow " $T7 " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1)
-[[ ! $(type -P curl) ]] && yellow " $T8 " && (apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1)
+[[ $SYSTEM != centos && ! $(type -P curl) ]] && yellow " $T7 " && apt -y install curl >/dev/null 2>&1
+[[ $SYSTEM = centos && ! $(type -P curl) ]] && yellow " $T7 " && yum -y install curl >/dev/null 2>&1
+[[ $SYSTEM != centos && ! $(type -P curl) ]] && yellow " $T8 " && apt -y update && apt -y install curl >/dev/null 2>&1
+[[ $SYSTEM = centos && ! $(type -P curl) ]] && yellow " $T8 " && yum -y update && yum -y install curl >/dev/null 2>&1
 [[ ! $(type -P curl) ]] && yellow " $T9 " && exit 1
 
 # 判断处理器架构
@@ -792,15 +794,23 @@ menu3(){
 
 # 设置部分后缀 3/3
 case "$OPTION" in
-1 )	[[ $PLAN = 2 ]] && reading " $T79 " DUAL && [[ $DUAL != [Yy] ]] && exit 1 || MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
-	[[ $PLAN = 1 ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
- 	[[ $CLIENT != 3 && $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
+1 )	# 先判断是否运行 WARP,在按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
+	if [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]]; then
+		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
+	elif [[ $CLIENT = 3 ]]; then
+		[[ $IPV4$IPV6 = 10 ]] && MODIFY=$MODIFYS10
+		[[ $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
+	else [[ $PLAN = 2 ]] && reading " $T79 " DUAL && [[ $DUAL != [Yy] ]] && exit 1 || MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
+	fi
 	install;;
-2 )	[[ $CLIENT != 3 && $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
-	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
-	# 在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
-	[[ $CLIENT = 3 && $IPV4$IPV6 = 10 ]] && (reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=$MODIFYS10)
-	[[ $CLIENT = 3 && $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
+2 )	# 先判断是否运行 WARP,在按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
+	if [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]]; then
+		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
+	elif [[ $CLIENT = 3 ]]; then
+		[[ $IPV4$IPV6 = 10 ]] && reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=$MODIFYS10
+		[[ $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
+	else MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
+	fi
 	install;;
 
 [Cc] )	[[ $CLIENT = 3 ]] && red " $T92 " && exit 1 || proxy;;
