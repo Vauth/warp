@@ -431,8 +431,8 @@ input_port(){
 }
 
 stack_priority(){
-        sed -i '/^precedence \:\:ffff\:0\:0/d' /etc/gai.conf
-        sed -i '/^label 2002\:\:\/16/d' /etc/gai.conf
+	sed -i '/^precedence \:\:ffff\:0\:0/d' /etc/gai.conf
+	sed -i '/^label 2002\:\:\/16/d' /etc/gai.conf
 	case "$PRIORITY" in
 		2 )	echo "label 2002::/16   2" >> /etc/gai.conf;;
 		3 )	;;
@@ -649,7 +649,7 @@ proxy(){
 	apt -y update; apt -y install cloudflare-warp)
 	settings
 
-	elif [[ $CLIENT = 2 ]] && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing'|'' ]]; then
+	elif [[ $CLIENT = 2 && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing' ]]; then
 	settings
 
 	else
