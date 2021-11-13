@@ -324,10 +324,9 @@ fi
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
 
 # 安装 curl
-[[ ! $(type -P curl) ]] && 
-( yellow " $T7 " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1) || 
-( yellow " $T8 " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || 
-( yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1 || ( yellow " $T9 " && exit 1 ))))
+[[ ! $(type -P curl) ]] && yellow " $T7 " && (apt -y install curl >/dev/null 2>&1 || yum -y install curl >/dev/null 2>&1)
+[[ ! $(type -P curl) ]] && yellow " $T8 " && (apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1 || yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1)
+[[ ! $(type -P curl) ]] && yellow " $T9 " && exit 1
 
 # 判断处理器架构
 [[ $(arch | tr A-Z a-z) =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
