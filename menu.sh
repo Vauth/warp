@@ -145,7 +145,7 @@ plus() {
 	yellow " $T54\n "
 	green " 1.$T55 "
 	green " 2.$T56 "
-	[[ -n $IPV4$IPV6 ]] && green " 3.$T49 " || green " 3.$T76 "
+	[[ -n $PLAN ]] && green " 3.$T49 " || green " 3.$T76 "
 	red "=============================================================="
 	reading " $T50 " CHOOSEPLUS
 	case "$CHOOSEPLUS" in
@@ -159,7 +159,7 @@ plus() {
 		    wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
 		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
 		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
-		3 ) [[ -n $IPV4$IPV6 ]] && menu$PLAN || exit;;
+		3 ) [[ -n $PLAN ]] && menu$PLAN || exit;;
 		* ) red " $T51 [1-3] "; sleep 1; plus;;
 	esac
 	}
@@ -187,12 +187,12 @@ bbrInstall() {
 	red "\n=============================================================="
 	yellow " $T47\n "
 	green " 1.$T48 "
-	[[ -n $IPV4$IPV6 ]] && green " 2.$T49 " || green " 2.$T76 "
+	[[ -n $PLAN ]] && green " 2.$T49 " || green " 2.$T76 "
 	red "=============================================================="
 	reading " $T50 " BBR
 	case "$BBR" in
 		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-		2 ) [[ -n $IPV4$IPV6 ]] && menu$PLAN || exit;;
+		2 ) [[ -n $PLAN ]] && menu$PLAN || exit;;
 		* ) red " $T51 [1-2]"; sleep 1; bbrInstall;;
 	esac
 	}
@@ -278,10 +278,11 @@ proxy_onoff(){
     PROXY=$(warp-cli --accept-tos status 2>/dev/null)
     [[ -z $PROXY ]] && red " $T93 "
     [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && 
-    [[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " $T91 "
+    [[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " $T91 "  && exit 0
     [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && STATUS=1
-    [[ $STATUS = 1 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && green " $T90 "
+    [[ $STATUS = 1 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && green " $T90 " && exit 0
     [[ $STATUS = 1 ]] && [[ $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " $T96 " && exit 1
+    
     }
 
 # 设置部分后缀 2/3
@@ -353,15 +354,17 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 		TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 [[ $LANGUAGE != 2 && $IPV4 = 1 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
 [[ $LANGUAGE != 2 && $IPV6 = 1 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
+
+# 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
+[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
+[[ $TRACE4 = plus ]] && PLUS4=+
+[[ $TRACE6 = plus ]] && PLUS6=+
+
+# 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义：0=未安装  1=已安装未激活  2=状态激活  3=Clinet 已开启
 [[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
 [[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
 [[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3
-[[ $TRACE4 = plus ]] && PLUS4=+
-[[ $TRACE4 = plus ]] && PLUS6=+
 [[ $(warp-cli --accept-tos account 2>/dev/null) =~ Limited ]] && AC=+
-
-# 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈,	2=双栈,	3=WARP已开启
-[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on || $CLIENT = 3 ]] && PLAN=3 || PLAN=$(($IPV4+$IPV6))
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $LXC != 1 && $(($(uname  -r | cut -d . -f1) * 100 +  $(uname  -r | cut -d . -f2))) -lt 506 ]] && WG=1
@@ -721,8 +724,9 @@ menu1(){
 	green " 5. $T73 "
 	green " 6. $T74 "
 	green " 7. $T75 "
-	green " 8. $T82 "
-	green " 9. $T88 "
+	[[ $CLIENT = 3 ]] && green " 8. $T89 "
+	[[ $CLIENT = 2 ]] && green " 8. $T88 "
+	[[ $CLIENT != 2 && $CLIENT != 3 ]] && green " 8. $T82 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE1
 		case "$CHOOSE1" in
@@ -733,10 +737,9 @@ menu1(){
 		5 )	bbrInstall;;
 		6 )	plus;;
 		7 )	ver;;
-		8 )	proxy;;
-		9 )	proxy_onoff;;
+		8 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
 		0 )	exit;;
-		* )	red " $T51 [0-9] "; sleep 1; menu1;;
+		* )	red " $T51 [0-8] "; sleep 1; menu1;;
 		esac
 	}
 
@@ -749,8 +752,9 @@ menu2(){
 	green " 4. $T73 "
 	green " 5. $T74 "
 	green " 6. $T75 "
-	green " 7. $T82 "
-	green " 8. $T88 "
+	[[ $CLIENT = 3 ]] && green " 7. $T89 "
+	[[ $CLIENT = 2 ]] && green " 7. $T88 "
+	[[ $CLIENT != 2 && $CLIENT != 3 ]] && green " 7. $T82 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE2
 		case "$CHOOSE2" in
@@ -760,10 +764,9 @@ menu2(){
 		4 )	bbrInstall;;
 		5 )	plus;;
 		6 )	ver;;
-		7 )	proxy;;
-		8 )	proxy_onoff;;
+		7 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
 		0 )	exit;;
-		* )	red " $T51 [0-8] "; sleep 1; menu2;;
+		* )	red " $T51 [0-7] "; sleep 1; menu2;;
 		esac
 	}
 
@@ -776,7 +779,9 @@ menu3(){
 	green " 4. $T74 "
 	green " 5. $T78 "
 	green " 6. $T75 "
-	green " 7. $T89 "
+	[[ $CLIENT = 3 ]] && green " 7. $T89 "
+	[[ $CLIENT = 2 ]] && green " 7. $T88 "
+	[[ $CLIENT != 2 && $CLIENT != 3 ]] && green " 7. $T82 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE3
         case "$CHOOSE3" in
@@ -786,16 +791,16 @@ menu3(){
 		4 )	plus;;
 		5 )	update;;
 		6 )	ver;;
-		7 )	proxy_onoff;;
+		7 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
 		0 )	exit;;
-		* )	red " $T51 [0-6] "; sleep 1; menu3;;
+		* )	red " $T51 [0-7] "; sleep 1; menu3;;
 		esac
 	}
 
 # 设置部分后缀 3/3
 case "$OPTION" in
 1 )	# 先判断是否运行 WARP,在按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
-	if [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]]; then
+	if [[ $PLAN = 3 ]]; then
 		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
 		[[ $IPV4$IPV6 = 10 ]] && MODIFY=$MODIFYS10
@@ -805,7 +810,7 @@ case "$OPTION" in
 	fi
 	install;;
 2 )	# 先判断是否运行 WARP,在按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
-	if [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]]; then
+	if [[ $PLAN = 3 ]]; then
 		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
 		[[ $IPV4$IPV6 = 10 ]] && reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=$MODIFYS10
