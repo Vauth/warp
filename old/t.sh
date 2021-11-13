@@ -324,10 +324,10 @@ fi
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
 
 # 安装 curl
-[[ $SYSTEM != centos && ! $(type -P curl) ]] && yellow " $T7 " && apt -y install curl
-[[ $SYSTEM = centos && ! $(type -P curl) ]] && yellow " $T7 " && yum -y install curl
-[[ $SYSTEM != centos && ! $(type -P curl) ]] && yellow " $T8 " && apt -y update && apt -y install curl
-[[ $SYSTEM = centos && ! $(type -P curl) ]] && yellow " $T8 " && yum -y update && yum -y install curl
+[[ $SYSTEM != centos && ! $(type -P curl) ]] && yellow " $T7 " && apt -y install curl 2>/dev/null
+[[ $SYSTEM = centos && ! $(type -P curl) ]] && yellow " $T7 " && yum -y install curl 2>/dev/null
+[[ $SYSTEM != centos && ! $(type -P curl) ]] && yellow " $T8 " && apt -y update 2>/dev/null && apt -y install curl 2>/dev/null
+[[ $SYSTEM = centos && ! $(type -P curl) ]] && yellow " $T8 " && yum -y update 2>/dev/null && yum -y install curl 2>/dev/null
 [[ ! $(type -P curl) ]] && yellow " $T9 " && exit 1
 
 # 判断处理器架构
@@ -798,11 +798,17 @@ case "$OPTION" in
 	[[ $PLAN = 1 ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
  	[[ $CLIENT != 3 && $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	install;;
-2 )	[[ $CLIENT != 3 && $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
+2 )	# 在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
+	if [[ $CLIENT = 3 ]]; then
+		[[ $IPV4$IPV6 = 10 ]] && reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=$MODIFYS10
+		[[ $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
+	
+	else
+	[[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6)
 	# 在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
-	[[ $CLIENT = 3 && $IPV4$IPV6 = 10 ]] && (reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=$MODIFYS10)
-	[[ $CLIENT = 3 && $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
+	fi
+	
 	install;;
 
 [Cc] )	[[ $CLIENT = 3 ]] && red " $T92 " && exit 1 || proxy;;
