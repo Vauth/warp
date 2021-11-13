@@ -324,10 +324,10 @@ fi
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
 
 # 安装 curl
-[[ $SYSTEM != centos && ! $(type -P curl) ]] && yellow " $T7 " && apt -y install curl >/dev/null 2>&1
-[[ $SYSTEM = centos && ! $(type -P curl) ]] && yellow " $T7 " && yum -y install curl >/dev/null 2>&1
-[[ $SYSTEM != centos && ! $(type -P curl) ]] && yellow " $T8 " && apt -y update >/dev/null 2>&1 && apt -y install curl >/dev/null 2>&1
-[[ $SYSTEM = centos && ! $(type -P curl) ]] && yellow " $T8 " && yum -y update >/dev/null 2>&1 && yum -y install curl >/dev/null 2>&1
+[[ $SYSTEM != centos && ! $(type -P curl) ]] && yellow " $T7 " && apt -y install curl
+[[ $SYSTEM = centos && ! $(type -P curl) ]] && yellow " $T7 " && yum -y install curl
+[[ $SYSTEM != centos && ! $(type -P curl) ]] && yellow " $T8 " && apt -y update && apt -y install curl
+[[ $SYSTEM = centos && ! $(type -P curl) ]] && yellow " $T8 " && yum -y update && yum -y install curl
 [[ ! $(type -P curl) ]] && yellow " $T9 " && exit 1
 
 # 判断处理器架构
