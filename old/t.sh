@@ -723,8 +723,9 @@ menu1(){
 	green " 5. $T73 "
 	green " 6. $T74 "
 	green " 7. $T75 "
-	green " 8. $T82 "
-	green " 9. $T88 "
+	[[ $CLIENT = 3 ]] && green " 8. $T89 "
+	[[ $CLIENT = 2 ]] && green " 8. $T88 "
+	[[ $CLIENT != 2 && $CLIENT != 3 ]] && green " 8. $T82 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE1
 		case "$CHOOSE1" in
@@ -735,10 +736,9 @@ menu1(){
 		5 )	bbrInstall;;
 		6 )	plus;;
 		7 )	ver;;
-		8 )	proxy;;
-		9 )	proxy_onoff;;
+		8 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
 		0 )	exit;;
-		* )	red " $T51 [0-9] "; sleep 1; menu1;;
+		* )	red " $T51 [0-8] "; sleep 1; menu1;;
 		esac
 	}
 
@@ -751,8 +751,9 @@ menu2(){
 	green " 4. $T73 "
 	green " 5. $T74 "
 	green " 6. $T75 "
-	green " 7. $T82 "
-	green " 8. $T88 "
+	[[ $CLIENT = 3 ]] && green " 7. $T89 "
+	[[ $CLIENT = 2 ]] && green " 7. $T88 "
+	[[ $CLIENT != 2 && $CLIENT != 3 ]] && green " 7. $T82 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE2
 		case "$CHOOSE2" in
@@ -762,10 +763,9 @@ menu2(){
 		4 )	bbrInstall;;
 		5 )	plus;;
 		6 )	ver;;
-		7 )	proxy;;
-		8 )	proxy_onoff;;
+		7 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
 		0 )	exit;;
-		* )	red " $T51 [0-8] "; sleep 1; menu2;;
+		* )	red " $T51 [0-7] "; sleep 1; menu2;;
 		esac
 	}
 
@@ -778,7 +778,9 @@ menu3(){
 	green " 4. $T74 "
 	green " 5. $T78 "
 	green " 6. $T75 "
-	green " 7. $T89 "
+	[[ $CLIENT = 3 ]] && green " 7. $T89 "
+	[[ $CLIENT = 2 ]] && green " 7. $T88 "
+	[[ $CLIENT != 2 && $CLIENT != 3 ]] && green " 7. $T82 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE3
         case "$CHOOSE3" in
@@ -788,9 +790,9 @@ menu3(){
 		4 )	plus;;
 		5 )	update;;
 		6 )	ver;;
-		7 )	proxy_onoff;;
+		7 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
 		0 )	exit;;
-		* )	red " $T51 [0-6] "; sleep 1; menu3;;
+		* )	red " $T51 [0-7] "; sleep 1; menu3;;
 		esac
 	}
 
