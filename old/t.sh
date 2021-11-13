@@ -736,7 +736,7 @@ menu1(){
 		5 )	bbrInstall;;
 		6 )	plus;;
 		7 )	ver;;
-		8 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
+		8 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff && exit || proxy;;
 		0 )	exit;;
 		* )	red " $T51 [0-8] "; sleep 1; menu1;;
 		esac
@@ -763,7 +763,7 @@ menu2(){
 		4 )	bbrInstall;;
 		5 )	plus;;
 		6 )	ver;;
-		7 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
+		7 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff && exit || proxy;;
 		0 )	exit;;
 		* )	red " $T51 [0-7] "; sleep 1; menu2;;
 		esac
@@ -790,7 +790,7 @@ menu3(){
 		4 )	plus;;
 		5 )	update;;
 		6 )	ver;;
-		7 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
+		7 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff && exit || proxy;;
 		0 )	exit;;
 		* )	red " $T51 [0-7] "; sleep 1; menu3;;
 		esac
