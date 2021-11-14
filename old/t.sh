@@ -113,7 +113,8 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T113="Client is installed and disconnected" || T113="Client 已安装，状态为断开连接"
 [[ $LANGUAGE != 2 ]] && T114="WARP+ Interface is on" || T114="WARP+ 网络接口已开启"
 [[ $LANGUAGE != 2 ]] && T115="WARP Interface is on" || T115="WARP 网络接口已开启"
-[[ $LANGUAGE != 2 ]] && T116="" || T116=""
+[[ $LANGUAGE != 2 ]] && T116="WARP Interface is off" || T116="WARP 网络接口未开启"
+[[ $LANGUAGE != 2 ]] && T117="" || T117=""
 
 # 当前脚本版本号和新增功能
 VERSION=2.10
@@ -394,7 +395,7 @@ status(){
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	$T114	$T25：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	$T115 " 	
-	[[ $PLAN != 3 ]] && green "	WARP $T26 "
+	[[ $PLAN != 3 ]] && green "	$T116 "
 	[[ $CLIENT = 0 ]] && green "	$T112 "
 	[[ $CLIENT = 2 ]] && green "	$T113 "
 	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') "
