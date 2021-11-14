@@ -111,7 +111,9 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T110="Socks5 Proxy Client on native dualstack VPS is working now. WARP interface could not be installed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T110="原生双栈 VPS，并且 Socks5 代理正在运行中。WARP 网络接口不能安装，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T112="Client is not installed." || T112="Client 未安装"
 [[ $LANGUAGE != 2 ]] && T113="Client is installed and disconnected" || T113="Client 已安装，状态为断开连接"
-[[ $LANGUAGE != 2 ]] && T114="" || T114=""
+[[ $LANGUAGE != 2 ]] && T114="WARP+ Interface is on" || T114="WARP+ 网络接口已开启"
+[[ $LANGUAGE != 2 ]] && T115="WARP Interface is on" || T115="WARP 网络接口已开启"
+[[ $LANGUAGE != 2 ]] && T116="" || T116=""
 
 # 当前脚本版本号和新增功能
 VERSION=2.10
@@ -390,8 +392,8 @@ status(){
 	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
 	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
-	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	$T114	$T25：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
+	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	$T115 " 	
 	[[ $PLAN != 3 ]] && green "	WARP $T26 "
 	[[ $CLIENT = 0 ]] && green "	$T112 "
 	[[ $CLIENT = 2 ]] && green "	$T113 "
