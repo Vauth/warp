@@ -35,7 +35,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T23="Virtualization" || T23="虚拟化"
 [[ $LANGUAGE != 2 ]] && T24="Socks5 Client is on" || T24="Socks5 Client 已开启"
 [[ $LANGUAGE != 2 ]] && T25="Device name" || T25="设备名"
-[[ $LANGUAGE != 2 ]] && T26="is off" || T26="未开启"
+[[ $LANGUAGE != 2 ]] && T26="" || T26=""
 [[ $LANGUAGE != 2 ]] && T27="Device name" || T27="设备名"
 [[ $LANGUAGE != 2 ]] && T28="If there is a WARP+ License, please enter it, otherwise press Enter to continue:" || T28="如有 WARP+ License 请输入，没有可回车继续:"
 [[ $LANGUAGE != 2 ]] && T29="Input errors up to 5 times.The script is aborted." || T29="输入错误达5次，脚本退出"
