@@ -404,7 +404,7 @@ input_license(){
 			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
 		done
 	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
-	[[ -n $NAME ]] && DEVICE="--name $NAME"
+	[[ -n $NAME ]] && DEVICE="--name $(echo $NAME | sed s/[[:space:]]/_/g"
 }
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
