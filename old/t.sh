@@ -386,7 +386,7 @@ status(){
 	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
 	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
 	[[ $PLAN != 3 ]] && green "	WARP $T26 "
 	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') " || green "	WARP$AC Socks5 Client $T26 "
