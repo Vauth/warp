@@ -109,6 +109,9 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T107="IPv4 priority" || T107="IPv4 优先"
 [[ $LANGUAGE != 2 ]] && T109="Socks5 Proxy Client on IPv4 VPS is working now. You can only choose the WARP IPv6 interface, please enter [y] to continue, and other keys to exit:" || T109="IPv4 only VPS，并且 Socks5 代理正在运行中，只能选择单栈方案，继续请输入 y，其他按键退出:"
 [[ $LANGUAGE != 2 ]] && T110="Socks5 Proxy Client on native dualstack VPS is working now. WARP interface could not be installed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T110="原生双栈 VPS，并且 Socks5 代理正在运行中。WARP 网络接口不能安装，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T112="Client is not installed." || T112="Client 未安装"
+[[ $LANGUAGE != 2 ]] && T113="Client is installed and disconnected" || T113="Client 已安装，状态为断开连接"
+[[ $LANGUAGE != 2 ]] && T114="" || T114=""
 
 # 当前脚本版本号和新增功能
 VERSION=2.10
@@ -390,7 +393,9 @@ status(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
 	[[ $PLAN != 3 ]] && green "	WARP $T26 "
-	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') " || green "	WARP$AC Socks5 Client $T26 "
+	[[ $CLIENT = 0 ]] && green "	$T112 "
+	[[ $CLIENT = 2 ]] && green "	$T113 "
+	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') "
  	red "\n======================================================================================================================\n"
 	}
 
@@ -800,7 +805,7 @@ menu3(){
 
 # 设置部分后缀 3/3
 case "$OPTION" in
-1 )	# 先判断是否运行 WARP,在按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
+1 )	# 先判断是否运行 WARP,再按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
 	if [[ $PLAN = 3 ]]; then
 		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
@@ -810,7 +815,7 @@ case "$OPTION" in
 		[[ $PLAN = 1 ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
 	fi
 	install;;
-2 )	# 先判断是否运行 WARP,在按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
+2 )	# 先判断是否运行 WARP,再按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
 	if [[ $PLAN = 3 ]]; then
 		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
