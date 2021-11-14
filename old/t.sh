@@ -33,7 +33,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T21="Kernel" || T21="内核"
 [[ $LANGUAGE != 2 ]] && T22="Architecture" || T22="处理器架构"
 [[ $LANGUAGE != 2 ]] && T23="Virtualization" || T23="虚拟化"
-[[ $LANGUAGE != 2 ]] && T24="is on" || T24="已开启"
+[[ $LANGUAGE != 2 ]] && T24="Socks5 Client is on" || T24="Socks5 Client 已开启"
 [[ $LANGUAGE != 2 ]] && T25="Device name" || T25="设备名"
 [[ $LANGUAGE != 2 ]] && T26="is off" || T26="未开启"
 [[ $LANGUAGE != 2 ]] && T27="Device name" || T27="设备名"
@@ -398,7 +398,7 @@ status(){
 	[[ $PLAN != 3 ]] && green "	$T116 "
 	[[ $CLIENT = 0 ]] && green "	$T112 "
 	[[ $CLIENT = 2 ]] && green "	$T113 "
-	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') "
+	[[ $CLIENT = 3 ]] && green "	WARP$AC $T24	$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') "
  	red "\n======================================================================================================================\n"
 	}
 
