@@ -265,7 +265,8 @@ net(){
 	[[ $LANGUAGE != 2 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
 	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
-	green " $T14\n IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
+	green " $T14 "
+	[[ $OPTION = [OoNn] ]] && green " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
 # WARP 开关
@@ -276,13 +277,13 @@ onoff(){
 # PROXY 开关
 proxy_onoff(){
     PROXY=$(warp-cli --accept-tos status 2>/dev/null)
-    [[ -z $PROXY ]] && red " $T93 "
+    [[ -z $PROXY ]] && red " $T93 " && exit 1
+    [[ $PROXY =~ Connecting ]] && red " $T96 " && exit 1
     [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && 
     [[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " $T91 "  && exit 0
     [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && STATUS=1
     [[ $STATUS = 1 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && green " $T90 " && exit 0
     [[ $STATUS = 1 ]] && [[ $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " $T96 " && exit 1
-    
     }
 
 # 设置部分后缀 2/3
@@ -386,7 +387,7 @@ status(){
 	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
 	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep name /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
 	[[ $PLAN != 3 ]] && green "	WARP $T26 "
 	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') " || green "	WARP$AC Socks5 Client $T26 "
