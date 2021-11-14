@@ -33,9 +33,9 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T21="Kernel" || T21="内核"
 [[ $LANGUAGE != 2 ]] && T22="Architecture" || T22="处理器架构"
 [[ $LANGUAGE != 2 ]] && T23="Virtualization" || T23="虚拟化"
-[[ $LANGUAGE != 2 ]] && T24="is on" || T24="已开启"
+[[ $LANGUAGE != 2 ]] && T24="Socks5 Client is on" || T24="Socks5 Client 已开启"
 [[ $LANGUAGE != 2 ]] && T25="Device name" || T25="设备名"
-[[ $LANGUAGE != 2 ]] && T26="is off" || T26="未开启"
+[[ $LANGUAGE != 2 ]] && T26="" || T26=""
 [[ $LANGUAGE != 2 ]] && T27="Device name" || T27="设备名"
 [[ $LANGUAGE != 2 ]] && T28="If there is a WARP+ License, please enter it, otherwise press Enter to continue:" || T28="如有 WARP+ License 请输入，没有可回车继续:"
 [[ $LANGUAGE != 2 ]] && T29="Input errors up to 5 times.The script is aborted." || T29="输入错误达5次，脚本退出"
@@ -109,6 +109,12 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T107="IPv4 priority" || T107="IPv4 优先"
 [[ $LANGUAGE != 2 ]] && T109="Socks5 Proxy Client on IPv4 VPS is working now. You can only choose the WARP IPv6 interface, please enter [y] to continue, and other keys to exit:" || T109="IPv4 only VPS，并且 Socks5 代理正在运行中，只能选择单栈方案，继续请输入 y，其他按键退出:"
 [[ $LANGUAGE != 2 ]] && T110="Socks5 Proxy Client on native dualstack VPS is working now. WARP interface could not be installed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T110="原生双栈 VPS，并且 Socks5 代理正在运行中。WARP 网络接口不能安装，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T112="Client is not installed." || T112="Client 未安装"
+[[ $LANGUAGE != 2 ]] && T113="Client is installed and disconnected" || T113="Client 已安装，状态为断开连接"
+[[ $LANGUAGE != 2 ]] && T114="WARP+ Interface is on" || T114="WARP+ 网络接口已开启"
+[[ $LANGUAGE != 2 ]] && T115="WARP Interface is on" || T115="WARP 网络接口已开启"
+[[ $LANGUAGE != 2 ]] && T116="WARP Interface is off" || T116="WARP 网络接口未开启"
+[[ $LANGUAGE != 2 ]] && T117="" || T117=""
 
 # 当前脚本版本号和新增功能
 VERSION=2.10
@@ -387,10 +393,12 @@ status(){
 	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
 	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	WARP+ $T24	$T25：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
-	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	WARP $T24 " 	
-	[[ $PLAN != 3 ]] && green "	WARP $T26 "
-	[[ $CLIENT = 3 ]] && green "	WARP$AC Socks5 Client $T24	$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') " || green "	WARP$AC Socks5 Client $T26 "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	$T114	$T25：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
+	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	$T115 " 	
+	[[ $PLAN != 3 ]] && green "	$T116 "
+	[[ $CLIENT = 0 ]] && green "	$T112 "
+	[[ $CLIENT = 2 ]] && green "	$T113 "
+	[[ $CLIENT = 3 ]] && green "	WARP$AC $T24	$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') "
  	red "\n======================================================================================================================\n"
 	}
 
@@ -800,7 +808,7 @@ menu3(){
 
 # 设置部分后缀 3/3
 case "$OPTION" in
-1 )	# 先判断是否运行 WARP,在按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
+1 )	# 先判断是否运行 WARP,再按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
 	if [[ $PLAN = 3 ]]; then
 		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
@@ -810,7 +818,7 @@ case "$OPTION" in
 		[[ $PLAN = 1 ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
 	fi
 	install;;
-2 )	# 先判断是否运行 WARP,在按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
+2 )	# 先判断是否运行 WARP,再按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
 	if [[ $PLAN = 3 ]]; then
 		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
