@@ -426,7 +426,7 @@ input_license(){
 	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
 		do	let i--
 			[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining):" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续(剩余$i次):"
-			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30: " LICENSE
+			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30 " LICENSE
 		done
 	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
 	[[ -n $NAME ]] && DEVICE="--name $(echo $NAME | sed s/[[:space:]]/_/g)"
@@ -646,11 +646,11 @@ proxy(){
 	settings(){
 		# 设置为代理模式，如有 WARP+ 账户，修改 license 并升级
 		green " $T84 "
-		warp-cli --accept-tos register >/dev/null 2>&1; sleep 1
-		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1; sleep 1
-		warp-cli --accept-tos set-proxy-port $PORT >/dev/null 2>&1; sleep 1
-		warp-cli --accept-tos connect >/dev/null 2>&1; sleep 1
-		warp-cli --accept-tos enable-always-on >/dev/null 2>&1; sleep 1
+		warp-cli --accept-tos register >/dev/null 2>&1
+		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
+		warp-cli --accept-tos set-proxy-port $PORT >/dev/null 2>&1
+		warp-cli --accept-tos connect >/dev/null 2>&1
+		warp-cli --accept-tos enable-always-on >/dev/null 2>&1
 		[[ -n $LICENSE ]] && ( yellow " $T35 " && 
 		warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1 && sleep 1 &&
 		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
