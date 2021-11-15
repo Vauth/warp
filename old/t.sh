@@ -114,7 +114,10 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T114="WARP+ Interface is on" || T114="WARP+ 网络接口已开启"
 [[ $LANGUAGE != 2 ]] && T115="WARP Interface is on" || T115="WARP 网络接口已开启"
 [[ $LANGUAGE != 2 ]] && T116="WARP Interface is off" || T116="WARP 网络接口未开启"
-[[ $LANGUAGE != 2 ]] && T117="" || T117=""
+[[ $LANGUAGE != 2 ]] && T117="Uninstall WARP Interface was complete." || T117="WARP 网络接口卸载成功"
+[[ $LANGUAGE != 2 ]] && T118="Uninstall WARP Interface was fail." || T118="WARP 网络接口卸载失败"
+[[ $LANGUAGE != 2 ]] && T119="Uninstall Socks5 Proxy Client was complete." || T119="Socks5 Proxy Client 卸载成功"
+[[ $LANGUAGE != 2 ]] && T120="Uninstall Socks5 Proxy Client was fail." || T120="Socks5 Proxy Client 卸载失败"
 
 # 当前脚本版本号和新增功能
 VERSION=2.10
@@ -206,6 +209,8 @@ bbrInstall() {
 # 关闭 WARP 网络接口，并删除 WGCF
 uninstall(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
+	# 卸载 WGCF
+	uninstall_wgcf(){
 	echo $DOWN | sh >/dev/null 2>&1
 	systemctl stop wg-quick@wgcf >/dev/null 2>&1
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
@@ -213,12 +218,23 @@ uninstall(){
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d' /etc/gai.conf
 	[[ -e /etc/gai.conf ]] && sed -i '/^label 2002\:\:\/16/d' /etc/gai.conf
+	}
+	
+	# 卸载 Linux Client
+	uninstall_proxy(){
 	warp-cli --accept-tos disconnect >/dev/null 2>&1
 	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
 	warp-cli --accept-tos delete >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
 	systemctl stop warp-svc >/dev/null 2>&1
 	systemctl disable --now warp-svc >/dev/null 2>&1
+	}
+	
+	# 根据已安装情况执行卸载任务并显示结果
+	[[ $(type -P wg-quick) ]] && ( uninstall_wgcf && [[ ! $(type -P wg-quick) ]] && green " $T117 " || red " $T118 " )
+	[[ $(type -P warp-cli) ]] && ( uninstall_proxy && [[ ! $(type -P warp-cli) ]] && green " $T119 " || red " $T120 " )
+	
+	# 显示卸载结果
 	IP4=$(curl -s4m7 https://ip.gs/json)
 	IP6=$(curl -s6m7 https://ip.gs/json)
 	WAN4=$(echo $IP4 | cut -d \" -f4)
@@ -227,8 +243,9 @@ uninstall(){
 	[[ $LANGUAGE != 2 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
 	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
-	[[ -z $(wg) ]] >/dev/null 2>&1 && green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 " || red " $T46 "
+	[[ ! $(type -P wg-quick) && ! $(type -P warp-cli) ]] && green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 " || red " $T46 "
 	}
+	
 
 # 同步脚本至最新版本
 ver(){
