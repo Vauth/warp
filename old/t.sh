@@ -50,7 +50,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T39="Step 3/3: Running WARP" || T39="进度  3/3： 运行 WARP"
 [[ $LANGUAGE != 2 ]] && T43="Run again with warp [option] [lisence], such as" || T43="再次运行用 warp [option] [lisence]，如"
 [[ $LANGUAGE != 2 ]] && T44="WARP installation failed. Feedback: [https://github.com/fscarmen/warp/issues]" || T44="WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T45="WGCF and WARP Linux Client have been completely deleted!" || T45="WGCF 和 WARP Linux Client 已彻底删除!"
+[[ $LANGUAGE != 2 ]] && T45="WARP interface and Linux Client have been completely deleted!" || T45="WARP 网络接口和 Linux Client 已彻底删除!"
 [[ $LANGUAGE != 2 ]] && T46="Not cleaned up, please reboot and try again." || T46="没有清除干净，请重启(reboot)后尝试再次删除"
 [[ $LANGUAGE != 2 ]] && T47="Upgrade kernel, turn on BBR, change Linux system by other authors [ylx2016],[https://github.com/ylx2016/Linux-NetSpeed]" || T47="BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
 [[ $LANGUAGE != 2 ]] && T48="Run script " || T48="安装脚本【推荐原版BBR+FQ】"
@@ -231,8 +231,8 @@ uninstall(){
 	}
 	
 	# 根据已安装情况执行卸载任务并显示结果
-	[[ $(type -P wg-quick) ]] && (uninstall_wgcf; [[ ! $(type -P wg-quick) ]] && green " $T117 " || red " $T118 ")
-	[[ $(type -P warp-cli) ]] && (uninstall_proxy; [[ ! $(type -P warp-cli) ]] && green " $T119 " || red " $T120 ")
+	[[ $(type -P wg-quick 2>/dev/null) ]] && (uninstall_wgcf; [[ ! $(type -P wg-quick) ]] && green " $T117 " || red " $T118 ")
+	[[ $(type -P warp-cli 2>/dev/null) ]] && (uninstall_proxy; [[ ! $(type -P warp-cli) ]] && green " $T119 " || red " $T120 ")
 	
 	# 显示卸载结果
 	IP4=$(curl -s4m7 https://ip.gs/json)
