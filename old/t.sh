@@ -395,10 +395,10 @@ VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 
 # WGCF 配置修改，其中用到的 162.159.192.1 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的IP
 MODIFYS01='sed -i "/\:\:\/0/d;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
-MODIFYD01='sed -i "7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;8 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g;s/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g" wgcf-profile.conf'
+MODIFYD01='sed -i "7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n;8 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g;s/1.1.1.1/1.1.1.1,9.9.9.9,8.8.8.8/g" wgcf-profile.conf'
 MODIFYS10='sed -i "/0\.\0\/0/d;s/engage.cloudflareclient.com/162.159.192.1/g;s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
-MODIFYD10='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.192.1/g;s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
-MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;s/engage.cloudflareclient.com/162.159.192.1/g;s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+MODIFYD10='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n;8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n;s/engage.cloudflareclient.com/162.159.192.1/g;s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
+MODIFYD11='sed -i "7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n;8 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n;9 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n;10 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n;s/engage.cloudflareclient.com/162.159.192.1/g;s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 
 # VPS 当前状态
 status(){
