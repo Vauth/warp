@@ -347,7 +347,7 @@ fi
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel|'oracle linux' ]] && SYSTEM=centos
 [[ $(echo $SYS | tr A-Z a-z) =~ 'amazon linux' ]] && SYSTEM=centos && COMPANY=amazon
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
-[[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.The script supports Debian 10/11; Ubuntu 18.04/20.24 or CentOS 7/8 only. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS 本脚本只支持 Debian 10/11; Ubuntu 18.04/20.24 和 CentOS 7/8 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.\n The script supports Debian 10/11; Ubuntu 18.04/20.24 or CentOS 7/8 only. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS\n 本脚本只支持 Debian 10/11; Ubuntu 18.04/20.24 和 CentOS 7/8 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $SYSTEM = debian ]] && [[ $(echo $SYS | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 10 ]] && red " $T26 " && exit 1
 [[ $SYSTEM = ubuntu ]] && [[ $(echo $SYS | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 18 ]] && red " $T26 " && exit 1
 [[ $SYSTEM = centos ]] && [[ $(echo $SYS | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 7 ]] && red " $T26 " && exit 1
