@@ -35,8 +35,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T23="Virtualization" || T23="虚拟化"
 [[ $LANGUAGE != 2 ]] && T24="Socks5 Client is on" || T24="Socks5 Client 已开启"
 [[ $LANGUAGE != 2 ]] && T25="Device name" || T25="设备名"
-[[ $LANGUAGE != 2 ]] && T26="" || T26=""
-[[ $LANGUAGE != 2 ]] && T27="Device name" || T27="设备名"
+[[ $LANGUAGE != 2 ]] && T27="" || T27=""
 [[ $LANGUAGE != 2 ]] && T28="If there is a WARP+ License, please enter it, otherwise press Enter to continue:" || T28="如有 WARP+ License 请输入，没有可回车继续:"
 [[ $LANGUAGE != 2 ]] && T29="Input errors up to 5 times.The script is aborted." || T29="输入错误达5次，脚本退出"
 [[ $LANGUAGE != 2 ]] && T31="LXC VPS choose（default is 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n Choose:" || T31="LXC方案（默认值选项为 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n 请选择："
@@ -235,8 +234,8 @@ uninstall(){
 	[[ $(type -P warp-cli) ]] && (uninstall_proxy; green " $T119 ")
 	
 	# 显示卸载结果
-	IP4=$(curl -sk4m7k https://ip.gs/json)
-	IP6=$(curl -sk6m7k https://ip.gs/json)
+	IP4=$(curl -sk4m7 https://ip.gs/json)
+	IP6=$(curl -sk6m7 https://ip.gs/json)
 	WAN4=$(echo $IP4 | cut -d \" -f4)
 	WAN6=$(echo $IP6 | cut -d \" -f4)
 	[[ $LANGUAGE != 2 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -skm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
@@ -723,7 +722,7 @@ update(){
 	echo $DOWN | sh >/dev/null 2>&1
 	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
-	green " $T62\n $T27：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $T63：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " $T36 "
+	green " $T62\n $T25：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $T63：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " $T36 "
 	}
 	
 	client_account(){
