@@ -335,7 +335,7 @@ if [[ $IPV4$IPV6 = 00 && -n $(wg) ]]; then
 fi
 [[ $IPV4$IPV6 = 00 ]] && red " $T4 " && exit 1
 
-# 判断操作系统，只支持 Debian、Ubuntu 或 Centos,如非上述操作系统，删除临时文件，退出脚本
+# 多方式判断操作系统，试到有值为止。只支持 Debian 10/11、Ubuntu 18.04/20.04 或 Centos 7/8 ,如非上述操作系统，退出脚本
 [[ -f /etc/os-release ]] && SYS=$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)
 [[ -z $SYS ]] && SYS=$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)
 [[ -z $SYS ]] && SYS=$(lsb_release -sd 2>/dev/null)
@@ -347,6 +347,10 @@ fi
 [[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel|'oracle linux' ]] && SYSTEM=centos
 [[ $(echo $SYS | tr A-Z a-z) =~ 'amazon linux' ]] && SYSTEM=centos && COMPANY=amazon
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
+[[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.The script supports Debian 10/11; Ubuntu 18.04/20.24 or CentOS 7/8 only. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS 本脚本只支持 Debian 10/11; Ubuntu 18.04/20.24 和 CentOS 7/8 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $SYSTEM = debian ]] && [[ $(echo $SYS | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 10 ]] && red " $T26 " && exit 1
+[[ $SYSTEM = ubuntu ]] && [[ $(echo $SYS | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 18 ]] && red " $T26 " && exit 1
+[[ $SYSTEM = centos ]] && [[ $(echo $SYS | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 7 ]] && red " $T26 " && exit 1
 
 # 安装 curl
 [[ $SYSTEM != centos && ! $(type -P curl) ]] && yellow " $T7 " && apt -y install curl >/dev/null 2>&1
@@ -456,7 +460,7 @@ input_port(){
 			[[ $LANGUAGE != 2 ]] && T103="Port is in use. Please input another Port($i times remaining):" || T103="端口占用中，请使用另一端口(剩余$i次):"
 			[[ $LANGUAGE != 2 ]] && T111="Port must be 4-5 digits. Please re-input($i times remaining):" || T111="端口必须为4-5位自然数，请重新输入(剩余$i次):"
 			[[ ! $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && reading " $T111 " PORT
-			[[  $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && [[ $(ss -nltp) =~ ":$PORT" ]] && reading " $T103 " PORT
+			[[ $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && [[ $(ss -nltp) =~ ":$PORT" ]] && reading " $T103 " PORT
 		done
 }
 
