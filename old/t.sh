@@ -187,8 +187,7 @@ green " $T37 "
 VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
 [[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr A-Z a-z | grep virtualization | cut -d : -f2)
 [[ $VIRT =~ openvz|lxc ]] && LXC=1
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill -9 $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
+[[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun wg-quick up wgcf' || UP='wg-quick up wgcf'
 
 # 安装BBR
 bbrInstall() {
@@ -210,7 +209,7 @@ uninstall(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
 	# 卸载 WGCF
 	uninstall_wgcf(){
-	echo $DOWN | sh >/dev/null 2>&1
+	wg-quick down wgcf >/dev/null 2>&1
 	systemctl stop wg-quick@wgcf >/dev/null 2>&1
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
@@ -266,7 +265,7 @@ net(){
 	[[ $LANGUAGE != 2 ]] && T13="There have been more than $j failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T13="失败已超过$j次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 	yellow " $T11 "
 	yellow " $T12 "
-	[[ $(systemctl is-active wg-quick@wgcf) != active ]] && echo $DOWN | sh >/dev/null 2>&1
+	[[ $(systemctl is-active wg-quick@wgcf) != active ]] && wg-quick down wgcf >/dev/null 2>&1
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo $UP | sh >/dev/null 2>&1
 	IP4=$(curl -s4m7 https://ip.gs/json) &&
@@ -275,11 +274,11 @@ net(){
 		do	let i++
 			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
 			yellow " $T12 "
-			echo $DOWN | sh >/dev/null 2>&1
+			wg-quick down wgcf >/dev/null 2>&1
 			echo $UP | sh >/dev/null 2>&1
 			IP4=$(curl -s4m7 https://ip.gs/json) &&
 			IP6=$(curl -s6m7 https://ip.gs/json)
-			[[ $i = $j ]] && (echo $DOWN | sh >/dev/null 2>&1; red " $T13 ") && exit 1
+			[[ $i = $j ]] && (wg-quick down wgcf >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
 	WAN4=$(echo $IP4 | cut -d \" -f4)
 	WAN6=$(echo $IP6 | cut -d \" -f4)
@@ -293,7 +292,7 @@ net(){
 
 # WARP 开关
 onoff(){
-	[[ -n $(wg) ]] 2>/dev/null && (echo $DOWN | sh >/dev/null 2>&1; green " $T15 ") || net
+	[[ -n $(wg) 2>/dev/null ]] && (wg-quick down wgcf >/dev/null 2>&1; green " $T15 ") || net
 	}
 
 # PROXY 开关
@@ -571,7 +570,8 @@ install(){
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
 
-	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
+	# 反复测试最佳 MTU。 
+	# Wireguard Header：IPv4=60 bytes, BoringTUN Header：100 bytes，IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部)。
 	# 详细说明：<[WireGuard] Header / MTU sizes for Wireguard>：https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
 	yellow " $T81 "
 	MTU=$((1500-28))
@@ -588,7 +588,7 @@ install(){
         MTU=$(($MTU-1))
         [[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1      
 	done
-	MTU=$(($MTU+28-80))
+	[[ $BORINGTUN = 2 ]] && MTU=$(($MTU+28-100)) || MTU=$(($MTU+28-80))
 	[[ $MTU -lt 1280 ]] && MTU=1280
 
 	# 修改配置文件
@@ -599,6 +599,27 @@ install(){
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
 	# 设置开机启动
+	[[ $BORINGTUN = 2 ]] && cat <<EOF >/lib/systemd/system/boringtun@.service
+	[Unit]
+	Description=BoringTUN via wg-quick for %I
+	Before=network-pre.target
+
+	[Service]
+	Type=oneshot
+	RemainAfterExit=yes
+	User=root
+	WorkingDirectory=/root
+	ExecStart=/usr/bin/wg-quick up %i
+	ExecStop=/usr/bin/wg-quick down %i
+	Environment=WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun
+	Restart=on-failure
+
+	[Install]
+	WantedBy=multi-user.target
+	EOF
+	
+	[[ $BORINGTUN = 2 ]] && systemctl start boringtun@wgcf >/dev/null 2>&1
+	[[ $BORINGTUN = 2 ]] && systemctl enable --now boringtun@wgcf >/dev/null 2>&1
 	[[ $BORINGTUN != 2 ]] && systemctl start wg-quick@wgcf >/dev/null 2>&1
 	[[ $BORINGTUN != 2 ]] && systemctl enable --now wg-quick@wgcf >/dev/null 2>&1
 
@@ -719,7 +740,7 @@ update(){
 	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#" wgcf.conf
 	sed -i "3s#.*#$(sed -ne 3p wgcf-profile.conf)#" wgcf.conf
 	sed -i "4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
-	echo $DOWN | sh >/dev/null 2>&1
+	wg-quick down wgcf >/dev/null 2>&1
 	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
 	green " $T62\n $T25：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $T63：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " $T36 "
@@ -830,7 +851,7 @@ menu3(){
 case "$OPTION" in
 1 )	# 先判断是否运行 WARP,再按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
 	if [[ $PLAN = 3 ]]; then
-		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
+		yellow " $T80 " && wg-quick down wgcf >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
 		[[ $IPV4$IPV6 = 10 ]] && MODIFY=$MODIFYS10
 		[[ $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
@@ -840,7 +861,7 @@ case "$OPTION" in
 	install;;
 2 )	# 先判断是否运行 WARP,再按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
 	if [[ $PLAN = 3 ]]; then
-		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
+		yellow " $T80 " && wg-quick down wgcf >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
 		[[ $IPV4$IPV6 = 10 ]] && reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=$MODIFYS10
 		[[ $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
