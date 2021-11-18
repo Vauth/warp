@@ -210,10 +210,12 @@ uninstall(){
 	# 卸载 WGCF
 	uninstall_wgcf(){
 	wg-quick down wgcf >/dev/null 2>&1
-	systemctl stop wg-quick@wgcf >/dev/null 2>&1
+#	systemctl stop wg-quick@wgcf >/dev/null 2>&1
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
+#	systemctl stop boringtun@wgcf >/dev/null 2>&1
+	systemctl disable --now boring@wgcf >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /usr/lib/systemd/system/boringtun@.service
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d' /etc/gai.conf
 	[[ -e /etc/gai.conf ]] && sed -i '/^label 2002\:\:\/16/d' /etc/gai.conf
 	}
@@ -224,7 +226,7 @@ uninstall(){
 	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
 	warp-cli --accept-tos delete >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
-	systemctl stop warp-svc >/dev/null 2>&1
+#	systemctl stop warp-svc >/dev/null 2>&1
 	systemctl disable --now warp-svc >/dev/null 2>&1
 	}
 	
@@ -609,6 +611,7 @@ install(){
 
 	[Install]
 	WantedBy=multi-user.target
+
 	EOF
 	
 	[[ $BORINGTUN = 2 ]] && systemctl start boringtun@wgcf >/dev/null 2>&1
