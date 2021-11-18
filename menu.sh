@@ -211,12 +211,10 @@ uninstall(){
 	# 卸载 WGCF
 	uninstall_wgcf(){
 	echo $DOWN | sh >/dev/null 2>&1
-	systemctl stop wg-quick@wgcf >/dev/null 2>&1
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
-	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d' /etc/gai.conf
-	[[ -e /etc/gai.conf ]] && sed -i '/^label 2002\:\:\/16/d' /etc/gai.conf
+	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	}
 	
 	# 卸载 Linux Client
@@ -225,7 +223,6 @@ uninstall(){
 	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
 	warp-cli --accept-tos delete >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
-	systemctl stop warp-svc >/dev/null 2>&1
 	systemctl disable --now warp-svc >/dev/null 2>&1
 	}
 	
@@ -293,7 +290,7 @@ net(){
 
 # WARP 开关
 onoff(){
-	[[ -n $(wg) ]] 2>/dev/null && (echo $DOWN | sh >/dev/null 2>&1; green " $T15 ") || net
+	[[ -n $(wg 2>/dev/null) ]] && (echo $DOWN | sh >/dev/null 2>&1; green " $T15 ") || net
 	}
 
 # PROXY 开关
@@ -360,13 +357,6 @@ fi
 
 # 判断处理器架构
 [[ $(arch | tr A-Z a-z) =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
-
-# 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
-VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
-[[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr A-Z a-z | grep virtualization | cut -d : -f2)
-[[ $VIRT =~ openvz|lxc ]] && LXC=1
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
@@ -464,8 +454,7 @@ input_port(){
 }
 
 stack_priority(){
-	sed -i '/^precedence \:\:ffff\:0\:0/d' /etc/gai.conf
-	sed -i '/^label 2002\:\:\/16/d' /etc/gai.conf
+	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	case "$PRIORITY" in
 		2 )	echo "label 2002::/16   2" >> /etc/gai.conf;;
 		3 )	;;
@@ -716,9 +705,7 @@ update(){
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update $DEVICE > /etc/wireguard/info.log 2>&1 &&
 	(wgcf generate >/dev/null 2>&1
-	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#" wgcf.conf
-	sed -i "3s#.*#$(sed -ne 3p wgcf-profile.conf)#" wgcf.conf
-	sed -i "4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
+	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#;3s#.*#$(sed -ne 3p wgcf-profile.conf)#;4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
 	echo $DOWN | sh >/dev/null 2>&1
 	net
 	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
