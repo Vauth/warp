@@ -265,8 +265,8 @@ net(){
 	[[ $LANGUAGE != 2 ]] && T13="There have been more than $j failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T13="失败已超过$j次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 	yellow " $T11 "
 	yellow " $T12 "
-	[[ $(systemctl is-active wg-quick@wgcf) != active ]] && wg-quick down wgcf >/dev/null 2>&1
-	systemctl start wg-quick@wgcf >/dev/null 2>&1
+	[[ $(systemctl is-active wg-quick@wgcf) != active && $(systemctl is-active boringtun@wgcf) != active ]] && wg-quick down wgcf >/dev/null 2>&1
+	[[ $LXC = 1 && -e /usr/bin/boringtun ]] && systemctl start boringtun@wgcf >/dev/null 2>&1 || systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo $UP | sh >/dev/null 2>&1
 	IP4=$(curl -s4m7 https://ip.gs/json) &&
 	IP6=$(curl -s6m7 https://ip.gs/json)
@@ -292,7 +292,7 @@ net(){
 
 # WARP 开关
 onoff(){
-	[[ -n $(wg) 2>/dev/null ]] && (wg-quick down wgcf >/dev/null 2>&1; green " $T15 ") || net
+	[[ -n $(wg 2>/dev/null) ]] && (wg-quick down wgcf >/dev/null 2>&1; green " $T15 ") || net
 	}
 
 # PROXY 开关
@@ -359,13 +359,6 @@ fi
 
 # 判断处理器架构
 [[ $(arch | tr A-Z a-z) =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
-
-# 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
-VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
-[[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr A-Z a-z | grep virtualization | cut -d : -f2)
-[[ $VIRT =~ openvz|lxc ]] && LXC=1
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
 
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
 [[ $IPV4 = 1 ]] && LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
