@@ -395,7 +395,7 @@ fi
 [[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3
 [[ $CLIENT = 3 ]] && PROXYTRACE=$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') && PROXYJASON=$(curl -s4m7 --socks5 $PROXYTRACE https://ip.gs/json)
 if [[ -n $PROXYJASON ]]; then
-	PROXYIP=$(echo PROXYJASON | cut -d \" -f4)
+	PROXYIP=$(echo $PROXYJASON | cut -d \" -f4)
 	[[ $LANGUAGE != 2 ]] && PROXYCOUNTRY=$(echo $PROXYJASON | cut -d \" -f10) || PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $PROXYJASON | cut -d \" -f10)" | cut -d \" -f18)
 	PROXYASNORG=$(echo $PROXYJASON | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 fi
@@ -428,7 +428,7 @@ status(){
 	[[ $PLAN != 3 ]] && green "	$T116 "
 	[[ $CLIENT = 0 ]] && green "	$T112 "
 	[[ $CLIENT = 2 ]] && green "	$T113 "
-	[[ $CLIENT = 3 ]] && green "	WARP$AC	$T24	$T27 "
+	[[ $CLIENT = 3 ]] && green "	WARP$AC $T24		$T27 "
  	red "\n======================================================================================================================\n"
 	}
 
