@@ -1,3 +1,6 @@
+#!/bin/bash
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+
 # 自定义字体彩色和 read 函数
 red(){
 	echo -e "\033[31m\033[01m$1\033[0m"
@@ -9,7 +12,7 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 reading(){
-	read -p "$(green "$1")" $2
+	read -rp "$(green "$1")" $2
 }
 
 [[ -n $1 && $1 != [CcHhDdPpBbVv12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
@@ -99,6 +102,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T96="Client connecting failure. It may be a CloudFlare IPv4." || T96="Client 连接失败，可能是 CloudFlare IPv4."
 [[ $LANGUAGE != 2 ]] && T97="It is a WARP+ account already. Update is aborted." || T97="已经是 WARP+ 账户，不需要升级"
 [[ $LANGUAGE != 2 ]] && T98="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:" || T98="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
+[[ $LANGUAGE != 2 ]] && T99="" || T99=""
 [[ $LANGUAGE != 2 ]] && T101="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T101="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T102="Please customize the WARP+ device name (It will automatically generate 6-digit random string if it is blank):" || T102="请自定义 WARP+ 设备名 (如果不输入，会自动生成随机的6位字符串):"
 [[ $LANGUAGE != 2 ]] && T104="Please customize the Client port (It must be 4-5 digits. Default to 40000 if it is blank):" || T104="请自定义 Client 端口号 (必须为4-5位自然数，如果不输入，会默认40000):"
@@ -141,7 +145,7 @@ input() {
 	i=5
 	until [[ ${#ID} = 36 ]]
 		do
-		let i--
+		(( i-- )) || true
 		[[ $LANGUAGE != 2 ]] && T53="WARP+ ID should be 36 characters, please re-enter ($i times remaining):" || T53="WARP+ ID 应为36位字符，请重新输入 （剩余$i次）:"
 		[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T53 " ID
 	done
@@ -389,19 +393,26 @@ fi
 [[ $TRACE4 = plus ]] && PLUS4=+
 [[ $TRACE6 = plus ]] && PLUS6=+
 
+# 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
+proxy_info(){
+	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
+	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')
+	PROXYJASON=$(curl -s4m7 --socks5 $PROXYSOCKS5 https://ip.gs/json)
+	PROXYIP=$(echo $PROXYJASON | cut -d \" -f4)
+	[[ $LANGUAGE != 2 ]] && PROXYCOUNTRY=$(echo $PROXYJASON | cut -d \" -f10) || PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $PROXYJASON | cut -d \" -f10)" | cut -d \" -f18)
+	PROXYASNORG=$(echo $PROXYJASON | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && green AC=+
+	}
+
 # 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义：0=未安装  1=已安装未激活  2=状态激活  3=Clinet 已开启
 [[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
 [[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
 [[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3
-[[ $CLIENT = 3 ]] && PROXYTRACE=$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') && PROXYJASON=$(curl -s4m7 --socks5 $PROXYTRACE https://ip.gs/json)
-if [[ -n $PROXYJASON ]]; then
-	PROXYIP=$(echo $PROXYJASON | cut -d \" -f4)
-	[[ $LANGUAGE != 2 ]] && PROXYCOUNTRY=$(echo $PROXYJASON | cut -d \" -f10) || PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $PROXYJASON | cut -d \" -f10)" | cut -d \" -f18)
-	PROXYASNORG=$(echo $PROXYJASON | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+if [[ $CLIENT = 3 ]]; then
+	proxy_info
+	[[ $LANGUAGE != 2 ]] && T27="Local Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG" || T27="本地 Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG"
 fi
-[[ $PROXYTRACE =~ 'plus' ]] && AC=+
-[[ $LANGUAGE != 2 ]] && T27=" Local Socks5:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') WARP$AC IPv4:$PROXYIP $PROXYASNORG" || T27="本地 Socks5:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+') WARP$AC IPv4:$PROXYIP $PROXYASNORG"
-
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $LXC != 1 && $(($(uname -r | cut -d . -f1) * 100 +  $(uname -r | cut -d . -f2))) -lt 506 ]] && WG=1
@@ -428,7 +439,7 @@ status(){
 	[[ $PLAN != 3 ]] && green "	$T116 "
 	[[ $CLIENT = 0 ]] && green "	$T112 "
 	[[ $CLIENT = 2 ]] && green "	$T113 "
-	[[ $CLIENT = 3 ]] && green "	WARP$AC $T24		$T27 "
+	[[ $CLIENT = 3 ]] && green "	WARP$AC $T24	$T27 "
  	red "\n======================================================================================================================\n"
 	}
 
@@ -437,7 +448,7 @@ input_license(){
 	[[ -z $LICENSE ]] && reading " $T28 " LICENSE
 	i=5
 	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
-		do	let i--
+		do	(( i-- )) || true
 			[[ $LANGUAGE != 2 ]] && T30="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining):" || T30="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续(剩余$i次):"
 			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30 " LICENSE
 		done
@@ -445,12 +456,12 @@ input_license(){
 	[[ -n $NAME ]] && DEVICE="--name $(echo $NAME | sed s/[[:space:]]/_/g)"
 }
 
-# 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
+# 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
 update_license(){
 	[[ -z $LICENSE ]] && reading " $T61 " LICENSE
 	i=5
 	until [[ ${#LICENSE} = 26 ]]
-		do	let i--
+		do	(( i-- )) || true
 			[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 WARP+ License (剩余$i次): "
 			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
 	       done
@@ -464,7 +475,7 @@ input_port(){
 	PORT=${PORT:-40000}
 	i=5
 	until [[ $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") && ! $(ss -nltp) =~ ":$PORT" ]]
-		do	let i--
+		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " $T29 " && exit 1
 			[[ $LANGUAGE != 2 ]] && T103="Port is in use. Please input another Port($i times remaining):" || T103="端口占用中，请使用另一端口(剩余$i次):"
 			[[ $LANGUAGE != 2 ]] && T111="Port must be 4-5 digits. Please re-input($i times remaining):" || T111="端口必须为4-5位自然数，请重新输入(剩余$i次):"
@@ -499,9 +510,8 @@ install(){
 	start=$(date +%s)
 	green " $T32 "
 	
-	# 先删除之前安装，可能导致失败的文件，添加环境变量
+	# 先删除之前安装，可能导致失败的文件
 	rm -rf /usr/local/bin/wgcf /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
-	[[ $PATH =~ /usr/local/bin ]] || export PATH=$PATH:/usr/local/bin
 	
 	# 对于 IPv4 only VPS 开启 IPv6 支持
     	[[ $IPV4$IPV6 = 10 ]] && [[ $(sysctl -a 2>/dev/null | grep 'disable_ipv6.*=.*1') || $(grep -s "disable_ipv6.*=.*1" /etc/sysctl.{conf,d/*} ) ]] &&
@@ -587,7 +597,7 @@ install(){
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
 	until [[ $? = 0 || MTU -le $((1280+80-28)) ]]
 	do
-	MTU=$(($MTU-10))
+	MTU=$((MTU-10))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
 	done
 	[[ $MTU -lt $((1500-28)) ]] && MTU=$(($MTU+9))
@@ -597,7 +607,7 @@ install(){
         MTU=$(($MTU-1))
         [[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1      
 	done
-	MTU=$(($MTU+28-80))
+	MTU=$((MTU+28-80))
 	[[ $MTU -lt 1280 ]] && MTU=1280
 
 	# 修改配置文件
@@ -608,7 +618,6 @@ install(){
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
 	# 设置开机启动
-	[[ $BORINGTUN != 2 ]] && systemctl start wg-quick@wgcf >/dev/null 2>&1
 	[[ $BORINGTUN != 2 ]] && systemctl enable --now wg-quick@wgcf >/dev/null 2>&1
 
 	# 如是 LXC，安装 Wireguard-GO 或者 BoringTun。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
@@ -644,8 +653,8 @@ install(){
 	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 $ASNORG6 "
 	[[ $TRACE6 = off || -z $TRACE6 ]] && green " IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	end=$(date +%s)
-	[[ $LANGUAGE != 2 ]] && T41="Congratulations! WARP+ is turned on. Spend time:$(( $end - $start )) seconds\n Device name：$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n Quota：$(grep -s Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" || T41="恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒\n 设备名：$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep -s Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')"
-	[[ $LANGUAGE != 2 ]] && T42="Congratulations! WARP is turned on. Spend time:$(( $end - $start )) seconds" || T42="恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒"
+	[[ $LANGUAGE != 2 ]] && T41="Congratulations! WARP+ is turned on. Spend time:$(( end - start )) seconds\n Device name：$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n Quota：$(grep -s Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" || T41="恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒\n 设备名：$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep -s Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')"
+	[[ $LANGUAGE != 2 ]] && T42="Congratulations! WARP is turned on. Spend time:$(( end - start )) seconds" || T42="恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒"
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $T41 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $T42 "
 	green " $T108 "
@@ -703,13 +712,14 @@ proxy(){
 	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
-	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ Limited ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000))
+	
+	# 结果提示，脚本运行时间
+	proxy_info
 	end=$(date +%s)
-	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP Linux Client is working on Socks5 proxy:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+').\n Spend time:$(( $end - $start )) seconds" || T94="恭喜！WARP Linux Client 工作中, Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')\n 总耗时:$(( $end - $start ))秒"
-	[[ $LANGUAGE != 2 ]] && T99="Congratulations! WARP+ Linux Client is working on Socks5 proxy:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+').\n Spend time:$(( $end - $start )) seconds\n $T63：$QUOTA TB " || T99="恭喜！WARP+ Linux Client 工作中, Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')\n 总耗时:$(( $end - $start ))秒\n $T63：$QUOTA TB"
-	[[ $ACCOUNT =~ Free ]] && green " $T94 "
-	[[ $ACCOUNT =~ Limited ]] && green " $T99 "
+	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP$AC Linux Client is working. Spend time:$(( end - start )) seconds." || T94="恭喜！WARP Linux Client 工作中, 总耗时:$(( $end - $start ))秒"
+	[[ $LANGUAGE != 2 ]] && T121="Local Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG" || T121="本地 Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG"
+	[[ $ACCOUNT =~ Free ]] && green " $T94\n $T121 "
+	[[ $ACCOUNT =~ Limited ]] && green " $T94\n $T121\n $T63：$QUOTA TB"
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 	}
@@ -728,7 +738,7 @@ update(){
 	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#;3s#.*#$(sed -ne 3p wgcf-profile.conf)#;4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
 	echo $DOWN | sh >/dev/null 2>&1
 	net
-	[[ $(wget --no-check-certificate -qO- -4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(wget --no-check-certificate -qO- -6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
+	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
 	green " $T62\n $T25：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $T63：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " $T36 "
 	}
 	
@@ -740,7 +750,8 @@ update(){
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
 	}
-	
+
+	# 根据 WARP interface 和 Client 的安装情况判断升级的对象
 	[[ $(type -P wg-quick) && ! $(type -P warp-cli) ]] && wgcf_account
 	[[ ! $(type -P wg-quick) && $(type -P warp-cli) ]] && client_account
 	[[ $(type -P wg-quick) && $(type -P warp-cli) ]] && 
