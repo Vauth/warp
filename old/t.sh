@@ -276,7 +276,7 @@ net(){
 	echo $UP | sh >/dev/null 2>&1
 	IP4=$(curl -s4m7 https://ip.gs/json) && IP6=$(curl -s6m7 https://ip.gs/json)
 	until [[ -n $IP4 && -n $IP6 ]]
-		do	(( i-- )) || true
+		do	(( i++ )) || true
 			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
 			yellow " $T12 "
 			echo $DOWN | sh >/dev/null 2>&1
@@ -305,12 +305,12 @@ proxy_onoff(){
     PROXY=$(warp-cli --accept-tos status 2>/dev/null)
     [[ -z $PROXY ]] && red " $T93 " && exit 1
     case "$PROXY" in
-    Connecting )	red " $T96 " && exit 1
-    Connected )		warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " $T91 "  && exit 0
-    Disconnected )	warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && STATUS=1
+    Connecting )	red " $T96 " && exit 1;;
+    Connected )		warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " $T91 "  && exit 0;;
+    Disconnected )	warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && STATUS=1;;
+    esac
     [[ $STATUS = 1 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && green " $T90 " && exit 0
     [[ $STATUS = 1 ]] && [[ $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " $T96 " && exit 1
-    esac
     }
 
 # 设置部分后缀 2/3
@@ -357,7 +357,7 @@ fi
 [[ $SYSTEM = centos ]] && [[ $(echo $SYS | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 7 ]] && red " $T26 " && exit 1
 
 # 安装 curl
-if type -P curl >/dev/null 2>&1; then
+if ! type -P curl >/dev/null 2>&1; then
 	[[ $SYSTEM != centos ]] && yellow " $T7 " && apt -y install curl >/dev/null 2>&1 || (yellow " $T8 " && apt -y update && apt -y install curl >/dev/null 2>&1)
 	[[ $SYSTEM = centos ]] && yellow " $T7 " && yum -y install curl >/dev/null 2>&1 || (yellow " $T8 " && yum -y update && yum -y install curl >/dev/null 2>&1)
 	[[ ! $(type -P curl) ]] && yellow " $T9 " && exit 1
