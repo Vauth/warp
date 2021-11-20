@@ -308,11 +308,10 @@ onoff(){
 proxy_onoff(){
     PROXY=$(warp-cli --accept-tos status 2>/dev/null)
     [[ -z $PROXY ]] && red " $T93 " && exit 1
-    case "$PROXY" in
-    Connecting )	red " $T96 " && exit 1;;
-    Connected )		warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " $T91 "  && exit 0;;
-    Disconnected )	warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && STATUS=1;;
-    esac
+    [[ $PROXY =~ Connecting ]] && red " $T96 " && exit 1
+    [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && 
+    [[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " $T91 "  && exit 0
+    [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && STATUS=1
     [[ $STATUS = 1 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && green " $T90 " && exit 0
     [[ $STATUS = 1 ]] && [[ $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " $T96 " && exit 1
     }
@@ -411,7 +410,7 @@ proxy_info(){
 [[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3
 if [[ $CLIENT = 3 ]]; then
 	proxy_info
-	[[ $LANGUAGE != 2 ]] && T27="Local Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG" || T27="本地 Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG"
+	[[ $LANGUAGE != 2 ]] && T27="Local Socks5:$PROXYSOCKS5	WARP$AC IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG" || T27="本地 Socks5:$PROXYSOCKS5	WARP$AC IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG"
 fi
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
