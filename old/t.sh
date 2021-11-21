@@ -458,7 +458,7 @@ update_license(){
 			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
 	       done
 	[[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
-	[[ -n $NAME ]] && DEVICE="--name $(echo $NAME | sed s/[[:space:]]/_/g)"
+	[[ -n $NAME ]] && DEVICE="--name ${NAME//[[:space:]]/_}"
 }
 
 # 输入 Linux Client 端口，先检查默认的40000是否被占用
@@ -467,15 +467,15 @@ input_port(){
 	PORT=${PORT:-40000}
 	i=5
 #	until [[ echo "$PORT" 2>/dev/null | grep -E "^[1-9][0-9]{3,4}$" && ! $(ss -nltp) =~ ":$PORT" ]]
-	until echo "$PORT" 2>/dev/null | grep -E "^[1-9][0-9]{3,4}$" && ! ss -nltp =~ ":$PORT"
+	until echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && ss -nltp | grep -qvE ":$PORT"
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " $T29 " && exit 1
 			[[ $LANGUAGE != 2 ]] && T103="Port is in use. Please input another Port($i times remaining):" || T103="端口占用中，请使用另一端口(剩余$i次):"
 			[[ $LANGUAGE != 2 ]] && T111="Port must be 4-5 digits. Please re-input($i times remaining):" || T111="端口必须为4-5位自然数，请重新输入(剩余$i次):"
 #			[[ ! $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && reading " $T111 " PORT
 #			[[ $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && [[ $(ss -nltp) =~ ":$PORT" ]] && reading " $T103 " PORT
-			echo "$PORT" | grep -E "^[1-9][0-9]{3,4}$" &&  reading " $T111 " PORT
-			echo "$PORT" | grep -E "^[1-9][0-9]{3,4}$" && ss -nltp =~ ":$PORT" && reading " $T103 " PORT
+			echo "$PORT" | grep -qvE "^[1-9][0-9]{3,4}$" && reading " $T111 " PORT
+			echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && ss -nltp | grep -qE ":$PORT" && reading " $T111 " PORT
 		done
 }
 
@@ -530,7 +530,7 @@ install(){
 		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		[[ $WG = 1 ]] && apt -y --no-install-recommends install linux-headers-$(uname -r) && apt -y --no-install-recommends install wireguard-dkms
+		[[ $WG = 1 ]] && apt -y --no-install-recommends install linux-headers-"$(uname -r)" && apt -y --no-install-recommends install wireguard-dkms
 		}
 		
 	ubuntu(){
@@ -549,7 +549,7 @@ install(){
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		VERSION_ID=$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)
-		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-$VERSION_ID/jdoss-wireguard-epel-$VERSION_ID.repo &&
+		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-"$VERSION_ID"/jdoss-wireguard-epel-"$VERSION_ID".repo &&
 		yum -y install wireguard-dkms
 
 		# 升级所有包同时也升级软件和系统内核
@@ -566,8 +566,8 @@ install(){
 	[[ -z $latest ]] && latest='2.2.9'
 
 	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
-	wget --no-check-certificate -T1 -t1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v$latest/wgcf_${latest}_linux_$ARCHITECTURE
-	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_${latest}_linux_$ARCHITECTURE
+	wget --no-check-certificate -T1 -t1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE
+	[[ -e /usr/local/bin/wgcf ]] || wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_"$latest"_linux_$ARCHITECTURE
 	chmod +x /usr/local/bin/wgcf
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
@@ -580,7 +580,7 @@ install(){
 	# 如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	[[ -n $LICENSE ]] && yellow " $T35 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update $DEVICE > /etc/wireguard/info.log 2>&1 || red " $T36 " )
+	( wgcf update "$DEVICE" > /etc/wireguard/info.log 2>&1 || red " $T36 " )
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
@@ -595,11 +595,11 @@ install(){
 	MTU=$((MTU-10))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
 	done
-	[[ $MTU -lt $((1500-28)) ]] && MTU=$(($MTU+9))
+	[[ $MTU -lt $((1500-28)) ]] && MTU=$((MTU+9))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
 	until [[ $? = 0 || MTU -le $((1280+80-28)) ]]
 	do
-        MTU=$(($MTU-1))
+        MTU=$((MTU-1))
         [[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1      
 	done
 	MTU=$((MTU+28-80))
@@ -607,7 +607,7 @@ install(){
 
 	# 修改配置文件
 	sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf
-	echo $MODIFY | sh
+	echo "$MODIFY" | sh
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
@@ -637,7 +637,7 @@ install(){
 	[[ $COMPANY = amazon ]] && red " $T40 " && reboot || net
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	[[ $(curl -sm8 https://ip.gs) = $WAN6 ]] && T108=$T106 || T108=$T107
+	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && T108=$T106 || T108=$T107
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
@@ -648,8 +648,8 @@ install(){
 	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 $ASNORG6 "
 	[[ $TRACE6 = off || -z $TRACE6 ]] && green " IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	end=$(date +%s)
-	[[ $LANGUAGE != 2 ]] && T41="Congratulations! WARP+ is turned on. Spend time:$(( end - start )) seconds\n Device name：$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n Quota：$(grep -s Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" || T41="恭喜！WARP+ 已开启，总耗时:$(( $end - $start ))秒\n 设备名：$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep -s Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')"
-	[[ $LANGUAGE != 2 ]] && T42="Congratulations! WARP is turned on. Spend time:$(( end - start )) seconds" || T42="恭喜！WARP 已开启，总耗时:$(( $end - $start ))秒"
+	[[ $LANGUAGE != 2 ]] && T41="Congratulations! WARP+ is turned on. Spend time:$(( end - start )) seconds\n Device name：$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n Quota：$(grep -s Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" || T41="恭喜！WARP+ 已开启，总耗时:$(( end - start ))秒\n 设备名：$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n 剩余流量：$(grep -s Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')"
+	[[ $LANGUAGE != 2 ]] && T42="Congratulations! WARP is turned on. Spend time:$(( end - start )) seconds" || T42="恭喜！WARP 已开启，总耗时:$(( end - start ))秒"
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $T41 "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $T42 "
 	green " $T108 "
@@ -664,11 +664,11 @@ proxy(){
 		green " $T84 "
 		warp-cli --accept-tos register >/dev/null 2>&1
 		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
-		warp-cli --accept-tos set-proxy-port $PORT >/dev/null 2>&1
+		warp-cli --accept-tos set-proxy-port "$PORT" >/dev/null 2>&1
 		warp-cli --accept-tos connect >/dev/null 2>&1
 		warp-cli --accept-tos enable-always-on >/dev/null 2>&1
 		[[ -n $LICENSE ]] && ( yellow " $T35 " && 
-		warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1 && sleep 1 &&
+		warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1 && sleep 1 &&
 		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
 		[[ $ACCOUNT =~ Limited ]] && green " $T62 " ||
 		red " $T36 " )
@@ -685,7 +685,7 @@ proxy(){
 	start=$(date +%s)
 	if [[ $CLIENT = 0 ]]; then
 	green " $T83 "
-	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1).rpm
+	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)".rpm
 	yum -y upgrade; yum -y install cloudflare-warp)
 	[[ $SYSTEM != centos ]] && apt -y update && apt -y install lsb-release
 	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && apt -y install gnupg
@@ -711,7 +711,7 @@ proxy(){
 	# 结果提示，脚本运行时间
 	proxy_info
 	end=$(date +%s)
-	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP$AC Linux Client is working. Spend time:$(( end - start )) seconds." || T94="恭喜！WARP Linux Client 工作中, 总耗时:$(( $end - $start ))秒"
+	[[ $LANGUAGE != 2 ]] && T94="Congratulations! WARP$AC Linux Client is working. Spend time:$(( end - start )) seconds." || T94="恭喜！WARP Linux Client 工作中, 总耗时:$(( end - start ))秒"
 	[[ $LANGUAGE != 2 ]] && T121="Local Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG" || T121="本地 Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG"
 	[[ $ACCOUNT =~ Free ]] && green " $T94\n $T121 "
 	[[ $ACCOUNT =~ Limited ]] && green " $T94\n $T121\n $T63：$QUOTA TB"
@@ -726,12 +726,12 @@ update(){
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " $T59 " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " $T60 " && exit 1
 	UPDATE_LICENSE=1 && update_license
-	cd /etc/wireguard
+	cd /etc/wireguard || exit
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
-	wgcf update $DEVICE > /etc/wireguard/info.log 2>&1 &&
+	wgcf update "$DEVICE" > /etc/wireguard/info.log 2>&1 &&
 	(wgcf generate >/dev/null 2>&1
 	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#;3s#.*#$(sed -ne 3p wgcf-profile.conf)#;4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
-	echo $DOWN | sh >/dev/null 2>&1
+	echo "$DOWN" | sh >/dev/null 2>&1
 	net
 	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
 	green " $T62\n $T25：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $T63：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " $T36 "
@@ -741,9 +741,9 @@ update(){
 	[[ $ARCHITECTURE = arm64 ]] && red " $T101 " && exit 1
 	[[ $(warp-cli --accept-tos account) =~ Limited ]] && red " $T97 " && exit 1
 	update_license
-	warp-cli --accept-tos set-license $LICENSE >/dev/null 2>&1; sleep 1
+	warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1; sleep 1
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
+	[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo "$ACCOUNT" | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
 	}
 
 	# 根据 WARP interface 和 Client 的安装情况判断升级的对象
@@ -845,7 +845,7 @@ menu3(){
 case "$OPTION" in
 1 )	# 先判断是否运行 WARP,再按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
 	if [[ $PLAN = 3 ]]; then
-		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
+		yellow " $T80 " && echo "$DOWN" | sh >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
 		[[ $IPV4$IPV6 = 10 ]] && MODIFY=$MODIFYS10
 		[[ $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
@@ -855,7 +855,7 @@ case "$OPTION" in
 	install;;
 2 )	# 先判断是否运行 WARP,再按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
 	if [[ $PLAN = 3 ]]; then
-		yellow " $T80 " && echo $DOWN | sh >/dev/null 2>&1 && exit 1
+		yellow " $T80 " && echo "$DOWN" | sh >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
 		[[ $IPV4$IPV6 = 10 ]] && reading " $T109 " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=$MODIFYS10
 		[[ $IPV4$IPV6 = 11 ]] && red " $T110 " && exit 1
