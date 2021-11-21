@@ -305,7 +305,7 @@ proxy_info(){
 	[[ $LANGUAGE != 2 ]] && PROXYCOUNTRY=$(echo "$PROXYJASON" | cut -d \" -f10) || PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo "$PROXYJASON" | cut -d \" -f10)" | cut -d \" -f18)
 	PROXYASNORG=$(echo "$PROXYJASON" | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo "$ACCOUNT" | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
+	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
 	}
 
 # PROXY 开关
