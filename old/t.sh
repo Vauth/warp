@@ -445,7 +445,7 @@ input_license(){
 			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30 " LICENSE
 		done
 	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
-	[[ -n $NAME ]] && DEVICE="--name ${NAME//[[:space:]]/_}"
+	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}"
 }
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
@@ -458,7 +458,7 @@ update_license(){
 			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
 	       done
 	[[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
-	[[ -n $NAME ]] && DEVICE="--name ${NAME//[[:space:]]/_}"
+	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}"
 }
 
 # 输入 Linux Client 端口，先检查默认的40000是否被占用
@@ -580,7 +580,7 @@ install(){
 	# 如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	[[ -n $LICENSE ]] && yellow " $T35 " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update $DEVICE > /etc/wireguard/info.log 2>&1 || red " $T36 " )
+	( wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 || red " $T36 " )
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
@@ -728,7 +728,7 @@ update(){
 	UPDATE_LICENSE=1 && update_license
 	cd /etc/wireguard || exit
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
-	wgcf update $DEVICE > /etc/wireguard/info.log 2>&1 &&
+	wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 &&
 	(wgcf generate >/dev/null 2>&1
 	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#;3s#.*#$(sed -ne 3p wgcf-profile.conf)#;4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
 	echo "$DOWN" | sh >/dev/null 2>&1
