@@ -466,14 +466,11 @@ input_port(){
 	ss -nltp | grep -q ':40000' && reading " $T103 " PORT || reading " $T104 " PORT
 	PORT=${PORT:-40000}
 	i=5
-#	until [[ echo "$PORT" 2>/dev/null | grep -E "^[1-9][0-9]{3,4}$" && ! $(ss -nltp) =~ ":$PORT" ]]
 	until echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && ss -nltp | grep -qvE ":$PORT"
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " $T29 " && exit 1
 			[[ $LANGUAGE != 2 ]] && T103="Port is in use. Please input another Port($i times remaining):" || T103="端口占用中，请使用另一端口(剩余$i次):"
 			[[ $LANGUAGE != 2 ]] && T111="Port must be 4-5 digits. Please re-input($i times remaining):" || T111="端口必须为4-5位自然数，请重新输入(剩余$i次):"
-#			[[ ! $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && reading " $T111 " PORT
-#			[[ $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && [[ $(ss -nltp) =~ ":$PORT" ]] && reading " $T103 " PORT
 			echo "$PORT" | grep -qvE "^[1-9][0-9]{3,4}$" && reading " $T111 " PORT
 			echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && ss -nltp | grep -qE ":$PORT" && reading " $T111 " PORT
 		done
