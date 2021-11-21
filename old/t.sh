@@ -1,5 +1,5 @@
 #!/bin/bash
-export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/bin
 
 # 自定义字体彩色和 read 函数
 red(){
@@ -63,7 +63,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T55="Run [ALIILAPRO] script" || T55="运行 [ALIILAPRO] 脚本"
 [[ $LANGUAGE != 2 ]] && T56="Run [mixool] script" || T56="运行 [mixool] 脚本"
 [[ $LANGUAGE != 2 ]] && T57="The target quota you want to get. The unit is GB, the default value is 10:" || T57="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
-[[ $LANGUAGE != 2 ]] && T58="This is the WARP+ account, no need to upgrade." || T58="已经是 WARP+ 账户，不需要升级"
+[[ $LANGUAGE != 2 ]] && T58="WARP+ account is working now. No need to upgrade." || T58="已经是 WARP+ 账户，不需要升级"
 [[ $LANGUAGE != 2 ]] && T59="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License" || T59="找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
 [[ $LANGUAGE != 2 ]] && T60="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License" || T60="找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 WARP+ License"
 [[ $LANGUAGE != 2 ]] && T61="Please Input WARP+ license:" || T61="请输入WARP+ License:"
