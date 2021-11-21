@@ -95,7 +95,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T88="Connect the client" || T88="连接 Client"
 [[ $LANGUAGE != 2 ]] && T89="Disconnect the client" || T89="断开 Client"
 [[ $LANGUAGE != 2 ]] && T90="Client is connected" || T90="Client 已连接"
-[[ $LANGUAGE != 2 ]] && T91="Client is disconnect. It could be connect again by [warp r]" || T91="已断开 Client ，再次连接可以用 warp r"
+[[ $LANGUAGE != 2 ]] && T91="Client is disconnected. It could be connect again by [warp r]" || T91="已断开 Client ，再次连接可以用 warp r"
 [[ $LANGUAGE != 2 ]] && T92="Client is installed already. It could be uninstalled by [warp u]" || T92="Client 已安装，如要卸载，可以用 warp u"
 [[ $LANGUAGE != 2 ]] && T93="Client is not installed. It could be installed by [warp c]" || T93="Client 未安装，如需安装，可以用 warp c"
 [[ $LANGUAGE != 2 ]] && T95="Client works with non-WARP IPv4. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T95="Client 在非 WARP IPv4 下才能工作正常，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -231,10 +231,12 @@ uninstall(){
 	# 根据已安装情况执行卸载任务并显示结果
 	if [[ $(type -P wg-quick) ]]; then
 		uninstall_wgcf
+		sleep 1
 		[[ ! $(type -P wg-quick) ]] && green " $T117 " || red " $T118 "
 	fi
 	if [[ $(type -P warp-cli) ]]; then
 	 	uninstall_proxy
+		sleep 1
 		[[ ! $(type -P warp-cli) ]] && green " $T119 " || red " $T120 "
 	fi
 	
@@ -342,8 +344,8 @@ TUN=$(cat /dev/net/tun 2>&1 | tr A-Z a-z)
 [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && red " $T3 " && exit 1
 
 # 判断是否大陆 VPS。先尝试连接 CloudFlare WARP 服务的 Endpoint IP，如遇到 WARP 断网则先关闭、杀进程后重试一次，仍然不通则 WARP 项目不可用。
-ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
-ping -c2 -W10 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
+ping6 -c2 -w8 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
+ping -c2 -W8 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
 if [[ $IPV4$IPV6 = 00 && -n $(wg) ]]; then
 	wg-quick down wgcf >/dev/null 2>&1
 	kill $(pgrep -f wireguard) >/dev/null 2>&1
