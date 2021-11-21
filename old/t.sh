@@ -12,7 +12,7 @@ yellow(){
 	echo -e "\033[33m\033[01m$1\033[0m"
 }
 reading(){
-	read -p "$(green "$1")" $2
+	read -rp "$(green "$1")" "$2"
 }
 
 [[ -n $1 && $1 != [CcHhDdPpBbVv12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
@@ -163,13 +163,13 @@ plus() {
 		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
 		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
-		    echo $ID | python3 ~/warp-plus-cloudflare/wp-plus.py;;
+		    echo "$ID" | python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) input
 		    reading " $T57 " MISSION
-		    wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
+		    wget --no-check-certificate "$CDN" -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
 		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
-		    bash warp_plus.sh $(echo $MISSION | sed 's/[^0-9]*//g');;
-		3 ) [[ -n $PLAN ]] && menu$PLAN || exit;;
+		    bash warp_plus.sh "${MISSION//[^0-9]/}";;
+		3 ) [[ -n $PLAN ]] && menu"$PLAN" || exit;;
 		* ) red " $T51 [1-3] "; sleep 1; plus;;
 	esac
 	}
@@ -186,8 +186,8 @@ green " $T37 "
 [[ $(id -u) != 0 ]] && red " $T2 " && exit 1
 
 # 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
-VIRT=$(systemd-detect-virt 2>/dev/null | tr A-Z a-z)
-[[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr A-Z a-z | grep virtualization | cut -d : -f2)
+VIRT=$(systemd-detect-virt 2>/dev/null | tr '[:upper:]' '[:lower:]')
+[[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr '[:upper:]' '[:lower:]' | grep virtualization | cut -d : -f2)
 [[ $VIRT =~ openvz|lxc ]] && LXC=1
 [[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
 [[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill -9 $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
@@ -202,7 +202,7 @@ bbrInstall() {
 	reading " $T50 " BBR
 	case "$BBR" in
 		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-		2 ) [[ -n $PLAN ]] && menu$PLAN || exit;;
+		2 ) [[ -n $PLAN ]] && menu"$PLAN" || exit;;
 		* ) red " $T51 [1-2]"; sleep 1; bbrInstall;;
 	esac
 	}
@@ -212,7 +212,7 @@ uninstall(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
 	# 卸载 WGCF
 	uninstall_wgcf(){
-	echo $DOWN | sh >/dev/null 2>&1
+	echo "$DOWN" | sh >/dev/null 2>&1
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
 	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
@@ -236,21 +236,21 @@ uninstall(){
 	IP4=$(curl -s4m7 https://ip.gs/json)
 	IP6=$(curl -s6m7 https://ip.gs/json)
 	if [[ -n $IP4 ]]; then
-		WAN4=$(echo $IP4 | cut -d \" -f4)
-		[[ $LANGUAGE != 2 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
-		ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+		WAN4=$(echo "$IP4" | cut -d \" -f4)
+		[[ $LANGUAGE != 2 ]] && COUNTRY4=$(echo "$IP4" | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo "$IP4" | cut -d \" -f10)" | cut -d \" -f18)
+		ASNORG4=$(echo "$IP4" | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	fi
 	if [[ -n $IP6 ]]; then
-		WAN6=$(echo $IP6 | cut -d \" -f4)
-		[[ $LANGUAGE != 2 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
-		ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+		WAN6=$(echo "$IP6" | cut -d \" -f4)
+		[[ $LANGUAGE != 2 ]] && COUNTRY6=$(echo "$IP6" | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo "$IP6" | cut -d \" -f10)" | cut -d \" -f18)
+		ASNORG6=$(echo "$IP6" | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	fi
 	green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 	
 # 同步脚本至最新版本
 ver(){
-	wget -N $CDN -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || wget -N $CDN -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh
+	wget -N "$CDN" -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || wget -N "$CDN" -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh
 	chmod +x /etc/wireguard/menu.sh
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp
 	[[ $LANGUAGE != 2 ]] && CUT=-f2 || CUT=-f4
@@ -267,45 +267,45 @@ net(){
 	[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
 	[[ $LANGUAGE != 2 ]] && T13="There have been more than $j failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T13="失败已超过$j次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 	yellow " $T11\n $T12 "
-	[[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && echo $DOWN | sh >/dev/null 2>&1
+	[[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && echo "$DOWN" | sh >/dev/null 2>&1
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
-	echo $UP | sh >/dev/null 2>&1
+	echo "$UP" | sh >/dev/null 2>&1
 	IP4=$(curl -s4m7 https://ip.gs/json) && IP6=$(curl -s6m7 https://ip.gs/json)
 	until [[ -n $IP4 && -n $IP6 ]]
 		do	(( i++ )) || true
 			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
 			yellow " $T12 "
-			echo $DOWN | sh >/dev/null 2>&1
-			echo $UP | sh >/dev/null 2>&1
+			echo "$DOWN" | sh >/dev/null 2>&1
+			echo "$UP" | sh >/dev/null 2>&1
 			IP4=$(curl -s4m7 https://ip.gs/json) &&
 			IP6=$(curl -s6m7 https://ip.gs/json)
-			[[ $i = $j ]] && (echo $DOWN | sh >/dev/null 2>&1; red " $T13 ") && exit 1
+			[[ $i = "$j" ]] && (echo "$DOWN" | sh >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
-	WAN4=$(echo $IP4 | cut -d \" -f4)
-	WAN6=$(echo $IP6 | cut -d \" -f4)
-	[[ $LANGUAGE != 2 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
-	[[ $LANGUAGE != 2 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
-	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
-	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+	WAN4=$(echo "$IP4" | cut -d \" -f4)
+	WAN6=$(echo "$IP6" | cut -d \" -f4)
+	[[ $LANGUAGE != 2 ]] && COUNTRY4=$(echo "$IP4" | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo "$IP4" | cut -d \" -f10)" | cut -d \" -f18)
+	[[ $LANGUAGE != 2 ]] && COUNTRY6=$(echo "$IP6" | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo "$IP6" | cut -d \" -f10)" | cut -d \" -f18)
+	ASNORG4=$(echo "$IP4" | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+	ASNORG6=$(echo "$IP6" | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	green " $T14 "
 	[[ $OPTION = [OoNn] ]] && green " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
 # WARP 开关
 onoff(){
-	[[ -n $(wg 2>/dev/null) ]] && (echo $DOWN | sh >/dev/null 2>&1; green " $T15 ") || net
+	[[ -n $(wg 2>/dev/null) ]] && (echo "$DOWN" | sh >/dev/null 2>&1; green " $T15 ") || net
 	}
 
 # 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
 proxy_info(){
 	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
-	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')
-	PROXYJASON=$(curl -s4m7 --socks5 $PROXYSOCKS5 https://ip.gs/json)
-	PROXYIP=$(echo $PROXYJASON | cut -d \" -f4)
-	[[ $LANGUAGE != 2 ]] && PROXYCOUNTRY=$(echo $PROXYJASON | cut -d \" -f10) || PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $PROXYJASON | cut -d \" -f10)" | cut -d \" -f18)
-	PROXYASNORG=$(echo $PROXYJASON | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
+	PROXYJASON=$(curl -s4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
+	PROXYIP=$(echo "$PROXYJASON" | cut -d \" -f4)
+	[[ $LANGUAGE != 2 ]] && PROXYCOUNTRY=$(echo "$PROXYJASON" | cut -d \" -f10) || PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo "$PROXYJASON" | cut -d \" -f10)" | cut -d \" -f18)
+	PROXYASNORG=$(echo "$PROXYJASON" | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
+	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo "$ACCOUNT" | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
 	}
 
 # PROXY 开关
@@ -332,7 +332,7 @@ case "$OPTION" in
 esac
 
 # 必须加载 TUN 模块
-TUN=$(cat /dev/net/tun 2>&1 | tr A-Z a-z)
+TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
 [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && red " $T3 " && exit 1
 
 # 判断是否大陆 VPS。先尝试连接 CloudFlare WARP 服务的 Endpoint IP，如遇到 WARP 断网则先关闭、杀进程后重试一次，仍然不通则 WARP 项目不可用。
@@ -340,8 +340,8 @@ ping6 -c2 -w8 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV
 ping -c2 -W8 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
 if [[ $IPV4$IPV6 = 00 && -n $(wg) ]]; then
 	wg-quick down wgcf >/dev/null 2>&1
-	kill $(pgrep -f wireguard) >/dev/null 2>&1
-	kill $(pgrep -f boringtun) >/dev/null 2>&1
+	kill -9 $(pgrep -f wireguard 2>/dev/null)
+	kill -9 $(pgrep -f boringtun 2>/dev/null)
 	ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
 	ping -c2 -W10 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4
 fi
@@ -354,15 +354,15 @@ fi
 [[ -z $SYS && -f /etc/lsb-release ]] && SYS=$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)
 [[ -z $SYS && -f /etc/redhat-release ]] && SYS=$(grep . /etc/redhat-release 2>/dev/null)
 [[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')
-[[ $(echo $SYS | tr A-Z a-z) =~ debian ]] && SYSTEM=debian
-[[ $(echo $SYS | tr A-Z a-z) =~ ubuntu ]] && SYSTEM=ubuntu
-[[ $(echo $SYS | tr A-Z a-z) =~ centos|kernel|'oracle linux' ]] && SYSTEM=centos
-[[ $(echo $SYS | tr A-Z a-z) =~ 'amazon linux' ]] && SYSTEM=centos && COMPANY=amazon
+[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ debian ]] && SYSTEM=debian
+[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ubuntu ]] && SYSTEM=ubuntu
+[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ centos|kernel|'oracle linux' ]] && SYSTEM=centos
+[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ 'amazon linux' ]] && SYSTEM=centos && COMPANY=amazon
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
 [[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.\n The script supports Debian 10/11; Ubuntu 18.04/20.24 or CentOS 7/8 only. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS\n 本脚本只支持 Debian 10/11; Ubuntu 18.04/20.24 和 CentOS 7/8 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $SYSTEM = debian ]] && [[ $(echo $SYS | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 10 ]] && red " $T26 " && exit 1
-[[ $SYSTEM = ubuntu ]] && [[ $(echo $SYS | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 18 ]] && red " $T26 " && exit 1
-[[ $SYSTEM = centos ]] && [[ $(echo $SYS | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 7 ]] && red " $T26 " && exit 1
+[[ $SYSTEM = debian ]] && [[ $(echo "$SYS" | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 10 ]] && red " $T26 " && exit 1
+[[ $SYSTEM = ubuntu ]] && [[ $(echo "$SYS" | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 18 ]] && red " $T26 " && exit 1
+[[ $SYSTEM = centos ]] && [[ $(echo "$SYS" | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 7 ]] && red " $T26 " && exit 1
 
 # 安装 curl
 if ! type -P curl >/dev/null 2>&1; then
@@ -372,24 +372,24 @@ if ! type -P curl >/dev/null 2>&1; then
 fi
 
 # 判断处理器架构
-[[ $(arch | tr A-Z a-z) =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
+[[ $(arch | tr '[:upper:]' '[:lower:]') =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
 if [[ $IPV4 = 1 ]]; then
 	LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+')
 	IP4=$(curl -s4m4 https://ip.gs/json)
-	WAN4=$(echo $IP4 | cut -d \" -f4)
-	ASNORG4=$(echo $IP4 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+	WAN4=$(echo "$IP4" | cut -d \" -f4)
+	ASNORG4=$(echo "$IP4" | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	[[ $LANGUAGE != 2 ]] && COUNTRY4=$(echo $IP4 | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP4 | cut -d \" -f10)" | cut -d \" -f18)
+	[[ $LANGUAGE != 2 ]] && COUNTRY4=$(echo "$IP4" | cut -d \" -f10) || COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo "$IP4" | cut -d \" -f10)" | cut -d \" -f18)
 fi
 if [[ $IPV6 = 1 ]]; then
 	LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
 	IP6=$(curl -s6m4 https://ip.gs/json)
-	WAN6=$(echo $IP6 | cut -d \" -f4)
-	ASNORG6=$(echo $IP6 | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+	WAN6=$(echo "$IP6" | cut -d \" -f4)
+	ASNORG6=$(echo "$IP6" | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	[[ $LANGUAGE != 2 ]] && COUNTRY6=$(echo $IP6 | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $IP6 | cut -d \" -f10)" | cut -d \" -f18)
+	[[ $LANGUAGE != 2 ]] && COUNTRY6=$(echo "$IP6" | cut -d \" -f10) || COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo "$IP6" | cut -d \" -f10)" | cut -d \" -f18)
 fi
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
@@ -445,7 +445,7 @@ input_license(){
 			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T30 " LICENSE
 		done
 	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
-	[[ -n $NAME ]] && DEVICE="--name $(echo $NAME | sed s/[[:space:]]/_/g)"
+	[[ -n $NAME ]] && DEVICE="--name ${NAME//[[:space:]]/_}"
 }
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
@@ -463,16 +463,19 @@ update_license(){
 
 # 输入 Linux Client 端口，先检查默认的40000是否被占用
 input_port(){
-	[[ -n $(ss -nltp | grep ':40000') ]] && reading " $T103 " PORT || reading " $T104 " PORT
+	ss -nltp | grep -q ':40000' && reading " $T103 " PORT || reading " $T104 " PORT
 	PORT=${PORT:-40000}
 	i=5
-	until [[ $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") && ! $(ss -nltp) =~ ":$PORT" ]]
+#	until [[ echo "$PORT" 2>/dev/null | grep -E "^[1-9][0-9]{3,4}$" && ! $(ss -nltp) =~ ":$PORT" ]]
+	until echo "$PORT" 2>/dev/null | grep -E "^[1-9][0-9]{3,4}$" && ! ss -nltp =~ ":$PORT"
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " $T29 " && exit 1
 			[[ $LANGUAGE != 2 ]] && T103="Port is in use. Please input another Port($i times remaining):" || T103="端口占用中，请使用另一端口(剩余$i次):"
 			[[ $LANGUAGE != 2 ]] && T111="Port must be 4-5 digits. Please re-input($i times remaining):" || T111="端口必须为4-5位自然数，请重新输入(剩余$i次):"
-			[[ ! $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && reading " $T111 " PORT
-			[[ $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && [[ $(ss -nltp) =~ ":$PORT" ]] && reading " $T103 " PORT
+#			[[ ! $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && reading " $T111 " PORT
+#			[[ $(echo $PORT | egrep "^[1-9][0-9]{3,4}$") ]] && [[ $(ss -nltp) =~ ":$PORT" ]] && reading " $T103 " PORT
+			echo "$PORT" | grep -E "^[1-9][0-9]{3,4}$" &&  reading " $T111 " PORT
+			echo "$PORT" | grep -E "^[1-9][0-9]{3,4}$" && ss -nltp =~ ":$PORT" && reading " $T103 " PORT
 		done
 }
 
@@ -669,7 +672,7 @@ proxy(){
 		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
 		[[ $ACCOUNT =~ Limited ]] && green " $T62 " ||
 		red " $T36 " )
-		[[ $LANGUAGE != 2 ]] && T86="Client is working. Socks5 proxy listening on: $(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')" || T86="Linux Client 正常运行中。 Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')"
+		[[ $LANGUAGE != 2 ]] && T86="Client is working. Socks5 proxy listening on: $(ss -nltp | grep warp | grep -oP '127.0*\S+')" || T86="Linux Client 正常运行中。 Socks5 代理监听:$(ss -nltp | grep warp | grep -oP '127.0*\S+')"
 		[[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " $T87 " && exit 1 || green " $T86 "
 		}
 	
