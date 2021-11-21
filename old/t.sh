@@ -254,6 +254,17 @@ uninstall(){
 	green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 	
+# 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
+proxy_info(){
+	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
+	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')
+	PROXYJASON=$(curl -s4m7 --socks5 $PROXYSOCKS5 https://ip.gs/json)
+	PROXYIP=$(echo $PROXYJASON | cut -d \" -f4)
+	[[ $LANGUAGE != 2 ]] && PROXYCOUNTRY=$(echo $PROXYJASON | cut -d \" -f10) || PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $PROXYJASON | cut -d \" -f10)" | cut -d \" -f18)
+	PROXYASNORG=$(echo $PROXYJASON | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && green AC=+
+	}
 
 # 同步脚本至最新版本
 ver(){
@@ -391,18 +402,6 @@ fi
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
 [[ $TRACE4 = plus ]] && PLUS4=+
 [[ $TRACE6 = plus ]] && PLUS6=+
-
-# 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
-proxy_info(){
-	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
-	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')
-	PROXYJASON=$(curl -s4m7 --socks5 $PROXYSOCKS5 https://ip.gs/json)
-	PROXYIP=$(echo $PROXYJASON | cut -d \" -f4)
-	[[ $LANGUAGE != 2 ]] && PROXYCOUNTRY=$(echo $PROXYJASON | cut -d \" -f10) || PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $PROXYJASON | cut -d \" -f10)" | cut -d \" -f18)
-	PROXYASNORG=$(echo $PROXYJASON | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
-	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && green AC=+
-	}
 
 # 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义：0=未安装  1=已安装未激活  2=状态激活  3=Clinet 已开启
 [[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
