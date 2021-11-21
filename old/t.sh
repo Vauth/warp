@@ -256,18 +256,6 @@ uninstall(){
 	green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 	
-# 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
-proxy_info(){
-	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
-	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')
-	PROXYJASON=$(curl -s4m7 --socks5 $PROXYSOCKS5 https://ip.gs/json)
-	PROXYIP=$(echo $PROXYJASON | cut -d \" -f4)
-	[[ $LANGUAGE != 2 ]] && PROXYCOUNTRY=$(echo $PROXYJASON | cut -d \" -f10) || PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $PROXYJASON | cut -d \" -f10)" | cut -d \" -f18)
-	PROXYASNORG=$(echo $PROXYJASON | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
-	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
-	}
-
 # 同步脚本至最新版本
 ver(){
 	wget -N $CDN -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || wget -N $CDN -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh
@@ -314,6 +302,18 @@ net(){
 # WARP 开关
 onoff(){
 	[[ -n $(wg 2>/dev/null) ]] && (echo $DOWN | sh >/dev/null 2>&1; green " $T15 ") || net
+	}
+
+# 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
+proxy_info(){
+	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
+	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '1024[ ]*\K\S+')
+	PROXYJASON=$(curl -s4m7 --socks5 $PROXYSOCKS5 https://ip.gs/json)
+	PROXYIP=$(echo $PROXYJASON | cut -d \" -f4)
+	[[ $LANGUAGE != 2 ]] && PROXYCOUNTRY=$(echo $PROXYJASON | cut -d \" -f10) || PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo $PROXYJASON | cut -d \" -f10)" | cut -d \" -f18)
+	PROXYASNORG=$(echo $PROXYJASON | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
 	}
 
 # PROXY 开关
@@ -752,12 +752,14 @@ update(){
 	}
 
 	# 根据 WARP interface 和 Client 的安装情况判断升级的对象
-	[[ $(type -P wg-quick) && ! $(type -P warp-cli) ]] && wgcf_account
-	[[ ! $(type -P wg-quick) && $(type -P warp-cli) ]] && client_account
+	[[ $(type -P wg-quick) && ! $(type -P warp-cli) ]] && (wgcf_account; exit 0)
+	[[ ! $(type -P wg-quick) && $(type -P warp-cli) ]] && (client_account; exit 0)
 	[[ $(type -P wg-quick) && $(type -P warp-cli) ]] && 
 	(reading " $T98 " MODE
 		case "$MODE" in
-		1 ) wgcf_account;;		2 ) client_account;;		* ) red " $T51 [1-2] "; sleep 1; update;;
+		1 ) wgcf_account; exit 0;;
+		2 ) client_account; exit 0;;
+		* ) red " $T51 [1-2] "; sleep 1; update;;
 		esac)
 }
 
