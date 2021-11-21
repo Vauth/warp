@@ -867,5 +867,5 @@ case "$OPTION" in
 
 [Cc] )	[[ $CLIENT = 3 ]] && red " $T92 " && exit 1 || proxy;;
 [Dd] )	update;;
-* )	menu$PLAN;;
+* )	[[ $CLIENT -gt 2 ]] && menu3 || menu$PLAN;;
 esac
