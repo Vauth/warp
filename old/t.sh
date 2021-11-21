@@ -229,17 +229,9 @@ uninstall(){
 	}
 	
 	# 根据已安装情况执行卸载任务并显示结果
-	if [[ $(type -P wg-quick) ]]; then
-		uninstall_wgcf
-		sleep 1
-		[[ ! $(type -P wg-quick) ]] && green " $T117 " || red " $T118 "
-	fi
-	if [[ $(type -P warp-cli) ]]; then
-	 	uninstall_proxy
-		sleep 1
-		[[ ! $(type -P warp-cli) ]] && green " $T119 " || red " $T120 "
-	fi
-	
+	[[ $(type -P wg-quick) ]] && (uninstall_wgcf; green " $T117 ")
+	[[ $(type -P warp-cli) ]] && (uninstall_proxy; green " $T119 ")
+
 	# 显示卸载结果
 	IP4=$(curl -s4m7 https://ip.gs/json)
 	IP6=$(curl -s6m7 https://ip.gs/json)
