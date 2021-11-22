@@ -368,7 +368,7 @@ fi
 if ! type -P curl >/dev/null 2>&1; then
 	[[ $SYSTEM != centos ]] && (yellow " $T7 " && apt -y install curl >/dev/null 2>&1 || (yellow " $T8 " && apt -y update && apt -y install curl >/dev/null 2>&1))
 	[[ $SYSTEM = centos ]] && (yellow " $T7 " && yum -y install curl >/dev/null 2>&1 || (yellow " $T8 " && yum -y update && yum -y install curl >/dev/null 2>&1))
-	! type -P curl && yellow " $T9 " && exit 1
+	! type -P curl >/dev/null 2>&1 && yellow " $T9 " && exit 1
 fi
 
 # 判断处理器架构
