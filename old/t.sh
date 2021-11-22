@@ -773,7 +773,7 @@ menu1(){
 		case "$CHOOSE1" in
 		1 )	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
 		2 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		3 )	net;;
+		3 )	OPTION=o; net;;
 		4 )	uninstall;;
 		5 )	bbrInstall;;
 		6 )	plus;;
@@ -800,7 +800,7 @@ menu2(){
 	reading " $T50 " CHOOSE2
 		case "$CHOOSE2" in
 		1 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		2 )	net;;
+		2 )	OPTION=o; net;;
 		3 )	uninstall;;
 		4 )	bbrInstall;;
 		5 )	plus;;
