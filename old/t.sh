@@ -356,7 +356,7 @@ fi
 [[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')
 [[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ debian ]] && SYSTEM=debian
 [[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ubuntu ]] && SYSTEM=ubuntu
-[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ centos|kernel|'oracle linux' ]] && SYSTEM=centos
+[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ centos|kernel|'oracle linux'|alma|rocky ]] && SYSTEM=centos
 [[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ 'amazon linux' ]] && SYSTEM=centos && COMPANY=amazon
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
 [[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.\n The script supports Debian 10/11; Ubuntu 18.04/20.24 or CentOS 7/8 only. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS\n 本脚本只支持 Debian 10/11; Ubuntu 18.04/20.24 和 CentOS 7/8 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -366,9 +366,9 @@ fi
 
 # 安装 curl
 if ! type -P curl >/dev/null 2>&1; then
-	[[ $SYSTEM != centos ]] && yellow " $T7 " && apt -y install curl >/dev/null 2>&1 || (yellow " $T8 " && apt -y update && apt -y install curl >/dev/null 2>&1)
-	[[ $SYSTEM = centos ]] && yellow " $T7 " && yum -y install curl >/dev/null 2>&1 || (yellow " $T8 " && yum -y update && yum -y install curl >/dev/null 2>&1)
-	[[ ! $(type -P curl) ]] && yellow " $T9 " && exit 1
+	[[ $SYSTEM != centos ]] && (yellow " $T7 " && apt -y install curl >/dev/null 2>&1 || (yellow " $T8 " && apt -y update && apt -y install curl >/dev/null 2>&1))
+	[[ $SYSTEM = centos ]] && (yellow " $T7 " && yum -y install curl >/dev/null 2>&1 || (yellow " $T8 " && yum -y update && yum -y install curl >/dev/null 2>&1))
+	! type -P curl && yellow " $T9 " && exit 1
 fi
 
 # 判断处理器架构
@@ -472,7 +472,7 @@ input_port(){
 			[[ $LANGUAGE != 2 ]] && T103="Port is in use. Please input another Port($i times remaining):" || T103="端口占用中，请使用另一端口(剩余$i次):"
 			[[ $LANGUAGE != 2 ]] && T111="Port must be 4-5 digits. Please re-input($i times remaining):" || T111="端口必须为4-5位自然数，请重新输入(剩余$i次):"
 			echo "$PORT" | grep -qvE "^[1-9][0-9]{3,4}$" && reading " $T111 " PORT
-			echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && ss -nltp | grep -qE ":$PORT" && reading " $T111 " PORT
+			echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && ss -nltp | grep -qE ":$PORT" && reading " $T103 " PORT
 		done
 }
 
