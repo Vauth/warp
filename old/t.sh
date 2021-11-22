@@ -454,7 +454,7 @@ update_license(){
 	i=5
 	until [[ ${#LICENSE} = 26 ]]
 		do	(( i-- )) || true
-			[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T62="License 应为26位字符,请重新输入 WARP+ License (剩余$i次): "
+			[[ $LANGUAGE != 2 ]] && T100="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. ($i times remaining): " || T100="License 应为26位字符,请重新输入 WARP+ License (剩余$i次): "
 			[[ $i = 0 ]] && red " $T29 " && exit 1 || reading " $T100 " LICENSE
 	       done
 	[[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " $T102 " NAME
