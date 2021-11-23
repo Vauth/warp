@@ -348,17 +348,30 @@ fi
 [[ $IPV4$IPV6 = 00 ]] && red " $T4 " && exit 1
 
 # 多方式判断操作系统，试到有值为止。只支持 Debian 10/11、Ubuntu 18.04/20.04 或 Centos 7/8 ,如非上述操作系统，退出脚本
-[[ -f /etc/os-release ]] && SYS=$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)
-[[ -z $SYS ]] && SYS=$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)
-[[ -z $SYS ]] && SYS=$(lsb_release -sd 2>/dev/null)
-[[ -z $SYS && -f /etc/lsb-release ]] && SYS=$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)
-[[ -z $SYS && -f /etc/redhat-release ]] && SYS=$(grep . /etc/redhat-release 2>/dev/null)
-[[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')
-[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ debian ]] && SYSTEM=debian
-[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ubuntu ]] && SYSTEM=ubuntu
-[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ centos|kernel|'oracle linux'|alma|rocky ]] && SYSTEM=centos
-[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ 'amazon linux' ]] && SYSTEM=centos && COMPANY=amazon
+# 感谢猫大的技术指导优化重复的命令。https://github.com/Oreomeow
+CMD=(
+	"$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
+	"$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
+	"$(lsb_release -sd 2>/dev/null)"
+	"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
+	"$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)"
+	"$(grep . /etc/redhat-release 2>/dev/null)"
+	"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
+	)
+
+for i in "${CMD[@]}"; do
+	SYS="$i" && [[ -n $SYS ]] && break
+done
+
+REGEX=("debian" "ubuntu" "centos|kernel|'oracle linux'|alma|rocky" "'amazon linux'")
+RELEASE=("debian" "ubuntu" "centos" "centos")
+COMPANY=("" "" "" "amazon")
+
+for ((i=0; i<${#REGEX[@]}; i++)); do
+	[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[i]} ]] && SYSTEM="${RELEASE[i]}" && COMPANY="${COMPANY[i]}" && [[ -n $SYSTEM ]] && break
+done
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
+
 [[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.\n The script supports Debian 10/11; Ubuntu 18.04/20.24 or CentOS 7/8 only. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS\n 本脚本只支持 Debian 10/11; Ubuntu 18.04/20.24 和 CentOS 7/8 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $SYSTEM = debian ]] && [[ $(echo "$SYS" | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 10 ]] && red " $T26 " && exit 1
 [[ $SYSTEM = ubuntu ]] && [[ $(echo "$SYS" | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 18 ]] && red " $T26 " && exit 1
@@ -506,6 +519,7 @@ install(){
 	rm -rf /usr/local/bin/wgcf /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	
 	# 对于 IPv4 only VPS 开启 IPv6 支持
+	# 感谢 P3terx 大神项目这块的技术指导。项目:https://github.com/P3TERX/warp.sh/blob/main/warp.sh
     	[[ $IPV4$IPV6 = 10 ]] && [[ $(sysctl -a 2>/dev/null | grep 'disable_ipv6.*=.*1') || $(grep -s "disable_ipv6.*=.*1" /etc/sysctl.{conf,d/*} ) ]] &&
 	(sed -i '/disable_ipv6/d' /etc/sysctl.{conf,d/*}
         echo 'net.ipv6.conf.all.disable_ipv6 = 0' >/etc/sysctl.d/ipv6.conf
@@ -545,7 +559,7 @@ install(){
 		yum -y install wireguard-tools net-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		VERSION_ID=$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)
+		VERSION_ID=$(echo ${SYS//[^0-9.]/} | cut -d. -f1)
 		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-"$VERSION_ID"/jdoss-wireguard-epel-"$VERSION_ID".repo &&
 		yum -y install wireguard-dkms
 
@@ -682,7 +696,7 @@ proxy(){
 	start=$(date +%s)
 	if [[ $CLIENT = 0 ]]; then
 	green " $T83 "
-	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)".rpm
+	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(echo ${SYS//[^0-9.]/} | cut -d. -f1)".rpm
 	yum -y upgrade; yum -y install cloudflare-warp)
 	[[ $SYSTEM != centos ]] && apt -y update && apt -y install lsb-release
 	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && apt -y install gnupg
