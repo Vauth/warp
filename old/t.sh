@@ -348,6 +348,7 @@ fi
 [[ $IPV4$IPV6 = 00 ]] && red " $T4 " && exit 1
 
 # 多方式判断操作系统，试到有值为止。只支持 Debian 10/11、Ubuntu 18.04/20.04 或 Centos 7/8 ,如非上述操作系统，退出脚本
+# 感谢猫大的技术指导优化重复的命令。https://github.com/Oreomeow
 CMD=(
 	"$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
 	"$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
@@ -518,6 +519,7 @@ install(){
 	rm -rf /usr/local/bin/wgcf /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	
 	# 对于 IPv4 only VPS 开启 IPv6 支持
+	# 感谢 P3terx 大神项目这块的技术指导。项目:https://github.com/P3TERX/warp.sh/blob/main/warp.sh
     	[[ $IPV4$IPV6 = 10 ]] && [[ $(sysctl -a 2>/dev/null | grep 'disable_ipv6.*=.*1') || $(grep -s "disable_ipv6.*=.*1" /etc/sysctl.{conf,d/*} ) ]] &&
 	(sed -i '/disable_ipv6/d' /etc/sysctl.{conf,d/*}
         echo 'net.ipv6.conf.all.disable_ipv6 = 0' >/etc/sysctl.d/ipv6.conf
@@ -557,7 +559,7 @@ install(){
 		yum -y install wireguard-tools net-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		VERSION_ID=$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)
+		VERSION_ID=$(echo ${SYS//[^0-9.]/} | cut -d. -f1)
 		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-"$VERSION_ID"/jdoss-wireguard-epel-"$VERSION_ID".repo &&
 		yum -y install wireguard-dkms
 
@@ -694,7 +696,7 @@ proxy(){
 	start=$(date +%s)
 	if [[ $CLIENT = 0 ]]; then
 	green " $T83 "
-	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)".rpm
+	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(echo ${SYS//[^0-9.]/} | cut -d. -f1)".rpm
 	yum -y upgrade; yum -y install cloudflare-warp)
 	[[ $SYSTEM != centos ]] && apt -y update && apt -y install lsb-release
 	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && apt -y install gnupg
