@@ -104,7 +104,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T98="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:" || T98="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
 [[ $LANGUAGE != 2 ]] && T101="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T101="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T102="Please customize the WARP+ device name (It will automatically generate 6-digit random string if it is blank):" || T102="请自定义 WARP+ 设备名 (如果不输入，会自动生成随机的6位字符串):"
-[[ $LANGUAGE != 2 ]] && T104="Please customize the Client port (It must be 2-5 digits. Default to 40000 if it is blank):" || T104="请自定义 Client 端口号 (必须为2-5位自然数，如果不输入，会默认40000):"
+[[ $LANGUAGE != 2 ]] && T104="Please customize the Client port (It must be 4-5 digits. Default to 40000 if it is blank):" || T104="请自定义 Client 端口号 (必须为4-5位自然数，如果不输入，会默认40000):"
 [[ $LANGUAGE != 2 ]] && T105="Please choose the priority of IPv4 or IPv6 (default 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.Use initial settings\n Choose:" || T105="请选择优先级别 (默认 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.使用 VPS 初始设置\n 请选择:"
 [[ $LANGUAGE != 2 ]] && T106="IPv6 priority" || T106="IPv6 优先"
 [[ $LANGUAGE != 2 ]] && T107="IPv4 priority" || T107="IPv4 优先"
@@ -461,12 +461,12 @@ update_license(){
 	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}"
 }
 
-# 输入 Linux Client 端口，先检查默认的40000是否被占用，准确匹配
+# 输入 Linux Client 端口,先检查默认的40000是否被占用,限制4-5位数字,准确匹配空闲端口
 input_port(){
 	ss -nltp | grep -q ':40000'[[:space:]] && reading " $T103 " PORT || reading " $T104 " PORT
 	PORT=${PORT:-40000}
 	i=5
-	until [[ ! $(ss -nltp) =~ :"$PORT"[[:space:]] ]]
+	until echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && [[ ! $(ss -nltp) =~ :"$PORT"[[:space:]] ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " $T29 " && exit 1
 			[[ $LANGUAGE != 2 ]] && T103="Port is in use. Please input another Port($i times remaining):" || T103="端口占用中，请使用另一端口(剩余$i次):"
@@ -542,7 +542,7 @@ install(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		[[ $COMPANY = amazon ]] && yum -y upgrade && amazon-linux-extras install -y epel		
 		yum -y install epel-release
-		yum -y install net-tools wireguard-tools
+		yum -y install wireguard-tools net-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		VERSION_ID=$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)
