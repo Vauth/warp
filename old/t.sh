@@ -470,7 +470,7 @@ input_port(){
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " $T29 " && exit 1
 			[[ $LANGUAGE != 2 ]] && T103="Port is in use. Please input another Port($i times remaining):" || T103="端口占用中，请使用另一端口(剩余$i次):"
-			[[ $LANGUAGE != 2 ]] && T111="Port must be 2-5 digits. Please re-input($i times remaining):" || T111="端口必须为2-5位自然数，请重新输入(剩余$i次):"
+			[[ $LANGUAGE != 2 ]] && T111="Port must be 4-5 digits. Please re-input($i times remaining):" || T111="端口必须为4-5位自然数，请重新输入(剩余$i次):"
 			echo "$PORT" | grep -qvE "^[1-9][0-9]{1,4}$" && reading " $T111 " PORT
 			echo "$PORT" | grep -qE "^[1-9][0-9]{1,4}$" && [[ $(ss -nltp) =~ :"$PORT"[[:space:]] ]] && reading " $T103 " PORT
 		done
