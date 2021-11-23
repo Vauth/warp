@@ -461,18 +461,18 @@ update_license(){
 	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}"
 }
 
-# 输入 Linux Client 端口，先检查默认的40000是否被占用
+# 输入 Linux Client 端口,先检查默认的40000是否被占用,限制4-5位数字,准确匹配空闲端口
 input_port(){
-	ss -nltp | grep -q ':40000' && reading " $T103 " PORT || reading " $T104 " PORT
+	ss -nltp | grep -q ':40000'[[:space:]] && reading " $T103 " PORT || reading " $T104 " PORT
 	PORT=${PORT:-40000}
 	i=5
-	until echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && ss -nltp | grep -qvE ":$PORT"
+	until echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && [[ ! $(ss -nltp) =~ :"$PORT"[[:space:]] ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " $T29 " && exit 1
 			[[ $LANGUAGE != 2 ]] && T103="Port is in use. Please input another Port($i times remaining):" || T103="端口占用中，请使用另一端口(剩余$i次):"
 			[[ $LANGUAGE != 2 ]] && T111="Port must be 4-5 digits. Please re-input($i times remaining):" || T111="端口必须为4-5位自然数，请重新输入(剩余$i次):"
-			echo "$PORT" | grep -qvE "^[1-9][0-9]{3,4}$" && reading " $T111 " PORT
-			echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && ss -nltp | grep -qE ":$PORT" && reading " $T103 " PORT
+			echo "$PORT" | grep -qvE "^[1-9][0-9]{1,4}$" && reading " $T111 " PORT
+			echo "$PORT" | grep -qE "^[1-9][0-9]{1,4}$" && [[ $(ss -nltp) =~ :"$PORT"[[:space:]] ]] && reading " $T103 " PORT
 		done
 }
 
@@ -542,7 +542,7 @@ install(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		[[ $COMPANY = amazon ]] && yum -y upgrade && amazon-linux-extras install -y epel		
 		yum -y install epel-release
-		yum -y install net-tools wireguard-tools
+		yum -y install wireguard-tools net-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		VERSION_ID=$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)
@@ -564,7 +564,7 @@ install(){
 
 	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
 	wget --no-check-certificate -T1 -t1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE
-	[[ -e /usr/local/bin/wgcf ]] || wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_"$latest"_linux_$ARCHITECTURE
+	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_"$latest"_linux_$ARCHITECTURE
 	chmod +x /usr/local/bin/wgcf
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
