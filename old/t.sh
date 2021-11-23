@@ -104,7 +104,7 @@ reading(){
 [[ $LANGUAGE != 2 ]] && T98="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:" || T98="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
 [[ $LANGUAGE != 2 ]] && T101="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T101="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T102="Please customize the WARP+ device name (It will automatically generate 6-digit random string if it is blank):" || T102="请自定义 WARP+ 设备名 (如果不输入，会自动生成随机的6位字符串):"
-[[ $LANGUAGE != 2 ]] && T104="Please customize the Client port (It must be 4-5 digits. Default to 40000 if it is blank):" || T104="请自定义 Client 端口号 (必须为4-5位自然数，如果不输入，会默认40000):"
+[[ $LANGUAGE != 2 ]] && T104="Please customize the Client port (It must be 2-5 digits. Default to 40000 if it is blank):" || T104="请自定义 Client 端口号 (必须为2-5位自然数，如果不输入，会默认40000):"
 [[ $LANGUAGE != 2 ]] && T105="Please choose the priority of IPv4 or IPv6 (default 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.Use initial settings\n Choose:" || T105="请选择优先级别 (默认 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.使用 VPS 初始设置\n 请选择:"
 [[ $LANGUAGE != 2 ]] && T106="IPv6 priority" || T106="IPv6 优先"
 [[ $LANGUAGE != 2 ]] && T107="IPv4 priority" || T107="IPv4 优先"
