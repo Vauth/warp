@@ -348,17 +348,29 @@ fi
 [[ $IPV4$IPV6 = 00 ]] && red " $T4 " && exit 1
 
 # 多方式判断操作系统，试到有值为止。只支持 Debian 10/11、Ubuntu 18.04/20.04 或 Centos 7/8 ,如非上述操作系统，退出脚本
-[[ -f /etc/os-release ]] && SYS=$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)
-[[ -z $SYS ]] && SYS=$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)
-[[ -z $SYS ]] && SYS=$(lsb_release -sd 2>/dev/null)
-[[ -z $SYS && -f /etc/lsb-release ]] && SYS=$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)
-[[ -z $SYS && -f /etc/redhat-release ]] && SYS=$(grep . /etc/redhat-release 2>/dev/null)
-[[ -z $SYS && -f /etc/issue ]] && SYS=$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')
-[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ debian ]] && SYSTEM=debian
-[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ubuntu ]] && SYSTEM=ubuntu
-[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ centos|kernel|'oracle linux'|alma|rocky ]] && SYSTEM=centos
-[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ 'amazon linux' ]] && SYSTEM=centos && COMPANY=amazon
+CMD=(
+	"$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
+	"$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
+	"$(lsb_release -sd 2>/dev/null)"
+	"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
+	"$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)"
+	"$(grep . /etc/redhat-release 2>/dev/null)"
+	"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
+	)
+
+for i in "${CMD[@]}"; do
+	SYS="$i" && [[ -n $SYS ]] && break
+done
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
+
+REGEX=("debian" "ubuntu" "centos|kernel|'oracle linux'|alma|rocky" "'amazon linux'")
+RELEASE=("debian" "ubuntu" "centos" "centos")
+COMPANY=("" "" "" "amazon")
+
+for ((i=0; i<${#REGEX[@]}; i++)); do
+	[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[i]} ]] && SYSTEM="${RELEASE[i]}" && COMPANY="${COMPANY[i]}" && [[ -n $SYSTEM ]] && break
+done
+
 [[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.\n The script supports Debian 10/11; Ubuntu 18.04/20.24 or CentOS 7/8 only. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS\n 本脚本只支持 Debian 10/11; Ubuntu 18.04/20.24 和 CentOS 7/8 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $SYSTEM = debian ]] && [[ $(echo "$SYS" | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 10 ]] && red " $T26 " && exit 1
 [[ $SYSTEM = ubuntu ]] && [[ $(echo "$SYS" | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 18 ]] && red " $T26 " && exit 1
