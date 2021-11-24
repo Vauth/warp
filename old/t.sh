@@ -15,6 +15,9 @@ reading(){
 	read -rp "$(green "$1")" "$2"
 }
 
+# 定义三类系统通用的安装指令
+type -P yum >/dev/null 2>&1 && APTYUM="yum -y " || APTYUM="apt -y "
+
 [[ -n $1 && $1 != [CcHhDdPpBbVv12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
 [[ $LANGUAGE != 2 ]] && T1="1.Customize the priority of IPv4 / IPv6; 2.Customize the port of Client Socks5;"  || T1="1.自定义 IPv4 / IPv6 优先组别; 2.自定义 Client Socks5 代理端口"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -160,8 +163,8 @@ plus() {
 	reading " $T50 " CHOOSEPLUS
 	case "$CHOOSEPLUS" in
 		1 ) input
-		    [[ $(type -P git) ]] || apt -y install git 2>/dev/null || yum -y install git 2>/dev/null
-		    [[ $(type -P python3) ]] || apt -y install python3 2>/dev/null || yum -y install python3 2>/dev/null
+		    [[ $(type -P git) ]] || ${APTYUM} install git 2>/dev/null
+		    [[ $(type -P python3) ]] || ${APTYUM} install python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
 		    echo "$ID" | python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) input
@@ -214,7 +217,7 @@ uninstall(){
 	uninstall_wgcf(){
 	echo "$DOWN" | sh >/dev/null 2>&1
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
-	[[ $(type -P yum ) ]] && yum -y autoremove wireguard-tools wireguard-dkms 2>/dev/null || apt -y autoremove wireguard-tools wireguard-dkms 2>/dev/null
+	${APTYUM} autoremove wireguard-tools wireguard-dkms 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	}
@@ -224,7 +227,7 @@ uninstall(){
 	warp-cli --accept-tos disconnect >/dev/null 2>&1
 	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
 	warp-cli --accept-tos delete >/dev/null 2>&1
-	[[ $(type -P yum ) ]] && yum -y autoremove cloudflare-warp 2>/dev/null || apt -y autoremove cloudflare-warp 2>/dev/null
+	${APTYUM} autoremove cloudflare-warp 2>/dev/null
 	systemctl disable --now warp-svc >/dev/null 2>&1
 	}
 	
@@ -379,11 +382,8 @@ for ((i=0; i<${#RELEASE[@]}; i++)); do
 done
 
 # 安装 curl
-if ! type -P curl >/dev/null 2>&1; then
-	[[ $SYSTEM != centos ]] && (yellow " $T7 " && apt -y install curl >/dev/null 2>&1 || (yellow " $T8 " && apt -y update && apt -y install curl >/dev/null 2>&1))
-	[[ $SYSTEM = centos ]] && (yellow " $T7 " && yum -y install curl >/dev/null 2>&1 || (yellow " $T8 " && yum -y update && yum -y install curl >/dev/null 2>&1))
-	! type -P curl >/dev/null 2>&1 && yellow " $T9 " && exit 1
-fi
+type -P curl >/dev/null 2>&1 || yellow " $T7 " && ${APTYUM} install curl >/dev/null 2>&1 || (yellow " $T8 " && ${APTYUM} update && ${APTYUM} install curl >/dev/null 2>&1)
+! type -P curl >/dev/null 2>&1 && yellow " $T9 " && exit 1
 
 # 判断处理器架构
 [[ $(arch | tr '[:upper:]' '[:lower:]') =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
@@ -529,43 +529,43 @@ install(){
         # 根据系统选择需要安装的依赖
 	debian(){
 		# 更新源
-		apt -y update
+		${APTYUM} update
 
 		# 添加 backports 源,之后才能安装 wireguard-tools 
-		apt -y install lsb-release
+		${APTYUM} install lsb-release
 		echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" > /etc/apt/sources.list.d/backports.list
 
 		# 再次更新源
-		apt -y update
+		${APTYUM} update
 
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+		${APTYUM} --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		[[ $WG = 1 ]] && apt -y --no-install-recommends install linux-headers-"$(uname -r)" && apt -y --no-install-recommends install wireguard-dkms
+		[[ $WG = 1 ]] && ${APTYUM} --no-install-recommends install linux-headers-"$(uname -r)" && ${APTYUM} --no-install-recommends install wireguard-dkms
 		}
 		
 	ubuntu(){
 		# 更新源
-		apt -y update
+		${APTYUM} update
 
 		# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		apt -y --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+		${APTYUM} --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 		}
 		
 	centos(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		[[ $COMPANY = amazon ]] && yum -y upgrade && amazon-linux-extras install -y epel		
-		yum -y install epel-release
-		yum -y install wireguard-tools net-tools
+		[[ $COMPANY = amazon ]] && ${APTYUM} upgrade && amazon-linux-extras install -y epel		
+		${APTYUM} install epel-release
+		${APTYUM} install wireguard-tools net-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		VERSION_ID=$(echo ${SYS//[^0-9.]/} | cut -d. -f1)
 		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-"$VERSION_ID"/jdoss-wireguard-epel-"$VERSION_ID".repo &&
-		yum -y install wireguard-dkms
+		${APTYUM} install wireguard-dkms
 
 		# 升级所有包同时也升级软件和系统内核
-		yum -y update
+		${APTYUM} update
 		}
 
 	$SYSTEM
@@ -698,13 +698,13 @@ proxy(){
 	if [[ $CLIENT = 0 ]]; then
 	green " $T83 "
 	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(echo ${SYS//[^0-9.]/} | cut -d. -f1)".rpm
-	yum -y upgrade; yum -y install cloudflare-warp)
-	[[ $SYSTEM != centos ]] && apt -y update && apt -y install lsb-release
-	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && apt -y install gnupg
-	[[ $SYSTEM = debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && apt -y install apt-transport-https
+	${APTYUM} upgrade; ${APTYUM} install cloudflare-warp)
+	[[ $SYSTEM != centos ]] && ${APTYUM} update && ${APTYUM} install lsb-release
+	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && ${APTYUM} install gnupg
+	[[ $SYSTEM = debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && ${APTYUM} install apt-transport-https
 	[[ $SYSTEM != centos ]] && (curl https://pkg.cloudflareclient.com/pubkey.gpg | apt-key add -
 	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
-	apt -y update; apt -y install cloudflare-warp)
+	${APTYUM} update; ${APTYUM} install cloudflare-warp)
 	settings
 
 	elif [[ $CLIENT = 2 && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing' ]]; then
