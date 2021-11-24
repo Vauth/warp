@@ -16,7 +16,7 @@ reading(){
 }
 
 # 定义三类系统通用的安装指令
-type -P yum >/dev/null 2>&1 && APTYUM="yum -y " || APTYUM="apt -y "
+type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 
 [[ -n $1 && $1 != [CcHhDdPpBbVv12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
 [[ $LANGUAGE != 2 ]] && T1="1.Customize the priority of IPv4 / IPv6; 2.Customize the port of Client Socks5;"  || T1="1.自定义 IPv4 / IPv6 优先组别; 2.自定义 Client Socks5 代理端口"
@@ -382,7 +382,7 @@ for ((i=0; i<${#RELEASE[@]}; i++)); do
 done
 
 # 安装 curl
-type -P curl >/dev/null 2>&1 || yellow " $T7 " && ${APTYUM} install curl >/dev/null 2>&1 || (yellow " $T8 " && ${APTYUM} update && ${APTYUM} install curl >/dev/null 2>&1)
+type -P curl >/dev/null 2>&1 || (yellow " $T7 " && ${APTYUM} install curl >/dev/null 2>&1) || (yellow " $T8 " && ${APTYUM} update && ${APTYUM} install curl >/dev/null 2>&1)
 ! type -P curl >/dev/null 2>&1 && yellow " $T9 " && exit 1
 
 # 判断处理器架构
