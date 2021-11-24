@@ -375,10 +375,10 @@ done
 
 [[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.\n The script supports Debian 10/11; Ubuntu 18.04/20.24 or CentOS 7/8 only. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS\n 本脚本只支持 Debian 10/11; Ubuntu 18.04/20.24 和 CentOS 7/8 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 
-for i in "${RELEASE[i]}"; do
- [[ $SYSTEM = "$i" ]] && [[ $(echo $(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')) -lt "${MAJOR[i]}" ]] && red " $T26 " && exit 1
+for ((i=0; i<${#RELEASE[@]}; i++)); do
+[[ $SYSTEM = "$i" ]] && [[ $(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*') -lt "${MAJOR[i]}" ]] && break
+red " $T26 " && exit 1
 done
-
 
 #[[ $SYSTEM = debian ]] && [[ $(echo "$SYS" | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 10 ]] && red " $T26 " && exit 1
 #[[ $SYSTEM = ubuntu ]] && [[ $(echo "$SYS" | sed 's/[^0-9.]//g' | cut -d . -f1) -lt 18 ]] && red " $T26 " && exit 1
