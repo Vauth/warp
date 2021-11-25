@@ -26,6 +26,7 @@
 - [WARP好处](README.md#WARP好处)
 - [运行脚本](README.md#运行脚本)
 - [WARP+ License 及 ID 获取](README.md#warp-license-及-id-获取)
+- [WARP Teams 信息用于 Linux 的方法](README.md#WARP-Teams-信息用于-Linux-的方法)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
 - [WARP原理](README.md#WARP原理)
 - [致谢](README.md#致谢下列作者和项目排名不分先后)
@@ -109,6 +110,14 @@ WireGuard 网络接口数据，查看 ```wg```
 禁止开机启动 ```systemctl disable wg-quick@wgcf```,恢复开机启动 ```systemctl enable wg-quick@wgcf```
 
 
+## WARP Teams 信息用于 Linux 的方法
+
+感谢 TonyLCH 提供的资讯 #26 ，由于Team是无限制的，省去了刷 WARP+ 流量。方法大体：
+1.安装通安卓模拟器，并在上面安装 1.1.1.1 apk连上
+2.连上 teams 后抓包，把获取到的信息替换到wgcf.conf配置文件里
+
+具体方法:https://parkercs.tech/cloudflare-for-teams-wireguard-config/
+
 ## WARP原理
 
 WARP是CloudFlare提供的一项基于WireGuard的网络流量安全及加速服务，能够让你通过连接到CloudFlare的边缘节点实现隐私保护及链路优化。
@@ -143,11 +152,14 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 
 技术指导:
 * P3terx: https://p3terx.com/archives/use-cloudflare-warp-to-add-extra-ipv4-or-ipv6-network-support-to-vps-servers-for-free.html
+* P3terx: https://github.com/P3TERX/warp.sh/blob/main/warp.sh
+* 猫大: https://github.com/Oreomeow
 * Luminous: https://luotianyi.vc/5252.html
 * Hiram: https://hiram.wang/cloudflare-wrap-vps
 * Cloudflare: https://developers.cloudflare.com/warp-client/setting-up/linux  
 https://blog.cloudflare.com/announcing-warp-for-linux-and-proxy-mode/
 * WireGuard: https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
+* Parker C. Stephens: https://parkercs.tech/cloudflare-for-teams-wireguard-config/
 
 服务提供：
 * CloudFlare Warp(+): https://1.1.1.1/
