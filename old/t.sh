@@ -14,8 +14,8 @@ country_4(){ COUNTRY4=$(expr "$IP4" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/co
 country_6(){ COUNTRY6=$(expr "$IP6" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g'); }
 country_4c(){ COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(expr "$IP4" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g')" | cut -d \" -f18); }
 country_6c(){ COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(expr "$IP6" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g')" | cut -d \" -f18); }
-asn_org_4(){ ASNORG4=$(expr "$IP4" : '.*\(asn_org":"[^\"]\{1,\}\).') | sed 's/asn_org":"//g'; }
-asn_org_6(){ ASNORG6=$(expr "$IP6" : '.*\(asn_org":"[^\"]\{1,\}\).') | sed 's/asn_org":"//g'; }
+asn_org_4(){ ASNORG4=$(expr "$IP4" : '.*\(asn_org":"[^\"]\{1,\}\).') | sed 's/asn_org":"//g'); }
+asn_org_6(){ ASNORG6=$(expr "$IP6" : '.*\(asn_org":"[^\"]\{1,\}\).') | sed 's/asn_org":"//g'); }
 trace_4(){ TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2); }
 trace_6(){ TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2); }
 
