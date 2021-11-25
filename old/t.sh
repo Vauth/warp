@@ -282,7 +282,7 @@ net(){
 			$UP >/dev/null 2>&1
 			IP4=$(curl -s4m7 https://ip.gs/json) &&
 			IP6=$(curl -s6m7 https://ip.gs/json)
-			[[ $i = "$j" ]] && $DOWN >/dev/null 2>&1; red " $T13 ") && exit 1
+			[[ $i = "$j" ]] && ($DOWN >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
 	WAN4=$(echo "$IP4" | cut -d \" -f4)
 	WAN6=$(echo "$IP6" | cut -d \" -f4)
