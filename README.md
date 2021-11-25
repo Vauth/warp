@@ -112,7 +112,7 @@ WireGuard 网络接口数据，查看 ```wg```
 
 ## WARP Teams 信息用于 Linux 的方法
 
-感谢 TonyLCH 提供的资讯 #26 ，由于Team是无限制的，省去了刷 WARP+ 流量。方法大体：
+感谢 TonyLCH 提供的资讯 [#26](https://github.com/fscarmen/warp/issues/26) ，由于Team是无限制的，省去了刷 WARP+ 流量。方法大体：
 1.安装通安卓模拟器，并在上面安装 1.1.1.1 apk连上
 2.连上 teams 后抓包，把获取到的信息替换到wgcf.conf配置文件里
 
