@@ -135,18 +135,16 @@ ip4_info(){
 	WAN4=$(expr "$IP4" : '.*\(ip":"[^\"]\{1,\}\).' | sed 's/ip":"//g') &&
 	COUNTRY4=$(expr "$IP4" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g') &&
 	ASNORG4=$(expr "$IP4" : '.*\(asn_org":"[^\"]\{1,\}\).' | sed 's/asn_org":"//g') &&
-	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") &&
-	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4" | sed "s/\W//g;s/.*tgt//g")
+	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	}
-
+[[ $LANGUAGE = 2 ]] && COUNTRY4=$(COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(expr "$IP4" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g')" | cut -d \" -f18)
 ip6_info(){
 	IP6=$(curl -s6m7 https://ip.gs/json) &&
 	LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
 	WAN6=$(expr "$IP6" : '.*\(ip":"[^\"]\{1,\}\).' | sed 's/ip":"//g') &&
 	COUNTRY6=$(expr "$IP6" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g') &&
 	ASNORG6=$(expr "$IP6" : '.*\(asn_org":"[^\"]\{1,\}\).' | sed 's/asn_org":"//g') &&
-	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") &&
-	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6" | sed "s/\W//g;s/.*tgt//g")
+	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	}
 	
 help(){	yellow " $T6 "; }
@@ -273,17 +271,21 @@ net(){
 	[[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && echo "$DOWN" | sh >/dev/null 2>&1
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo "$UP" | sh >/dev/null 2>&1
-	ip4_info; ip6_info
+	ip4_info
+	[[-n $IP4 ]] && ip6_info
 	until [[ -n $IP4 && -n $IP6 ]]
 		do	(( i++ )) || true
 			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
 			yellow " $T12 "
 			echo "$DOWN" | sh >/dev/null 2>&1
 			echo "$UP" | sh >/dev/null 2>&1
-			ip4_info && ip6_info
+			ip4_info
+			[[-n $IP4 ]] && ip6_info
 			[[ $i = "$j" ]] && (echo "$DOWN" | sh >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
 	green " $T14 "
+	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4" | cut -d \" -f18)
+	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6" | cut -d \" -f18)
 	[[ $OPTION = [OoNn] ]] && green " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
@@ -383,8 +385,8 @@ type -P curl >/dev/null 2>&1 || (yellow " $T7 " && ${APTYUM} install curl >/dev/
 [[ $(arch | tr '[:upper:]' '[:lower:]') =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
-[[ $IPV4 = 1 ]] && ip4_info
-[[ $IPV6 = 1 ]] && ip6_info
+[[ $IPV4 = 1 ]] && ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4" | cut -d \" -f18)
+[[ $IPV6 = 1 ]] && ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6" | cut -d \" -f18)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
