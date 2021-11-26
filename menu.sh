@@ -1,23 +1,11 @@
 #!/bin/bash
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/bin
 
-# 自定义字体彩色和 read 函数,IP信息等需多次使用的函数
+# 自定义字体彩色和 read 函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
 green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
 yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
-ip4_info() { IP4=$(curl -s4m7 https://ip.gs/json); }
-ip6_info() { IP6=$(curl -s6m7 https://ip.gs/json); }
-wan_4(){ WAN4=$(expr "$IP4" : '.*\(ip":"[^\"]\{1,\}\).' | sed 's/ip":"//g'); }
-wan_6(){ WAN6=$(expr "$IP6" : '.*\(ip":"[^\"]\{1,\}\).' | sed 's/ip":"//g'); }
-country_4(){ COUNTRY4=$(expr "$IP4" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g'); }
-country_6(){ COUNTRY6=$(expr "$IP6" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g'); }
-country_4c(){ COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(expr "$IP4" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g')" | cut -d \" -f18); }
-country_6c(){ COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(expr "$IP6" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g')" | cut -d \" -f18); }
-asn_org_4(){ ASNORG4=$(expr "$IP4" : '.*\(asn_org":"[^\"]\{1,\}\).' | sed 's/asn_org":"//g'); }
-asn_org_6(){ ASNORG6=$(expr "$IP6" : '.*\(asn_org":"[^\"]\{1,\}\).' | sed 's/asn_org":"//g'); }
-trace_4(){ TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2); }
-trace_6(){ TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2); }
 
 # 定义三类系统通用的安装指令
 type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
@@ -140,13 +128,29 @@ LICENSE=$2
 # 自定义 WARP+ 设备名
 NAME=$3
 
-help(){
-	yellow " $T6 " 
+# 自定义 IP信息 函数
+ip4_info(){
+	IP4=$(curl -s4m7 https://ip.gs/json) &&
+	LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
+	WAN4=$(expr "$IP4" : '.*\(ip":"[^\"]\{1,\}\).' | sed 's/ip":"//g') &&
+	COUNTRY4=$(expr "$IP4" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g') &&
+	ASNORG4=$(expr "$IP4" : '.*\(asn_org":"[^\"]\{1,\}\).' | sed 's/asn_org":"//g') &&
+	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	}
 
+ip6_info(){
+	IP6=$(curl -s6m7 https://ip.gs/json) &&
+	LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
+	WAN6=$(expr "$IP6" : '.*\(ip":"[^\"]\{1,\}\).' | sed 's/ip":"//g') &&
+	COUNTRY6=$(expr "$IP6" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g') &&
+	ASNORG6=$(expr "$IP6" : '.*\(asn_org":"[^\"]\{1,\}\).' | sed 's/asn_org":"//g') &&
+	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
+	}
+	
+help(){	yellow " $T6 "; }
 
 # 刷 WARP+ 流量
-input() {
+input(){
 	reading " $T52 " ID
 	i=5
 	until [[ ${#ID} = 36 ]]
@@ -157,7 +161,7 @@ input() {
 	done
 	}
 
-plus() {
+plus(){
 	red "\n=============================================================="
 	yellow " $T54\n "
 	green " 1.$T55 "
@@ -194,13 +198,13 @@ green " $T37 "
 
 # 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
 VIRT=$(systemd-detect-virt 2>/dev/null | tr '[:upper:]' '[:lower:]')
-[[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr '[:upper:]' '[:lower:]' | grep virtualization | cut -d : -f2)
+[[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr '[:upper:]' '[:lower:]' | grep virtualization | sed "s/.*://g")
 [[ $VIRT =~ openvz|lxc ]] && LXC=1
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && DOWN='wg-quick down wgcf && kill -9 $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
+UP='wg-quick up wgcf' && DOWN='wg-quick down wgcf'
+[[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && DOWN='wg-quick down wgcf && kill -9 $(pgrep -f boringtun)'
 
 # 安装BBR
-bbrInstall() {
+bbrInstall(){
 	red "\n=============================================================="
 	yellow " $T47\n "
 	green " 1.$T48 "
@@ -242,16 +246,6 @@ uninstall(){
 	# 显示卸载结果
 	ip4_info
 	ip6_info
-	if [[ -n $IP4 ]]; then
-		wan_4
-		[[ $LANGUAGE != 2 ]] && country_4 || country_4c
-		asn_org_4
-	fi
-	if [[ -n $IP6 ]]; then
-		wan_6
-		[[ $LANGUAGE != 2 ]] && country_6 || country_6c
-		asn_org_6
-	fi
 	green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 	
@@ -261,7 +255,7 @@ ver(){
 	chmod +x /etc/wireguard/menu.sh
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp
 	[[ $LANGUAGE != 2 ]] && CUT=-f2 || CUT=-f4
-	green " $T64:$(grep ^VERSION /etc/wireguard/menu.sh | cut -d = -f2)  $T18：$(grep T1= /etc/wireguard/menu.sh | cut -d \" $CUT | head -1) " || red " $T65 "
+	green " $T64:$(grep ^VERSION /etc/wireguard/menu.sh | sed "s/.*=//g")  $T18：$(grep T1= /etc/wireguard/menu.sh | cut -d \" $CUT | head -1) " || red " $T65 "
 	exit
 	}
 
@@ -277,23 +271,21 @@ net(){
 	[[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && echo "$DOWN" | sh >/dev/null 2>&1
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo "$UP" | sh >/dev/null 2>&1
-	ip4_info && ip6_info
+	ip4_info
+	[[ -n $IP4 ]] && ip6_info
 	until [[ -n $IP4 && -n $IP6 ]]
 		do	(( i++ )) || true
 			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
 			yellow " $T12 "
 			echo "$DOWN" | sh >/dev/null 2>&1
 			echo "$UP" | sh >/dev/null 2>&1
-			ip4_info && ip6_info
+			ip4_info
+			[[ -n $IP4 ]] && ip6_info
 			[[ $i = "$j" ]] && (echo "$DOWN" | sh >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
-	wan_4
-	wan_6
-	[[ $LANGUAGE != 2 ]] && country_4 || country_4c
-	[[ $LANGUAGE != 2 ]] && country_6 || country_6c
-	asn_org_4
-	asn_org_6
 	green " $T14 "
+	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4" | cut -d \" -f18)
+	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6" | cut -d \" -f18)
 	[[ $OPTION = [OoNn] ]] && green " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
@@ -307,8 +299,9 @@ proxy_info(){
 	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
 	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
 	PROXYJASON=$(curl -s4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
-	PROXYIP=$(echo "$PROXYJASON" | cut -d \" -f4)
-	[[ $LANGUAGE != 2 ]] && PROXYCOUNTRY=$(echo "$PROXYJASON" | cut -d \" -f10) || PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(echo "$PROXYJASON" | cut -d \" -f10)" | cut -d \" -f18)
+	PROXYIP=$(expr "$PROXYJASON" : '.*\(ip":"[^\"]\{1,\}\).' | sed 's/ip":"//g')
+	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g')
+	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$PROXYCOUNTRY" | sed "s/\W//g;s/.*tgt//g")
 	PROXYASNORG=$(echo "$PROXYJASON" | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
@@ -392,22 +385,8 @@ type -P curl >/dev/null 2>&1 || (yellow " $T7 " && ${APTYUM} install curl >/dev/
 [[ $(arch | tr '[:upper:]' '[:lower:]') =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
-if [[ $IPV4 = 1 ]]; then
-	LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+')
-	ip4_info
-	wan_4
-	asn_org_4
-	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	[[ $LANGUAGE != 2 ]] && country_4 || country_4c
-fi
-if [[ $IPV6 = 1 ]]; then
-	LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
-	ip6_info
-	wan_6
-	asn_org_6
-	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	[[ $LANGUAGE != 2 ]] && country_6 || country_6c
-fi
+[[ $IPV4 = 1 ]] && ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4" | cut -d \" -f18)
+[[ $IPV6 = 1 ]] && ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6" | cut -d \" -f18)
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
@@ -508,10 +487,10 @@ install(){
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
 	[[ $LXC = 1 ]] && reading " $T31 " BORINGTUN
-	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' || UP='wg-quick up wgcf'
-	[[ $BORINGTUN = 2 ]] && DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' || DOWN='wg-quick down wgcf'
-	[[ $BORINGTUN = 2 ]] && WB=boringtun || WB=wireguard-go
-	
+	[[ $BORINGTUN != 2 ]] && UP='wg-quick up wgcf' && DOWN='wg-quick down wgcf' && WB=wireguard-go
+	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && 
+				DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' && WB=boringtun
+
 	# 选择优先使用 IPv4 /IPv6 网络
 	reading " $T105 " PRIORITY
 	
@@ -563,7 +542,7 @@ install(){
 		${APTYUM} install wireguard-tools net-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		VERSION_ID=$(echo ${SYS//[^0-9.]/} | cut -d. -f1)
+		VERSION_ID=$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')
 		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-"$VERSION_ID"/jdoss-wireguard-epel-"$VERSION_ID".repo &&
 		${APTYUM} install wireguard-dkms
 
@@ -650,8 +629,6 @@ install(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6
 	[[ $LANGUAGE != 2 ]] && T40="$COMPANY vps needs to restart and run [warp n] to open WARP." || T40="$COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启"
 	[[ $COMPANY = amazon ]] && red " $T40 " && reboot || net
-	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
-	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2)
 	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && T108=$T106 || T108=$T107
 
 	# 结果提示，脚本运行时间
@@ -700,7 +677,7 @@ proxy(){
 	start=$(date +%s)
 	if [[ $CLIENT = 0 ]]; then
 	green " $T83 "
-	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(echo ${SYS//[^0-9.]/} | cut -d. -f1)".rpm
+	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')".rpm
 	${APTYUM} upgrade; ${APTYUM} install cloudflare-warp)
 	[[ $SYSTEM != centos ]] && ${APTYUM} update && ${APTYUM} install lsb-release
 	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && ${APTYUM} install gnupg
@@ -748,7 +725,7 @@ update(){
 	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#;3s#.*#$(sed -ne 3p wgcf-profile.conf)#;4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
 	echo "$DOWN" | sh >/dev/null 2>&1
 	net
-	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | cut -d= -f2) = plus ]] &&
+	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] &&
 	green " $T62\n $T25：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $T63：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " $T36 "
 	}
 	
