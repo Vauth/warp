@@ -137,7 +137,7 @@ ip4_info(){
 	ASNORG4=$(expr "$IP4" : '.*\(asn_org":"[^\"]\{1,\}\).' | sed 's/asn_org":"//g') &&
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	}
-[[ $LANGUAGE = 2 ]] && COUNTRY4=$(COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(expr "$IP4" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g')" | cut -d \" -f18)
+
 ip6_info(){
 	IP6=$(curl -s6m7 https://ip.gs/json) &&
 	LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
@@ -280,7 +280,7 @@ net(){
 			echo "$DOWN" | sh >/dev/null 2>&1
 			echo "$UP" | sh >/dev/null 2>&1
 			ip4_info
-			[[-n $IP4 ]] && ip6_info
+			[[ -n $IP4 ]] && ip6_info
 			[[ $i = "$j" ]] && (echo "$DOWN" | sh >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
 	green " $T14 "
