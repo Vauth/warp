@@ -272,7 +272,7 @@ net(){
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo "$UP" | sh >/dev/null 2>&1
 	ip4_info
-	[[-n $IP4 ]] && ip6_info
+	[[ -n $IP4 ]] && ip6_info
 	until [[ -n $IP4 && -n $IP6 ]]
 		do	(( i++ )) || true
 			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
