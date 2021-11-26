@@ -23,7 +23,7 @@ ip6_info(){
 	WAN6=$(expr "$IP6" : '.*\(ip":"[^\"]\{1,\}\).' | sed 's/ip":"//g') &&
 	COUNTRY6=$(expr "$IP6" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g') &&
 	ASNORG6=$(expr "$IP6" : '.*\(asn_org":"[^\"]\{1,\}\).' | sed 's/asn_org":"//g') &&
-	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g" &&
+	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") &&
 	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6" | sed "s/\W//g;s/.*tgt//g")
 	}
 
