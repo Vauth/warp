@@ -149,7 +149,7 @@ ip6_info(){
 	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6" | sed "s/\W//g;s/.*tgt//g")
 	}
 	
-help(){	yellow " $T6 "；}
+help(){	yellow " $T6 "; }
 
 # 刷 WARP+ 流量
 input(){
