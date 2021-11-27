@@ -378,7 +378,7 @@ for ((i=0; i<${#RELEASE[@]}; i++)); do
 done
 
 # 安装 curl
-type -P curl >/dev/null 2>&1 || (yellow " $T7 " && ${APTYUM} install curl >/dev/null 2>&1) || (yellow " $T8 " && ${APTYUM} update && ${APTYUM} install curl >/dev/null 2>&1)
+type -P curl >/dev/null 2>&1 || (yellow " $T7 " && ${APTYUM} install curl) || (yellow " $T8 " && ${APTYUM} update && ${APTYUM} install curl)
 ! type -P curl >/dev/null 2>&1 && yellow " $T9 " && exit 1
 
 # 判断处理器架构
