@@ -244,8 +244,8 @@ uninstall(){
 	[[ $(type -P warp-cli) ]] && (uninstall_proxy; green " $T119 ")
 
 	# 显示卸载结果
-	ip4_info
-	ip6_info
+	ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4" | cut -d \" -f18)
+	ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6" | cut -d \" -f18)
 	green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 	
@@ -351,7 +351,6 @@ fi
 CMD=(	"$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
 	"$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
 	"$(lsb_release -sd 2>/dev/null)"
-	"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
 	"$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)"
 	"$(grep . /etc/redhat-release 2>/dev/null)"
 	"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
@@ -378,7 +377,7 @@ for ((i=0; i<${#RELEASE[@]}; i++)); do
 done
 
 # 安装 curl
-type -P curl >/dev/null 2>&1 || (yellow " $T7 " && ${APTYUM} install curl >/dev/null 2>&1) || (yellow " $T8 " && ${APTYUM} update && ${APTYUM} install curl >/dev/null 2>&1)
+type -P curl >/dev/null 2>&1 || (yellow " $T7 " && ${APTYUM} install curl) || (yellow " $T8 " && ${APTYUM} update && ${APTYUM} install curl)
 ! type -P curl >/dev/null 2>&1 && yellow " $T9 " && exit 1
 
 # 判断处理器架构
