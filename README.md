@@ -107,7 +107,7 @@ WireGuard 网络接口数据，查看 ```wg```
 临时关闭和开启 WARP（reboot重启后恢复开启） ```bash menu.sh o```
 官方原始指令 ```wg-quick down wgcf``` ，恢复启动 ```wg-quick up wgcf```
 
-禁止开机启动 ```systemctl disable wg-quick@wgcf```,恢复开机启动 ```systemctl enable wg-quick@wgcf```
+禁止开机启动 ```systemctl disable --now wg-quick@wgcf```,恢复开机启动 ```systemctl enable --now wg-quick@wgcf```
 
 
 ## WARP Teams 信息用于 Linux 的方法
