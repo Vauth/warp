@@ -507,7 +507,7 @@ install(){
         sysctl -w net.ipv6.conf.all.disable_ipv6=0)
 	
         # 根据系统选择需要安装的依赖
-	debian(){
+	Debian(){
 		# 更新源
 		${APTYUM} update
 
@@ -525,7 +525,7 @@ install(){
 		[[ $WG = 1 ]] && ${APTYUM} --no-install-recommends install linux-headers-"$(uname -r)" && ${APTYUM} --no-install-recommends install wireguard-dkms
 		}
 		
-	ubuntu(){
+	Ubuntu(){
 		# 更新源
 		${APTYUM} update
 
@@ -533,7 +533,7 @@ install(){
 		${APTYUM} --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 		}
 		
-	centos(){
+	CentOS(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		[[ $COMPANY = amazon ]] && ${APTYUM} upgrade && amazon-linux-extras install -y epel		
 		${APTYUM} install epel-release
