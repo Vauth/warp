@@ -346,7 +346,7 @@ if [[ $IPV4$IPV6 = 00 && -n $(wg) ]]; then
 fi
 [[ $IPV4$IPV6 = 00 ]] && red " $T4 " && exit 1
 
-# 多方式判断操作系统，试到有值为止。只支持 Debian 10/11、Ubuntu 18.04/20.04 或 Centos 7/8 ,如非上述操作系统，退出脚本
+# 多方式判断操作系统，试到有值为止。只支持 Debian 10/11、Ubuntu 18.04/20.04 或 CentOS 7/8 ,如非上述操作系统，退出脚本
 # 感谢猫大的技术指导优化重复的命令。https://github.com/Oreomeow
 CMD=(	"$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
 	"$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
@@ -361,7 +361,7 @@ for i in "${CMD[@]}"; do
 done
 
 REGEX=("debian" "ubuntu" "centos|kernel|'oracle linux'|alma|rocky" "'amazon linux'")
-RELEASE=("debian" "ubuntu" "centos" "centos")
+RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS")
 COMPANY=("" "" "" "amazon")
 MAJOR=("10" "18" "7" "7")
 
@@ -370,7 +370,7 @@ for ((i=0; i<${#REGEX[@]}; i++)); do
 done
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
 
-[[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.\n The script supports Debian 10/11; Ubuntu 18.04/20.24 or CentOS 7/8 only. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS\n 本脚本只支持 Debian 10/11; Ubuntu 18.04/20.24 和 CentOS 7/8 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.\n The system lower than $SYSTEM ${MAJOR[i]} is not supported. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS\n 不支持 $SYSTEM ${MAJOR[i]} 以下系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 
 for ((i=0; i<${#RELEASE[@]}; i++)); do
 	[[ $SYSTEM = ${RELEASE[i]} ]] && [[ $(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*') -lt "${MAJOR[i]}" ]] && red " $T26 " && exit 1
@@ -508,7 +508,7 @@ install(){
         sysctl -w net.ipv6.conf.all.disable_ipv6=0)
 	
         # 根据系统选择需要安装的依赖
-	debian(){
+	Debian(){
 		# 更新源
 		${APTYUM} update
 
@@ -526,7 +526,7 @@ install(){
 		[[ $WG = 1 ]] && ${APTYUM} --no-install-recommends install linux-headers-"$(uname -r)" && ${APTYUM} --no-install-recommends install wireguard-dkms
 		}
 		
-	ubuntu(){
+	Ubuntu(){
 		# 更新源
 		${APTYUM} update
 
@@ -534,7 +534,7 @@ install(){
 		${APTYUM} --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 		}
 		
-	centos(){
+	CentOS(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		[[ $COMPANY = amazon ]] && ${APTYUM} upgrade && amazon-linux-extras install -y epel		
 		${APTYUM} install epel-release
@@ -676,12 +676,12 @@ proxy(){
 	start=$(date +%s)
 	if [[ $CLIENT = 0 ]]; then
 	green " $T83 "
-	[[ $SYSTEM = centos ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')".rpm
+	[[ $SYSTEM = CentOS ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')".rpm
 	${APTYUM} upgrade; ${APTYUM} install cloudflare-warp)
-	[[ $SYSTEM != centos ]] && ${APTYUM} update && ${APTYUM} install lsb-release
-	[[ $SYSTEM = debian && ! $(type -P gpg 2>/dev/null) ]] && ${APTYUM} install gnupg
-	[[ $SYSTEM = debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && ${APTYUM} install apt-transport-https
-	[[ $SYSTEM != centos ]] && (curl https://pkg.cloudflareclient.com/pubkey.gpg | apt-key add -
+	[[ $SYSTEM != CentOS ]] && ${APTYUM} update && ${APTYUM} install lsb-release
+	[[ $SYSTEM = Debian && ! $(type -P gpg 2>/dev/null) ]] && ${APTYUM} install gnupg
+	[[ $SYSTEM = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && ${APTYUM} install apt-transport-https
+	[[ $SYSTEM != CentOS ]] && (curl https://pkg.cloudflareclient.com/pubkey.gpg | apt-key add -
 	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
 	${APTYUM} update; ${APTYUM} install cloudflare-warp)
 	settings
