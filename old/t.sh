@@ -370,7 +370,7 @@ for ((i=0; i<${#REGEX[@]}; i++)); do
 done
 [[ -z $SYSTEM ]] && red " $T5 " && exit 1
 
-[[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.\n The script does not support systems below $SYSTEM ${MAJOR[i]}. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS\n 本脚本不支持 $SYSTEM ${MAJOR[i]} 以下系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
+[[ $LANGUAGE != 2 ]] && T26="Curren operating system is $SYS.\n It is not supported lower than $SYSTEM ${MAJOR[i]} is not supported. Feedback: [https://github.com/fscarmen/warp/issues]" || T26="当前操作是 $SYS\n 本脚本不支持 $SYSTEM ${MAJOR[i]} 以下系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 for ((i=0; i<${#RELEASE[@]}; i++)); do
 	[[ $SYSTEM = ${RELEASE[i]} ]] && [[ $(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*') -lt "${MAJOR[i]}" ]] && red " $T26 " && exit 1
 done
