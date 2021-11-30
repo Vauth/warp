@@ -172,4 +172,5 @@ https://blog.cloudflare.com/announcing-warp-for-linux-and-proxy-mode/
 * ylx2016 的成熟作品: https://github.com/ylx2016/Linux-NetSpeed
 * ALIILAPRO 的成熟作品: https://github.com/ALIILAPRO/warp-plus-cloudflare
 * mixool 的成熟作品: https://github.com/mixool/across/tree/master/wireguard
+* luoxue-bot 的成熟作品:https://github.com/luoxue-bot/warp_auto_change_ip
 * 获取公网 IP 及归属地查询: https://ip.gs/
