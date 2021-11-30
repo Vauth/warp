@@ -11,12 +11,12 @@ reading(){ read -rp "$(green "$1")" "$2"; }
 type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 
 [[ -n $1 && $1 != [CcHhDdPpBbVv12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
-[[ $LANGUAGE != 2 ]] && T1="1.Customize the priority of IPv4 / IPv6; 2.Customize the port of Client Socks5;"  || T1="1.自定义 IPv4 / IPv6 优先组别; 2.自定义 Client Socks5 代理端口"
+[[ $LANGUAGE != 2 ]] && T1="Support change ip to support Netflix by third-party scripts [luoxue-bot]"  || T1="支持更换 WARP IP 以支持 Netflix，脚本由 [luoxue-bot] 原创并维护"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T5="The script supports Debian, Ubuntu or CentOS systems only. Feedback: [https://github.com/fscarmen/warp/issues]" || T5="本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T6="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp d (Upgrade to WARP+ account)\n warp d N5670ljg-sS9jD334-6o6g4M9F (Upgrade to WARP+ account with the license)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 1 (Add WARP IPv6 interface to native IPv4 VPS or WARP IPv4 interface to native IPv6 VPS)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck (Add IPv4 or IPV6 WARP+ interface with the license and named Goodluck)\n warp 2 (Add WARP dualstack interface IPv4 + IPv6)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck (Add WARP+ dualstack interface with the license and named Goodluck)\n warp c (Install WARP Linux Client)\n warp c N5670ljg-sS9jD334-6o6g4M9F(Install WARP+ Linux Client with the license)\n" || T6="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License Warp 单栈，设备名为 Goodluck)\n warp 2 (WARP 双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License 双栈，设备名为 Goodluck)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp c N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License 安装 WARP Linux Client，开启 Socks5 代理模式)"
+[[ $LANGUAGE != 2 ]] && T6="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp d (Upgrade to WARP+ account)\n warp d N5670ljg-sS9jD334-6o6g4M9F (Upgrade to WARP+ account with the license)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 1 (Add WARP IPv6 interface to native IPv4 VPS or WARP IPv4 interface to native IPv6 VPS)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck (Add IPv4 or IPV6 WARP+ interface with the license and named Goodluck)\n warp 2 (Add WARP dualstack interface IPv4 + IPv6)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck (Add WARP+ dualstack interface with the license and named Goodluck)\n warp c (Install WARP Linux Client)\n warp c N5670ljg-sS9jD334-6o6g4M9F(Install WARP+ Linux Client with the license)\n warp i (Change the WARP IP to support Netflix)" || T6="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License Warp 单栈，设备名为 Goodluck)\n warp 2 (WARP 双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License 双栈，设备名为 Goodluck)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp c N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License 安装 WARP Linux Client，开启 Socks5 代理模式)\n warp i (更换支持 Netflix 的IP)"
 [[ $LANGUAGE != 2 ]] && T7="Installing curl..." || T7="安装curl中……"
 [[ $LANGUAGE != 2 ]] && T8="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..." || T8="先升级软件库才能继续安装 curl，时间较长，请耐心等待……"
 [[ $LANGUAGE != 2 ]] && T9="Failed to install curl. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T9="安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -49,7 +49,7 @@ type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 [[ $LANGUAGE != 2 ]] && T45="WARP interface and Linux Client have been completely deleted!" || T45="WARP 网络接口和 Linux Client 已彻底删除!"
 [[ $LANGUAGE != 2 ]] && T46="Not cleaned up, please reboot and try again." || T46="没有清除干净，请重启(reboot)后尝试再次删除"
 [[ $LANGUAGE != 2 ]] && T47="Upgrade kernel, turn on BBR, change Linux system by other authors [ylx2016],[https://github.com/ylx2016/Linux-NetSpeed]" || T47="BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
-[[ $LANGUAGE != 2 ]] && T48="Run script " || T48="安装脚本【推荐原版BBR+FQ】"
+[[ $LANGUAGE != 2 ]] && T48="Run script" || T48="安装脚本【推荐原版BBR+FQ】"
 [[ $LANGUAGE != 2 ]] && T49="Return to main menu" || T49="回退主目录"
 [[ $LANGUAGE != 2 ]] && T50="Choose:" || T50="请选择:"
 [[ $LANGUAGE != 2 ]] && T51="Please enter the correct number" || T51="请输入正确数字"
@@ -114,6 +114,9 @@ type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 [[ $LANGUAGE != 2 ]] && T118="Uninstall WARP Interface was fail." || T118="WARP 网络接口卸载失败"
 [[ $LANGUAGE != 2 ]] && T119="Uninstall Socks5 Proxy Client was complete." || T119="Socks5 Proxy Client 卸载成功"
 [[ $LANGUAGE != 2 ]] && T120="Uninstall Socks5 Proxy Client was fail." || T120="Socks5 Proxy Client 卸载失败"
+[[ $LANGUAGE != 2 ]] && T121="Change the WARP IP to support Netflix by other authors [luoxue-bot],[https://github.com/luoxue-bot/warp_auto_change_ip]" || T121="更换支持 Netflix WARP IP 用的 [luoxue-bot]的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]，请熟知"
+[[ $LANGUAGE != 2 ]] && T122="Run script" || T122="安装脚本"
+[[ $LANGUAGE != 2 ]] && T123="Change the WARP IP to support Netflix" || T123="更换支持 Netflix 的IP"
 
 # 当前脚本版本号和新增功能
 VERSION=2.10
@@ -185,10 +188,25 @@ plus(){
 	esac
 	}
 
+change_ip(){
+	red "\n=============================================================="
+	yellow " $T121\n "
+	green " 1.$T55 "
+	[[ -n $PLAN ]] && green " 2.$T49 " || green " 2.$T76 "
+	red "=============================================================="
+	reading " $T50 " CHANGE_IP
+	case "$CHANGE_IP" in
+		1 ) bash <(wget -qO- https://github.com/luoxue-bot/warp_auto_change_ip/raw/main/warp_change_ip.sh);;
+		2 ) [[ -n $PLAN ]] && menu"$PLAN" || exit;;
+		* ) red " $T51 [1-2] "; sleep 1; change_ip;;
+	esac
+	}
+
 # 设置部分后缀 1/3
 case "$OPTION" in
 [Hh] )	help; exit 0;;
 [Pp] )	plus; exit 0;;
+[Ii] )	change_ip; exit 0;;
 esac
 
 green " $T37 "
@@ -820,6 +838,7 @@ menu3(){
 	[[ $CLIENT = 3 ]] && green " 7. $T89 "
 	[[ $CLIENT = 2 ]] && green " 7. $T88 "
 	[[ $CLIENT != 2 && $CLIENT != 3 ]] && green " 7. $T82 "
+	green " 8. $T123 "
 	green " 0. $T76 \n "
 	reading " $T50 " CHOOSE3
         case "$CHOOSE3" in
@@ -830,6 +849,7 @@ menu3(){
 		5 )	update;;
 		6 )	ver;;
 		7 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
+		8 )	change_ip;;
 		0 )	exit;;
 		* )	red " $T51 [0-7] "; sleep 1; menu3;;
 		esac
