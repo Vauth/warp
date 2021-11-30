@@ -132,18 +132,18 @@ NAME=$3
 ip4_info(){
 	IP4=$(curl -s4m7 https://ip.gs/json) &&
 	LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
-	WAN4=$(expr "$IP4" : '.*\(ip":"[^\"]\{1,\}\).' | sed 's/ip":"//g') &&
-	COUNTRY4=$(expr "$IP4" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g') &&
-	ASNORG4=$(expr "$IP4" : '.*\(asn_org":"[^\"]\{1,\}\).' | sed 's/asn_org":"//g') &&
+	WAN4=$(expr "$IP4" : '.*ip\":\"\([^\"]\{1,\}\).*') &&
+	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^\"]\{1,\}\).*') &&
+	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^\"]\{1,\}\).*') &&
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	}
 
 ip6_info(){
 	IP6=$(curl -s6m7 https://ip.gs/json) &&
 	LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
-	WAN6=$(expr "$IP6" : '.*\(ip":"[^\"]\{1,\}\).' | sed 's/ip":"//g') &&
-	COUNTRY6=$(expr "$IP6" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g') &&
-	ASNORG6=$(expr "$IP6" : '.*\(asn_org":"[^\"]\{1,\}\).' | sed 's/asn_org":"//g') &&
+	WAN6=$(expr "$IP6" : '.*ip\":\"\([^\"]\{1,\}\).*') &&
+	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^\"]\{1,\}\).*') &&
+	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^\"]\{1,\}\).*') &&
 	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	}
 	
@@ -299,10 +299,10 @@ proxy_info(){
 	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
 	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
 	PROXYJASON=$(curl -s4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
-	PROXYIP=$(expr "$PROXYJASON" : '.*\(ip":"[^\"]\{1,\}\).' | sed 's/ip":"//g')
-	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*\(country":"[^\"]\{1,\}\).' | sed 's/country":"//g')
+	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^\"]\{1,\}\).*')
+	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^\"]\{1,\}\).*')
 	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$PROXYCOUNTRY" | sed "s/\W//g;s/.*tgt//g")
-	PROXYASNORG=$(echo "$PROXYJASON" | awk -F "asn_org" '{print $2}' | awk -F "hostname" '{print $1}' | awk -F "user_agent" '{print $1}' | sed "s/[,\":]//g")
+	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^\"]\{1,\}\).*')
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
 	}
