@@ -116,7 +116,7 @@ type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 [[ $LANGUAGE != 2 ]] && T120="Uninstall Socks5 Proxy Client was fail." || T120="Socks5 Proxy Client 卸载失败"
 [[ $LANGUAGE != 2 ]] && T121="Change the WARP IP to support Netflix by other authors [luoxue-bot],[https://github.com/luoxue-bot/warp_auto_change_ip]" || T121="更换支持 Netflix WARP IP 用的 [luoxue-bot]的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]，请熟知"
 [[ $LANGUAGE != 2 ]] && T122="Run script" || T122="安装脚本"
-[[ $LANGUAGE != 2 ]] && T123="Change the WARP IP to support Netflix" || T123="更换支持 Netflix 的IP"
+[[ $LANGUAGE != 2 ]] && T123="Change the WARP IP to support Netflix" || T123="更换支持 Netflix 的 IP"
 
 # 当前脚本版本号和新增功能
 VERSION=2.11
