@@ -244,8 +244,8 @@ uninstall(){
 	[[ $(type -P warp-cli) ]] && (uninstall_proxy; green " $T119 ")
 
 	# 显示卸载结果
-	ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4") : '.*tgt\":\"\([^"]\{1,\}\).*'))
-	ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6") : '.*tgt\":\"\([^"]\{1,\}\).*'))
+	ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4") : '.*tgt\":\"\([^"]\{1,\}\).*')
+	ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6") : '.*tgt\":\"\([^"]\{1,\}\).*')
 	green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 	
@@ -284,8 +284,8 @@ net(){
 			[[ $i = "$j" ]] && (echo "$DOWN" | sh >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
 	green " $T14 "
-	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4") : '.*tgt\":\"\([^"]\{1,\}\).*'))
-	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6") : '.*tgt\":\"\([^"]\{1,\}\).*'))
+	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4") : '.*tgt\":\"\([^"]\{1,\}\).*')
+	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6") : '.*tgt\":\"\([^"]\{1,\}\).*')
 	[[ $OPTION = [OoNn] ]] && green " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
@@ -301,7 +301,7 @@ proxy_info(){
 	PROXYJASON=$(curl -s4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
 	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]\{1,\}\).*')
 	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]\{1,\}\).*')
-	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$PROXYCOUNTRY") : '.*tgt\":\"\([^"]\{1,\}\).*'))
+	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$PROXYCOUNTRY") : '.*tgt\":\"\([^"]\{1,\}\).*')
 	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]\{1,\}\).*')
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
