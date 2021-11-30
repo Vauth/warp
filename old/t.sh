@@ -10,7 +10,7 @@ reading(){ read -rp "$(green "$1")" "$2"; }
 # 定义三类系统通用的安装指令
 type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 
-[[ -n $1 && $1 != [CcHhDdPpBbVv12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
+[[ -n $1 && $1 != [CcHhDdPpBbVvIi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
 [[ $LANGUAGE != 2 ]] && T1="Support change ip to support Netflix by third-party scripts [luoxue-bot]"  || T1="支持更换 WARP IP 以支持 Netflix，脚本由 [luoxue-bot] 原创并维护"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -119,7 +119,7 @@ type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 [[ $LANGUAGE != 2 ]] && T123="Change the WARP IP to support Netflix" || T123="更换支持 Netflix 的IP"
 
 # 当前脚本版本号和新增功能
-VERSION=2.10
+VERSION=2.11
 TXT=" $T1 "
 
 # 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关； p=刷 WARP+ 流量; 其他或空值=菜单界面
@@ -191,7 +191,7 @@ plus(){
 change_ip(){
 	red "\n=============================================================="
 	yellow " $T121\n "
-	green " 1.$T55 "
+	green " 1.$T122 "
 	[[ -n $PLAN ]] && green " 2.$T49 " || green " 2.$T76 "
 	red "=============================================================="
 	reading " $T50 " CHANGE_IP
