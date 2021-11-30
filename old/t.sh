@@ -197,8 +197,7 @@ change_ip(){
 	reading " $T50 " CHANGE_IP
 	case "$CHANGE_IP" in
 		1 ) wget -N https://github.com/luoxue-bot/warp_auto_change_ip/raw/main/warp_change_ip.sh
-		area=$(expr "$(curl -s https://ip.gs/json)" : '.*country_iso\":\"\([^"]\{1,\}\).*')
-		sed -i " 7 s/^/while true\n/; s/\$area/$area/g" warp_change_ip.sh; sed -i '8,14d' warp_change_ip.sh
+		sed -i '7,10d; 12,13d' warp_change_ip.sh; sed -i " 8 s/^/while true\n/" warp_change_ip.sh
 		bash warp_change_ip.sh;;
 		2 ) [[ -n $PLAN ]] && menu"$PLAN" || exit;;
 		* ) red " $T51 [1-2] "; sleep 1; change_ip;;
