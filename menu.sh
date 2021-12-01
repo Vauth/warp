@@ -188,20 +188,39 @@ plus(){
 	esac
 	}
 
+# 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
-	red "\n=============================================================="
-	yellow " $T121\n "
-	green " 1.$T122 "
-	[[ -n $PLAN ]] && green " 2.$T49 " || green " 2.$T76 "
-	red "=============================================================="
-	reading " $T50 " CHANGE_IP
-	case "$CHANGE_IP" in
-		1 ) wget -N https://github.com/luoxue-bot/warp_auto_change_ip/raw/main/warp_change_ip.sh
-		sed -i '7,10d; 12,13d' warp_change_ip.sh; sed -i " 8 s/^/while true\n/" warp_change_ip.sh
-		bash warp_change_ip.sh;;
-		2 ) [[ -n $PLAN ]] && menu"$PLAN" || exit;;
-		* ) red " $T51 [1-2] "; sleep 1; change_ip;;
-	esac
+	region_area(){
+	region=$(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g')
+	region=${region:-US}
+
+	area2=("${area}" "*")
+	display2=("Region: ${region} Done, monitoring..." "Not match, Changing IP...")
+	cmd2=("" "systemctl restart wg-quick@wgcf")
+	sleep_sec2=("6" "3")
+        
+	for ((j=0; j<${#area2[@]}; j++)); do
+		[[ "$region" == ${area2[j]} ]] && break
+	done
+	echo -e ${display2[j]} && (${cmd2[j]}; sleep ${sleep_sec2[j]})
+	}
+
+	output=("404" "403" "000" "200")
+	display1=("Originals Only, Changing IP..." "No, Changing IP..." "Failed, retrying..." "Matching the region...")
+	cmd1=("systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "region_area")
+	sleep_sec1=("3" "3" "0" "0")
+
+	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
+	[[ -n $(wg) ]] && read -rp "Input the region you want(e.g. hk,sg):" area && area=$(echo $area | tr '[:upper:]' '[:lower:]')
+	[[ -z $(wg) ]] && echo "Install WARP first" && bash <(curl -fsSL https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh)
+
+	while [[ -n $(wg) ]]; do
+		result=$(curl --user-agent "${UA_Browser}" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567" 2>&1)
+			for ((i=0; i<${#output[@]}; i++)); do
+				[[ "$result" == ${output[i]} ]] && break
+			done
+		echo -e ${display1[i]} && (${cmd1[i]}; sleep ${sleep_sec1[i]})
+	done
 	}
 
 # 设置部分后缀 1/3
