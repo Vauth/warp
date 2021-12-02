@@ -135,18 +135,18 @@ NAME=$3
 ip4_info(){
 	IP4=$(curl -s4m7 https://ip.gs/json) &&
 	LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+') &&
-	WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]\{1,\}\).*') &&
-	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]\{1,\}\).*') &&
-	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]\{1,\}\).*') &&
+	WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]*\).*') &&
+	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*') &&
+	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*') &&
 	TRACE4=$(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	}
 
 ip6_info(){
 	IP6=$(curl -s6m7 https://ip.gs/json) &&
 	LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+') &&
-	WAN6=$(expr "$IP6" : '.*ip\":\"\([^"]\{1,\}\).*') &&
-	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]\{1,\}\).*') &&
-	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]\{1,\}\).*') &&
+	WAN6=$(expr "$IP6" : '.*ip\":\"\([^"]*\).*') &&
+	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*') &&
+	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*') &&
 	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	}
 	
@@ -191,7 +191,7 @@ plus(){
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
 	region_area(){
-	region=$(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g')
+	region=$(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]*\).*/\1/g')
 	region=${region:-US}
 
 	area2=("${area}" "*")
@@ -283,8 +283,8 @@ uninstall(){
 	[[ $(type -P warp-cli) ]] && (uninstall_proxy; green " $T119 ")
 
 	# 显示卸载结果
-	ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4") : '.*tgt\":\"\([^"]\{1,\}\).*')
-	ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6") : '.*tgt\":\"\([^"]\{1,\}\).*')
+	ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4") : '.*tgt\":\"\([^"]*\).*')
+	ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6") : '.*tgt\":\"\([^"]*\).*')
 	green " $T45\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 	
@@ -323,8 +323,8 @@ net(){
 			[[ $i = "$j" ]] && (echo "$DOWN" | sh >/dev/null 2>&1; red " $T13 ") && exit 1
         	done
 	green " $T14 "
-	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4") : '.*tgt\":\"\([^"]\{1,\}\).*')
-	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6") : '.*tgt\":\"\([^"]\{1,\}\).*')
+	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4") : '.*tgt\":\"\([^"]*\).*')
+	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6") : '.*tgt\":\"\([^"]*\).*')
 	[[ $OPTION = [OoNn] ]] && green " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
@@ -338,10 +338,10 @@ proxy_info(){
 	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
 	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
 	PROXYJASON=$(curl -s4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
-	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]\{1,\}\).*')
-	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]\{1,\}\).*')
-	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$PROXYCOUNTRY") : '.*tgt\":\"\([^"]\{1,\}\).*')
-	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]\{1,\}\).*')
+	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
+	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
+	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$PROXYCOUNTRY") : '.*tgt\":\"\([^"]*\).*')
+	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
 	}
@@ -423,8 +423,8 @@ type -P curl >/dev/null 2>&1 || (yellow " $T7 " && ${APTYUM} install curl) || (y
 [[ $(arch | tr '[:upper:]' '[:lower:]') =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
-[[ $IPV4 = 1 ]] && ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4") : '.*tgt\":\"\([^"]\{1,\}\).*')
-[[ $IPV6 = 1 ]] && ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6") : '.*tgt\":\"\([^"]\{1,\}\).*')
+[[ $IPV4 = 1 ]] && ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4") : '.*tgt\":\"\([^"]*\).*')
+[[ $IPV6 = 1 ]] && ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6") : '.*tgt\":\"\([^"]*\).*')
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
