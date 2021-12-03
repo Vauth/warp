@@ -117,7 +117,7 @@ type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 [[ $LANGUAGE != 2 ]] && T121="Changing Netflix IP is adapted from other authors [luoxue-bot],[https://github.com/luoxue-bot/warp_auto_change_ip]" || T121="更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]，请熟知"
 [[ $LANGUAGE != 2 ]] && T122="WARP interface is not running.The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T122="WARP 还没有运行，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T123="Change the WARP IP to support Netflix" || T123="更换支持 Netflix 的 IP"
-[[ $LANGUAGE != 2 ]] && T124="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging." || T124="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变"
+[[ $LANGUAGE != 2 ]] && T124="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging:" || T124="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
 
 # 当前脚本版本号和新增功能
 VERSION=2.11
@@ -215,7 +215,7 @@ change_ip(){
 	REGION=$(tr [:lower:] [:upper:] <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
 	ip${NF}_info
-	[[ $LANGUAGE = 2 ]] && COUNTRY=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)") : '.*tgt\":\"\([^"]*\).*')
+	[[ $LANGUAGE = 2 ]] && COUNTRY$NF=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)") : '.*tgt\":\"\([^"]*\).*')
 	[[ $LANGUAGE != 2 ]] && T125="Region: $REGION Done. IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF).Retest after 60 seconds."  || T125="$REGION 区域解锁成功，IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)，60秒后重新测试"
 	[[ $LANGUAGE != 2 ]] && T126="Try $i. IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"  || T126="尝试第$i次，解锁失败，IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"
 	[[ -n $REGION ]] && green " $T125 " && sleep 60
