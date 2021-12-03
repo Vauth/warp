@@ -218,7 +218,8 @@ change_ip(){
 	[[ $LANGUAGE = 2 ]] && COUNTRY=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)") : '.*tgt\":\"\([^"]*\).*')
 	[[ $LANGUAGE != 2 ]] && T125="Region: $REGION Done. IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF).Retest after 60 seconds."  || T125="$REGION 区域解锁成功，IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)，60秒后重新测试"
 	[[ $LANGUAGE != 2 ]] && T126="Try $i. IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"  || T126="尝试第$i次，解锁失败，IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"
-	[[ -z $REGION ]] && red " $T126 " && systemctl restart wg-quick@wgcf || (green " $T125 " && sleep 60)
+	[[ -n $REGION ]] && green " $T125 " && sleep 60
+	[[ -z $REGION ]] && red " $T126 " && systemctl restart wg-quick@wgcf
 	done
 	}
 
