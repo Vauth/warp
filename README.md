@@ -2,7 +2,7 @@
 
 * * *
 ## 更新信息：
-2021.11.30  2.11 更新：感谢luoxue-bot原创，唤醒大神告知。 1.Support change ip to support Netflix by third-party scripts [luoxue-bot]; 1.支持更换 WARP IP 以支持 Netflix，脚本由 [luoxue-bot] 原创并维护
+2021.11.30  2.11 更新：感谢luoxue-bot原创，唤醒大神告知。 1.Changing Netflix IP is adapted from other authors [luoxue-bot]; 1.更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品
 
 2021.11.11  2.10 更新：1.Customize the priority of IPv4 / IPv6; 2.Customize the port of Client Socks5(default is 40000); 1.自定义 IPv4 / IPv6 优先组别; 2.自定义 Client Socks5 代理端口，默认40000
 
