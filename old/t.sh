@@ -114,9 +114,10 @@ type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 [[ $LANGUAGE != 2 ]] && T118="Uninstall WARP Interface was fail." || T118="WARP 网络接口卸载失败"
 [[ $LANGUAGE != 2 ]] && T119="Uninstall Socks5 Proxy Client was complete." || T119="Socks5 Proxy Client 卸载成功"
 [[ $LANGUAGE != 2 ]] && T120="Uninstall Socks5 Proxy Client was fail." || T120="Socks5 Proxy Client 卸载失败"
-[[ $LANGUAGE != 2 ]] && T121="Change the WARP IP to support Netflix by other authors [luoxue-bot],[https://github.com/luoxue-bot/warp_auto_change_ip]" || T121="更换支持 Netflix WARP IP 用的 [luoxue-bot]的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]，请熟知"
-[[ $LANGUAGE != 2 ]] && T122="Run script" || T122="安装脚本"
+[[ $LANGUAGE != 2 ]] && T121="Changing Netflix IP is adapted from other authors [luoxue-bot],[https://github.com/luoxue-bot/warp_auto_change_ip]" || T121="更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]，请熟知"
+[[ $LANGUAGE != 2 ]] && T122="WARP interface is not running.The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T122="WARP 还没有运行，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T123="Change the WARP IP to support Netflix" || T123="更换支持 Netflix 的 IP"
+[[ $LANGUAGE != 2 ]] && T124="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging." || T124="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变"
 
 # 当前脚本版本号和新增功能
 VERSION=2.11
@@ -149,7 +150,17 @@ ip6_info(){
 	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]\{1,\}\).*') &&
 	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	}
-	
+
+# IPv4 / IPv6 优先选项
+stack_priority(){
+	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
+	case "$PRIORITY" in
+		2 )	echo "label 2002::/16   2" >> /etc/gai.conf;;
+		3 )	;;
+		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
+	esac
+}	
+
 help(){	yellow " $T6 "; }
 
 # 刷 WARP+ 流量
@@ -190,58 +201,24 @@ plus(){
 
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
-	[[ -z $(wg) ]] && red "Install WARP first" && exit
+	yellow " $T121 "
+	[[ -z $(wg) ]] && red " $T122 " && exit
+	[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " $T124 " NETFLIX || NF=4
+	[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
-	for (i=1; i<31; i++); do
-	[[ $(curl --user-agent "${UA_Browser}" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567" 2>&1) = 200 ]] && break
-	ip4_info
-	red " Try $i. IPv4: "$WAN4" "$COUNTRY4" "$ASNORG4". Not match, Changing IP..."
+	
+	i=0
+	while [[ -n $(wg) ]]
+	do (( i++ )) || true
+	[[ $(curl --user-agent "${UA_Browser}" -$NF -sm5fL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567" 2>&1) = 200 ]] && 
+	(REGION=$(tr [:lower:] [:upper:] <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	REGION=${REGION:-US})
+	ip$NF_info
+	[[ $LANGUAGE != 2 ]] && T125="Region: $REGION Done. IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"  || T125="$REGION 区域解锁成功，IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"
+	[[ $LANGUAGE != 2 ]] && T126="Try $i. IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"  || T126="解锁失败，IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"
+	[[ -n $REGION ]] && green " $T125 " || red " $T126 "
 	systemctl restart wg-quick@wgcf
 	done
-	[[ $i = 30 ]] && exit
-	
-	REGION=$(tr [:lower:] [:upper:] <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
-	REGION=${REGION:-US}	
-	ip4_info
-	green "Region: $REGION Done. IP: $WAN4 $COUNTRY4 $ASNORG4"
-	
-	
-#	match(){
-#	ip4_info
-#	green " Region: ${region} Done, monitoring...\n  IP: $WAN4 "
-#	}
-#	
-#	region_area(){
-#	region=$(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g')
-#	region=${region:-US}
-#
-#	area2=("${area}" "*")
-#	display2=("\c" "Not match, Changing IP...")
-#	cmd2=("match" "systemctl restart wg-quick@wgcf")
-#	sleep_sec2=("6" "3")
-#        
-#	for ((j=0; j<${#area2[@]}; j++)); do
-#		[[ "$region" == ${area2[j]} ]] && break
-#	done
-#	red " ${display2[j]} "; ${cmd2[j]}; sleep ${sleep_sec2[j]}
-#	}
-#
-#	output=("404" "403" "200" "000")
-#	display1=("Originals Only, Changing IP..." "No, Changing IP..." "\c" "Failed, retrying...")
-#	cmd1=("systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "region_area" "systemctl restart wg-quick@wgcf")
-#	sleep_sec1=("3" "3" "0" "0")
-#
-#	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
-#	[[ -n $(wg) ]] && read -rp "Input the region you want(e.g. hk,sg):" area && area=$(echo $area | tr '[:upper:]' '[:lower:]')
-#	[[ -z $(wg) ]] && echo "Install WARP first"
-#
-#	while [[ -n $(wg) ]]; do
-#		result=$(curl --user-agent "${UA_Browser}" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567" 2>&1)
-#			for ((i=0; i<${#output[@]}; i++)); do
-#				[[ "$result" == ${output[i]} ]] && break
-#			done
-#		red " ${display1[i]} "; ${cmd1[i]}; sleep ${sleep_sec1[i]}
-#	done
 	}
 
 # 设置部分后缀 1/3
