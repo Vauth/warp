@@ -190,24 +190,40 @@ plus(){
 
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
-	match(){
+	[[ -z $(wg) ]] && red "Install WARP first" && exit
+	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
+	for (i=0; i<30; i++); do
+	[[ $(curl --user-agent "${UA_Browser}" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567" 2>&1) = 200 ]] && break
 	ip4_info
-	green " Region: ${region} Done, monitoring...\n  IP: $WAN4 "
-	}
-	
-	region_area(){
-	region=$(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g')
-	region=${region:-US}
-
-	area2=("${area}" "*")
-	display2=("\c" "Not match, Changing IP...")
-	cmd2=("match" "systemctl restart wg-quick@wgcf")
-	sleep_sec2=("6" "3")
-        
-	for ((j=0; j<${#area2[@]}; j++)); do
-		[[ "$region" == ${area2[j]} ]] && break
+	red " Try $i. IPv4: "$WAN4" "$COUNTRY4" "$ASNORG4". Not match, Changing IP..."
+	systemctl restart wg-quick@wgcf
 	done
-	red " ${display2[j]} "; ${cmd2[j]}; sleep ${sleep_sec2[j]}
+	[[ $i = 30 ]] && exit
+	
+	REGION=$(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g')
+	REGION=${REGION:-US}
+	ip4_info
+	green "Region: $REGION Done. IP: $WAN4 $COUNTRY4 $ASNORG4"
+	
+	
+#	match(){
+#	ip4_info
+#	green " Region: ${region} Done, monitoring...\n  IP: $WAN4 "
+#	}
+#	
+#	region_area(){
+#	region=$(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g')
+#	region=${region:-US}
+#
+#	area2=("${area}" "*")
+#	display2=("\c" "Not match, Changing IP...")
+#	cmd2=("match" "systemctl restart wg-quick@wgcf")
+#	sleep_sec2=("6" "3")
+#        
+#	for ((j=0; j<${#area2[@]}; j++)); do
+#		[[ "$region" == ${area2[j]} ]] && break
+#	done
+#	red " ${display2[j]} "; ${cmd2[j]}; sleep ${sleep_sec2[j]}
 	}
 
 	output=("404" "403" "200" "000")
@@ -217,7 +233,7 @@ change_ip(){
 
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 	[[ -n $(wg) ]] && read -rp "Input the region you want(e.g. hk,sg):" area && area=$(echo $area | tr '[:upper:]' '[:lower:]')
-	[[ -z $(wg) ]] && echo "Install WARP first" && bash <(curl -fsSL https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh)
+	[[ -z $(wg) ]] && echo "Install WARP first"
 
 	while [[ -n $(wg) ]]; do
 		result=$(curl --user-agent "${UA_Browser}" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567" 2>&1)
