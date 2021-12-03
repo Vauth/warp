@@ -206,18 +206,18 @@ change_ip(){
 	[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " $T124 " NETFLIX || NF=4
 	[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
-	
+
 	i=0
 	while [[ -n $(wg) ]]
 	do (( i++ )) || true
-	[[ $(curl --user-agent "${UA_Browser}" -$NF -sm5fL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567" 2>&1) = 200 ]] && 
-	(REGION=$(tr [:lower:] [:upper:] <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
-	REGION=${REGION:-US})
-	ip$NF_info
-	[[ $LANGUAGE != 2 ]] && T125="Region: $REGION Done. IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"  || T125="$REGION 区域解锁成功，IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"
+	RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
+	[[ $RESULT = 200 ]] && 
+	REGION=$(tr [:lower:] [:upper:] <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
+	ip${NF}_info
+	[[ $LANGUAGE != 2 ]] && T125="Region: $REGION Done. IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF). "  || T125="$REGION 区域解锁成功，IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"
 	[[ $LANGUAGE != 2 ]] && T126="Try $i. IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"  || T126="解锁失败，IPv$NF: $(eval echo \$WAN$NF)  $(eval echo \$COUNTRY$NF)  $(eval echo \$ASNORG$NF)"
-	[[ -n $REGION ]] && green " $T125 " || red " $T126 "
-	systemctl restart wg-quick@wgcf
+	[[ -z $REGION ]] && red " $T126 " && systemctl restart wg-quick@wgcf || (green " $T125 " && sleep 1)
 	done
 	}
 
