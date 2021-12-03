@@ -192,7 +192,7 @@ plus(){
 change_ip(){
 	[[ -z $(wg) ]] && red "Install WARP first" && exit
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
-	for (i=0; i<30; i++); do
+	for (i=1; i<31; i++); do
 	[[ $(curl --user-agent "${UA_Browser}" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567" 2>&1) = 200 ]] && break
 	ip4_info
 	red " Try $i. IPv4: "$WAN4" "$COUNTRY4" "$ASNORG4". Not match, Changing IP..."
@@ -200,8 +200,8 @@ change_ip(){
 	done
 	[[ $i = 30 ]] && exit
 	
-	REGION=$(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g')
-	REGION=${REGION:-US}
+	REGION=$(tr [:lower:] [:upper:] <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	REGION=${REGION:-US}	
 	ip4_info
 	green "Region: $REGION Done. IP: $WAN4 $COUNTRY4 $ASNORG4"
 	
@@ -224,24 +224,24 @@ change_ip(){
 #		[[ "$region" == ${area2[j]} ]] && break
 #	done
 #	red " ${display2[j]} "; ${cmd2[j]}; sleep ${sleep_sec2[j]}
-	}
-
-	output=("404" "403" "200" "000")
-	display1=("Originals Only, Changing IP..." "No, Changing IP..." "\c" "Failed, retrying...")
-	cmd1=("systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "region_area" "systemctl restart wg-quick@wgcf")
-	sleep_sec1=("3" "3" "0" "0")
-
-	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
-	[[ -n $(wg) ]] && read -rp "Input the region you want(e.g. hk,sg):" area && area=$(echo $area | tr '[:upper:]' '[:lower:]')
-	[[ -z $(wg) ]] && echo "Install WARP first"
-
-	while [[ -n $(wg) ]]; do
-		result=$(curl --user-agent "${UA_Browser}" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567" 2>&1)
-			for ((i=0; i<${#output[@]}; i++)); do
-				[[ "$result" == ${output[i]} ]] && break
-			done
-		red " ${display1[i]} "; ${cmd1[i]}; sleep ${sleep_sec1[i]}
-	done
+#	}
+#
+#	output=("404" "403" "200" "000")
+#	display1=("Originals Only, Changing IP..." "No, Changing IP..." "\c" "Failed, retrying...")
+#	cmd1=("systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "region_area" "systemctl restart wg-quick@wgcf")
+#	sleep_sec1=("3" "3" "0" "0")
+#
+#	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
+#	[[ -n $(wg) ]] && read -rp "Input the region you want(e.g. hk,sg):" area && area=$(echo $area | tr '[:upper:]' '[:lower:]')
+#	[[ -z $(wg) ]] && echo "Install WARP first"
+#
+#	while [[ -n $(wg) ]]; do
+#		result=$(curl --user-agent "${UA_Browser}" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567" 2>&1)
+#			for ((i=0; i<${#output[@]}; i++)); do
+#				[[ "$result" == ${output[i]} ]] && break
+#			done
+#		red " ${display1[i]} "; ${cmd1[i]}; sleep ${sleep_sec1[i]}
+#	done
 	}
 
 # 设置部分后缀 1/3
