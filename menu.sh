@@ -11,7 +11,7 @@ reading(){ read -rp "$(green "$1")" "$2"; }
 type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 
 [[ -n $1 && $1 != [CcHhDdPpBbVvIi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
-[[ $LANGUAGE != 2 ]] && T1="Support change ip to support Netflix by third-party scripts [luoxue-bot]"  || T1="支持更换 WARP IP 以支持 Netflix，脚本由 [luoxue-bot] 原创并维护"
+[[ $LANGUAGE != 2 ]] && T1="Changing Netflix IP is adapted from other authors [luoxue-bot]"  || T1="更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品"
 [[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T3="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -114,9 +114,10 @@ type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 [[ $LANGUAGE != 2 ]] && T118="Uninstall WARP Interface was fail." || T118="WARP 网络接口卸载失败"
 [[ $LANGUAGE != 2 ]] && T119="Uninstall Socks5 Proxy Client was complete." || T119="Socks5 Proxy Client 卸载成功"
 [[ $LANGUAGE != 2 ]] && T120="Uninstall Socks5 Proxy Client was fail." || T120="Socks5 Proxy Client 卸载失败"
-[[ $LANGUAGE != 2 ]] && T121="Change the WARP IP to support Netflix by other authors [luoxue-bot],[https://github.com/luoxue-bot/warp_auto_change_ip]" || T121="更换支持 Netflix WARP IP 用的 [luoxue-bot]的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]，请熟知"
-[[ $LANGUAGE != 2 ]] && T122="Run script" || T122="安装脚本"
+[[ $LANGUAGE != 2 ]] && T121="Changing Netflix IP is adapted from other authors [luoxue-bot],[https://github.com/luoxue-bot/warp_auto_change_ip]" || T121="更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]，请熟知"
+[[ $LANGUAGE != 2 ]] && T122="WARP interface is not running.The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T122="WARP 还没有运行，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 [[ $LANGUAGE != 2 ]] && T123="Change the WARP IP to support Netflix" || T123="更换支持 Netflix 的 IP"
+[[ $LANGUAGE != 2 ]] && T124="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging:" || T124="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
 
 # 当前脚本版本号和新增功能
 VERSION=2.11
@@ -149,7 +150,17 @@ ip6_info(){
 	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*') &&
 	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	}
-	
+
+# IPv4 / IPv6 优先选项
+stack_priority(){
+	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
+	case "$PRIORITY" in
+		2 )	echo "label 2002::/16   2" >> /etc/gai.conf;;
+		3 )	;;
+		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
+	esac
+}	
+
 help(){	yellow " $T6 "; }
 
 # 刷 WARP+ 流量
@@ -190,36 +201,25 @@ plus(){
 
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
-	region_area(){
-	region=$(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]*\).*/\1/g')
-	region=${region:-US}
-
-	area2=("${area}" "*")
-	display2=("Region: ${region} Done, monitoring..." "Not match, Changing IP...")
-	cmd2=("" "systemctl restart wg-quick@wgcf")
-	sleep_sec2=("6" "3")
-        
-	for ((j=0; j<${#area2[@]}; j++)); do
-		[[ "$region" == ${area2[j]} ]] && break
-	done
-	echo -e ${display2[j]} && (${cmd2[j]}; sleep ${sleep_sec2[j]})
-	}
-
-	output=("404" "403" "000" "200")
-	display1=("Originals Only, Changing IP..." "No, Changing IP..." "Failed, retrying..." "Matching the region...")
-	cmd1=("systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "region_area")
-	sleep_sec1=("3" "3" "0" "0")
-
+	yellow " $T121 "
+	[[ -z $(wg) ]] && red " $T122 " && exit
+	[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " $T124 " NETFLIX || NF=4
+	[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
-	[[ -n $(wg) ]] && read -rp "Input the region you want(e.g. hk,sg):" area && area=$(echo $area | tr '[:upper:]' '[:lower:]')
-	[[ -z $(wg) ]] && echo "Install WARP first" && bash <(curl -fsSL https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh)
 
-	while [[ -n $(wg) ]]; do
-		result=$(curl --user-agent "${UA_Browser}" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567" 2>&1)
-			for ((i=0; i<${#output[@]}; i++)); do
-				[[ "$result" == ${output[i]} ]] && break
-			done
-		echo -e ${display1[i]} && (${cmd1[i]}; sleep ${sleep_sec1[i]})
+	i=0
+	while [[ -n $(wg) ]]
+	do (( i++ )) || true
+	RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
+	[[ $RESULT = 200 ]] && 
+	REGION=$(tr [:lower:] [:upper:] <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
+	ip${NF}_info
+	[[ $LANGUAGE != 2 ]] && COUNTRY=$(eval echo \$COUNTRY$NF) || COUNTRY=$(expr $(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)") : '.*tgt\":\"\([^"]*\).*')
+	[[ $LANGUAGE != 2 ]] && T125="Region: $REGION Done. IPv$NF: $(eval echo \$WAN$NF)  $COUNTRY  $(eval echo \$ASNORG$NF).Retest after 60 seconds."  || T125="$REGION 区域解锁成功，IPv$NF: $(eval echo \$WAN$NF)  $COUNTRY  $(eval echo \$ASNORG$NF)，60秒后重新测试"
+	[[ $LANGUAGE != 2 ]] && T126="Try $i. IPv$NF: $(eval echo \$WAN$NF)  $COUNTRY  $(eval echo \$ASNORG$NF)"  || T126="尝试第$i次，解锁失败，IPv$NF: $(eval echo \$WAN$NF)  $COUNTRY  $(eval echo \$ASNORG$NF)"
+	[[ -n $REGION ]] && green " $T125 " && sleep 60
+	[[ -z $REGION ]] && red " $T126 " && systemctl restart wg-quick@wgcf
 	done
 	}
 
