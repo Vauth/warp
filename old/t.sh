@@ -192,7 +192,7 @@ plus(){
 change_ip(){
 	match(){
 	ip4_info
-	green " Region: ${region} Done, monitoring...\n IP: $WAN4 "
+	green " Region: ${region} Done, monitoring...\n  IP: $WAN4 "
 	}
 	
 	region_area(){
@@ -200,18 +200,18 @@ change_ip(){
 	region=${region:-US}
 
 	area2=("${area}" "*")
-	display2=("" "Not match, Changing IP...")
+	display2=("\c" "Not match, Changing IP...")
 	cmd2=("match" "systemctl restart wg-quick@wgcf")
 	sleep_sec2=("6" "3")
         
 	for ((j=0; j<${#area2[@]}; j++)); do
 		[[ "$region" == ${area2[j]} ]] && break
 	done
-	red " ${display2[j]}\c "; ${cmd2[j]}; sleep ${sleep_sec2[j]})
+	red " ${display2[j]} "; ${cmd2[j]}; sleep ${sleep_sec2[j]}
 	}
 
 	output=("404" "403" "200" "000")
-	display1=("Originals Only, Changing IP..." "No, Changing IP..." "" "Failed, retrying...")
+	display1=("Originals Only, Changing IP..." "No, Changing IP..." "\c" "Failed, retrying...")
 	cmd1=("systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "region_area" "systemctl restart wg-quick@wgcf")
 	sleep_sec1=("3" "3" "0" "0")
 
@@ -224,7 +224,7 @@ change_ip(){
 			for ((i=0; i<${#output[@]}; i++)); do
 				[[ "$result" == ${output[i]} ]] && break
 			done
-		red " ${display1[i]}\c "; ${cmd1[i]}; sleep ${sleep_sec1[i]})
+		red " ${display1[i]} "; ${cmd1[i]}; sleep ${sleep_sec1[i]}
 	done
 	}
 
