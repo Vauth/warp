@@ -7,121 +7,228 @@ green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
 yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
 
+English[1]="Changing Netflix IP is adapted from other authors [luoxue-bot]"
+Chinese[1]="更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品"
+English[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
+Chinese[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
+English[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
+Chinese[3]="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
+English[4]="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]"
+Chinese[4]="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
+English[5]="The script supports Debian, Ubuntu or CentOS systems only. Feedback: [https://github.com/fscarmen/warp/issues]"
+Chinese[5]="本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
+English[6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp d (Upgrade to WARP+ account)\n warp d N5670ljg-sS9jD334-6o6g4M9F (Upgrade to WARP+ account with the license)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 1 (Add WARP IPv6 interface to native IPv4 VPS or WARP IPv4 interface to native IPv6 VPS)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck (Add IPv4 or IPV6 WARP+ interface with the license and named Goodluck)\n warp 2 (Add WARP dualstack interface IPv4 + IPv6)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck (Add WARP+ dualstack interface with the license and named Goodluck)\n warp c (Install WARP Linux Client)\n warp c N5670ljg-sS9jD334-6o6g4M9F(Install WARP+ Linux Client with the license)\n warp i (Change the WARP IP to support Netflix)"
+Chinese[6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License Warp 单栈，设备名为 Goodluck)\n warp 2 (WARP 双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License 双栈，设备名为 Goodluck)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp c N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License 安装 WARP Linux Client，开启 Socks5 代理模式)\n warp i (更换支持 Netflix 的IP)"
+English[7]="Installing curl..."
+Chinese[7]="安装curl中……"
+English[8]="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..."
+Chinese[8]="先升级软件库才能继续安装 curl，时间较长，请耐心等待……"
+English[9]="Failed to install curl. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
+Chinese[9]="安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+English[10]="WireGuard tools are not installed or the configuration file wgcf.conf cannot be found, please reinstall."
+Chinese[10]="没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装。"
+English[14]="Got the WARP IP successfully."
+Chinese[14]="已成功获取 WARP 网络"
+English[15]="WARP is turned off. It could be turned on again by [warp o]"
+Chinese[15]="已暂停 WARP，再次开启可以用 warp o"
+English[16]="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support WARP+ account. Third-party scripts are use to increase WARP+ quota or upgrade kernel.\n	* Not only menus, but commands with option.\n	* Intelligent analysis of operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8. Be sure to choose the LTS system. And architecture：AMD or ARM\n	* Automatically select four WireGuard solutions. Performance: Kernel with WireGuard integration＞Install kernel module＞BoringTUN＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Suppert WARP Linux client.\n	* Output WARP status, IP region and asn\n"
+Chinese[16]="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 WARP+ 账户，附带第三方刷 WARP+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选4个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞BoringTUN＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 支持 WARP Linux Socks5 Client\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地和线路提供商\n"
+English[17]="Version"
+Chinese[17]="脚本版本"
+English[18]="New features"
+Chinese[18]="功能新增"
+English[19]="System infomations"
+Chinese[19]="系统信息"
+English[20]="Operating System"
+Chinese[20]="当前操作系统"
+English[21]="Kernel"
+Chinese[21]="内核"
+English[22]="Architecture"
+Chinese[22]="处理器架构"
+English[23]="Virtualization"
+Chinese[23]="虚拟化"
+English[24]="Socks5 Client is on"
+Chinese[24]="Socks5 Client 已开启"
+English[25]="Device name"
+Chinese[25]="设备名"
+English[28]="If there is a WARP+ License, please enter it, otherwise press Enter to continue:"
+Chinese[28]="如有 WARP+ License 请输入，没有可回车继续:"
+English[29]="Input errors up to 5 times.The script is aborted."
+Chinese[29]="输入错误达5次，脚本退出"
+English[31]="LXC VPS choose（default is 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n Choose:"
+Chinese[31]="LXC方案（默认值选项为 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n 请选择："
+English[32]="Step 1/3: Install dependencies"
+Chinese[32]="进度  1/3： 安装系统依赖"
+English[33]="Step 2/3: Install WGCF"
+Chinese[33]="进度  2/3： 安装 WGCF"
+English[34]="Register new WARP account..."
+Chinese[34]="WARP 注册中……"
+English[35]="Update WARP+ account..."
+Chinese[35]="升级 WARP+ 账户中……"
+English[36]="The upgrade failed, WARP+ account error or more than 5 devices have been activated. Free WARP account to continu." 
+Chinese[36]="升级失败，WARP+ 账户错误或者已激活超过5台设备，自动更换免费 WARP 账户继续"
+English[37]="Checking VPS infomations..."
+Chinese[37]="检查环境中……"
+English[38]="Create shortcut [warp] successfully"
+Chinese[38]="创建快捷 warp 指令成功"
+English[39]="Step 3/3: Running WARP"
+Chinese[39]="进度  3/3： 运行 WARP"
+English[43]="Run again with warp [option] [lisence], such as"
+Chinese[43]="再次运行用 warp [option] [lisence]，如"
+English[44]="WARP installation failed. Feedback: [https://github.com/fscarmen/warp/issues]"
+Chinese[44]="WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
+English[45]="WARP interface and Linux Client have been completely deleted!"
+Chinese[45]="WARP 网络接口和 Linux Client 已彻底删除!"
+English[46]="Not cleaned up, please reboot and try again."
+Chinese[46]="没有清除干净，请重启(reboot)后尝试再次删除"
+English[47]="Upgrade kernel, turn on BBR, change Linux system by other authors [ylx2016],[https://github.com/ylx2016/Linux-NetSpeed]"
+Chinese[47]="BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
+English[48]="Run script"
+Chinese[48]="安装脚本【推荐原版BBR+FQ】"
+English[49]="Return to main menu"
+Chinese[49]="回退主目录"
+English[50]="Choose:"
+Chinese[50]="请选择:"
+English[51]="Please enter the correct number"
+Chinese[51]="请输入正确数字"
+English[52]="Please input WARP+ ID:"
+Chinese[52]="请输入 WARP+ ID:"
+English[54]="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen."
+Chinese[54]="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
+English[55]="Run [ALIILAPRO] script"
+Chinese[55]="运行 [ALIILAPRO] 脚本"
+English[56]="Run [mixool] script"
+Chinese[56]="运行 [mixool] 脚本"
+English[57]="The target quota you want to get. The unit is GB, the default value is 10:"
+Chinese[57]="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
+English[58]="WARP+ account is working now. No need to upgrade."
+Chinese[58]="已经是 WARP+ 账户，不需要升级"
+English[59]="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License"
+Chinese[59]="找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
+English[60]="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License"
+Chinese[60]="找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 WARP+ License"
+English[61]="Please Input WARP+ license:"
+Chinese[61]="请输入WARP+ License:"
+English[62]="Successfully upgraded to a WARP+ account"
+Chinese[62]="已升级为 WARP+ 账户"
+English[63]="WARP+ quota"
+Chinese[63]="剩余流量"
+English[64]="Successfully synchronized the latest version"
+Chinese[64]="成功！已同步最新脚本，版本号"
+English[65]="Upgrade failed. Feedback:[https://github.com/fscarmen/warp/issues]"
+Chinese[65]="升级失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
+English[66]="Add WARP IPv4 interface to IPv6 only VPS"
+Chinese[66]="为 IPv6 only 添加 IPv4 网络接口"
+English[67]="Add WARP IPv6 interface to IPv4 only VPS"
+Chinese[67]="为 IPv4 only 添加 IPv6 网络接口"
+English[68]="Add WARP dualstack interface to IPv6 only VPS"
+Chinese[68]="为 IPv6 only 添加双栈网络接口"
+English[69]="Add WARP dualstack interface to IPv4 only VPS"
+Chinese[69]="为 IPv4 only 添加双栈网络接口"
+English[70]="Add WARP dualstack interface to native dualstack"
+Chinese[70]="为 原生双栈 添加 WARP双栈 网络接口"
+English[71]="Turn on WARP"
+Chinese[71]="打开 WARP"
+English[72]="Turn off, uninstall WARP interface and Linux Client"
+Chinese[72]="永久关闭 WARP 网络接口，并删除 WARP 和 Linux Client"
+English[73]="Upgrade kernel, turn on BBR, change Linux system"
+Chinese[73]="升级内核、安装BBR、DD脚本"
+English[74]="Getting WARP+ quota by scripts"
+Chinese[74]="刷 WARP+ 流量"
+English[75]="Sync the latest version"
+Chinese[75]="同步最新版本"
+English[76]="Exit"
+Chinese[76]="退出脚本"
+English[77]="Turn off WARP"
+Chinese[77]="暂时关闭 WARP"
+English[78]="Upgrade to WARP+ account"
+Chinese[78]="升级为 WARP+ 账户"
+English[79]="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit:" 
+Chinese[79]="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出:"
+English[80]="The WARP is working. It will be closed, please run the previous command to install or enter !!"
+Chinese[80]="检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !!"
+English[81]="Searching for the best MTU value..."
+Chinese[81]="寻找 MTU 最优值……"
+English[82]="Install WARP Client for Linux and Proxy Mode"
+Chinese[82]="安装 WARP 的 Linux Client 和代理模式"
+English[83]="Step 1/2: Installing WARP Client..."
+Chinese[83]="进度  1/2： 安装 Client……"
+English[84]="Step 2/2: Setting to Proxy Mode"
+Chinese[84]="进度  2/2： 设置代理模式"
+English[85]="Client was installed. You can connect/disconnect by [warp r]"
+Chinese[85]="Linux Client 已安装，连接/断开 Client 可以用 warp r"
+English[87]="Fail to establish Socks5 proxy. Feedback: [https://github.com/fscarmen/warp/issues]"
+Chinese[87]="创建 Socks5 代理失败，问题反馈:[https://github.com/fscarmen/warp/issues]"English[88="Connect the client" || T88="连接 Client"
+English[89]="Disconnect the client"
+Chinese[89]="断开 Client"
+English[90]="Client is connected"
+Chinese[90]="Client 已连接"
+English[91]="Client is disconnected. It could be connect again by [warp r]"
+Chinese[91]="已断开 Client ，再次连接可以用 warp r"
+English[92]="Client is installed already. It could be uninstalled by [warp u]"
+Chinese[92]="Client 已安装，如要卸载，可以用 warp u"
+English[93]="Client is not installed. It could be installed by [warp c]"
+Chinese[93]="Client 未安装，如需安装，可以用 warp c"
+English[95]="Client works with non-WARP IPv4. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" 
+Chinese[95]="Client 在非 WARP IPv4 下才能工作正常，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+English[96]="Client connecting failure. It may be a CloudFlare IPv4."
+Chinese[96]="Client 连接失败，可能是 CloudFlare IPv4."
+English[97]="It is a WARP+ account already. Update is aborted."
+Chinese[97]="已经是 WARP+ 账户，不需要升级"
+English[98]="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:"
+Chinese[98]="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
+English[101]="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
+Chinese[101]="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
+English[102]="Please customize the WARP+ device name (It will automatically generate 6-digit random string if it is blank):"
+Chinese[102]="请自定义 WARP+ 设备名 (如果不输入，会自动生成随机的6位字符串):"
+English[104]="Please customize the Client port (It must be 4-5 digits. Default to 40000 if it is blank):"
+Chinese[104]="请自定义 Client 端口号 (必须为4-5位自然数，如果不输入，会默认40000):"
+English[105]="Please choose the priority of IPv4 or IPv6 (default 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.Use initial settings\n Choose:"
+Chinese[105]="请选择优先级别 (默认 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.使用 VPS 初始设置\n 请选择:"
+English[106]="IPv6 priority"
+Chinese[106]="IPv6 优先"
+English[107]="IPv4 priority"
+Chinese[107]="IPv4 优先"
+English[109]="Socks5 Proxy Client on IPv4 VPS is working now. You can only choose the WARP IPv6 interface, please enter [y] to continue, and other keys to exit:"
+Chinese[109="IPv4 only VPS，并且 Socks5 代理正在运行中，只能选择单栈方案，继续请输入 y，其他按键退出:"
+English[110]="Socks5 Proxy Client on native dualstack VPS is working now. WARP interface could not be installed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
+Chinese[110]="原生双栈 VPS，并且 Socks5 代理正在运行中。WARP 网络接口不能安装，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+English[112]="Client is not installed."
+Chinese[112]="Client 未安装"
+English[113]="Client is installed and disconnected"
+Chinese[113]="Client 已安装，状态为断开连接"
+English[114]="WARP+ Interface is on"
+Chinese[114]="WARP+ 网络接口已开启"
+English[115]="WARP Interface is on"
+Chinese[115]="WARP 网络接口已开启"
+English[116]="WARP Interface is off"
+Chinese[116]="WARP 网络接口未开启"
+English[117]="Uninstall WARP Interface was complete."
+Chinese[117]="WARP 网络接口卸载成功"
+English[118]="Uninstall WARP Interface was fail."
+Chinese[118]="WARP 网络接口卸载失败"
+English[119]="Uninstall Socks5 Proxy Client was complete."
+Chinese[119]="Socks5 Proxy Client 卸载成功"
+English[120]="Uninstall Socks5 Proxy Client was fail."
+Chinese[120]="Socks5 Proxy Client 卸载失败"
+English[121]="Changing Netflix IP is adapted from other authors [luoxue-bot],[https://github.com/luoxue-bot/warp_auto_change_ip]"
+Chinese[121]="更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]，请熟知"
+English[122]="WARP interface is not running.The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
+Chinese[122]="WARP 还没有运行，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+English[123]="Change the WARP IP to support Netflix"
+Chinese[123]="更换支持 Netflix 的 IP"
+English[124]="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging:"
+Chinese[124]="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
+
+[[ -n $1 && $1 != [CcHhDdPpBbVvIi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
+[[ $LANGUAGE != 2 ]] && T=$English || T=$Chinese
+
 # 定义三类系统通用的安装指令
 type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
 
-[[ -n $1 && $1 != [CcHhDdPpBbVvIi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
-[[ $LANGUAGE != 2 ]] && T1="IMPORTANT:Reduce installation time by more than 50% through multi-threading"  || T1="重大更新：通过多线程，安装 WARP 时间缩短一半以上"
-[[ $LANGUAGE != 2 ]] && T2="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]" || T2="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T3="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]" || T3="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T4="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.192.1 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]" || T4="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.192.1 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T5="The script supports Debian, Ubuntu or CentOS systems only. Feedback: [https://github.com/fscarmen/warp/issues]" || T5="本脚本只支持 Debian、Ubuntu 或 CentOS 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T6="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp d (Upgrade to WARP+ account)\n warp d N5670ljg-sS9jD334-6o6g4M9F (Upgrade to WARP+ account with the license)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 1 (Add WARP IPv6 interface to native IPv4 VPS or WARP IPv4 interface to native IPv6 VPS)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck (Add IPv4 or IPV6 WARP+ interface with the license and named Goodluck)\n warp 2 (Add WARP dualstack interface IPv4 + IPv6)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck (Add WARP+ dualstack interface with the license and named Goodluck)\n warp c (Install WARP Linux Client)\n warp c N5670ljg-sS9jD334-6o6g4M9F(Install WARP+ Linux Client with the license)\n warp i (Change the WARP IP to support Netflix)" || T6="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 Warp+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License Warp 单栈，设备名为 Goodluck)\n warp 2 (WARP 双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License 双栈，设备名为 Goodluck)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp c N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License 安装 WARP Linux Client，开启 Socks5 代理模式)\n warp i (更换支持 Netflix 的IP)"
-[[ $LANGUAGE != 2 ]] && T7="Installing curl..." || T7="安装curl中……"
-[[ $LANGUAGE != 2 ]] && T8="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..." || T8="先升级软件库才能继续安装 curl，时间较长，请耐心等待……"
-[[ $LANGUAGE != 2 ]] && T9="Failed to install curl. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T9="安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T10="WireGuard tools are not installed or the configuration file wgcf.conf cannot be found, please reinstall." || T10="没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装。"
-[[ $LANGUAGE != 2 ]] && T14="Got the WARP IP successfully." || T14="已成功获取 WARP 网络"
-[[ $LANGUAGE != 2 ]] && T15="WARP is turned off. It could be turned on again by [warp o]" || T15="已暂停 WARP，再次开启可以用 warp o"
-[[ $LANGUAGE != 2 ]] && T16="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support WARP+ account. Third-party scripts are use to increase WARP+ quota or upgrade kernel.\n	* Not only menus, but commands with option.\n	* Intelligent analysis of operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8. Be sure to choose the LTS system. And architecture：AMD or ARM\n	* Automatically select four WireGuard solutions. Performance: Kernel with WireGuard integration＞Install kernel module＞BoringTUN＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Suppert WARP Linux client.\n	* Output WARP status, IP region and asn\n" || T16="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 WARP+ 账户，附带第三方刷 WARP+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选4个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞BoringTUN＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 支持 WARP Linux Socks5 Client\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地和线路提供商\n"
-[[ $LANGUAGE != 2 ]] && T17="Version" || T17="脚本版本"
-[[ $LANGUAGE != 2 ]] && T18="New features" || T18="功能新增"
-[[ $LANGUAGE != 2 ]] && T19="System infomations" || T19="系统信息"
-[[ $LANGUAGE != 2 ]] && T20="Operating System" || T20="当前操作系统"
-[[ $LANGUAGE != 2 ]] && T21="Kernel" || T21="内核"
-[[ $LANGUAGE != 2 ]] && T22="Architecture" || T22="处理器架构"
-[[ $LANGUAGE != 2 ]] && T23="Virtualization" || T23="虚拟化"
-[[ $LANGUAGE != 2 ]] && T24="Socks5 Client is on" || T24="Socks5 Client 已开启"
-[[ $LANGUAGE != 2 ]] && T25="Device name" || T25="设备名"
-[[ $LANGUAGE != 2 ]] && T28="If there is a WARP+ License, please enter it, otherwise press Enter to continue:" || T28="如有 WARP+ License 请输入，没有可回车继续:"
-[[ $LANGUAGE != 2 ]] && T29="Input errors up to 5 times.The script is aborted." || T29="输入错误达5次，脚本退出"
-[[ $LANGUAGE != 2 ]] && T31="LXC VPS choose（default is 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n Choose:" || T31="LXC方案（默认值选项为 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n 请选择："
-[[ $LANGUAGE != 2 ]] && T32="Step 1/3: Install dependencies..." || T32="进度 1/3： 安装系统依赖……"
-[[ $LANGUAGE != 2 ]] && T33="Step 2/3: WGCF is ready" || T33="进度 2/3： 已安装 WGCF"
-#[[ $LANGUAGE != 2 ]] && T34="Register new WARP account..." || T34="WARP 注册中……"
-[[ $LANGUAGE != 2 ]] && T35="Update WARP+ account..." || T35="升级 WARP+ 账户中……"
-[[ $LANGUAGE != 2 ]] && T36="The upgrade failed, WARP+ account error or more than 5 devices have been activated. Free WARP account to continu." || T36="升级失败，WARP+ 账户错误或者已激活超过5台设备，自动更换免费 WARP 账户继续"
-[[ $LANGUAGE != 2 ]] && T37="Checking VPS infomations..." || T37="检查环境中……"
-[[ $LANGUAGE != 2 ]] && T38="Create shortcut [warp] successfully" || T38="创建快捷 warp 指令成功"
-[[ $LANGUAGE != 2 ]] && T39="Running WARP" || T39="运行 WARP"
-[[ $LANGUAGE != 2 ]] && T43="Run again with warp [option] [lisence], such as" || T43="再次运行用 warp [option] [lisence]，如"
-[[ $LANGUAGE != 2 ]] && T44="WARP installation failed. Feedback: [https://github.com/fscarmen/warp/issues]" || T44="WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T45="WARP interface and Linux Client have been completely deleted!" || T45="WARP 网络接口和 Linux Client 已彻底删除!"
-[[ $LANGUAGE != 2 ]] && T46="Not cleaned up, please reboot and try again." || T46="没有清除干净，请重启(reboot)后尝试再次删除"
-[[ $LANGUAGE != 2 ]] && T47="Upgrade kernel, turn on BBR, change Linux system by other authors [ylx2016],[https://github.com/ylx2016/Linux-NetSpeed]" || T47="BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
-[[ $LANGUAGE != 2 ]] && T48="Run script" || T48="安装脚本【推荐原版BBR+FQ】"
-[[ $LANGUAGE != 2 ]] && T49="Return to main menu" || T49="回退主目录"
-[[ $LANGUAGE != 2 ]] && T50="Choose:" || T50="请选择:"
-[[ $LANGUAGE != 2 ]] && T51="Please enter the correct number" || T51="请输入正确数字"
-[[ $LANGUAGE != 2 ]] && T52="Please input WARP+ ID:" || T52="请输入 WARP+ ID:"
-[[ $LANGUAGE != 2 ]] && T54="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen." || T54="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
-[[ $LANGUAGE != 2 ]] && T55="Run [ALIILAPRO] script" || T55="运行 [ALIILAPRO] 脚本"
-[[ $LANGUAGE != 2 ]] && T56="Run [mixool] script" || T56="运行 [mixool] 脚本"
-[[ $LANGUAGE != 2 ]] && T57="The target quota you want to get. The unit is GB, the default value is 10:" || T57="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
-[[ $LANGUAGE != 2 ]] && T58="WARP+ account is working now. No need to upgrade." || T58="已经是 WARP+ 账户，不需要升级"
-[[ $LANGUAGE != 2 ]] && T59="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License" || T59="找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
-[[ $LANGUAGE != 2 ]] && T60="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License" || T60="找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 WARP+ License"
-[[ $LANGUAGE != 2 ]] && T61="Please Input WARP+ license:" || T61="请输入WARP+ License:"
-[[ $LANGUAGE != 2 ]] && T62="Successfully upgraded to a WARP+ account" || T62="已升级为 WARP+ 账户"
-[[ $LANGUAGE != 2 ]] && T63="WARP+ quota" || T63="剩余流量"
-[[ $LANGUAGE != 2 ]] && T64="Successfully synchronized the latest version" || T64="成功！已同步最新脚本，版本号"
-[[ $LANGUAGE != 2 ]] && T65="Upgrade failed. Feedback:[https://github.com/fscarmen/warp/issues]" || T65="升级失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T66="Add WARP IPv4 interface to IPv6 only VPS" || T66="为 IPv6 only 添加 IPv4 网络接口"
-[[ $LANGUAGE != 2 ]] && T67="Add WARP IPv6 interface to IPv4 only VPS" || T67="为 IPv4 only 添加 IPv6 网络接口"
-[[ $LANGUAGE != 2 ]] && T68="Add WARP dualstack interface to IPv6 only VPS" || T68="为 IPv6 only 添加双栈网络接口"
-[[ $LANGUAGE != 2 ]] && T69="Add WARP dualstack interface to IPv4 only VPS" || T69="为 IPv4 only 添加双栈网络接口"
-[[ $LANGUAGE != 2 ]] && T70="Add WARP dualstack interface to native dualstack" || T70="为 原生双栈 添加 WARP双栈 网络接口"
-[[ $LANGUAGE != 2 ]] && T71="Turn on WARP" || T71="打开 WARP"
-[[ $LANGUAGE != 2 ]] && T72="Turn off, uninstall WARP interface and Linux Client" || T72="永久关闭 WARP 网络接口，并删除 WARP 和 Linux Client"
-[[ $LANGUAGE != 2 ]] && T73="Upgrade kernel, turn on BBR, change Linux system" || T73="升级内核、安装BBR、DD脚本"
-[[ $LANGUAGE != 2 ]] && T74="Getting WARP+ quota by scripts" || T74="刷 WARP+ 流量"
-[[ $LANGUAGE != 2 ]] && T75="Sync the latest version" || T75="同步最新版本"
-[[ $LANGUAGE != 2 ]] && T76="Exit" || T76="退出脚本"
-[[ $LANGUAGE != 2 ]] && T77="Turn off WARP" || T77="暂时关闭 WARP"
-[[ $LANGUAGE != 2 ]] && T78="Upgrade to WARP+ account" || T78="升级为 WARP+ 账户"
-[[ $LANGUAGE != 2 ]] && T79="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit:" || T79="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出:"
-[[ $LANGUAGE != 2 ]] && T80="The WARP is working. It will be closed, please run the previous command to install or enter !!" || T80="检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !!"
-[[ $LANGUAGE != 2 ]] && T81="Step 3/3: Searching for the best MTU value is ready." || T81="进度 3/3：寻找 MTU 最优值已完成"
-[[ $LANGUAGE != 2 ]] && T82="Install WARP Client for Linux and Proxy Mode" || T82="安装 WARP 的 Linux Client 和代理模式"
-[[ $LANGUAGE != 2 ]] && T83="Step 1/2: Installing WARP Client..." || T83="进度 1/2： 安装 Client……"
-[[ $LANGUAGE != 2 ]] && T84="Step 2/2: Setting to Proxy Mode" || T84="进度 2/2： 设置代理模式"
-[[ $LANGUAGE != 2 ]] && T85="Client was installed. You can connect/disconnect by [warp r]" || T85="Linux Client 已安装，连接/断开 Client 可以用 warp r"
-[[ $LANGUAGE != 2 ]] && T87="Fail to establish Socks5 proxy. Feedback: [https://github.com/fscarmen/warp/issues]" || T87="创建 Socks5 代理失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T88="Connect the client" || T88="连接 Client"
-[[ $LANGUAGE != 2 ]] && T89="Disconnect the client" || T89="断开 Client"
-[[ $LANGUAGE != 2 ]] && T90="Client is connected" || T90="Client 已连接"
-[[ $LANGUAGE != 2 ]] && T91="Client is disconnected. It could be connect again by [warp r]" || T91="已断开 Client ，再次连接可以用 warp r"
-[[ $LANGUAGE != 2 ]] && T92="Client is installed already. It could be uninstalled by [warp u]" || T92="Client 已安装，如要卸载，可以用 warp u"
-[[ $LANGUAGE != 2 ]] && T93="Client is not installed. It could be installed by [warp c]" || T93="Client 未安装，如需安装，可以用 warp c"
-[[ $LANGUAGE != 2 ]] && T95="Client works with non-WARP IPv4. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T95="Client 在非 WARP IPv4 下才能工作正常，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T96="Client connecting failure. It may be a CloudFlare IPv4." || T96="Client 连接失败，可能是 CloudFlare IPv4."
-[[ $LANGUAGE != 2 ]] && T97="It is a WARP+ account already. Update is aborted." || T97="已经是 WARP+ 账户，不需要升级"
-[[ $LANGUAGE != 2 ]] && T98="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:" || T98="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
-[[ $LANGUAGE != 2 ]] && T101="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T101="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T102="Please customize the WARP+ device name (It will automatically generate 6-digit random string if it is blank):" || T102="请自定义 WARP+ 设备名 (如果不输入，会自动生成随机的6位字符串):"
-[[ $LANGUAGE != 2 ]] && T104="Please customize the Client port (It must be 4-5 digits. Default to 40000 if it is blank):" || T104="请自定义 Client 端口号 (必须为4-5位自然数，如果不输入，会默认40000):"
-[[ $LANGUAGE != 2 ]] && T105="Please choose the priority of IPv4 or IPv6 (default 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.Use initial settings\n Choose:" || T105="请选择优先级别 (默认 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.使用 VPS 初始设置\n 请选择:"
-[[ $LANGUAGE != 2 ]] && T106="IPv6 priority" || T106="IPv6 优先"
-[[ $LANGUAGE != 2 ]] && T107="IPv4 priority" || T107="IPv4 优先"
-[[ $LANGUAGE != 2 ]] && T109="Socks5 Proxy Client on IPv4 VPS is working now. You can only choose the WARP IPv6 interface, please enter [y] to continue, and other keys to exit:" || T109="IPv4 only VPS，并且 Socks5 代理正在运行中，只能选择单栈方案，继续请输入 y，其他按键退出:"
-[[ $LANGUAGE != 2 ]] && T110="Socks5 Proxy Client on native dualstack VPS is working now. WARP interface could not be installed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T110="原生双栈 VPS，并且 Socks5 代理正在运行中。WARP 网络接口不能安装，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T112="Client is not installed." || T112="Client 未安装"
-[[ $LANGUAGE != 2 ]] && T113="Client is installed and disconnected" || T113="Client 已安装，状态为断开连接"
-[[ $LANGUAGE != 2 ]] && T114="WARP+ Interface is on" || T114="WARP+ 网络接口已开启"
-[[ $LANGUAGE != 2 ]] && T115="WARP Interface is on" || T115="WARP 网络接口已开启"
-[[ $LANGUAGE != 2 ]] && T116="WARP Interface is off" || T116="WARP 网络接口未开启"
-[[ $LANGUAGE != 2 ]] && T117="Uninstall WARP Interface was complete." || T117="WARP 网络接口卸载成功"
-[[ $LANGUAGE != 2 ]] && T118="Uninstall WARP Interface was fail." || T118="WARP 网络接口卸载失败"
-[[ $LANGUAGE != 2 ]] && T119="Uninstall Socks5 Proxy Client was complete." || T119="Socks5 Proxy Client 卸载成功"
-[[ $LANGUAGE != 2 ]] && T120="Uninstall Socks5 Proxy Client was fail." || T120="Socks5 Proxy Client 卸载失败"
-[[ $LANGUAGE != 2 ]] && T121="Changing Netflix IP is adapted from other authors [luoxue-bot],[https://github.com/luoxue-bot/warp_auto_change_ip]" || T121="更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]，请熟知"
-[[ $LANGUAGE != 2 ]] && T122="WARP interface is not running.The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]" || T122="WARP 还没有运行，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
-[[ $LANGUAGE != 2 ]] && T123="Change the WARP IP to support Netflix" || T123="更换支持 Netflix 的 IP"
-[[ $LANGUAGE != 2 ]] && T124="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging:" || T124="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
-
 # 当前脚本版本号和新增功能
-VERSION=2.20
-TXT=" $T1 "
+VERSION=2.11
+TXT=" ${T[1]} "
 
 # 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关； p=刷 WARP+ 流量; 其他或空值=菜单界面
 OPTION=$1
@@ -521,9 +628,6 @@ stack_priority(){
 
 # WGCF 安装
 install(){
-	# 先删除之前安装，可能导致失败的文件
-	rm -rf /usr/local/bin/wgcf /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
-	
 	INPUT_LICENSE=1 && input_license
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
@@ -537,70 +641,19 @@ install(){
 	
 	# 脚本开始时间
 	start=$(date +%s)
-			
-	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.9
-	{	
-	latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
-	[[ -z $latest ]] && latest='2.2.9'
-
-	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
-	wget --no-check-certificate -T1 -t1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE
-	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_"$latest"_linux_$ARCHITECTURE
-	chmod +x /usr/local/bin/wgcf
+	green " $T32 "
 	
-	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-	until [[ -e wgcf-account.toml ]] >/dev/null 2>&1; do
-	   wgcf register --accept-tos >/dev/null 2>&1
-	done
-
-	green " $T33 "
-	}&
-
-	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
-	# 详细说明：<[WireGuard] Header / MTU sizes for Wireguard>：https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
-	{
-	MTU=$((1500-28))
-	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
-	until [[ $? = 0 || $MTU -le $((1280+80-28)) ]]
-	do
-	MTU=$((MTU-10))
-	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
-	done
-
-	if [[ $MTU -eq $((1500-28)) ]]; then MTU=$MTU
-	elif [[ $MTU -le $((1280+80-28)) ]]; then MTU=$((1280+80-28))
-	else
-		for ((i=0; i<9; i++)); do
-		(( MTU++ ))
-		( [[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1 ) || break
-		done
-		(( MTU-- ))
-	fi
-
-	MTU=$((MTU+28-80))
-
-	# 修改配置文件
-	while [[ -e wgcf-profile.conf ]] >/dev/null 2>&1; do
-	sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf && green " $T81 " && break
-	done
-	}&
-
+	# 先删除之前安装，可能导致失败的文件
+	rm -rf /usr/local/bin/wgcf /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
+	
 	# 对于 IPv4 only VPS 开启 IPv6 支持
 	# 感谢 P3terx 大神项目这块的技术指导。项目:https://github.com/P3TERX/warp.sh/blob/main/warp.sh
-    	{
-	[[ $IPV4$IPV6 = 10 ]] && [[ $(sysctl -a 2>/dev/null | grep 'disable_ipv6.*=.*1') || $(grep -s "disable_ipv6.*=.*1" /etc/sysctl.{conf,d/*} ) ]] &&
+    	[[ $IPV4$IPV6 = 10 ]] && [[ $(sysctl -a 2>/dev/null | grep 'disable_ipv6.*=.*1') || $(grep -s "disable_ipv6.*=.*1" /etc/sysctl.{conf,d/*} ) ]] &&
 	(sed -i '/disable_ipv6/d' /etc/sysctl.{conf,d/*}
         echo 'net.ipv6.conf.all.disable_ipv6 = 0' >/etc/sysctl.d/ipv6.conf
         sysctl -w net.ipv6.conf.all.disable_ipv6=0)
-	}&
-
-        # 优先使用 IPv4 /IPv6 网络
-	{ stack_priority; }&
 	
-	# 根据系统选择需要安装的依赖
-	green " $T32 "
-	
+        # 根据系统选择需要安装的依赖
 	Debian(){
 		# 更新源
 		${APTYUM} update
@@ -644,8 +697,23 @@ install(){
 
 	$SYSTEM
 
-	for pid in $(jobs -p)
-	do wait $pid
+	# 安装并认证 WGCF
+	green " $T33 "
+
+	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.9
+	latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
+	[[ -z $latest ]] && latest='2.2.9'
+
+	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
+	wget --no-check-certificate -T1 -t1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE
+	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_"$latest"_linux_$ARCHITECTURE
+	chmod +x /usr/local/bin/wgcf
+
+	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
+	yellow " $T34 "
+	until [[ -e wgcf-account.toml ]]
+	  do
+	   wgcf register --accept-tos >/dev/null 2>&1
 	done
 
 	# 如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
@@ -655,7 +723,32 @@ install(){
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
+
+	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
+	# 详细说明：<[WireGuard] Header / MTU sizes for Wireguard>：https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
+	yellow " $T81 "
+	MTU=$((1500-28))
+	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
+	until [[ $? = 0 || $MTU -le $((1280+80-28)) ]]
+	do
+	MTU=$((MTU-10))
+	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
+	done
 	
+	if [[ $MTU -eq $((1500-28)) ]]; then MTU=$MTU
+	elif [[ $MTU -le $((1280+80-28)) ]]; then MTU=$((1280+80-28))
+	else
+		for ((i=0; i<9; i++)); do
+		(( MTU++ ))
+		( [[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1 ) || break
+		done
+		(( MTU-- ))
+	fi
+	
+	MTU=$((MTU+28-80))
+
+	# 修改配置文件
+	sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf
 	echo "$MODIFY" | sh
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
@@ -668,6 +761,9 @@ install(){
 	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/$WB && chmod +x /usr/bin/$WB
 	[[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]] &&
 	wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
+
+	# 优先使用 IPv4 /IPv6 网络
+	stack_priority
 
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
