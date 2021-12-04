@@ -2,7 +2,7 @@
 
 * * *
 ## 更新信息：
-2021.12.04  2.20 更新：IMPORTANT:Reduce installation time by more than 50% through multi-threading; 重大更新：通过多线程，安装 WARP 时间缩短一半以上
+2021.12.04  2.20 更新：IMPORTANT:First in the whole network. Reduce installation time by more than 50% through multi-threading; 重大更新：全网首创，通过多线程，安装 WARP 时间缩短一半以上
 
 2021.11.30  2.11 更新：感谢luoxue-bot原创，唤醒大神告知。 1.Changing Netflix IP is adapted from other authors [luoxue-bot]; 1.更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品
 
