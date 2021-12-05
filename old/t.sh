@@ -9,8 +9,8 @@ reading(){ read -rp "$(green "$1")" "$2"; }
 
 declare -A T
 
-T[E0]=""
-T[C0]=""
+T[E0]="1.English\\\n 2.简体中文\\\n Choose language \(default is 1.English\):"
+T[C0]="${T[E0]}"
 T[E1]="IMPORTANT:First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; " 
 T[C1]="重大更新：全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -265,7 +265,7 @@ T[E126]="Try \$i. IPv\$NF: \$(eval echo \$WAN\$NF)  \$COUNTRY  \$(eval echo \$AS
 T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$(eval echo \$WAN\$NF)  \$COUNTRY  \$(eval echo \$ASNORG\$NF)"
 
 # 选择语言
-[[ -n $1 && $1 != [CcHhDdPpBbVvIi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
+[[ -n $1 && $1 != [CcHhDdPpBbVvIi12] ]] || reading " $(eval echo "${T[${L}0]}") " LANGUAGE
 [[ $LANGUAGE = 2 ]] && L=C || L=E
 
 # 定义三类系统通用的安装指令
