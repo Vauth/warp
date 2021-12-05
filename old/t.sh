@@ -366,8 +366,8 @@ change_ip(){
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
 	ip${NF}_info
-	[[ $LANGUAGE != 2 ]] && WAN=$(eval echo \$WAN$NF) && COUNTRY=$(eval echo \$COUNTRY$NF) && ASNORG=$(eval echo \$ASNORG$NF)
-	[[ $LANGUAGE = 2 ]] && WAN=$(eval echo \$WAN$NF) && COUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)" | cut -d \" -f18 2>/dev/null) && ASNORG=$(eval echo \$ASNORG$NF)
+	[[ $LANGUAGE != 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(eval echo \$COUNTRY$NF)
+	[[ $LANGUAGE = 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)" | cut -d \" -f18 2>/dev/null)
 	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && sleep 60
 	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf
 	done
