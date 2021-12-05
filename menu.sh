@@ -259,10 +259,10 @@ T[E123]="Change the WARP IP to support Netflix"
 T[C123]="更换支持 Netflix 的 IP"
 T[E124]="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging:"
 T[C124]="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
-T[E125]="Region: \$REGION Done. IPv\$NF: \$(eval echo \$WAN\$NF)  \$COUNTRY  \$(eval echo \$ASNORG\$NF).Retest after 60 seconds." 
-T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$(eval echo \$WAN\$NF)  \$COUNTRY  \$(eval echo \$ASNORG\$NF)，60秒后重新测试"
-T[E126]="Try \$i. IPv\$NF: \$(eval echo \$WAN\$NF)  \$COUNTRY  \$(eval echo \$ASNORG\$NF)" 
-T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$(eval echo \$WAN\$NF)  \$COUNTRY  \$(eval echo \$ASNORG\$NF)"
+T[E125]="Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 60 seconds." 
+T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG，60秒后重新测试"
+T[E126]="Try \$i. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG" 
+T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG"
 
 # 选择语言
 [[ -n $1 && $1 != [CcHhDdPpBbVvIi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
@@ -366,7 +366,8 @@ change_ip(){
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
 	ip${NF}_info
-	[[ $LANGUAGE != 2 ]] && COUNTRY=$(eval echo \$COUNTRY$NF) || COUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)" | cut -d \" -f18 2>/dev/null)
+	[[ $LANGUAGE != 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(eval echo \$COUNTRY$NF)
+	[[ $LANGUAGE = 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)" | cut -d \" -f18 2>/dev/null)
 	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && sleep 60
 	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf
 	done
