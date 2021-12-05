@@ -69,8 +69,8 @@ T[E28]="If there is a WARP+ License, please enter it, otherwise press Enter to c
 T[C28]="如有 WARP+ License 请输入，没有可回车继续:"
 T[E29]="Input errors up to 5 times.The script is aborted."
 T[C29]="输入错误达5次，脚本退出"
-T[E30]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. (\$i times remaining):"
-T[C30]="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续(剩余\$i次):"
+T[E30]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\):"
+T[C30]="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续\(剩余\$i次\):"
 T[E31]="LXC VPS choose（default is 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n Choose:"
 T[C31]="LXC方案（默认值选项为 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n 请选择："
 T[E32]="Step 1/3: Install dependencies..."
@@ -115,8 +115,8 @@ T[E51]="Please enter the correct number"
 T[C51]="请输入正确数字"
 T[E52]="Please input WARP+ ID:"
 T[C52]="请输入 WARP+ ID:"
-T[E53]="WARP+ ID should be 36 characters, please re-enter (\$i times remaining):"
-T[C53]="WARP+ ID 应为36位字符，请重新输入 （剩余\$i次）:"
+T[E53]="WARP+ ID should be 36 characters, please re-enter \(\$i times remaining\):"
+T[C53]="WARP+ ID 应为36位字符，请重新输入 \(剩余\$i次\):"
 T[E54]="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen."
 T[C54]="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
 T[E55]="Run [ALIILAPRO] script"
@@ -209,14 +209,14 @@ T[E98]="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:"
 T[C98]="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
 T[E99]="Local Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP \$PROXYCOUNTRY	\$PROXYASNORG"
 T[C99]="本地 Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP \$PROXYCOUNTRY	\$PROXYASNORG"
-T[E100]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. (\$i times remaining): "
-T[C100]="License 应为26位字符,请重新输入 WARP+ License (剩余\$i次): "
+T[E100]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\): "
+T[C100]="License 应为26位字符,请重新输入 WARP+ License \(剩余\$i次\): "
 T[E101]="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C101]="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E102]="Please customize the WARP+ device name (It will automatically generate 6-digit random string if it is blank):"
 T[C102]="请自定义 WARP+ 设备名 (如果不输入，会自动生成随机的6位字符串):"
-T[E103]="Port is in use. Please input another Port(\$i times remaining):"
-T[C103]="端口占用中，请使用另一端口(剩余\$i次):"
+T[E103]="Port is in use. Please input another Port\(\$i times remaining\):"
+T[C103]="端口占用中，请使用另一端口\(剩余\$i次\):"
 T[E104]="Please customize the Client port (It must be 4-5 digits. Default to 40000 if it is blank):"
 T[C104]="请自定义 Client 端口号 (必须为4-5位自然数，如果不输入，会默认40000):"
 T[E105]="Please choose the priority of IPv4 or IPv6 (default 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.Use initial settings\n Choose:"
@@ -231,8 +231,8 @@ T[E109]="Socks5 Proxy Client on IPv4 VPS is working now. You can only choose the
 T[C109]="IPv4 only VPS，并且 Socks5 代理正在运行中，只能选择单栈方案，继续请输入 y，其他按键退出:"
 T[E110]="Socks5 Proxy Client on native dualstack VPS is working now. WARP interface could not be installed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C110]="原生双栈 VPS，并且 Socks5 代理正在运行中。WARP 网络接口不能安装，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
-T[E111]="Port must be 4-5 digits. Please re-input(\$i times remaining):"
-T[C111]="端口必须为4-5位自然数，请重新输入(剩余\$i次):"
+T[E111]="Port must be 4-5 digits. Please re-input\(\$i times remaining\):"
+T[C111]="端口必须为4-5位自然数，请重新输入\(剩余\$i次\):"
 T[E112]="Client is not installed."
 T[C112]="Client 未安装"
 T[E113]="Client is installed and disconnected"
@@ -364,7 +364,7 @@ change_ip(){
 	do (( i++ )) || true
 	RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	[[ $RESULT = 200 ]] && 
-	REGION=$(tr [:lower:] [:upper:] <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
 	ip${NF}_info
 	[[ $LANGUAGE != 2 ]] && COUNTRY=$(eval echo \$COUNTRY$NF) || COUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)" | cut -d \" -f18 2>/dev/null)
@@ -620,7 +620,7 @@ input_license(){
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}30]}") " LICENSE
 		done
-	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
+	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " "${T[${L}102]}" " NAME
 	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}"
 }
 
