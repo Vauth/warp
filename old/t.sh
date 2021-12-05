@@ -700,7 +700,7 @@ install(){
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
-	green " \n$${T[${L}33]}\n "
+	green " \n${T[${L}33]}\n "
 
 	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
 	# 详细说明：<[WireGuard] Header / MTU sizes for Wireguard>：https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
@@ -913,7 +913,7 @@ update(){
 	update_license
 	warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1; sleep 1
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ Limited ]] && green " ${T[${L}62]}\n ${T[${L}63]}：$(($(echo "$ACCOUNT" | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $${T[${L}36]} "
+	[[ $ACCOUNT =~ Limited ]] && green " ${T[${L}62]}\n ${T[${L}63]}：$(($(echo "$ACCOUNT" | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " ${T[${L}36]} "
 	}
 
 	# 根据 WARP interface 和 Client 的安装情况判断升级的对象
