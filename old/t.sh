@@ -323,7 +323,7 @@ input(){
 	until [[ ${#ID} = 36 ]]
 		do
 		(( i-- )) || true
-		[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $T53 " ID
+		[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}53]}") " ID
 	done
 	}
 
@@ -368,8 +368,8 @@ change_ip(){
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
 	ip${NF}_info
 	[[ $LANGUAGE != 2 ]] && COUNTRY=$(eval echo \$COUNTRY$NF) || COUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)" | cut -d \" -f18 2>/dev/null)
-	[[ -n $REGION ]] && green " $T125 " && sleep 60
-	[[ -z $REGION ]] && red " $T126 " && systemctl restart wg-quick@wgcf
+	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && sleep 60
+	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf
 	done
 	}
 
@@ -453,7 +453,7 @@ net(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
 	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}10]} " && exit 1
 	i=1;j=10
-	yellow " $T11\n $T12 "
+	yellow " $(eval echo "${T[${L}11]}")\n $(eval echo "${T[${L}12]}") "
 	[[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && echo "$DOWN" | sh >/dev/null 2>&1
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
 	echo "$UP" | sh >/dev/null 2>&1
@@ -461,13 +461,12 @@ net(){
 	[[ -n $IP4 ]] && ip6_info
 	until [[ -n $IP4 && -n $IP6 ]]
 		do	(( i++ )) || true
-			[[ $LANGUAGE != 2 ]] && T12="Try $i" || T12="第$i次尝试"
-			yellow " $T12 "
+			yellow " $(eval echo "${T[${L}12]}") "
 			echo "$DOWN" | sh >/dev/null 2>&1
 			echo "$UP" | sh >/dev/null 2>&1
 			ip4_info
 			[[ -n $IP4 ]] && ip6_info
-			[[ $i = "$j" ]] && (echo "$DOWN" | sh >/dev/null 2>&1; red " $T13 ") && exit 1
+			[[ $i = "$j" ]] && (echo "$DOWN" | sh >/dev/null 2>&1; red " $(eval echo "${T[${L}13]}") ") && exit 1
         	done
 	green " ${T[${L}14]} "
 	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4" | cut -d \" -f18 2>/dev/null)
@@ -557,7 +556,7 @@ done
 [[ -z $SYSTEM ]] && red " ${T[${L}5]} " && exit 1
 
 for ((i=0; i<${#RELEASE[@]}; i++)); do
-	[[ $SYSTEM = ${RELEASE[i]} ]] && [[ $(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*') -lt "${MAJOR[i]}" ]] && red " ${T[${L}26]} " && exit 1
+	[[ $SYSTEM = ${RELEASE[i]} ]] && [[ $(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*') -lt "${MAJOR[i]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
 done
 
 # 安装 curl
@@ -609,7 +608,7 @@ status(){
 	[[ $PLAN != 3 ]] && green "	${T[${L}116]} "
 	[[ $CLIENT = 0 ]] && green "	${T[${L}112]} "
 	[[ $CLIENT = 2 ]] && green "	${T[${L}113]} "
-	[[ $CLIENT = 3 ]] && green "	WARP$AC ${T[${L}24]}	${T[${L}27]} "
+	[[ $CLIENT = 3 ]] && green "	WARP$AC ${T[${L}24]}	$(eval echo "${T[${L}27]}") "
  	red "\n======================================================================================================================\n"
 	}
 
@@ -619,7 +618,7 @@ input_license(){
 	i=5
 	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
 		do	(( i-- )) || true
-			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " ${T[${L}30]} " LICENSE
+			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}30]}") " LICENSE
 		done
 	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
 	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}"
@@ -631,7 +630,7 @@ update_license(){
 	i=5
 	until [[ ${#LICENSE} = 26 ]]
 		do	(( i-- )) || true
-			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $T100 " LICENSE
+			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}100]}") " LICENSE
 	       done
 	[[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
 	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}"
@@ -639,14 +638,14 @@ update_license(){
 
 # 输入 Linux Client 端口,先检查默认的40000是否被占用,限制4-5位数字,准确匹配空闲端口
 input_port(){
-	ss -nltp | grep -q ':40000'[[:space:]] && reading " $T103 " PORT || reading " ${T[${L}104]} " PORT
+	ss -nltp | grep -q ':40000'[[:space:]] && reading " $(eval echo "${T[${L}103]}") " PORT || reading " ${T[${L}104]} " PORT
 	PORT=${PORT:-40000}
 	i=5
 	until echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && [[ ! $(ss -nltp) =~ :"$PORT"[[:space:]] ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1
-			echo "$PORT" | grep -qvE "^[1-9][0-9]{1,4}$" && reading " $T111 " PORT
-			echo "$PORT" | grep -qE "^[1-9][0-9]{1,4}$" && [[ $(ss -nltp) =~ :"$PORT"[[:space:]] ]] && reading " $T103 " PORT
+			echo "$PORT" | grep -qvE "^[1-9][0-9]{1,4}$" && reading " $(eval echo "${T[${L}111]}") " PORT
+			echo "$PORT" | grep -qE "^[1-9][0-9]{1,4}$" && [[ $(ss -nltp) =~ :"$PORT"[[:space:]] ]] && reading " $(eval echo "${T[${L}103]}") " PORT
 		done
 }
 
@@ -812,7 +811,7 @@ install(){
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地，IPv4 / IPv6 优先级别
 	green " ${T[${L}39]} "
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6
-	[[ $COMPANY = amazon ]] && red " $T40 " && reboot || net
+	[[ $COMPANY = amazon ]] && red " $(eval echo "${T[${L}40]}") " && reboot || net
 	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && T108=${T[${L}106]} || T108=${T[${L}107]}
 
 	# 结果提示，脚本运行时间
@@ -824,9 +823,9 @@ install(){
 	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 $ASNORG6 "
 	[[ $TRACE6 = off || -z $TRACE6 ]] && green " IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	end=$(date +%s)
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $T41 "
-	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $T42 "
-	green " ${T[${L}108]} "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") "
+	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $(eval echo "${T[${L}42]}") "
+	green " $T108 "
 	red "\n==============================================================\n"
 	yellow " ${T[${L}43]}\n " && help
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " ${T[${L}44]} "
@@ -884,8 +883,8 @@ proxy(){
 	# 结果提示，脚本运行时间
 	proxy_info
 	end=$(date +%s)
-	[[ $ACCOUNT =~ Free ]] && green " $T94\n $T99 "
-	[[ $ACCOUNT =~ Limited ]] && green " $T94\n $T99\n ${T[${L}63]}：$QUOTA TB"
+	[[ $ACCOUNT =~ Free ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}") "
+	[[ $ACCOUNT =~ Limited ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}")\n ${T[${L}63]}：$QUOTA TB"
 	red "\n==============================================================\n"
 	yellow " $T43\n " && help
 	}
