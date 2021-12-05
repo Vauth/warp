@@ -332,9 +332,9 @@ plus(){
 	yellow " ${T[${L}54]}\n "
 	green " 1.${T[${L}55]} "
 	green " 2.${T[${L}56]} "
-	[[ -n $PLAN ]] && green " 3.$T49 " || green " 3.$T76 "
+	[[ -n $PLAN ]] && green " 3.${T[${L}49]} " || green " 3.${T[${L}76]} "
 	red "=============================================================="
-	reading " $T50 " CHOOSEPLUS
+	reading " ${T[${L}50]} " CHOOSEPLUS
 	case "$CHOOSEPLUS" in
 		1 ) input
 		    [[ $(type -P git) ]] || ${APTYUM} install git 2>/dev/null
@@ -347,7 +347,7 @@ plus(){
 		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
 		    bash warp_plus.sh "${MISSION//[^0-9]/}";;
 		3 ) [[ -n $PLAN ]] && menu"$PLAN" || exit;;
-		* ) red " $T51 [1-3] "; sleep 1; plus;;
+		* ) red " ${T[${L}51]} [1-3] "; sleep 1; plus;;
 	esac
 	}
 
@@ -397,7 +397,7 @@ bbrInstall(){
 	red "\n=============================================================="
 	yellow " ${T[${L}47]}\n "
 	green " 1.${T[${L}48]} "
-	[[ -n $PLAN ]] && green " 2.${T[${L}49]} " || green " 2.$T76 "
+	[[ -n $PLAN ]] && green " 2.${T[${L}49]} " || green " 2.${T[${L}76]} "
 	red "=============================================================="
 	reading " ${T[${L}50]} " BBR
 	case "$BBR" in
@@ -444,7 +444,7 @@ ver(){
 	chmod +x /etc/wireguard/menu.sh
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp
 	[[ $LANGUAGE != 2 ]] && CUT=-f2 || CUT=-f4
-	green " ${T[${L}64]}:$(grep ^VERSION /etc/wireguard/menu.sh | sed "s/.*=//g")  $T18：$(grep T1= /etc/wireguard/menu.sh | cut -d \" $CUT | head -1) " || red " ${T[${L}65]} "
+	green " ${T[${L}64]}:$(grep ^VERSION /etc/wireguard/menu.sh | sed "s/.*=//g")  ${T[${L}18]}：$(grep T1= /etc/wireguard/menu.sh | cut -d \" $CUT | head -1) " || red " ${T[${L}65]} "
 	exit
 	}
 
@@ -501,7 +501,7 @@ proxy_onoff(){
     [[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " ${T[${L}91]} "  && exit 0
     [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && STATUS=1 && proxy_info
     [[ $LANGUAGE != 2 ]] && T99="Local Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG" || T99="本地 Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG"
-    [[ $STATUS = 1 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && green " ${T[${L}90]}\n $T99 " && exit 0
+    [[ $STATUS = 1 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && green " ${T[${L}90]}\n ${T[${L}99]} " && exit 0
     [[ $STATUS = 1 ]] && [[ $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " ${T[${L}96]} " && exit 1
     }
 
@@ -604,7 +604,7 @@ status(){
 	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
 	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	${T[${L}114]}	${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
-	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	$T115 " 	
+	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	${T[${L}115]} " 	
 	[[ $PLAN != 3 ]] && green "	${T[${L}116]} "
 	[[ $CLIENT = 0 ]] && green "	${T[${L}112]} "
 	[[ $CLIENT = 2 ]] && green "	${T[${L}113]} "
@@ -695,8 +695,8 @@ install(){
 
 	# 如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
-	[[ -n $LICENSE ]] && yellow " \n$T35\n " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 || red " \n$T36\n " )
+	[[ -n $LICENSE ]] && yellow " \n${T[${L}35]}\n " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
+	( wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 || red " \n${T[${L}36]}\n " )
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
@@ -825,7 +825,7 @@ install(){
 	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $(eval echo "${T[${L}42]}") "
-	green " $T108 "
+	green " ${T[${L}108]} "
 	red "\n==============================================================\n"
 	yellow " ${T[${L}43]}\n " && help
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " ${T[${L}44]} "
@@ -878,7 +878,7 @@ proxy(){
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
-	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " $T38 "
+	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " ${T[${L}38]} "
 	
 	# 结果提示，脚本运行时间
 	proxy_info
@@ -886,7 +886,7 @@ proxy(){
 	[[ $ACCOUNT =~ Free ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}") "
 	[[ $ACCOUNT =~ Limited ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}")\n ${T[${L}63]}：$QUOTA TB"
 	red "\n==============================================================\n"
-	yellow " $T43\n " && help
+	yellow " ${T[${L}43]}\n " && help
 	}
 
 # 免费 WARP 账户升级 WARP+ 账户
@@ -904,7 +904,7 @@ update(){
 	echo "$DOWN" | sh >/dev/null 2>&1
 	net
 	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] &&
-	green " $T62\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $T63：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " $T36 "
+	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} "
 	}
 	
 	client_account(){
@@ -913,7 +913,7 @@ update(){
 	update_license
 	warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1; sleep 1
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ Limited ]] && green " $T62\n $T63：$(($(echo "$ACCOUNT" | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $T36 "
+	[[ $ACCOUNT =~ Limited ]] && green " ${T[${L}62]}\n ${T[${L}63]}：$(($(echo "$ACCOUNT" | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " $${T[${L}36]} "
 	}
 
 	# 根据 WARP interface 和 Client 的安装情况判断升级的对象
@@ -924,7 +924,7 @@ update(){
 		case "$MODE" in
 		1 ) wgcf_account; exit 0;;
 		2 ) client_account; exit 0;;
-		* ) red " $T51 [1-2] "; sleep 1; update;;
+		* ) red " ${T[${L}51]} [1-2] "; sleep 1; update;;
 		esac)
 }
 
