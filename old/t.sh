@@ -440,7 +440,7 @@ uninstall(){
 	
 # 同步脚本至最新版本
 ver(){
-	wget -N "$CDN" -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || wget -N "$CDN" -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh
+	wget -N -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || wget -N -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh
 	chmod +x /etc/wireguard/menu.sh
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp
 	[[ $LANGUAGE != 2 ]] && CUT=-f2 || CUT=-f4
