@@ -1,6 +1,9 @@
 #!/bin/bash
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/bin
 
+# 当前脚本版本号和新增功能
+VERSION=2.20
+
 # 自定义字体彩色和 read 函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
 green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
@@ -260,9 +263,9 @@ T[C123]="更换支持 Netflix 的 IP"
 T[E124]="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging:"
 T[C124]="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
 T[E125]="Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 60 seconds." 
-T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG，60秒后重新测试"
-T[E126]="Try \$i. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG" 
-T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG"
+T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG, 60秒后重新测试"
+T[E126]="Try \$i. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 2 seconds." 
+T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG, 2秒后重新测试"
 
 # 选择语言
 [[ -n $1 && $1 != [CcHhDdPpBbVvIi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
@@ -270,10 +273,6 @@ T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG"
 
 # 定义三类系统通用的安装指令
 type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
-
-# 当前脚本版本号和新增功能
-VERSION=2.20
-TXT="${T[${L}1]}"
 
 # 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关； p=刷 WARP+ 流量; 其他或空值=菜单界面
 OPTION=$1
@@ -345,7 +344,7 @@ plus(){
 		    wget --no-check-certificate "$CDN" -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
 		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
 		    bash warp_plus.sh "${MISSION//[^0-9]/}";;
-		3 ) [[ -n $PLAN ]] && menu"$PLAN" || exit;;
+		3 ) [[ -n $PLAN ]] && menu "$PLAN" || exit;;
 		* ) red " ${T[${L}51]} [1-3] "; sleep 1; plus;;
 	esac
 	}
@@ -353,7 +352,7 @@ plus(){
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
 	yellow " ${T[${L}121]} "
-	[[ -z $(wg) ]] && red " ${T[${L}122]} " && exit
+	[[ -z $(wg 2>/dev/null)  ]] && red " ${T[${L}122]} " && exit
 	[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " ${T[${L}124]} " NETFLIX || NF=4
 	[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
@@ -369,7 +368,7 @@ change_ip(){
 	[[ $LANGUAGE != 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(eval echo \$COUNTRY$NF)
 	[[ $LANGUAGE = 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)" | cut -d \" -f18 2>/dev/null)
 	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && sleep 60
-	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf
+	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf && sleep 2
 	done
 	}
 
@@ -402,7 +401,7 @@ bbrInstall(){
 	reading " ${T[${L}50]} " BBR
 	case "$BBR" in
 		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-		2 ) [[ -n $PLAN ]] && menu"$PLAN" || exit;;
+		2 ) [[ -n $PLAN ]] && menu "$PLAN" || exit;;
 		* ) red " ${T[${L}51]} [1-2]"; sleep 1; bbrInstall;;
 	esac
 	}
@@ -484,8 +483,7 @@ proxy_info(){
 	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
 	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
 	PROXYJASON=$(curl -s4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
-	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([
-	"]*\).*')
+	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
 	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
 	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$PROXYCOUNTRY" | cut -d \" -f18 2>/dev/null)
 	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
@@ -593,25 +591,6 @@ MODIFYD01='sed -i "7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n
 MODIFYS10='sed -i "/0\.\0\/0/d;s/engage.cloudflareclient.com/162.159.192.1/g;s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 MODIFYD10='sed -i "7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.192.1/g;s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
 MODIFYD11='sed -i "7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/1.1.1.1/9.9.9.9,8.8.8.8,1.1.1.1/g" wgcf-profile.conf'
-
-# VPS 当前状态
-status(){
-	clear
-	yellow " ${T[${L}16]} "
-	red "======================================================================================================================\n"
-	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：$TXT\n ${T[${L}19]}：\n	${T[${L}20]}：$SYS\n	${T[${L}21]}：$(uname -r)\n	${T[${L}22]}：$ARCHITECTURE\n	${T[${L}23]}：$VIRT "
-	[[ $TRACE4 = plus || $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP$PLUS4 IPv4 ) $COUNTRY4  $ASNORG4 "
-	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
-	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
-	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	${T[${L}114]}	${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
-	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	${T[${L}115]} " 	
-	[[ $PLAN != 3 ]] && green "	${T[${L}116]} "
-	[[ $CLIENT = 0 ]] && green "	${T[${L}112]} "
-	[[ $CLIENT = 2 ]] && green "	${T[${L}113]} "
-	[[ $CLIENT = 3 ]] && green "	WARP$AC ${T[${L}24]}	$(eval echo "${T[${L}27]}") "
- 	red "\n======================================================================================================================\n"
-	}
 
 # 输入 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
 input_license(){
@@ -930,87 +909,52 @@ update(){
 }
 
 # 单栈
-menu1(){
-	status
-	[[ $IPV4$IPV6 = 01 ]] && green " 1. ${T[${L}66]} " || green " 1. ${T[${L}67]} "
-	[[ $IPV4$IPV6 = 01 ]] && green " 2. ${T[${L}68]} " || green " 2. ${T[${L}69]} "
-  	green " 3. ${T[${L}71]} "
-	green " 4. ${T[${L}72]} "
-	green " 5. ${T[${L}73]} "
-	green " 6. ${T[${L}74]} "
-	green " 7. ${T[${L}75]} "
-	[[ $CLIENT = 3 ]] && green " 8. ${T[${L}89]} "
-	[[ $CLIENT = 2 ]] && green " 8. ${T[${L}88]} "
-	[[ $CLIENT != 2 && $CLIENT != 3 ]] && green " 8. ${T[${L}82]} "
-	green " 0. ${T[${L}76]} \n "
+menu(){
+	if [[ $1 != 3 ]]; then
+		case $IPV4$IPV6 in
+		01 ) OPTION1=${T[${L}66]} && OPTION2=${T[${L}68]} && OPTION3=${T[${L}71]};;
+		10 ) OPTION1=${T[${L}67]} && OPTION2=${T[${L}69]} && OPTION3=${T[${L}71]};;
+		11 ) OPTION1=${T[${L}70]} && OPTION2=${T[${L}70]} && OPTION3=${T[${L}71]};;	
+	esac
+	else	OPTION1=${T[${L}77]} && OPTION2=${T[${L}78]} && OPTION3=${T[${L}123]}
+	fi
+	
+	case $CLIENT in
+	2 )	OPTION4=${T[${L}88]};; 3 ) OPTION4=${T[${L}89]};; * ) OPTION4=${T[${L}82]};;
+	esac
+	
+	clear
+	yellow " ${T[${L}16]} "
+	red "======================================================================================================================\n"
+	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}：\n	${T[${L}20]}：$SYS\n	${T[${L}21]}：$(uname -r)\n	${T[${L}22]}：$ARCHITECTURE\n	${T[${L}23]}：$VIRT "
+	[[ $TRACE4 = plus || $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP$PLUS4 IPv4 ) $COUNTRY4  $ASNORG4 "
+	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
+	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
+	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	${T[${L}114]}	${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
+	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	${T[${L}115]} " 	
+	[[ $PLAN != 3 ]] && green "	${T[${L}116]} "
+	[[ $CLIENT = 0 ]] && green "	${T[${L}112]} "
+	[[ $CLIENT = 2 ]] && green "	${T[${L}113]} "
+	[[ $CLIENT = 3 ]] && green "	WARP$AC ${T[${L}24]}	$(eval echo "${T[${L}27]}") "
+ 	red "\n======================================================================================================================\n"
+	green " 1. $OPTION1\n 2. $OPTION2\n 3. $OPTION3\n 4. $OPTION4\n 5. ${T[${L}72]}\n 6. ${T[${L}73]}\n 7. ${T[${L}74]}\n 8. ${T[${L}75]}\n 0. ${T[${L}76]}\n "
 	reading " ${T[${L}50]} " CHOOSE1
 		case "$CHOOSE1" in
-		1 )	MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6);	install;;
-		2 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		3 )	OPTION=o; net;;
-		4 )	uninstall;;
-		5 )	bbrInstall;;
-		6 )	plus;;
-		7 )	ver;;
-		8 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
+		1 )	[[ $OPTION1 = ${T[${L}66]} || $OPTION1 = ${T[${L}67]} ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6) && install
+			[[ $OPTION1 = ${T[${L}70]} ]] && MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6) && install
+			[[ $OPTION1 = ${T[${L}77]} ]] && onoff;;
+		2 )	[[ $OPTION2 = ${T[${L}68]} || OPTION2=${T[${L}69]} || $OPTION2 = ${T[${L}70]} ]] && MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6) && install
+			[[ $OPTION2 = ${T[${L}78]} ]] && update;;
+		3 )	[[ $OPTION3 = ${T[${L}71]} ]] && OPTION=o; net
+			[[ $OPTION3 = ${T[${L}123]} ]] && change_ip;;
+		4 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
+		5 )	uninstall;;
+		6 )	bbrInstall;;
+		7 )	plus;;
+		8 )	ver;;
 		0 )	exit;;
-		* )	red " ${T[${L}51]} [0-8] "; sleep 1; menu1;;
-		esac
-	}
-
-# 双栈
-menu2(){ 
-	status
-	green " 1. ${T[${L}70]} "
-	green " 2. ${T[${L}71]} "
-	green " 3. ${T[${L}72]} "
-	green " 4. ${T[${L}73]} "
-	green " 5. ${T[${L}74]} "
-	green " 6. ${T[${L}75]} "
-	[[ $CLIENT = 3 ]] && green " 7. ${T[${L}89]} "
-	[[ $CLIENT = 2 ]] && green " 7. ${T[${L}88]} "
-	[[ $CLIENT != 2 && $CLIENT != 3 ]] && green " 7. ${T[${L}82]} "
-	green " 0. ${T[${L}76]} \n "
-	reading " ${T[${L}50]} " CHOOSE2
-		case "$CHOOSE2" in
-		1 )	MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6);	install;;
-		2 )	OPTION=o; net;;
-		3 )	uninstall;;
-		4 )	bbrInstall;;
-		5 )	plus;;
-		6 )	ver;;
-		7 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
-		0 )	exit;;
-		* )	red " ${T[${L}51]} [0-7] "; sleep 1; menu2;;
-		esac
-	}
-
-# 已开启 warp 网络接口
-menu3(){ 
-	status
-	green " 1. ${T[${L}77]} "
-	green " 2. ${T[${L}72]} "
-	green " 3. ${T[${L}73]} "
-	green " 4. ${T[${L}74]} "
-	green " 5. ${T[${L}78]} "
-	green " 6. ${T[${L}75]} "
-	[[ $CLIENT = 3 ]] && green " 7. ${T[${L}89]} "
-	[[ $CLIENT = 2 ]] && green " 7. ${T[${L}88]} "
-	[[ $CLIENT != 2 && $CLIENT != 3 ]] && green " 7. ${T[${L}82]} "
-	green " 8. ${T[${L}123]} "
-	green " 0. ${T[${L}76]} \n "
-	reading " ${T[${L}50]} " CHOOSE3
-        case "$CHOOSE3" in
-		1 )	onoff;;
-		2 )	uninstall;;
-		3 )	bbrInstall;;
-		4 )	plus;;
-		5 )	update;;
-		6 )	ver;;
-		7 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
-		8 )	change_ip;;
-		0 )	exit;;
-		* )	red " ${T[${L}51]} [0-7] "; sleep 1; menu3;;
+		* )	red " ${T[${L}51]} [0-8] "; sleep 1; [[ $CLIENT -gt 2 ]] && menu 3 || menu $PLAN;;
 		esac
 	}
 
@@ -1038,5 +982,5 @@ case "$OPTION" in
 
 [Cc] )	[[ $CLIENT = 3 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
 [Dd] )	update;;
-* )	[[ $CLIENT -gt 2 ]] && menu3 || menu$PLAN;;
+* )	[[ $CLIENT -gt 2 ]] && menu 3 || menu "$PLAN";;
 esac
