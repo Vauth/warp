@@ -4,11 +4,12 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/b
 # 当前脚本版本号和新增功能
 VERSION=2.20
 
-# 自定义字体彩色和 read 函数
+# 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
 green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
 yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
+translate(){ curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
 
 declare -A T
 
@@ -80,8 +81,8 @@ T[E32]="Step 1/3: Install dependencies..."
 T[C32]="进度 1/3：安装系统依赖……"
 T[E33]="Step 2/3: WGCF is ready"
 T[C33]="进度 2/3：已安装 WGCF"
-T[E34]=""
-T[C34]=""
+T[E34]="This system is a native dualstack. You can only choose the WARP dualstack. Same options as 1"
+T[C34]="此系统为原生双栈，只能选择 Warp 双栈方案，选项与 1 相同"
 T[E35]="Update WARP+ account..."
 T[C35]="升级 WARP+ 账户中……"
 T[E36]="The upgrade failed, WARP+ account error or more than 5 devices have been activated. Free WARP account to continu."
@@ -210,8 +211,8 @@ T[E97]="It is a WARP+ account already. Update is aborted."
 T[C97]="已经是 WARP+ 账户，不需要升级"
 T[E98]="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:"
 T[C98]="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
-T[E99]="Local Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP \$PROXYCOUNTRY	\$PROXYASNORG"
-T[C99]="本地 Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP \$PROXYCOUNTRY	\$PROXYASNORG"
+T[E99]="Local Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP  \$PROXYCOUNTRY  \$PROXYASNORG"
+T[C99]="本地 Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP  \$PROXYCOUNTRY  \$PROXYASNORG"
 T[E100]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\): "
 T[C100]="License 应为26位字符,请重新输入 WARP+ License \(剩余\$i次\): "
 T[E101]="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -263,9 +264,9 @@ T[C123]="更换支持 Netflix 的 IP"
 T[E124]="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging:"
 T[C124]="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
 T[E125]="Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 60 seconds." 
-T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG, 60秒后重新测试"
+T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 60秒后重新测试"
 T[E126]="Try \$i. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 2 seconds." 
-T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG, 2秒后重新测试"
+T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 2秒后重新测试"
 
 # 选择语言
 [[ -n $1 && $1 != [CcHhDdPpBbVvIi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
@@ -366,7 +367,7 @@ change_ip(){
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
 	ip${NF}_info
 	[[ $LANGUAGE != 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(eval echo \$COUNTRY$NF)
-	[[ $LANGUAGE = 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$(eval echo \$COUNTRY$NF)" | cut -d \" -f18 2>/dev/null)
+	[[ $LANGUAGE = 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)")
 	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && sleep 60
 	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf && sleep 2
 	done
@@ -432,8 +433,8 @@ uninstall(){
 	[[ $(type -P warp-cli) ]] && (uninstall_proxy; green " ${T[${L}119]} ")
 
 	# 显示卸载结果
-	ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4" | cut -d \" -f18 2>/dev/null)
-	ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6" | cut -d \" -f18 2>/dev/null)
+	ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
+	ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(translate "$COUNTRY6")
 	green " ${T[${L}45]}\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 	
@@ -468,8 +469,8 @@ net(){
 			[[ $i = "$j" ]] && (echo "$DOWN" | sh >/dev/null 2>&1; red " $(eval echo "${T[${L}13]}") ") && exit 1
         	done
 	green " ${T[${L}14]} "
-	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4" | cut -d \" -f18 2>/dev/null)
-	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6" | cut -d \" -f18 2>/dev/null)
+	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
+	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(translate "$COUNTRY6")
 	[[ $OPTION = [OoNn] ]] && green " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
@@ -485,7 +486,7 @@ proxy_info(){
 	PROXYJASON=$(curl -s4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
 	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
 	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
-	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$PROXYCOUNTRY" | cut -d \" -f18 2>/dev/null)
+	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
 	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
@@ -566,8 +567,8 @@ type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${APTYUM} install cur
 [[ $(arch | tr '[:upper:]' '[:lower:]') =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
-[[ $IPV4 = 1 ]] && ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY4" | cut -d \" -f18 2>/dev/null)
-[[ $IPV6 = 1 ]] && ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$COUNTRY6" | cut -d \" -f18 2>/dev/null)
+[[ $IPV4 = 1 ]] && ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
+[[ $IPV6 = 1 ]] && ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(translate "$COUNTRY6")
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
@@ -914,7 +915,7 @@ menu(){
 		case $IPV4$IPV6 in
 		01 ) OPTION1=${T[${L}66]} && OPTION2=${T[${L}68]} && OPTION3=${T[${L}71]};;
 		10 ) OPTION1=${T[${L}67]} && OPTION2=${T[${L}69]} && OPTION3=${T[${L}71]};;
-		11 ) OPTION1=${T[${L}70]} && OPTION2=${T[${L}70]} && OPTION3=${T[${L}71]};;	
+		11 ) OPTION1=${T[${L}70]} && OPTION2=${T[${L}34]} && OPTION3=${T[${L}71]};;	
 	esac
 	else	OPTION1=${T[${L}77]} && OPTION2=${T[${L}78]} && OPTION3=${T[${L}123]}
 	fi
