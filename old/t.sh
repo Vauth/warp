@@ -284,7 +284,7 @@ LICENSE=$2
 # 自定义 WARP+ 设备名
 NAME=$3
 
-# 自定义 IP信息 函数
+# 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
 	IP4=$(curl -s4m7 https://ip.gs/json)
 	LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+')
@@ -301,6 +301,19 @@ ip6_info(){
 	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
 	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE6=$(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
+	}
+
+# 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
+proxy_info(){
+	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
+	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
+	PROXYJASON=$(curl -s4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
+	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
+	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
+	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
+	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
+	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
 	}
 
 # IPv4 / IPv6 优先选项
@@ -479,19 +492,6 @@ onoff(){
 	[[ -n $(wg 2>/dev/null) ]] && (echo "$DOWN" | sh >/dev/null 2>&1; green " ${T[${L}15]} ") || net
 	}
 
-# 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
-proxy_info(){
-	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
-	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
-	PROXYJASON=$(curl -s4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
-	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
-	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
-	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
-	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
-	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
-	}
-
 # PROXY 开关
 proxy_onoff(){
     PROXY=$(warp-cli --accept-tos status 2>/dev/null)
@@ -578,10 +578,7 @@ type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${APTYUM} install cur
 # 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义：0=未安装  1=已安装未激活  2=状态激活  3=Clinet 已开启
 [[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
 [[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
-[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3
-if [[ $CLIENT = 3 ]]; then
-	proxy_info
-fi
+[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3 && proxy_info
 
 # 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
 [[ $LXC != 1 && $(($(uname -r | cut -d . -f1) * 100 +  $(uname -r | cut -d . -f2))) -lt 506 ]] && WG=1
@@ -909,7 +906,7 @@ update(){
 		esac)
 }
 
-# 单栈
+# 显示菜单
 menu(){
 	if [[ $1 != 3 ]]; then
 		case $IPV4$IPV6 in
