@@ -5,9 +5,9 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/b
 VERSION=2.20
 
 # 自定义字体彩色，read 函数，友道翻译函数
-red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
-green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
-yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
+red(){ echo -e "\033[31m\033[01m$1\033[0m" | column -s '|' -t ; }
+green(){ echo -e "\033[32m\033[01m$1\033[0m" | column -s '|' -t; }
+yellow(){ echo -e "\033[33m\033[01m$1\033[0m" | column -s '|' -t; }
 reading(){ read -rp "$(green "$1")" "$2"; }
 translate(){ curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
 
@@ -924,12 +924,12 @@ menu(){
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
-	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}："
-	green " ${T[${L}20]}：$SYS\c ";	yellow "			▗▄ ▝▜            ▐ ▗▄▄▖▝▜               "
-	green " ${T[${L}21]}：$(uname -r)\c ";	yellow "			▘ ▘ ▐   ▄▖ ▗ ▗  ▄▟ ▐    ▐   ▄▖  ▖▄  ▄▖  "
-	green " ${T[${L}22]}：$ARCHITECTURE\c ";	yellow "			▐    ▐  ▐▘▜ ▐ ▐ ▐▘▜ ▐▄▄▖ ▐  ▝ ▐  ▛ ▘▐▘▐  "
-	green " ${T[${L}23]}：$VIRT\c ";	yellow "			▐    ▐  ▐ ▐ ▐ ▐ ▐ ▐ ▐    ▐  ▗▀▜  ▌  ▐▀▀  "
-	yellow "  								▚▄▘ ▝▄ ▝▙▛ ▝▄▜ ▝▙█ ▐    ▝▄ ▝▄▜  ▌  ▝▙▞  "
+	green " ${T[${L}17]}|：|$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}："
+	green " ${T[${L}20]}|：|$SYS\c "; yellow "| ▗▄ ▝▜            ▐ ▗▄▄▖▝▜              "
+	green " ${T[${L}21]}|：|$(uname -r)\c ";	yellow "|▗▘ ▘ ▐   ▄▖ ▗ ▗  ▄▟ ▐    ▐   ▄▖  ▖▄  ▄▖ "
+	green " ${T[${L}22]}|：|$ARCHITECTURE\c "; yellow "|▐    ▐  ▐▘▜ ▐ ▐ ▐▘▜ ▐▄▄▖ ▐  ▝ ▐  ▛ ▘▐▘▐ "
+	green " ${T[${L}23]}|：|$VIRT\c "; yellow "|▐    ▐  ▐ ▐ ▐ ▐ ▐ ▐ ▐    ▐  ▗▀▜  ▌  ▐▀▀ "
+	yellow "||| ▚▄▘ ▝▄ ▝▙▛ ▝▄▜ ▝▙█ ▐    ▝▄ ▝▄▜  ▌  ▝▙▞ "
 	[[ $TRACE4 = plus || $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP$PLUS4 IPv4 ) $COUNTRY4  $ASNORG4 "
 	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
 	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
