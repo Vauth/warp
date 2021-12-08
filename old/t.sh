@@ -791,7 +791,7 @@ install(){
 	green " ${T[${L}39]} "
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6
 	[[ $COMPANY = amazon ]] && red " $(eval echo "${T[${L}40]}") " && reboot || net
-	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && T108=${T[${L}106]} || T108=${T[${L}107]}
+	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && PRIORITY=${T[${L}106]} || PRIORITY=${T[${L}107]}
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
@@ -804,7 +804,7 @@ install(){
 	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $(eval echo "${T[${L}42]}") "
-	green " ${T[${L}108]} "
+	green " $PRIORRITY "
 	red "\n==============================================================\n"
 	yellow " ${T[${L}43]}\n " && help
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " ${T[${L}44]} "
