@@ -11,6 +11,13 @@ yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
 translate(){ curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
 
+# 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关； p=刷 WARP+ 流量; 其他或空值=菜单界面
+OPTION=$(tr '[:upper:]' '[:lower:]' <<< $1)
+# 参数选项 LICENSE
+LICENSE=$2
+# 自定义 WARP+ 设备名
+NAME=$3
+
 declare -A T
 
 T[E0]=""
@@ -269,20 +276,11 @@ T[E126]="Try \$i. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 2 seconds."
 T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 2秒后重新测试"
 
 # 选择语言
-[[ -n $1 && $1 != [CcHhDdPpBbVvIi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
+[[ -n $1 && $1 != [chdpbvi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
 [[ $LANGUAGE = 2 ]] && L=C || L=E
 
 # 定义三类系统通用的安装指令
 type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
-
-# 参数选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关； p=刷 WARP+ 流量; 其他或空值=菜单界面
-OPTION=$1
-
-# 参数选项 LICENSE
-LICENSE=$2
-
-# 自定义 WARP+ 设备名
-NAME=$3
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
@@ -388,9 +386,9 @@ change_ip(){
 
 # 设置部分后缀 1/3
 case "$OPTION" in
-[Hh] )	help; exit 0;;
-[Pp] )	plus; exit 0;;
-[Ii] )	change_ip; exit 0;;
+h ) help; exit 0;;
+p ) plus; exit 0;;
+i ) change_ip; exit 0;;
 esac
 
 green " ${T[${L}37]} "
@@ -507,12 +505,12 @@ proxy_onoff(){
 
 # 设置部分后缀 2/3
 case "$OPTION" in
-[Bb] )	bbrInstall; exit 0;;
-[Uu] )	uninstall; exit 0;;
-[Vv] )	ver; exit 0;;
-[Nn] )	net; exit 0;;
-[Oo] )	onoff; exit 0;;
-[Rr] )	proxy_onoff; exit 0;;
+b ) bbrInstall; exit 0;;
+u ) uninstall; exit 0;;
+v ) ver; exit 0;;
+n ) net; exit 0;;
+o ) onoff; exit 0;;
+r ) proxy_onoff; exit 0;;
 esac
 
 # 必须加载 TUN 模块
@@ -679,11 +677,9 @@ install(){
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
 	green " \n${T[${L}33]}\n "
-	}&
 
 	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
 	# 详细说明：<[WireGuard] Header / MTU sizes for Wireguard>：https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
-	mtu_value(){
 	MTU=$((1500-28))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
 	until [[ $? = 0 || $MTU -le $((1280+80-28)) ]]
@@ -702,10 +698,12 @@ install(){
 		(( MTU-- ))
 	fi
 
-	MTU=$((MTU+28-80)); echo "$MTU"
-	}
-	MTU=$(mtu_value 2>&1 &)
-	
+	MTU=$((MTU+28-80))
+
+	[[ -e wgcf-profile.conf ]] && sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf && green " \n${T[${L}81]}\n "
+
+	}&
+
 	# 对于 IPv4 only VPS 开启 IPv6 支持
 	# 感谢 P3terx 大神项目这块的技术指导。项目:https://github.com/P3TERX/warp.sh/blob/main/warp.sh
     	{
@@ -765,7 +763,6 @@ install(){
 	$SYSTEM
 
 	wait
-	[[ -e wgcf-profile.conf ]] && sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf && green " \n${T[${L}81]}\n "
 
 	echo "$MODIFY" | sh
 	
@@ -804,7 +801,7 @@ install(){
 	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $(eval echo "${T[${L}42]}") "
-	green " $PRIORRITY "
+	green " $PRIORITY "
 	red "\n==============================================================\n"
 	yellow " ${T[${L}43]}\n " && help
 	[[ $TRACE4 = off && $TRACE6 = off ]] && red " ${T[${L}44]} "
@@ -979,7 +976,7 @@ case "$OPTION" in
 	fi
 	install;;
 
-[Cc] )	[[ $CLIENT = 3 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
-[Dd] )	update;;
+c )	[[ $CLIENT = 3 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
+d )	update;;
 * )	[[ $CLIENT -gt 2 ]] && menu 3 || menu "$PLAN";;
 esac
