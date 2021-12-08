@@ -276,7 +276,7 @@ T[E126]="Try \$i. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 2 seconds."
 T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 2秒后重新测试"
 
 # 选择语言
-[[ -n $1 && $OPTION != [chdpbvi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
+[[ -n $OPTION && $OPTION != [chdpbvi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
 [[ $LANGUAGE = 2 ]] && L=C || L=E
 
 # 定义三类系统通用的安装指令
