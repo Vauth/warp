@@ -5,9 +5,9 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/b
 VERSION=2.20
 
 # 自定义字体彩色，read 函数，友道翻译函数
-red(){ echo -e "\033[31m\033[01m$1\033[0m" | column -s '|' -t ; }
-green(){ echo -e "\033[32m\033[01m$1\033[0m" | column -s '|' -t; }
-yellow(){ echo -e "\033[33m\033[01m$1\033[0m" | column -s '|' -t; }
+red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
+green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
+yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
 translate(){ curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
 
@@ -679,9 +679,11 @@ install(){
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
 	green " \n${T[${L}33]}\n "
+	}&
 
 	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
 	# 详细说明：<[WireGuard] Header / MTU sizes for Wireguard>：https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
+	mtu_value(){
 	MTU=$((1500-28))
 	[[ $IPV4$IPV6 = 01 ]] && ping6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.192.1 >/dev/null 2>&1
 	until [[ $? = 0 || $MTU -le $((1280+80-28)) ]]
@@ -700,12 +702,10 @@ install(){
 		(( MTU-- ))
 	fi
 
-	MTU=$((MTU+28-80))
-
-	[[ -e wgcf-profile.conf ]] && sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf && green " \n${T[${L}81]}\n "
-
-	}&
-
+	MTU=$((MTU+28-80)); echo "$MTU"
+	}
+	MTU=$(mtu_value 2>&1 &)
+	
 	# 对于 IPv4 only VPS 开启 IPv6 支持
 	# 感谢 P3terx 大神项目这块的技术指导。项目:https://github.com/P3TERX/warp.sh/blob/main/warp.sh
     	{
@@ -765,6 +765,7 @@ install(){
 	$SYSTEM
 
 	wait
+	[[ -e wgcf-profile.conf ]] && sed -i "s/MTU.*/MTU = $MTU/g" wgcf-profile.conf && green " \n${T[${L}81]}\n "
 
 	echo "$MODIFY" | sh
 	
@@ -924,12 +925,7 @@ menu(){
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
-	green " ${T[${L}17]}|：|$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}："
-	green " ${T[${L}20]}|：|$SYS\c "; yellow "| ▗▄ ▝▜            ▐ ▗▄▄▖▝▜              "
-	green " ${T[${L}21]}|：|$(uname -r)\c ";	yellow "|▗▘ ▘ ▐   ▄▖ ▗ ▗  ▄▟ ▐    ▐   ▄▖  ▖▄  ▄▖ "
-	green " ${T[${L}22]}|：|$ARCHITECTURE\c "; yellow "|▐    ▐  ▐▘▜ ▐ ▐ ▐▘▜ ▐▄▄▖ ▐  ▝ ▐  ▛ ▘▐▘▐ "
-	green " ${T[${L}23]}|：|$VIRT\c "; yellow "|▐    ▐  ▐ ▐ ▐ ▐ ▐ ▐ ▐    ▐  ▗▀▜  ▌  ▐▀▀ "
-	yellow "||| ▚▄▘ ▝▄ ▝▙▛ ▝▄▜ ▝▙█ ▐    ▝▄ ▝▄▜  ▌  ▝▙▞ "
+	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}：\n	${T[${L}20]}：$SYS\n	${T[${L}21]}：$(uname -r)\n	${T[${L}22]}：$ARCHITECTURE\n	${T[${L}23]}：$VIRT "
 	[[ $TRACE4 = plus || $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP$PLUS4 IPv4 ) $COUNTRY4  $ASNORG4 "
 	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
 	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
