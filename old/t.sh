@@ -821,7 +821,7 @@ proxy(){
 		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
 		[[ $ACCOUNT =~ Limited ]] && green " ${T[${L}62]} " ||
 		red " ${T[${L}36]} " )
-		[[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " ${T[${L}87]} " && exit 1 || green " $(eval echo "${T[${L}86]}") "
+		sleep 2 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " ${T[${L}87]} " && exit 1 || green " $(eval echo "${T[${L}86]}") "
 		}
 	
 	[[ $ARCHITECTURE = arm64 ]] && red " ${T[${L}101]} " && exit 1
