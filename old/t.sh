@@ -924,7 +924,12 @@ menu(){
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
-	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}：\n	${T[${L}20]}：$SYS\n	${T[${L}21]}：$(uname -r)\n	${T[${L}22]}：$ARCHITECTURE\n	${T[${L}23]}：$VIRT "
+	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}："
+	green " ${T[${L}20]}：$SYS\c ";	yellow "			▗▄ ▝▜            ▐ ▗▄▄▖▝▜               "
+	green " ${T[${L}21]}：$(uname -r)\c ";	yellow "			▘ ▘ ▐   ▄▖ ▗ ▗  ▄▟ ▐    ▐   ▄▖  ▖▄  ▄▖  "
+	green " ${T[${L}22]}：$ARCHITECTURE\c ";	yellow "			▐    ▐  ▐▘▜ ▐ ▐ ▐▘▜ ▐▄▄▖ ▐  ▝ ▐  ▛ ▘▐▘▐  "
+	green " ${T[${L}23]}：$VIRT\c ";	yellow "			▐    ▐  ▐ ▐ ▐ ▐ ▐ ▐ ▐    ▐  ▗▀▜  ▌  ▐▀▀  "
+	yellow "  								▚▄▘ ▝▄ ▝▙▛ ▝▄▜ ▝▙█ ▐    ▝▄ ▝▄▜  ▌  ▝▙▞  "
 	[[ $TRACE4 = plus || $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP$PLUS4 IPv4 ) $COUNTRY4  $ASNORG4 "
 	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
 	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
