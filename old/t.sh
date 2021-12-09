@@ -20,7 +20,7 @@ NAME=$3
 
 declare -A T
 
-T[E0]="Language:\n  1.English (default) \n  2.简体中文"
+T[E0]="Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
 T[E1]="IMPORTANT:First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; " 
 T[C1]="重大更新：全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了"
