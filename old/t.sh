@@ -20,8 +20,8 @@ NAME=$3
 
 declare -A T
 
-T[E0]=""
-T[C0]=""
+T[E0]="Language:\n 1.English (default) \n 2.简体中文"
+T[C0]="${T[E0]}"
 T[E1]="IMPORTANT:First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; " 
 T[C1]="重大更新：全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -82,8 +82,8 @@ T[E29]="Input errors up to 5 times.The script is aborted."
 T[C29]="输入错误达5次，脚本退出"
 T[E30]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\):"
 T[C30]="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续\(剩余\$i次\):"
-T[E31]="LXC VPS choose（default is 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n Choose:"
-T[C31]="LXC方案（默认值选项为 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n 请选择："
+T[E31]="LXC VPS choose（default is 1. Wireguard-GO):\n 1. Wireguard-GO (default)\n 2. BoringTun\n"
+T[C31]="LXC方案:\n 1. Wireguard-GO (默认)\n 2. BoringTun\n"
 T[E32]="Step 1/3: Install dependencies..."
 T[C32]="进度 1/3：安装系统依赖……"
 T[E33]="Step 2/3: WGCF is ready"
@@ -120,8 +120,8 @@ T[E48]="Run script"
 T[C48]="安装脚本【推荐原版BBR+FQ】"
 T[E49]="Return to main menu"
 T[C49]="回退主目录"
-T[E50]="Choose:"
-T[C50]="请选择:"
+T[E50]="\nChoose:"
+T[C50]="\n请选择:"
 T[E51]="Please enter the correct number"
 T[C51]="请输入正确数字"
 T[E52]="Please input WARP+ ID:"
@@ -216,8 +216,8 @@ T[E96]="Client connecting failure. It may be a CloudFlare IPv4."
 T[C96]="Client 连接失败，可能是 CloudFlare IPv4."
 T[E97]="It is a WARP+ account already. Update is aborted."
 T[C97]="已经是 WARP+ 账户，不需要升级"
-T[E98]="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:"
-T[C98]="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
+T[E98]="1. WGCF WARP account\n 2. WARP Linux Client account\n"
+T[C98]="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n"
 T[E99]="Local Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP  \$PROXYCOUNTRY  \$PROXYASNORG"
 T[C99]="本地 Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP  \$PROXYCOUNTRY  \$PROXYASNORG"
 T[E100]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\): "
@@ -230,8 +230,8 @@ T[E103]="Port is in use. Please input another Port\(\$i times remaining\):"
 T[C103]="端口占用中，请使用另一端口\(剩余\$i次\):"
 T[E104]="Please customize the Client port (It must be 4-5 digits. Default to 40000 if it is blank):"
 T[C104]="请自定义 Client 端口号 (必须为4-5位自然数，如果不输入，会默认40000):"
-T[E105]="Please choose the priority of IPv4 or IPv6 (default 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.Use initial settings\n Choose:"
-T[C105]="请选择优先级别 (默认 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.使用 VPS 初始设置\n 请选择:"
+T[E105]="Please choose the priority of IPv4 or IPv6:\n 1.IPv4 (default)\n 2.IPv6\n 3.Use initial settings\n"
+T[C105]="请选择优先级别:\n 1.IPv4 (默认)\n 2.IPv6\n 3.使用 VPS 初始设置\n"
 T[E106]="IPv6 priority"
 T[C106]="IPv6 优先"
 T[E107]="IPv4 priority"
@@ -276,7 +276,7 @@ T[E126]="Try \$i. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 3 seconds."
 T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 3秒后重新测试"
 
 # 选择语言
-[[ -n $OPTION && $OPTION != [chdpbvi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
+[[ -z $OPTION || $OPTION = [chdpbvi12] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE
 [[ $LANGUAGE = 2 ]] && L=C || L=E
 
 # 定义三类系统通用的安装指令
@@ -643,13 +643,13 @@ install(){
 	INPUT_LICENSE=1 && input_license
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
-	[[ $LXC = 1 ]] && reading " ${T[${L}31]} " BORINGTUN
+	[[ $LXC = 1 ]] && yellow " ${T[${L}31]} " && reading " ${T[${L}50]} " BORINGTUN
 	[[ $BORINGTUN != 2 ]] && UP='wg-quick up wgcf' && DOWN='wg-quick down wgcf' && WB=wireguard-go
 	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && 
 				DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' && WB=boringtun
 
 	# 选择优先使用 IPv4 /IPv6 网络
-	reading " ${T[${L}105]} " PRIORITY
+	yellow " ${T[${L}105]} " && reading " ${T[${L}50]} " PRIORITY
 
 	# 脚本开始时间
 	start=$(date +%s)
@@ -897,7 +897,7 @@ update(){
 	[[ $(type -P wg-quick) && ! $(type -P warp-cli) ]] && (wgcf_account; exit 0)
 	[[ ! $(type -P wg-quick) && $(type -P warp-cli) ]] && (client_account; exit 0)
 	[[ $(type -P wg-quick) && $(type -P warp-cli) ]] && 
-	(reading " ${T[${L}98]} " MODE
+	(yellow " ${T[${L}98]} " && reading " ${T[${L}50]} " MODE
 		case "$MODE" in
 		1 ) wgcf_account; exit 0;;
 		2 ) client_account; exit 0;;
