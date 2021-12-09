@@ -20,7 +20,7 @@ NAME=$3
 
 declare -A T
 
-T[E0]="Language:\n 1.English (default) \n 2.简体中文"
+T[E0]="Language:\n     1.English (default) \n     2.简体中文"
 T[C0]="${T[E0]}"
 T[E1]="IMPORTANT:First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; " 
 T[C1]="重大更新：全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了"
@@ -275,9 +275,9 @@ T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 60
 T[E126]="Try \$i. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 3 seconds." 
 T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 3秒后重新测试"
 
-# 选择语言
-[[ -z $OPTION || $OPTION = [chdpbvi12] ]] && yellow " ${T[E0]} " && reading " ${T[${L}50]} " LANGUAGE
-[[ $LANGUAGE = 2 ]] && L=C || L=E
+# 选择语言，默认英语
+L=E && [[ -z $OPTION || $OPTION = [chdpbvi12] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE
+[[ $LANGUAGE = 2 ]] && L=C
 
 # 定义三类系统通用的安装指令
 type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
