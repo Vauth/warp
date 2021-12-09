@@ -20,8 +20,8 @@ NAME=$3
 
 declare -A T
 
-T[E0]=""
-T[C0]=""
+T[E0]="Language:\n  1.English (default) \n  2.简体中文\n"
+T[C0]="${T[E0]}"
 T[E1]="IMPORTANT:First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; " 
 T[C1]="重大更新：全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -82,8 +82,8 @@ T[E29]="Input errors up to 5 times.The script is aborted."
 T[C29]="输入错误达5次，脚本退出"
 T[E30]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\):"
 T[C30]="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续\(剩余\$i次\):"
-T[E31]="LXC VPS choose（default is 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n Choose:"
-T[C31]="LXC方案（默认值选项为 1. Wireguard-GO):\n 1. Wireguard-GO\n 2. BoringTun\n 请选择："
+T[E31]="\n LXC VPS choose:\n  1. Wireguard-GO (default)\n  2. BoringTun\n"
+T[C31]="\n LXC方案:\n  1. Wireguard-GO (默认)\n  2. BoringTun\n"
 T[E32]="Step 1/3: Install dependencies..."
 T[C32]="进度 1/3：安装系统依赖……"
 T[E33]="Step 2/3: WGCF is ready"
@@ -216,8 +216,8 @@ T[E96]="Client connecting failure. It may be a CloudFlare IPv4."
 T[C96]="Client 连接失败，可能是 CloudFlare IPv4."
 T[E97]="It is a WARP+ account already. Update is aborted."
 T[C97]="已经是 WARP+ 账户，不需要升级"
-T[E98]="1. WGCF WARP account\n 2. WARP Linux Client account\n Choose:"
-T[C98]="1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 请选择："
+T[E98]="\n 1. WGCF WARP account\n 2. WARP Linux Client account\n"
+T[C98]="\n 1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n"
 T[E99]="Local Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP  \$PROXYCOUNTRY  \$PROXYASNORG"
 T[C99]="本地 Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP  \$PROXYCOUNTRY  \$PROXYASNORG"
 T[E100]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\): "
@@ -230,8 +230,8 @@ T[E103]="Port is in use. Please input another Port\(\$i times remaining\):"
 T[C103]="端口占用中，请使用另一端口\(剩余\$i次\):"
 T[E104]="Please customize the Client port (It must be 4-5 digits. Default to 40000 if it is blank):"
 T[C104]="请自定义 Client 端口号 (必须为4-5位自然数，如果不输入，会默认40000):"
-T[E105]="Please choose the priority of IPv4 or IPv6 (default 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.Use initial settings\n Choose:"
-T[C105]="请选择优先级别 (默认 1.IPv4):\n 1.IPv4\n 2.IPv6\n 3.使用 VPS 初始设置\n 请选择:"
+T[E105]="\n Please choose the priority:\n  1.IPv4 (default)\n  2.IPv6\n  3.Use initial settings\n"
+T[C105]="\n 请选择优先级别:\n  1.IPv4 (默认)\n  2.IPv6\n  3.使用 VPS 初始设置\n"
 T[E106]="IPv6 priority"
 T[C106]="IPv6 优先"
 T[E107]="IPv4 priority"
@@ -272,12 +272,12 @@ T[E124]="It is IPv6 priority now, press [y] to change to IPv4 priority? And othe
 T[C124]="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
 T[E125]="Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 60 seconds." 
 T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 60秒后重新测试"
-T[E126]="Try \$i. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 2 seconds." 
-T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 2秒后重新测试"
+T[E126]="Try \$i. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 3 seconds." 
+T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 3秒后重新测试"
 
-# 选择语言
-[[ -n $OPTION && $OPTION != [chdpbvi12] ]] || reading " 1.English\n 2.简体中文\n Choose language (default is 1.English): " LANGUAGE
-[[ $LANGUAGE = 2 ]] && L=C || L=E
+# 选择语言，默认英语
+L=E && [[ -z $OPTION || $OPTION = [chdpbvi12] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE
+[[ $LANGUAGE = 2 ]] && L=C
 
 # 定义三类系统通用的安装指令
 type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
@@ -379,8 +379,8 @@ change_ip(){
 	ip${NF}_info
 	[[ $LANGUAGE != 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(eval echo \$COUNTRY$NF)
 	[[ $LANGUAGE = 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)")
-	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && sleep 60
-	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf && sleep 2
+	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 60
+	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf && sleep 3
 	done
 	}
 
@@ -615,7 +615,7 @@ update_license(){
 # 输入 Linux Client 端口,先检查默认的40000是否被占用,限制4-5位数字,准确匹配空闲端口
 input_port(){
 	ss -nltp | grep -q ':40000'[[:space:]] && reading " $(eval echo "${T[${L}103]}") " PORT || reading " ${T[${L}104]} " PORT
-	PORT=${PORT:-40000}
+	PORT=${PORT:-'40000'}
 	i=5
 	until echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && [[ ! $(ss -nltp) =~ :"$PORT"[[:space:]] ]]
 		do	(( i-- )) || true
@@ -642,13 +642,13 @@ install(){
 	INPUT_LICENSE=1 && input_license
 
 	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
-	[[ $LXC = 1 ]] && reading " ${T[${L}31]} " BORINGTUN
+	[[ $LXC = 1 ]] && yellow " ${T[${L}31]} " && reading " ${T[${L}50]} " BORINGTUN
 	[[ $BORINGTUN != 2 ]] && UP='wg-quick up wgcf' && DOWN='wg-quick down wgcf' && WB=wireguard-go
 	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && 
 				DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' && WB=boringtun
 
 	# 选择优先使用 IPv4 /IPv6 网络
-	reading " ${T[${L}105]} " PRIORITY
+	yellow " ${T[${L}105]} " && reading " ${T[${L}50]} " PRIORITY
 
 	# 脚本开始时间
 	start=$(date +%s)
@@ -660,8 +660,8 @@ install(){
 	latest=${latest:-'2.2.10'}
 
 	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
-	wget --no-check-certificate -T1 -t1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE
-	[[ $? != 0 ]] && wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_"$latest"_linux_$ARCHITECTURE
+	wget --no-check-certificate -T1 -t1 -N $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE ||
+	wget --no-check-certificate -N $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_"$latest"_linux_$ARCHITECTURE
 	chmod +x /usr/local/bin/wgcf
 	
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
@@ -896,7 +896,7 @@ update(){
 	[[ $(type -P wg-quick) && ! $(type -P warp-cli) ]] && (wgcf_account; exit 0)
 	[[ ! $(type -P wg-quick) && $(type -P warp-cli) ]] && (client_account; exit 0)
 	[[ $(type -P wg-quick) && $(type -P warp-cli) ]] && 
-	(reading " ${T[${L}98]} " MODE
+	(yellow " ${T[${L}98]} " && reading " ${T[${L}50]} " MODE
 		case "$MODE" in
 		1 ) wgcf_account; exit 0;;
 		2 ) client_account; exit 0;;
