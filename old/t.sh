@@ -291,6 +291,7 @@ ip4_info(){
 	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE4=$(curl -s4m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	[[ $TRACE4 = plus ]] && PLUS4=+
+	[[ $TRACE4 = on || $TRACE4 = plus ]] && WARPSTATUS4="( WARP$PLUS4 IPv4 )"
 	}
 
 ip6_info(){
@@ -301,6 +302,7 @@ ip6_info(){
 	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE6=$(curl -s6m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	[[ $TRACE6 = plus ]] && PLUS6=+
+	[[ $TRACE6 = on || $TRACE6 = plus ]] && WARPSTATUS6="( WARP$PLUS6 IPv6 )"
 	}
 
 # 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
@@ -786,16 +788,14 @@ install(){
 	
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地，IPv4 / IPv6 优先级别
 	green " ${T[${L}39]} "
-	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6
+	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
 	[[ $COMPANY = amazon ]] && red " $(eval echo "${T[${L}40]}") " && reboot || net
 	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && PRIORITY=${T[${L}106]} || PRIORITY=${T[${L}107]}
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
-	[[ $TRACE4 = on || $TRACE4 = plus ]] && green " IPv4：$WAN4 ( WARP$PLUS4 IPv4 ) $COUNTRY4 $ASNORG4 "
-	[[ $TRACE4 = off || -z $TRACE4 ]] && green " IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
-  	[[ $TRACE6 = on || $TRACE6 = plus ]] && green " IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
-	[[ $TRACE6 = off || -z $TRACE6 ]] && green " IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
+	green "	IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
+	green "	IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
 	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $(eval echo "${T[${L}42]}") "
@@ -917,14 +917,14 @@ menu(){
 	2 )	OPTION4=${T[${L}88]};; 3 ) OPTION4=${T[${L}89]};; * ) OPTION4=${T[${L}82]};;
 	esac
 	
+	[[ $TRACE4 = on || $TRACE4 = plus ]] && WARP4STATUS="( WARP$PLUS4 IPv4 )"
+	
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
 	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}：\n	${T[${L}20]}：$SYS\n	${T[${L}21]}：$(uname -r)\n	${T[${L}22]}：$ARCHITECTURE\n	${T[${L}23]}：$VIRT "
-	[[ $TRACE4 = plus || $TRACE4 = on ]] && green "	IPv4：$WAN4 ( WARP$PLUS4 IPv4 ) $COUNTRY4  $ASNORG4 "
-	[[ $TRACE4 = off ]] && green "	IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
-	[[ $TRACE6 = plus || $TRACE6 = on ]] && green "	IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
-	[[ $TRACE6 = off ]] && green "	IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
+	green "	IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
+	green "	IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	${T[${L}114]}	${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	${T[${L}115]} " 	
 	[[ $PLAN != 3 ]] && green "	${T[${L}116]} "
