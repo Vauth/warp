@@ -919,7 +919,7 @@ menu(){
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
-	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}：\n	${T[${L}20]}：$SYS\n	${T[${L}21]}：$(uname -r)\n	${T[${L}22]}：$ARCHITECTURE\n	${T[${L}23]}：$VIRT "
+	green " ${T[${L}17]}:$VERSION  ${T[${L}18]}:${T[${L}1]}\n ${T[${L}19]}:\n	${T[${L}20]}:$SYS\n	${T[${L}21]}:$(uname -r)\n	${T[${L}22]}:$ARCHITECTURE\n	${T[${L}23]}:$VIRT "
 	green "	IPv4: $WAN4|$WARPSTATUS4|$COUNTRY4 |$ASNORG4\n	IPv6: $WAN6|$WARPSTATUS6|$COUNTRY6 |$ASNORG6 " | column -s '|' -t
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	${T[${L}114]}	${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	${T[${L}115]} " 	
