@@ -290,6 +290,7 @@ ip4_info(){
 	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
 	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE4=$(curl -s4m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
+	[[ $TRACE4 = plus ]] && PLUS4=+
 	}
 
 ip6_info(){
@@ -299,6 +300,7 @@ ip6_info(){
 	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
 	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE6=$(curl -s6m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
+	[[ $TRACE6 = plus ]] && PLUS6=+
 	}
 
 # 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
@@ -570,8 +572,6 @@ type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${APTYUM} install cur
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
-[[ $TRACE4 = plus ]] && PLUS4=+
-[[ $TRACE6 = plus ]] && PLUS6=+
 
 # 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义：0=未安装  1=已安装未激活  2=状态激活  3=Clinet 已开启
 [[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
@@ -596,7 +596,7 @@ input_license(){
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}30]}") " LICENSE
 		done
-	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " "${T[${L}102]}" " NAME
+	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
 	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}"
 }
 
@@ -786,17 +786,15 @@ install(){
 	
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地，IPv4 / IPv6 优先级别
 	green " ${T[${L}39]} "
-	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6
+	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6
 	[[ $COMPANY = amazon ]] && red " $(eval echo "${T[${L}40]}") " && reboot || net
 	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && PRIORITY=${T[${L}106]} || PRIORITY=${T[${L}107]}
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
-	[[ $TRACE4 = plus ]] && green " IPv4：$WAN4 ( WARP+ IPv4 ) $COUNTRY4 $ASNORG4 "
-	[[ $TRACE4 = on ]] && green " IPv4：$WAN4 ( WARP IPv4 ) $COUNTRY4 $ASNORG4 "
+	[[ $TRACE4 = on || $TRACE4 = plus ]] && green " IPv4：$WAN4 ( WARP$PLUS4 IPv4 ) $COUNTRY4 $ASNORG4 "
 	[[ $TRACE4 = off || -z $TRACE4 ]] && green " IPv4：$WAN4 $COUNTRY4 $ASNORG4 "
-	[[ $TRACE6 = plus ]] && green " IPv6：$WAN6 ( WARP+ IPv6 ) $COUNTRY6 $ASNORG6 "
-	[[ $TRACE6 = on ]] && green " IPv6：$WAN6 ( WARP IPv6 ) $COUNTRY6 $ASNORG6 "
+  	[[ $TRACE6 = on || $TRACE6 = plus ]] && green " IPv6：$WAN6 ( WARP$PLUS6 IPv6 ) $COUNTRY6 $ASNORG6 "
 	[[ $TRACE6 = off || -z $TRACE6 ]] && green " IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") "
