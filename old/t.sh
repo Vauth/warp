@@ -596,7 +596,7 @@ input_license(){
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}30]}") " LICENSE
 		done
-	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " "${T[${L}102]}" " NAME
+	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
 	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}"
 }
 
