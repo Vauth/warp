@@ -486,7 +486,7 @@ net(){
 	green " ${T[${L}14]} "
 	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
 	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(translate "$COUNTRY6")
-	[[ $OPTION = [OoNn] ]] && green " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
+	[[ $OPTION = [OoNn] ]] && green " IPv4: $WAN4|$COUNTRY4 |$ASNORG4\n IPv6: $WAN6|$COUNTRY6 |$ASNORG6 " | column -s '|' -t
 	}
 
 # WARP 开关
@@ -788,14 +788,13 @@ install(){
 	
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地，IPv4 / IPv6 优先级别
 	green " ${T[${L}39]} "
-	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6 IPSTATUS
+	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
 	[[ $COMPANY = amazon ]] && red " $(eval echo "${T[${L}40]}") " && reboot || net
 	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && PRIORITY=${T[${L}106]} || PRIORITY=${T[${L}107]}
-	IPSTATUS=(IPv4：$WAN4|$WARPSTATUS4|$COUNTRY4 |$ASNORG4\nIPv6：$WAN6|$WARPSTATUS6|$COUNTRY6 |$ASNORG6)
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
-	green "	$IPSTATUS | column -s '|' -t "
+	green " IPv4: $WAN4|$WARPSTATUS4|$COUNTRY4 |$ASNORG4\n IPv6: $WAN6|$WARPSTATUS6|$COUNTRY6 |$ASNORG6 " | column -s '|' -t
 	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $(eval echo "${T[${L}42]}") "
@@ -917,13 +916,11 @@ menu(){
 	2 )	OPTION4=${T[${L}88]};; 3 ) OPTION4=${T[${L}89]};; * ) OPTION4=${T[${L}82]};;
 	esac
 	
-	IPSTATUS=(IPv4：$WAN4|$WARPSTATUS4|$COUNTRY4 |$ASNORG4\nIPv6：$WAN6|$WARPSTATUS6|$COUNTRY6 |$ASNORG6)
-	
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
 	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}：\n	${T[${L}20]}：$SYS\n	${T[${L}21]}：$(uname -r)\n	${T[${L}22]}：$ARCHITECTURE\n	${T[${L}23]}：$VIRT "
-	green "	$IPSTATUS | column -s '|' -t "
+	green "	IPv4: $WAN4|$WARPSTATUS4|$COUNTRY4 |$ASNORG4\n	IPv6: $WAN6|$WARPSTATUS6|$COUNTRY6 |$ASNORG6 " | column -s '|' -t
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	${T[${L}114]}	${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	${T[${L}115]} " 	
 	[[ $PLAN != 3 ]] && green "	${T[${L}116]} "
