@@ -272,7 +272,7 @@ T[E124]="It is IPv6 priority now, press [y] to change to IPv4 priority? And othe
 T[C124]="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
 T[E125]="Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 60 seconds." 
 T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 60秒后重新测试"
-T[E126]="Try \$i. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 3 seconds." 
+T[E126]="Try \$i. Failed. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retry after 3 seconds." 
 T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 3秒后重新测试"
 
 # 选择语言，默认英语
@@ -486,7 +486,7 @@ net(){
 	green " ${T[${L}14]} "
 	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
 	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(translate "$COUNTRY6")
-	[[ $OPTION = [OoNn] ]] && green " IPv4: $WAN4|$COUNTRY4 |$ASNORG4\n IPv6: $WAN6|$COUNTRY6 |$ASNORG6 " | column -s '|' -t
+	[[ $OPTION = [OoNn] ]] && green " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 
 # WARP 开关
@@ -794,7 +794,8 @@ install(){
 
 	# 结果提示，脚本运行时间
 	red "\n==============================================================\n"
-	green " IPv4: $WAN4|$WARPSTATUS4|$COUNTRY4 |$ASNORG4\n IPv6: $WAN6|$WARPSTATUS6|$COUNTRY6 |$ASNORG6 " | column -s '|' -t
+	green " IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
+	green " IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
 	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $(eval echo "${T[${L}42]}") "
@@ -916,11 +917,14 @@ menu(){
 	2 )	OPTION4=${T[${L}88]};; 3 ) OPTION4=${T[${L}89]};; * ) OPTION4=${T[${L}82]};;
 	esac
 	
+	[[ $TRACE4 = on || $TRACE4 = plus ]] && WARP4STATUS="( WARP$PLUS4 IPv4 )"
+	
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
-	green " ${T[${L}17]}:$VERSION  ${T[${L}18]}:${T[${L}1]}\n ${T[${L}19]}:\n	${T[${L}20]}:$SYS\n	${T[${L}21]}:$(uname -r)\n	${T[${L}22]}:$ARCHITECTURE\n	${T[${L}23]}:$VIRT "
-	green "	IPv4: $WAN4|$WARPSTATUS4|$COUNTRY4 |$ASNORG4\n	IPv6: $WAN6|$WARPSTATUS6|$COUNTRY6 |$ASNORG6 " | column -s '|' -t
+	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}：\n	${T[${L}20]}：$SYS\n	${T[${L}21]}：$(uname -r)\n	${T[${L}22]}：$ARCHITECTURE\n	${T[${L}23]}：$VIRT "
+	green "	IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
+	green "	IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	${T[${L}114]}	${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	${T[${L}115]} " 	
 	[[ $PLAN != 3 ]] && green "	${T[${L}116]} "
