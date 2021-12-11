@@ -2,7 +2,7 @@
 
 * * *
 ## 更新信息：
-2021.12.11  2.21：1.Recode EN/CH traslation through associative array. Smarter and more efficient. Thx Oreo. 2.BoringTUN removed because of unstable; 1.中英双语部分用关联数组重构了，更聪明高效，感谢猫大; 2.BoringTUN 因不稳定而移除
+2021.12.11  2.21：1.BoringTUN removed because of unstable; 1.BoringTUN 因不稳定而移除
 
 2021.12.04  2.20：IMPORTANT:1.First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; 2.Recode EN/CH traslation through associative array. Smarter and more efficient. Thx Oreo. 重大更新：1.全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了; 2.中英双语部分关联数组重构了，更聪明高效，感谢猫大
 
