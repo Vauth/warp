@@ -2,7 +2,7 @@
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/bin
 
 # 当前脚本版本号和新增功能
-VERSION=2.20
+VERSION=2.21
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -22,8 +22,8 @@ declare -A T
 
 T[E0]="Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="IMPORTANT:First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; " 
-T[C1]="重大更新：全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了"
+T[E1]="IMPORTANT:1.First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; 2.2.Recode EN/CH traslation through associative array. Smarter and more efficient. Thx Oreo. 3.BoringTUN removed because of unstable"
+T[C1]="重大更新：1.全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了; 2.中英双语部分关联数组重构了，更聪明高效，感谢猫大; 3.BoringTUN 因不稳定而移除"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -52,8 +52,8 @@ T[E14]="Got the WARP IP successfully."
 T[C14]="已成功获取 WARP 网络"
 T[E15]="WARP is turned off. It could be turned on again by [warp o]"
 T[C15]="已暂停 WARP，再次开启可以用 warp o"
-T[E16]="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support WARP+ account. Third-party scripts are use to increase WARP+ quota or upgrade kernel.\n	* Not only menus, but commands with option.\n	* Intelligent analysis of operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8. Be sure to choose the LTS system. And architecture：AMD or ARM\n	* Automatically select four WireGuard solutions. Performance: Kernel with WireGuard integration＞Install kernel module＞BoringTUN＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Suppert WARP Linux client.\n	* Output WARP status, IP region and asn\n"
-T[C16]="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 WARP+ 账户，附带第三方刷 WARP+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选4个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞BoringTUN＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 支持 WARP Linux Socks5 Client\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地和线路提供商\n"
+T[E16]="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support WARP+ account. Third-party scripts are use to increase WARP+ quota or upgrade kernel.\n	* Not only menus, but commands with option.\n	* Intelligent analysis of operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8. Be sure to choose the LTS system. And architecture：AMD or ARM\n	* Automatically select four WireGuard solutions. Performance: Kernel with WireGuard integration＞Install kernel module＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Suppert WARP Linux client.\n	* Output WARP status, IP region and asn\n"
+T[C16]="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 WARP+ 账户，附带第三方刷 WARP+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断操作系统：Ubuntu 18.04、Ubuntu 20.04、Debian 10、Debian 11、CentOS 7、CentOS 8，请务必选择 LTS 系统；硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选4个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 支持 WARP Linux Socks5 Client\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地和线路提供商\n"
 T[E17]="Version"
 T[C17]="脚本版本"
 T[E18]="New features"
@@ -82,8 +82,8 @@ T[E29]="Input errors up to 5 times.The script is aborted."
 T[C29]="输入错误达5次，脚本退出"
 T[E30]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\):"
 T[C30]="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续\(剩余\$i次\):"
-T[E31]="\n LXC VPS choose:\n  1. Wireguard-GO (default)\n  2. BoringTun\n"
-T[C31]="\n LXC方案:\n  1. Wireguard-GO (默认)\n  2. BoringTun\n"
+T[E31]=""
+T[C31]=""
 T[E32]="Step 1/3: Install dependencies..."
 T[C32]="进度 1/3：安装系统依赖……"
 T[E33]="Step 2/3: WGCF is ready"
@@ -400,12 +400,10 @@ green " ${T[${L}37]} "
 # 必须以root运行脚本
 [[ $(id -u) != 0 ]] && red " ${T[${L}2]} " && exit 1
 
-# 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go/BoringTun
+# 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go
 VIRT=$(systemd-detect-virt 2>/dev/null | tr '[:upper:]' '[:lower:]')
 [[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr '[:upper:]' '[:lower:]' | grep virtualization | sed "s/.*://g")
 [[ $VIRT =~ openvz|lxc ]] && LXC=1
-UP='wg-quick up wgcf' && DOWN='wg-quick down wgcf'
-[[ $LXC = 1 && -e /usr/bin/boringtun ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && DOWN='wg-quick down wgcf && kill -9 $(pgrep -f boringtun)'
 
 # 安装BBR
 bbrInstall(){
@@ -427,10 +425,10 @@ uninstall(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
 	# 卸载 WGCF
 	uninstall_wgcf(){
-	echo "$DOWN" | sh >/dev/null 2>&1
+	wg-quick down wgcf >/dev/null 2>&1
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
 	${APTYUM} autoremove wireguard-tools wireguard-dkms 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	}
 	
@@ -469,19 +467,18 @@ net(){
 	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}10]} " && exit 1
 	i=1;j=10
 	yellow " $(eval echo "${T[${L}11]}")\n $(eval echo "${T[${L}12]}") "
-	[[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && echo "$DOWN" | sh >/dev/null 2>&1
+	[[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && wg-quick down wgcf >/dev/null 2>&1
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
-	echo "$UP" | sh >/dev/null 2>&1
+	wg-quick up wgcf >/dev/null 2>&1
 	ip4_info
 	[[ -n $IP4 ]] && ip6_info
 	until [[ -n $IP4 && -n $IP6 ]]
 		do	(( i++ )) || true
 			yellow " $(eval echo "${T[${L}12]}") "
-			echo "$DOWN" | sh >/dev/null 2>&1
-			echo "$UP" | sh >/dev/null 2>&1
+			systemctl restart wg-quick@wgcf >/dev/null 2>&1
 			ip4_info
 			[[ -n $IP4 ]] && ip6_info
-			[[ $i = "$j" ]] && (echo "$DOWN" | sh >/dev/null 2>&1; red " $(eval echo "${T[${L}13]}") ") && exit 1
+			[[ $i = "$j" ]] && (wg-quick down wgcf >/dev/null 2>&1; red " $(eval echo "${T[${L}13]}") ") && exit 1
         	done
 	green " ${T[${L}14]} "
 	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
@@ -491,7 +488,7 @@ net(){
 
 # WARP 开关
 onoff(){
-	[[ -n $(wg 2>/dev/null) ]] && (echo "$DOWN" | sh >/dev/null 2>&1; green " ${T[${L}15]} ") || net
+	[[ -n $(wg 2>/dev/null) ]] && (wg-quick down wgcf >/dev/null 2>&1; green " ${T[${L}15]} ") || net
 	}
 
 # PROXY 开关
@@ -527,7 +524,6 @@ ping -c2 -W8 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
 if [[ $IPV4$IPV6 = 00 && -n $(wg) ]]; then
 	wg-quick down wgcf >/dev/null 2>&1
 	kill -9 $(pgrep -f wireguard 2>/dev/null)
-	kill -9 $(pgrep -f boringtun 2>/dev/null)
 	ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
 	ping -c2 -W10 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4
 fi
@@ -569,8 +565,10 @@ type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${APTYUM} install cur
 [[ $(arch | tr '[:upper:]' '[:lower:]') =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
 
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
-[[ $IPV4 = 1 ]] && ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
-[[ $IPV6 = 1 ]] && ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(translate "$COUNTRY6")
+[[ $IPV4 = 1 ]] && ip4_info
+[[ $IPV6 = 1 ]] && ip6_info
+[[ $LANGUAGE = 2 && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
+[[ $LANGUAGE = 2 && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
@@ -639,15 +637,9 @@ stack_priority(){
 # WGCF 安装
 install(){
 	# 先删除之前安装，可能导致失败的文件
-	rm -rf /usr/local/bin/wgcf /usr/bin/boringtun /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
+	rm -rf /usr/local/bin/wgcf /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	
 	INPUT_LICENSE=1 && input_license
-
-	# OpenVZ / LXC 选择 Wireguard-GO 或者 BoringTun 方案，并重新定义相应的 UP 和 DOWN 指令
-	[[ $LXC = 1 ]] && yellow " ${T[${L}31]} " && reading " ${T[${L}50]} " BORINGTUN
-	[[ $BORINGTUN != 2 ]] && UP='wg-quick up wgcf' && DOWN='wg-quick down wgcf' && WB=wireguard-go
-	[[ $BORINGTUN = 2 ]] && UP='WG_QUICK_USERSPACE_IMPLEMENTATION=boringtun WG_SUDO=1 wg-quick up wgcf' && 
-				DOWN='wg-quick down wgcf && kill $(pgrep -f boringtun)' && WB=boringtun
 
 	# 选择优先使用 IPv4 /IPv6 网络
 	yellow " ${T[${L}105]} " && reading " ${T[${L}50]} " PRIORITY
@@ -772,11 +764,10 @@ install(){
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
 	# 设置开机启动
-	[[ $BORINGTUN != 2 ]] && systemctl enable --now wg-quick@wgcf >/dev/null 2>&1
+	systemctl enable --now wg-quick@wgcf >/dev/null 2>&1
 
-	# 如是 LXC，安装 Wireguard-GO 或者 BoringTun。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
-	[[ $LXC = 1 ]] && wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/$WB && chmod +x /usr/bin/$WB
-	[[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]] &&
+	# 如是 LXC，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
+	[[ $LXC = 1 ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
 	wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
 
 	# 保存好配置文件
@@ -875,7 +866,7 @@ update(){
 	wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 &&
 	(wgcf generate >/dev/null 2>&1
 	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#;3s#.*#$(sed -ne 3p wgcf-profile.conf)#;4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
-	echo "$DOWN" | sh >/dev/null 2>&1
+	wg-quick down wgcf >/dev/null 2>&1
 	net
 	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] &&
 	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} "
@@ -917,8 +908,6 @@ menu(){
 	2 )	OPTION4=${T[${L}88]};; 3 ) OPTION4=${T[${L}89]};; * ) OPTION4=${T[${L}82]};;
 	esac
 	
-	[[ $TRACE4 = on || $TRACE4 = plus ]] && WARP4STATUS="( WARP$PLUS4 IPv4 )"
-	
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
@@ -956,7 +945,7 @@ menu(){
 case "$OPTION" in
 1 )	# 先判断是否运行 WARP,再按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
 	if [[ $PLAN = 3 ]]; then
-		yellow " ${T[${L}80]} " && echo "$DOWN" | sh >/dev/null 2>&1 && exit 1
+		yellow " ${T[${L}80]} " && wg-quick down wgcf >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
 		[[ $IPV4$IPV6 = 10 ]] && MODIFY=$MODIFYS10
 		[[ $IPV4$IPV6 = 11 ]] && red " ${T[${L}110]} " && exit 1
@@ -966,7 +955,7 @@ case "$OPTION" in
 	install;;
 2 )	# 先判断是否运行 WARP,再按 Client 运行情况分别处理。在已运行 Linux Client 前提下，对于 IPv4 only 只能添加 IPv6 单栈，对于原生双栈不能安装，IPv6 因不能安装 Linux Client 而不用作限制
 	if [[ $PLAN = 3 ]]; then
-		yellow " ${T[${L}80]} " && echo "$DOWN" | sh >/dev/null 2>&1 && exit 1
+		yellow " ${T[${L}80]} " && wg-quick down wgcf >/dev/null 2>&1 && exit 1
 	elif [[ $CLIENT = 3 ]]; then
 		[[ $IPV4$IPV6 = 10 ]] && reading " ${T[${L}109]} " SINGLE && [[ $SINGLE != [Yy] ]] && exit 1 || MODIFY=$MODIFYS10
 		[[ $IPV4$IPV6 = 11 ]] && red " ${T[${L}110]} " && exit 1
