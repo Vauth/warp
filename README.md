@@ -2,7 +2,7 @@
 
 * * *
 ## 更新信息：
-2021.12.11  2.21：1.BoringTUN removed because of unstable; 2.Change the DNS to Google first. 1.BoringTUN 因不稳定而移除 2.域名解析服务器首先谷歌
+2021.12.11  2.21：1.BoringTUN removed because of unstable; 2.Change the DNS to Google first. 3.Count the number of runs1.BoringTUN 因不稳定而移除 2.域名解析服务器首先谷歌 3.统计运行次数
 
 2021.12.04  2.20：IMPORTANT:1.First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; 2.Recode EN/CH traslation through associative array. Smarter and more efficient. Thx Oreo. 重大更新：1.全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了; 2.中英双语部分关联数组重构了，更聪明高效，感谢猫大
 
@@ -182,3 +182,4 @@ https://blog.cloudflare.com/announcing-warp-for-linux-and-proxy-mode/
 * mixool 的成熟作品: https://github.com/mixool/across/tree/master/wireguard
 * luoxue-bot 的成熟作品:https://github.com/luoxue-bot/warp_auto_change_ip
 * 获取公网 IP 及归属地查询: https://ip.gs/
+* 统计PV网:https://hits.seeyoufarm.com/
