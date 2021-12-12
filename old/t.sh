@@ -103,10 +103,10 @@ T[E39]="Running WARP"
 T[C39]="运行 WARP"
 T[E40]="\$COMPANY vps needs to restart and run [warp n] to open WARP."
 T[C40]="\$COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启"
-T[E41]="Congratulations! WARP+ is turned on. Spend time:\$(( end - start )) seconds\\\n Device name：\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n Quota：\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
-T[C41]="恭喜！WARP+ 已开启，总耗时:\$(( end - start ))秒\\\n 设备名：\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量：\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
-T[E42]="Congratulations! WARP is turned on. Spend time:\$(( end - start )) seconds"
-T[C42]="恭喜！WARP 已开启，总耗时:\$(( end - start ))秒"
+T[E41]="Congratulations! WARP+ is turned on. Spend time:\$(( end - start )) seconds. The script runs on the day: \$TODAY. Total:\$TOTAL\\\n Device name：\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n Quota：\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
+T[C41]="恭喜！WARP+ 已开启，总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，共计运行次数：\$TOTAL\\\n 设备名:\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量:\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
+T[E42]="Congratulations! WARP is turned on. Spend time:\$(( end - start )) seconds. The script runs on the day: \$TODAY. Total:\$TOTAL"
+T[C42]="恭喜！WARP 已开启，总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，共计运行次数：\$TOTAL"
 T[E43]="Run again with warp [option] [lisence], such as"
 T[C43]="再次运行用 warp [option] [lisence]，如"
 T[E44]="WARP installation failed. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -784,11 +784,14 @@ install(){
 	[[ $COMPANY = amazon ]] && red " $(eval echo "${T[${L}40]}") " && reboot || net
 	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && PRIORITY=${T[${L}106]} || PRIORITY=${T[${L}107]}
 
-	# 结果提示，脚本运行时间
+	# 结果提示，脚本运行时间，次数统计
+	end=$(date +%s)
+	COUNT=$(curl -s "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1)
+	TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*')
+	TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
 	red "\n==============================================================\n"
 	green " IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
 	green " IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
-	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $(eval echo "${T[${L}42]}") "
 	green " $PRIORITY "
