@@ -35,7 +35,7 @@
 - [WARP Teams 信息用于 Linux 的方法](README.md#WARP-Teams-信息用于-Linux-的方法)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
 - [WARP原理](README.md#WARP原理)
-- [致谢](README.md#致谢下列作者和项目排名不分先后)
+- [鸣谢](README.md#鸣谢下列作者的文章和项目)
 
 * * *
 
@@ -158,9 +158,11 @@ Linux 5.6 及以上内核则已经集成了 WireGuard ，可以用 ```hostnamect
 EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更换内核，只能选择 "wireguard-go" 方案。
     
 
-## 致谢下列作者和项目（排名不分先后）：  
+## 鸣谢下列作者的文章和项目
 
-技术指导:
+互联网永远不会忘记，但人们会。
+
+技术文章或相关项目（排名不分先后）:
 * P3terx: https://p3terx.com/archives/use-cloudflare-warp-to-add-extra-ipv4-or-ipv6-network-support-to-vps-servers-for-free.html
 * P3terx: https://github.com/P3TERX/warp.sh/blob/main/warp.sh
 * 猫大: https://github.com/Oreomeow
@@ -171,7 +173,7 @@ https://blog.cloudflare.com/announcing-warp-for-linux-and-proxy-mode/
 * WireGuard: https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
 * Parker C. Stephens: https://parkercs.tech/cloudflare-for-teams-wireguard-config/
 
-服务提供：
+服务提供（排名不分先后）：
 * CloudFlare Warp(+): https://1.1.1.1/
 * WGCF 项目原作者: https://github.com/ViRb3/wgcf/
 * WireGuard-GO 官方: https://git.zx2c4.com/wireguard-go/
