@@ -483,7 +483,7 @@ net(){
 	green " ${T[${L}14]} "
 	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
 	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(translate "$COUNTRY6")
-	[[ $OPTION = [OoNn] ]] && green " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
+	[[ $OPTION = [on] ]] && green " IPv4:$WAN4 $WARPSTATUS4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $WARPSTATUS6 $COUNTRY6 $ASNORG6 "
 	}
 
 # WARP 开关
@@ -927,7 +927,7 @@ menu(){
 		1 )	[[ $OPTION1 = ${T[${L}66]} || $OPTION1 = ${T[${L}67]} ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6) && install
 			[[ $OPTION1 = ${T[${L}70]} ]] && MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6) && install
 			[[ $OPTION1 = ${T[${L}77]} ]] && onoff;;
-		2 )	[[ $OPTION2 = ${T[${L}68]} || OPTION2=${T[${L}69]} || $OPTION2 = ${T[${L}70]} ]] && MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6) && install
+		2 )	[[ $OPTION2 = ${T[${L}68]} || $OPTION2 = ${T[${L}69]} || $OPTION2 = ${T[${L}70]} ]] && MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6) && install
 			[[ $OPTION2 = ${T[${L}78]} ]] && update;;
 		3 )	[[ $OPTION3 = ${T[${L}71]} ]] && OPTION=o; net
 			[[ $OPTION3 = ${T[${L}123]} ]] && change_ip;;
