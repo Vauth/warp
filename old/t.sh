@@ -20,7 +20,7 @@ NAME=$3
 
 declare -A T
 
-T[E0]="\nLanguage:\n  1.English (default) \n  2.简体中文\n"
+T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
 T[E1]="IMPORTANT:1.First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; 2.2.Recode EN/CH traslation through associative array. Smarter and more efficient. Thx Oreo. 3.BoringTUN removed because of unstable"
 T[C1]="重大更新：1.全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了; 2.中英双语部分关联数组重构了，更聪明高效，感谢猫大; 3.BoringTUN 因不稳定而移除"
