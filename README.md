@@ -66,7 +66,7 @@
 
 首次运行
 ```bash
-wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh
+wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh [option] [lisence]
 ```
 再次运行
 ```bash
