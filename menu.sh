@@ -23,8 +23,8 @@ declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="IMPORTANT:1.First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; 2.2.Recode EN/CH traslation through associative array. Smarter and more efficient. Thx Oreo. 3.BoringTUN removed because of unstable"
-T[C1]="重大更新：1.全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了; 2.中英双语部分关联数组重构了，更聪明高效，感谢猫大; 3.BoringTUN 因不稳定而移除"
+T[E1]="IMPORTANT:1.First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; 2.2.Recode EN/CH traslation through associative array. Smarter and more efficient. Thx Oreo. 3.BoringTUN removed because of unstable; 4.Count the number of runs"
+T[C1]="重大更新：1.全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了; 2.中英双语部分关联数组重构了，更聪明高效，感谢猫大; 3.BoringTUN 因不稳定而移除; 4.统计运行次数"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -103,10 +103,10 @@ T[E39]="Running WARP"
 T[C39]="运行 WARP"
 T[E40]="\$COMPANY vps needs to restart and run [warp n] to open WARP."
 T[C40]="\$COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启"
-T[E41]="Congratulations! WARP+ is turned on. Spend time:\$(( end - start )) seconds\\\n Device name：\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n Quota：\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
-T[C41]="恭喜！WARP+ 已开启，总耗时:\$(( end - start ))秒\\\n 设备名：\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量：\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
-T[E42]="Congratulations! WARP is turned on. Spend time:\$(( end - start )) seconds"
-T[C42]="恭喜！WARP 已开启，总耗时:\$(( end - start ))秒"
+T[E41]="Congratulations! WARP+ is turned on. Spend time:\$(( end - start )) seconds.\\\n The script runs today: \$TODAY. Total:\$TOTAL\\\n Device name：\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n Quota：\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
+T[C41]="恭喜！WARP+ 已开启，总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，共计运行次数：\$TOTAL\\\n 设备名:\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量:\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
+T[E42]="Congratulations! WARP is turned on. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
+T[C42]="恭喜！WARP 已开启，总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，共计运行次数：\$TOTAL"
 T[E43]="Run again with warp [option] [lisence], such as"
 T[C43]="再次运行用 warp [option] [lisence]，如"
 T[E44]="WARP installation failed. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -209,8 +209,8 @@ T[E92]="Client is installed already. It could be uninstalled by [warp u]"
 T[C92]="Client 已安装，如要卸载，可以用 warp u"
 T[E93]="Client is not installed. It could be installed by [warp c]"
 T[C93]="Client 未安装，如需安装，可以用 warp c"
-T[E94]="Congratulations! WARP\$AC Linux Client is working. Spend time:\$(( end - start )) seconds."
-T[C94]="恭喜！WARP\$AC Linux Client 工作中, 总耗时:\$(( end - start ))秒"
+T[E94]="Congratulations! WARP\$AC Linux Client is working. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
+T[C94]="恭喜！WARP\$AC Linux Client 工作中, 总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，共计运行次数：\$TOTAL"
 T[E95]="Client works with non-WARP IPv4. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C95]="Client 在非 WARP IPv4 下才能工作正常，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E96]="Client connecting failure. It may be a CloudFlare IPv4."
@@ -626,6 +626,7 @@ input_port(){
 		done
 }
 
+# IPv4, IPv6 优先
 stack_priority(){
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	case "$PRIORITY" in
@@ -634,6 +635,14 @@ stack_priority(){
 		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
 	esac
 }
+
+# 结束时间，脚本当天及累计运行次数统计
+statistics(){
+	end=$(date +%s)
+	COUNT=$(curl -s "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1)
+	TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*')
+	TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
+	}
 
 # WGCF 安装
 install(){
@@ -784,11 +793,12 @@ install(){
 	[[ $COMPANY = amazon ]] && red " $(eval echo "${T[${L}40]}") " && reboot || net
 	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && PRIORITY=${T[${L}106]} || PRIORITY=${T[${L}107]}
 
-	# 结果提示，脚本运行时间
+	# 结果提示，脚本运行时间，次数统计
+	end=$(date +%s)
+	statistics
 	red "\n==============================================================\n"
 	green " IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
 	green " IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
-	end=$(date +%s)
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $(eval echo "${T[${L}42]}") "
 	green " $PRIORITY "
@@ -846,9 +856,9 @@ proxy(){
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " ${T[${L}38]} "
 	
-	# 结果提示，脚本运行时间
+	# 结果提示，脚本运行时间，次数统计
 	proxy_info
-	end=$(date +%s)
+	statistics
 	[[ $ACCOUNT =~ Free ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}") "
 	[[ $ACCOUNT =~ Limited ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}")\n ${T[${L}63]}：$QUOTA TB"
 	red "\n==============================================================\n"
