@@ -270,8 +270,8 @@ T[E123]="Change the WARP IP to support Netflix"
 T[C123]="更换支持 Netflix 的 IP"
 T[E124]="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging:"
 T[C124]="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
-T[E125]="Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 60 seconds." 
-T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 60秒后重新测试"
+T[E125]="Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 1 hour." 
+T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 1 小时后重新测试"
 T[E126]="Try \$i. Failed. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retry after 3 seconds." 
 T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 3秒后重新测试"
 
@@ -383,7 +383,7 @@ change_ip(){
 	ip${NF}_info
 	[[ $LANGUAGE != 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(eval echo \$COUNTRY$NF)
 	[[ $LANGUAGE = 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)")
-	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 60
+	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
 	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf && sleep 3
 	done
 	}
