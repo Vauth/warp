@@ -123,7 +123,10 @@ WireGuard 网络接口数据，查看 ```wg```
 1.安装通安卓模拟器，并在上面安装 1.1.1.1 apk连上
 2.连上 teams 后抓包，把获取到的信息替换到wgcf.conf配置文件里
 
-具体方法:https://parkercs.tech/cloudflare-for-teams-wireguard-config/
+具体原创文章:https://parkercs.tech/cloudflare-for-teams-wireguard-config/
+
+感谢 Misaka 落地图文说明:https://blog.misaka.rest/202112/291.html    
+视频:https://www.bilibili.com/video/BV1gU4y1K7of/
 
 ## WARP原理
 
