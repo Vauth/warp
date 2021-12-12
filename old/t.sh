@@ -12,9 +12,9 @@ reading(){ read -rp "$(green "$1")" "$2"; }
 translate(){ curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
 
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关；p=刷 WARP+ 流量; 其他或空值=菜单界面
-OPTION=$(tr '[:upper:]' '[:lower:]' <<< $1); [[ $OPTION = '[option]' ]] && OPTION=''
+[[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< $1)
 # 参数选项 LICENSE
-LICENSE=$2; [[ $LICENSE = '[lisence]' ]] && LICENSE=''
+[[ $2 != '[lisence]' ]] && LICENSE=$2
 # 自定义 WARP+ 设备名
 NAME=$3
 
