@@ -461,7 +461,7 @@ ver(){
 	wget -N -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || wget -N -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh
 	chmod +x /etc/wireguard/menu.sh
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp
-	green " ${T[${L}64]}:$(grep ^VERSION /etc/wireguard/menu.sh | sed "s/.*=//g")  ${T[${L}18]}：$(grep "T[${L}1]" /etc/wireguard/menu.sh | cut -d \" -f2) " || red " ${T[${L}65]} "
+	green " ${T[${L}64]}:$(grep ^VERSION /etc/wireguard/menu.sh | sed "s/.*=//g")  ${T[${L}18]}：$(grep "T\[${L}1]" /etc/wireguard/menu.sh | cut -d \" -f2) " || red " ${T[${L}65]} "
 	exit
 	}
 
