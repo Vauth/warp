@@ -225,8 +225,8 @@ T[E100]="License should be 26 characters, please re-enter WARP+ License. Otherwi
 T[C100]="License 应为26位字符,请重新输入 WARP+ License \(剩余\$i次\): "
 T[E101]="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C101]="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
-T[E102]="Please customize the WARP+ device name (It will automatically generate 6-digit random string if it is blank):"
-T[C102]="请自定义 WARP+ 设备名 (如果不输入，会自动生成随机的6位字符串):"
+T[E102]="Please customize the WARP+ device name (Default is [WARP] if left blank):"
+T[C102]="请自定义 WARP+ 设备名 (如果不输入，默认为 [WARP]):"
 T[E103]="Port is in use. Please input another Port\(\$i times remaining\):"
 T[C103]="端口占用中，请使用另一端口\(剩余\$i次\):"
 T[E104]="Please customize the Client port (It must be 4-5 digits. Default to 40000 if it is blank):"
@@ -602,7 +602,7 @@ input_license(){
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}30]}") " LICENSE
 		done
 	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
-	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}"
+	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
 }
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
@@ -614,7 +614,7 @@ update_license(){
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}100]}") " LICENSE
 	       done
 	[[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
-	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}"
+	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
 }
 
 # 输入 Linux Client 端口,先检查默认的40000是否被占用,限制4-5位数字,准确匹配空闲端口
