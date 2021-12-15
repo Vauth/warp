@@ -2,7 +2,8 @@
 
 * * *
 ## 更新信息：
-2021.12.14  2.22：1.First in the whole network. Use WARP Team account instead of Plus. No need to brush Plus traffic any more. 1.全网首创，使用脚本提供 TEAM 账户替代 Plus，免刷流量
+
+2021.12.14  2.22：1.First in the whole network. Use WARP Team account instead of Plus. No need to brush Plus traffic any more. 50 user limited. return to version 2.21; 1.全网首创，使用脚本提供 TEAM 账户替代 Plus，免刷流量。翻车了，官方说了免费team有50个账户的限制，我心存侥幸，想着1个账户多人用，现在看来是行不通了，暂先回退到2.21版本
 
 2021.12.11  2.21：1.BoringTUN removed because of unstable; 2.Change the DNS to Google first. 3.Count the number of runs1.BoringTUN 因不稳定而移除 2.域名解析服务器首先谷歌 3.统计运行次数
 
