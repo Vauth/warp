@@ -11,25 +11,31 @@
 
 2021.12.04  2.20：IMPORTANT:1.First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; 2.Recode EN/CH traslation through associative array. Smarter and more efficient. Thx Oreo. 重大更新：1.全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了; 2.中英双语部分关联数组重构了，更聪明高效，感谢猫大
 
-2021.11.30  2.11：感谢luoxue-bot原创，唤醒大神告知。 1.Changing Netflix IP is adapted from other authors [luoxue-bot]; 1.更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品
+<details>
+    <summary>历史更新（点击即可展开或收起）</summary>
+<br>
 
-2021.11.11  2.10：1.Customize the priority of IPv4 / IPv6; 2.Customize the port of Client Socks5(default is 40000); 1.自定义 IPv4 / IPv6 优先组别; 2.自定义 Client Socks5 代理端口，默认40000
-
-2021.11.06  2.09：1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000. Register and connnect need non-WARP IPv4 interface. Native IPv4 + WARP IPv6 is ok; 2.WARP+ license on Client supported; 3.Customize the WARP+ device name. 1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000,注册和连接需要非 WARP 的原生 IPv4，可以是：原生IPv4+ WARP IPv6; 2.Client 支持 WARP+ 账户升级和安装; 3.自定义 WARP+ 设备名
-
-2021.11.01  2.08：1.Serching the best MTU value for WARP interface automatically; 2.asn organisation for the VPS; 1.自动设置最优 MTU; 2.显示asn组织(线路提供商)
-
-2021.10.29  2.07：1.Support Chinese and English; 2.Optimize running speed; 3)fix startup at reboot bug;  1.支持中英文，用户可自行选择; 2.大幅优化速度; 3)修复重启后启动WARP的bug
-
-2021.10.23  2.06：1.添加自动检查是否开启 Tun 模块； 2.提高脚本适配性; 3.新增 hax、Amazon Linux 2 和 Oracle Linux 支持
-
-2021.10.15  2.05：1.WGCF自动同步最新的2.2.9； 2.升级了重启后运行 Warp 的处理方法，不再依赖另外的文件; 3.修复 KVM 由免费账户升级为 Warp+ 账户的bug
-
-2021.10.14  2.04：1.LXC 用户自主选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言，性能比前者差点，稳定性高); 2.增加限制：原生双栈VPS只能用Warp双栈，bash menu.sh 1 会建议改为Warp双栈或退出; 3.Warp断网后，运行warp会自动关闭通道和杀掉进程; 4.脚本中止后，用 echo $? 显示 1,即代表不成功 (原来为代表运行成功的0)
-
-2021.10.12  2.03：1.对刷网络作了优化，加快了两次尝试之间的间隔时间，不会出现死循环，因为已经限制次数为10次，有明确的提示 2.用Rust语言的 BoringTun 替代Go语言的 WireGuard-GO
-
-2021.10.10  2.02：上游 ip.gs 用 wget 不稳定导致获取不了 IP 而一直在死刷，弃坑用 curl 替换，脚本检查到没有的话自动安装
+>
+>2021.11.30  2.11：感谢luoxue-bot原创，唤醒大神告知。 1.Changing Netflix IP is adapted from other authors [luoxue-bot]; 1.更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品
+>
+>2021.11.11  2.10：1.Customize the priority of IPv4 / IPv6; 2.Customize the port of Client Socks5(default is 40000); 1.自定义 IPv4 / IPv6 优先组别; 2.自定义 Client Socks5 代理端>>口，默认40000
+>
+>2021.11.06  2.09：1.WARP Linux Client supported.Socks5 proxy listening on: 127.0.0.1:40000. Register and connnect need non-WARP IPv4 interface. Native IPv4 + WARP IPv6 is ok; >2.WARP+ license on Client supported; 3.Customize the WARP+ device name. 1.支持 WARP Linux Client，Socks5 代理监听:127.0.0.1:40000,注册和连接需要非 WARP 的原生 IPv4，可以是：原生>IPv4+ WARP IPv6; 2.Client 支持 WARP+ 账户升级和安装; 3.自定义 WARP+ 设备名
+>
+>2021.11.01  2.08：1.Serching the best MTU value for WARP interface automatically; 2.asn organisation for the VPS; 1.自动设置最优 MTU; 2.显示asn组织(线路提供商)
+>
+>2021.10.29  2.07：1.Support Chinese and English; 2.Optimize running speed; 3)fix startup at reboot bug;  1.支持中英文，用户可自行选择; 2.大幅优化速度; 3)修复重启后启动WARP的bug
+>
+>2021.10.23  2.06：1.添加自动检查是否开启 Tun 模块； 2.提高脚本适配性; 3.新增 hax、Amazon Linux 2 和 Oracle Linux 支持
+>
+>2021.10.15  2.05：1.WGCF自动同步最新的2.2.9； 2.升级了重启后运行 Warp 的处理方法，不再依赖另外的文件; 3.修复 KVM 由免费账户升级为 Warp+ 账户的bug
+>
+>2021.10.14  2.04：1.LXC 用户自主选择 BoringTun 还是 Wireguard-go (BoringTun用Rust语言，性能接近内核模块性能 ，稳定性与VPS有关；WireGuard-GO用Go语言，性能比前者差点，稳定性高); 2.增加限>制：原生双栈VPS只能用Warp双栈，bash menu.sh 1 会建议改为Warp双栈或退出; 3.Warp断网后，运行warp会自动关闭通道和杀掉进程; 4.脚本中止后，用 echo $? 显示 1,即代表不成功 (原来为代表运行成功的0)
+>
+>2021.10.12  2.03：1.对刷网络作了优化，加快了两次尝试之间的间隔时间，不会出现死循环，因为已经限制次数为10次，有明确的提示 2.用Rust语言的 BoringTun 替代Go语言的 WireGuard-GO
+>
+>2021.10.10  2.02：上游 ip.gs 用 wget 不稳定导致获取不了 IP 而一直在死刷，弃坑用 curl 替换，脚本检查到没有的话自动安装
+</details>
 
 # 目录
 
