@@ -3,7 +3,7 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/b
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=2.21
+VERSION=2.23
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -23,8 +23,8 @@ declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="IMPORTANT:1.First in the whole network. Reduce installation time by more than 50% through multi-threading. No need to wait for WGCF registering and MTU value searching time; 2.2.Recode EN/CH traslation through associative array. Smarter and more efficient. Thx Oreo. 3.BoringTUN removed because of unstable; 4.Count the number of runs"
-T[C1]="重大更新：1.全网首创，通过多线程，安装 WARP 时间缩短一半以上，不用长时间等待 WGCF 注册和寻找 MTU 值时间了; 2.中英双语部分关联数组重构了，更聪明高效，感谢猫大; 3.BoringTUN 因不稳定而移除; 4.统计运行次数"
+T[E1]="IMPORTANT:1.Support change the Netflix IP not only WARP but also Socks5 Client. Both keep the Plus statu. Recommand runs under [screen]"
+T[C1]="重大更新：1.支持 WARP Interface 和 Socks5 Client 自动更换支持奈飞的IP，两者都会保留 Plus 的状态，建议在 screen 下在后台运行"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -219,8 +219,8 @@ T[E97]="It is a WARP+ account already. Update is aborted."
 T[C97]="已经是 WARP+ 账户，不需要升级"
 T[E98]="\n 1. WGCF WARP account\n 2. WARP Linux Client account\n"
 T[C98]="\n 1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n"
-T[E99]="Local Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP  \$PROXYCOUNTRY  \$PROXYASNORG"
-T[C99]="本地 Socks5:\$PROXYSOCKS5	WARP\$AC	IPv4:\$PROXYIP  \$PROXYCOUNTRY  \$PROXYASNORG"
+T[E99]="Local Socks5:\$PROXYSOCKS5\\\n WARP\$AC IPv4:\$PROXYIP\\\n \$PROXYCOUNTRY\\\n \$PROXYASNORG"
+T[C99]="本地 Socks5:\$PROXYSOCKS5\\\n WARP\$AC IPv4:\$PROXYIP\\\n \$PROXYCOUNTRY\\\n \$PROXYASNORG"
 T[E100]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\): "
 T[C100]="License 应为26位字符,请重新输入 WARP+ License \(剩余\$i次\): "
 T[E101]="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -237,8 +237,8 @@ T[E106]="IPv6 priority"
 T[C106]="IPv6 优先"
 T[E107]="IPv4 priority"
 T[C107]="IPv4 优先"
-T[E108]=""
-T[C108]=""
+T[E108]="\n 1. WGCF WARP IP\n 2. WARP Linux Client IP\n"
+T[C108]="\n 1. WGCF WARP IP\n 2. WARP Linux Client IP\n"
 T[E109]="Socks5 Proxy Client on IPv4 VPS is working now. You can only choose the WARP IPv6 interface, please enter [y] to continue, and other keys to exit:"
 T[C109]="IPv4 only VPS，并且 Socks5 代理正在运行中，只能选择单栈方案，继续请输入 y，其他按键退出:"
 T[E110]="Socks5 Proxy Client on native dualstack VPS is working now. WARP interface could not be installed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -372,14 +372,13 @@ plus(){
 
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
-	yellow " ${T[${L}121]} "
-	[[ -z $(wg 2>/dev/null)  ]] && red " ${T[${L}122]} " && exit
+	change_wgcf(){
 	[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " ${T[${L}124]} " NETFLIX || NF=4
 	[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
 	i=0
-	while [[ -n $(wg) ]]
+	while [[ -n $(wg 2>/dev/null) ]]
 	do (( i++ )) || true
 	RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	[[ $RESULT = 200 ]] && 
@@ -391,6 +390,40 @@ change_ip(){
 	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
 	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf && sleep 3
 	done
+	}
+	
+	change_sock5(){
+	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
+	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
+	
+	i=0
+	while [[ $(ss -nltp) =~ 'warp-svc' ]]
+	do (( i++ )) || true
+	RESULT=$(curl --user-agent "${UA_Browser}" --socks5 "$PROXYSOCKS5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
+	[[ $RESULT = 200 ]] && 
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
+	proxy_info
+	[[ $LANGUAGE != 2 ]] && WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
+	[[ $LANGUAGE = 2 ]] && WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$(translate "$PROXYCOUNTRY")
+	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
+	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep 1 &&
+	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1 && sleep 3
+	done
+	}
+	
+	yellow " ${T[${L}121]} "
+	[[ -n $(wg 2>/dev/null) ]] && WGCFSTATUS=1 || WGCFSTATUS=0
+	[[ $(ss -nltp) =~ 'warp-svc' ]] && SOCKS5STATUS=1 || SOCKS5STATUS=0
+	case $WGCFSTATUS$SOCKS5STATUS in
+	01 ) change_sock5;;
+	10 ) change_wgcf;;
+	11 ) yellow " ${T[${L}108]} " && reading " ${T[${L}50]} " CHOOSESTATUS
+		case "$CHOOSESTATUS" in
+		1 ) change_wgcf;;	2 ) change_sock5;;	* ) red " ${T[${L}51]} [1-2]"; change_ip;;
+		esac;;
+	00 ) red " ${T[${L}122]} " && exit;;
+	esac	
 	}
 
 # 设置部分后缀 1/3
@@ -444,6 +477,7 @@ uninstall(){
 	warp-cli --accept-tos delete >/dev/null 2>&1
 	${APTYUM} autoremove cloudflare-warp 2>/dev/null
 	systemctl disable --now warp-svc >/dev/null 2>&1
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	}
 	
 	# 根据已安装情况执行卸载任务并显示结果
@@ -503,8 +537,7 @@ proxy_onoff(){
     [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && 
     [[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " ${T[${L}91]} "  && exit 0
     [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && STATUS=1 && proxy_info
-    [[ $LANGUAGE != 2 ]] && T99="Local Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG" || T99="本地 Socks5:$PROXYSOCKS5	WARP$AC	IPv4:$PROXYIP $PROXYCOUNTRY	$PROXYASNORG"
-    [[ $STATUS = 1 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && green " ${T[${L}90]}\n ${T[${L}99]} " && exit 0
+    [[ $STATUS = 1 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && green " ${T[${L}90]}\n $(eval echo "${T[${L}99]}") " && exit 0
     [[ $STATUS = 1 ]] && [[ $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " ${T[${L}96]} " && exit 1
     }
 
@@ -600,8 +633,10 @@ input_license(){
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}30]}") " LICENSE
 		done
-	[[ $INPUT_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
-	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
+	if [[ $INPUT_LICENSE = 1 ]]; then
+		[[ -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
+		[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
+	fi
 }
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
@@ -813,7 +848,7 @@ proxy(){
 		[[ -n $LICENSE ]] && ( yellow " ${T[${L}35]} " && 
 		warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1 && sleep 1 &&
 		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
-		[[ $ACCOUNT =~ Limited ]] && green " ${T[${L}62]} " ||
+		[[ $ACCOUNT =~ Limited ]] && echo "$LICENSE" >/etc/wireguard/license && green " ${T[${L}62]} " ||
 		red " ${T[${L}36]} " )
 		sleep 2 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " ${T[${L}87]} " && exit 1 || green " $(eval echo "${T[${L}86]}") "
 		}
@@ -825,6 +860,7 @@ proxy(){
 	input_license
 	input_port
 	start=$(date +%s)
+	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	if [[ $CLIENT = 0 ]]; then
 	green " ${T[${L}83]} "
 	[[ $SYSTEM = CentOS ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')".rpm
@@ -845,7 +881,6 @@ proxy(){
 	fi
 
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
-	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " ${T[${L}38]} "
@@ -883,19 +918,22 @@ update(){
 	update_license
 	warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1; sleep 1
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ Limited ]] && green " ${T[${L}62]}\n ${T[${L}63]}：$(($(echo "$ACCOUNT" | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " ${T[${L}36]} "
+	[[ $ACCOUNT =~ Limited ]] && echo "$LICENSE" >/etc/wireguard/license && green " ${T[${L}62]}\n ${T[${L}63]}：$(($(echo "$ACCOUNT" | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " ${T[${L}36]} "
 	}
 
 	# 根据 WARP interface 和 Client 的安装情况判断升级的对象
-	[[ $(type -P wg-quick) && ! $(type -P warp-cli) ]] && (wgcf_account; exit 0)
-	[[ ! $(type -P wg-quick) && $(type -P warp-cli) ]] && (client_account; exit 0)
-	[[ $(type -P wg-quick) && $(type -P warp-cli) ]] && 
-	(yellow " ${T[${L}98]} " && reading " ${T[${L}50]} " MODE
+	[[ $(type -P wg-quick) ]] && WGCFINSTALL=1 || WGCFINSTALL=0
+	[[ $(type -P warp-cli) ]] && SOCK5INSTALL=1 || SOCK5INSTALL=0
+	case $WGCFINSTALL$SOCK5INSTALL in
+	01 ) client_account; exit 0;;
+	10 ) wgcf_account; exit 0;;
+	11 ) yellow " ${T[${L}98]} " && reading " ${T[${L}50]} " MODE
 		case "$MODE" in
 		1 ) wgcf_account; exit 0;;
 		2 ) client_account; exit 0;;
 		* ) red " ${T[${L}51]} [1-2] "; sleep 1; update;;
-		esac)
+		esac;;
+	esac
 }
 
 # 显示菜单
@@ -934,7 +972,7 @@ menu(){
 			[[ $OPTION1 = ${T[${L}77]} ]] && onoff;;
 		2 )	[[ $OPTION2 = ${T[${L}68]} || $OPTION2 = ${T[${L}69]} || $OPTION2 = ${T[${L}34]} ]] && MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6) && install
 			[[ $OPTION2 = ${T[${L}78]} ]] && update;;
-		3 )	[[ $OPTION3 = ${T[${L}71]} ]] && OPTION=o; net
+		3 )	[[ $OPTION3 = ${T[${L}71]} ]] && OPTION=o && net
 			[[ $OPTION3 = ${T[${L}123]} ]] && change_ip;;
 		4 )	[[ $CLIENT = 2 || $CLIENT = 3 ]] && proxy_onoff || proxy;;
 		5 )	uninstall;;
