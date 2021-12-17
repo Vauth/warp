@@ -378,7 +378,7 @@ change_ip(){
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
 	i=0
-	while [[ -n $(wg 2>/dev/null) ]]
+	while true
 	do (( i++ )) || true
 	RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	[[ $RESULT = 200 ]] && 
@@ -397,7 +397,7 @@ change_ip(){
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 	
 	i=0
-	while [[ $(ss -nltp) =~ 'warp-svc' ]]
+	while true
 	do (( i++ )) || true
 	RESULT=$(curl --user-agent "${UA_Browser}" --socks5 "$PROXYSOCKS5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	[[ $RESULT = 200 ]] && 
