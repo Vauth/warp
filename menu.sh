@@ -23,7 +23,7 @@ declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="IMPORTANT:1.Support change the Netflix IP not only WARP but also Socks5 Client. Both will keep the Plus statu. Recommand runs under [screen]"
+T[E1]="IMPORTANT:1.Support change the Netflix IP not only WGCF but also Socks5 Client. Both will keep the Plus status. Recommand runs under [screen]"
 T[C1]="重大更新：1.支持 WARP Interface 和 Socks5 Client 自动更换支持奈飞的IP，两者都会保留 Plus 的状态，建议在 screen 下在后台运行"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -59,7 +59,7 @@ T[E17]="Version"
 T[C17]="脚本版本"
 T[E18]="New features"
 T[C18]="功能新增"
-T[E19]="System infomations"
+T[E19]="System infomation"
 T[C19]="系统信息"
 T[E20]="Operating System"
 T[C20]="当前操作系统"
@@ -273,8 +273,8 @@ T[E124]="It is IPv6 priority now, press [y] to change to IPv4 priority? And othe
 T[C124]="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
 T[E125]="Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 1 hour." 
 T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 1 小时后重新测试"
-T[E126]="Try \$i. Failed. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retry after 3 seconds." 
-T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 3秒后重新测试"
+T[E126]="Try \$i. Failed. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retry after \$j seconds." 
+T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， \$j秒后重新测试"
 
 # 脚本当天及累计运行次数统计
 COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
@@ -377,8 +377,8 @@ change_ip(){
 	[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
-	i=0
-	while [[ -n $(wg 2>/dev/null) ]]
+	i=0;j=3
+	while true
 	do (( i++ )) || true
 	RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	[[ $RESULT = 200 ]] && 
@@ -388,27 +388,27 @@ change_ip(){
 	[[ $LANGUAGE != 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(eval echo \$COUNTRY$NF)
 	[[ $LANGUAGE = 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)")
 	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
-	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf && sleep 3
+	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf && sleep $j
 	done
 	}
 	
 	change_sock5(){
+        [[ $(warp-cli --accept-tos account) =~ Missing ]] && warp-cli --accept-tos register && [[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1
 	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 	
-	i=0
-	while [[ $(ss -nltp) =~ 'warp-svc' ]]
+	i=0; [[ -e /etc/wireguard/license ]] && j=8 || j=10
+	while true
 	do (( i++ )) || true
 	RESULT=$(curl --user-agent "${UA_Browser}" --socks5 "$PROXYSOCKS5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	[[ $RESULT = 200 ]] && 
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
 	proxy_info
-	[[ $LANGUAGE != 2 ]] && WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
-	[[ $LANGUAGE = 2 ]] && WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$(translate "$PROXYCOUNTRY")
+	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$(translate "$PROXYCOUNTRY")
 	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
-	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep 1 &&
-	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1 && sleep 3
+	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
+	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1 && sleep 2
 	done
 	}
 	
@@ -531,14 +531,16 @@ onoff(){
 
 # PROXY 开关
 proxy_onoff(){
-    PROXY=$(warp-cli --accept-tos status 2>/dev/null)
-    [[ -z $PROXY ]] && red " ${T[${L}93]} " && exit 1
-    [[ $PROXY =~ Connecting ]] && red " ${T[${L}96]} " && exit 1
-    [[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && 
-    [[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " ${T[${L}91]} "  && exit 0
-    [[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && STATUS=1 && proxy_info
-    [[ $STATUS = 1 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && green " ${T[${L}90]}\n $(eval echo "${T[${L}99]}") " && exit 0
-    [[ $STATUS = 1 ]] && [[ $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " ${T[${L}96]} " && exit 1
+	PROXY=$(warp-cli --accept-tos status 2>/dev/null)
+	[[ -z $PROXY ]] && red " ${T[${L}93]} " && exit 1
+	[[ $PROXY =~ Connecting ]] && red " ${T[${L}96]} " && exit 1
+	[[ $PROXY =~ missing ]] && warp-cli --accept-tos register >/dev/null 2>&1 &&
+	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1
+	[[ $PROXY =~ Connected ]] && warp-cli --accept-tos disconnect >/dev/null 2>&1 && warp-cli --accept-tos disable-always-on >/dev/null 2>&1 && 
+	[[ ! $(ss -nltp) =~ 'warp-svc' ]] && green " ${T[${L}91]} "  && exit 0
+	[[ $PROXY =~ Disconnected ]] && warp-cli --accept-tos connect >/dev/null 2>&1 && warp-cli --accept-tos enable-always-on >/dev/null 2>&1 && STATUS=1 && proxy_info
+	[[ $STATUS = 1 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && green " ${T[${L}90]}\n $(eval echo "${T[${L}99]}") " && exit 0
+	[[ $STATUS = 1 ]] && [[ $(warp-cli --accept-tos status 2>/dev/null) =~ Connecting ]] && red " ${T[${L}96]} " && exit 1
     }
 
 # 设置部分后缀 2/3
