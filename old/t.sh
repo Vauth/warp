@@ -531,7 +531,7 @@ onoff(){
 
 # PROXY 开关
 proxy_onoff(){
-PROXY=$(warp-cli --accept-tos status 2>/dev/null)
+	PROXY=$(warp-cli --accept-tos status 2>/dev/null)
 	[[ -z $PROXY ]] && red " ${T[${L}93]} " && exit 1
 	[[ $PROXY =~ Connecting ]] && red " ${T[${L}96]} " && exit 1
 	[[ $PROXY =~ missing ]] && warp-cli --accept-tos register >/dev/null 2>&1 &&
