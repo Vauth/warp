@@ -83,8 +83,8 @@ T[E29]="Input errors up to 5 times.The script is aborted."
 T[C29]="输入错误达5次，脚本退出"
 T[E30]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\):"
 T[C30]="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续\(剩余\$i次\):"
-T[E31]="1.Update with WARP+ license\n 2.Update with Team (You need upload the Team file to a private storage space before. For example: gist.github.com)"
-T[C31]="1.使用  WARP+ license 升级\n 2.使用 Team 升级 (你须事前把 Team 文件上传到私密存储空间，比如：gist.github.com )"
+T[E31]="\n 1.Update with WARP+ license\n 2.Update with Team (You need upload the Team file to a private storage space before. For example: gist.github.com)"
+T[C31]="\n 1.使用 WARP+ license 升级\n 2.使用 Team 升级 (你须事前把 Team 文件上传到私密存储空间，比如：gist.github.com )"
 T[E32]="Step 1/3: Install dependencies..."
 T[C32]="进度 1/3：安装系统依赖……"
 T[E33]="Step 2/3: WGCF is ready"
@@ -923,7 +923,7 @@ update(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " ${T[${L}58]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " ${T[${L}59]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
-	yellow " ${T[${L}31]}" && reading " ${T[${L}50]} "  LICENSETYPE
+	yellow " ${T[${L}31]}" && reading " ${T[${L}50]} " LICENSETYPE
 	case $LICENSETYPE in
 	1 ) UPDATE_LICENSE=1 && update_license
 	cd /etc/wireguard || exit
@@ -936,26 +936,18 @@ update(){
 	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] &&
 	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
 	
-	2) reading " ${T[${L}127]} " URL
+	2 ) reading " ${T[${L}127]} " URL
 	TEAM=$(curl -sSL $URL)
-	sed -i "s#PrivateKey.*#PrivateKey = $(expr "$TEAM" : '.*private_key..\([^<]*\).*')#g;s#Address.*32#Address = $(expr "$TEAM" : '.*v4&quot;:&quot;\(172[^&]*\).*')/32#g;s#Address.*128#Address = $(expr "$TEAM" : '.*v6&quot;:&quot;\([^[&]*\).*')/128#g;s#PublicKey.*#PublicKey = $(expr "$a" : '.*public_key&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf
+	sed -i "s#PrivateKey.*#PrivateKey = $(expr "$TEAM" : '.*private_key..\([^<]*\).*')#g;s#Address.*32#Address = $(expr "$TEAM" : '.*v4&quot;:&quot;\(172[^&]*\).*')/32#g;s#Address.*128#Address = $(expr "$TEAM" : '.*v6&quot;:&quot;\([^[&]*\).*')/128#g;s#PublicKey.*#PublicKey = $(expr "$TEAM" : '.*public_key&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf
 		case $IPV4$IPV6 in
-			01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$a" : '.*v6&quot;:&quot;\(\[[^&]*\).*')#g" /etc/wireguard/wgcf.conf;;
-			10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$a" : '.*endpoint&quot;:{&quot;v4&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf;;	
+			01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*v6&quot;:&quot;\(\[[^&]*\).*')#g" /etc/wireguard/wgcf.conf;;
+			10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*endpoint&quot;:{&quot;v4&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf;;	
 		esac
+	wg-quick down wgcf >/dev/null 2>&1; net
 	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] && green " ${T[${L}128]} ";; 
+	
+	* ) red " ${T[${L}51]} [1-2] "; sleep 1; update
 	esac
-
-	UPDATE_LICENSE=1 && update_license
-	cd /etc/wireguard || exit
-	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
-	wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 &&
-	(wgcf generate >/dev/null 2>&1
-	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#;3s#.*#$(sed -ne 3p wgcf-profile.conf)#;4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
-	wg-quick down wgcf >/dev/null 2>&1
-	net
-	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] &&
-	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} "
 	}
 	
 	client_account(){
