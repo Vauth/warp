@@ -237,8 +237,8 @@ T[E106]="IPv6 priority"
 T[C106]="IPv6 优先"
 T[E107]="IPv4 priority"
 T[C107]="IPv4 优先"
-T[E108]="\n 1. WGCF WARP IP\n 2. WARP Linux Client IP\n"
-T[C108]="\n 1. WGCF WARP IP\n 2. WARP Linux Client IP\n"
+T[E108]="\n 1. WGCF WARP IP ( Only IPv6 can be brushed when WGCF and Client exist at the same time )\n 2. WARP Linux Client IP\n"
+T[C108]="\n 1. WGCF WARP IP ( WGCF 和 Client 并存时只能刷 IPv6)\n 2. WARP Linux Client IP\n"
 T[E109]="Socks5 Proxy Client on IPv4 VPS is working now. You can only choose the WARP IPv6 interface, please enter [y] to continue, and other keys to exit:"
 T[C109]="IPv4 only VPS，并且 Socks5 代理正在运行中，只能选择单栈方案，继续请输入 y，其他按键退出:"
 T[E110]="Socks5 Proxy Client on native dualstack VPS is working now. WARP interface could not be installed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -320,7 +320,11 @@ proxy_info(){
 	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
 	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
+	if [[ $ACCOUNT =~ 'Limited' ]]; then
+	QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
+	[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TB" ||  QUOTA="$((QUOTA/1000000000)) GB"
+	AC=+
+	fi
 	}
 
 # IPv4 / IPv6 优先选项
@@ -373,8 +377,11 @@ plus(){
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
 	change_wgcf(){
-	[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " ${T[${L}124]} " NETFLIX || NF=4
-	[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
+	if [[ $WGCFSTATUS$SOCKS5STATUS != 11 ]]; then
+		[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " ${T[${L}124]} " NETFLIX || NF=4
+		[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
+	else NF=6
+	fi
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
 	i=0;j=3
@@ -384,7 +391,7 @@ change_ip(){
 	[[ $RESULT = 200 ]] && 
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
-	ip${NF}_info
+	ip${NF}_info; until [[ -n "ip${NF}" ]]; do ip${NF}_info; done
 	[[ $LANGUAGE != 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(eval echo \$COUNTRY$NF)
 	[[ $LANGUAGE = 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)")
 	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
@@ -392,8 +399,7 @@ change_ip(){
 	done
 	}
 	
-	change_sock5(){
-        [[ $(warp-cli --accept-tos account) =~ Missing ]] && warp-cli --accept-tos register && [[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1
+	change_socks5(){
 	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 	
@@ -404,23 +410,33 @@ change_ip(){
 	[[ $RESULT = 200 ]] && 
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
-	proxy_info
+	proxy_info; until [[ -n "$PROXYJASON" ]]; do proxy_info; done
 	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$(translate "$PROXYCOUNTRY")
 	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
 	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
 	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1 && sleep 2
 	done
 	}
-	
+
+	# 判断刷 IP 时 WGCF 和 Client 的状态，分情况处理
+	WGCFSTATUS=0; SOCKS5STATUS=0
 	yellow " ${T[${L}121]} "
-	[[ -n $(wg 2>/dev/null) ]] && WGCFSTATUS=1 || WGCFSTATUS=0
-	[[ $(ss -nltp) =~ 'warp-svc' ]] && SOCKS5STATUS=1 || SOCKS5STATUS=0
+	if [[ -z $(wg 2>/dev/null) ]]; then
+	type -P wg-quick >/dev/null 2>&1 && wg-quick up wgcf >/dev/null 2>&1 && WGCFSTATUS=1
+	else WGCFSTATUS=1
+	fi
+
+	if [[ ! $(ss -nltp) =~ 'warp-svc' ]]; then
+	type -P warp-cli >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && SOCKS5STATUS=1 && [[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1
+	else SOCKS5STATUS=1
+	fi
+
 	case $WGCFSTATUS$SOCKS5STATUS in
-	01 ) change_sock5;;
+	01 ) change_socks5;;
 	10 ) change_wgcf;;
 	11 ) yellow " ${T[${L}108]} " && reading " ${T[${L}50]} " CHOOSESTATUS
 		case "$CHOOSESTATUS" in
-		1 ) change_wgcf;;	2 ) change_sock5;;	* ) red " ${T[${L}51]} [1-2]"; change_ip;;
+		1 ) change_wgcf;;	2 ) change_socks5;;	* ) red " ${T[${L}51]} [1-2]"; change_ip;;
 		esac;;
 	00 ) red " ${T[${L}122]} " && exit;;
 	esac	
@@ -891,7 +907,7 @@ proxy(){
 	proxy_info
 	end=$(date +%s)
 	[[ $ACCOUNT =~ Free ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}") "
-	[[ $ACCOUNT =~ Limited ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}")\n ${T[${L}63]}：$QUOTA TB"
+	[[ $ACCOUNT =~ Limited ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}")\n ${T[${L}63]}：$QUOTA "
 	red "\n==============================================================\n"
 	yellow " ${T[${L}43]}\n " && help
 	}
@@ -920,7 +936,14 @@ update(){
 	update_license
 	warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1; sleep 1
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ Limited ]] && echo "$LICENSE" >/etc/wireguard/license && green " ${T[${L}62]}\n ${T[${L}63]}：$(($(echo "$ACCOUNT" | awk '{ print $(NF-3) }')/1000000000000)) TB " || red " ${T[${L}36]} "
+	if [[ $ACCOUNT =~ 'Limited' ]]; then
+	echo "$LICENSE" >/etc/wireguard/license
+	QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
+	[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TB" ||  QUOTA="$((QUOTA/1000000000)) GB"
+	green " ${T[${L}62]}\n ${T[${L}63]}：$QUOTA "
+	
+	else red " ${T[${L}36]} "
+	fi
 	}
 
 	# 根据 WARP interface 和 Client 的安装情况判断升级的对象
