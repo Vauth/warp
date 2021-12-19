@@ -429,7 +429,7 @@ change_ip(){
 	fi
 
 	case $WGCFSTATUS$SOCKS5STATUS in
-	01 ) change_sock5;;
+	01 ) change_socks5;;
 	10 ) change_wgcf;;
 	11 ) yellow " ${T[${L}108]} " && reading " ${T[${L}50]} " CHOOSESTATUS
 		case "$CHOOSESTATUS" in
