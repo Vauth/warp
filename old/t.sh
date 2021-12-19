@@ -377,9 +377,11 @@ plus(){
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
 	change_wgcf(){
-	NF=4
-	[[ $WGCFSTATUS$SOCKS5STATUS != 11 ]] && [[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " ${T[${L}124]} " NETFLIX
-	[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
+	if [[ $WGCFSTATUS$SOCKS5STATUS != 11 ]]; then
+		[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " ${T[${L}124]} " NETFLIX || NF=4
+		[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
+	else NF=6
+	fi
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
 	i=0;j=3
