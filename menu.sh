@@ -322,7 +322,7 @@ proxy_info(){
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	if [[ $ACCOUNT =~ 'Limited' ]]; then
 	QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
-	[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TB" ||  QUOTA="$((QUOTA/1000000000)) GB"
+	[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TiB" ||  QUOTA="$((QUOTA/1000000000)) GiB"
 	AC=+
 	fi
 	}
@@ -411,7 +411,7 @@ change_ip(){
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
 	proxy_info; until [[ -n "$PROXYJASON" ]]; do proxy_info; done
-	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$(translate "$PROXYCOUNTRY")
+	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
 	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
 	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
 	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1 && sleep 2
