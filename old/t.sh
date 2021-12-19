@@ -320,7 +320,11 @@ proxy_info(){
 	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
 	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ 'Limited' ]] && QUOTA=$(($(echo $ACCOUNT | awk '{ print $(NF-3) }')/1000000000000)) && AC=+
+	if [[ $ACCOUNT =~ 'Limited' ]]; then
+	QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
+	[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TB" ||  QUOTA="$((QUOTA/1000000000)) GB"
+	AC=+
+	fi
 	}
 
 # IPv4 / IPv6 优先选项
@@ -920,7 +924,14 @@ update(){
 	update_license
 	warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1; sleep 1
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	[[ $ACCOUNT =~ Limited ]] && echo "$LICENSE" >/etc/wireguard/license && green " ${T[${L}62]}\n ${T[${L}63]}：$(($(echo "$ACCOUNT" | grep -i quota | cut -d : -f2)/1000000000000)) TB " || red " ${T[${L}36]} "
+	if [[ $ACCOUNT =~ 'Limited' ]]; then
+	echo "$LICENSE" >/etc/wireguard/license
+	QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
+	[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TB" ||  QUOTA="$((QUOTA/1000000000)) GB"
+	green " ${T[${L}62]}\n ${T[${L}63]}：$QUOTA "
+	
+	else red " ${T[${L}36]} "
+	fi
 	}
 
 	# 根据 WARP interface 和 Client 的安装情况判断升级的对象
