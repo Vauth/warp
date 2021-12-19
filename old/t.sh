@@ -416,9 +416,14 @@ change_ip(){
 	done
 	}
 	
+	# 判断刷 IP 时 WGCF 和 Client 的状态，分情况处理
+	WGCFSTATUS=0; SOCKS5STATUS=0
 	yellow " ${T[${L}121]} "
-	[[ -n $(wg 2>/dev/null) ]] && WGCFSTATUS=1 || WGCFSTATUS=0
-	[[ $(ss -nltp) =~ 'warp-svc' ]] && SOCKS5STATUS=1 || SOCKS5STATUS=0
+	[[ -n $(wg 2>/dev/null) ]] && WGCFSTATUS=1
+	if [[ ! $(ss -nltp) =~ 'warp-svc' ]]; then
+	type -P warp-cli >/dev/null 2>&1 && warp-cli --accept-tos register && SOCKS5STATUS=1 && [[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1
+	else SOCKS5STATUS=1
+	fi
 	case $WGCFSTATUS$SOCKS5STATUS in
 	01 ) change_sock5;;
 	10 ) change_wgcf;;
@@ -895,7 +900,7 @@ proxy(){
 	proxy_info
 	end=$(date +%s)
 	[[ $ACCOUNT =~ Free ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}") "
-	[[ $ACCOUNT =~ Limited ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}")\n ${T[${L}63]}：$QUOTA TB"
+	[[ $ACCOUNT =~ Limited ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}99]}")\n ${T[${L}63]}：$QUOTA "
 	red "\n==============================================================\n"
 	yellow " ${T[${L}43]}\n " && help
 	}
