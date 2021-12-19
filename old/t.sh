@@ -397,7 +397,6 @@ change_ip(){
 	}
 	
 	change_sock5(){
-        [[ $(warp-cli --accept-tos account) =~ Missing ]] && warp-cli --accept-tos register && [[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1
 	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 	
@@ -421,7 +420,7 @@ change_ip(){
 	yellow " ${T[${L}121]} "
 	[[ -n $(wg 2>/dev/null) ]] && WGCFSTATUS=1
 	if [[ ! $(ss -nltp) =~ 'warp-svc' ]]; then
-	type -P warp-cli >/dev/null 2>&1 && warp-cli --accept-tos register && SOCKS5STATUS=1 && [[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1
+	type -P warp-cli >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && SOCKS5STATUS=1 && [[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1
 	else SOCKS5STATUS=1
 	fi
 	case $WGCFSTATUS$SOCKS5STATUS in
