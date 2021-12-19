@@ -396,7 +396,7 @@ change_ip(){
 	done
 	}
 	
-	change_sock5(){
+	change_socks5(){
 	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
 	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 	
@@ -414,21 +414,26 @@ change_ip(){
 	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1 && sleep 2
 	done
 	}
-	
+
 	# 判断刷 IP 时 WGCF 和 Client 的状态，分情况处理
 	WGCFSTATUS=0; SOCKS5STATUS=0
 	yellow " ${T[${L}121]} "
-	[[ -n $(wg 2>/dev/null) ]] && WGCFSTATUS=1
+	if [[ -z $(wg 2>/dev/null) ]]; then
+	type -P wg-quick >/dev/null 2>&1 && wg-quick up wgcf >/dev/null 2>&1 && WGCFSTATUS=1
+	else WGCFSTATUS=1
+	fi
+
 	if [[ ! $(ss -nltp) =~ 'warp-svc' ]]; then
 	type -P warp-cli >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && SOCKS5STATUS=1 && [[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1
 	else SOCKS5STATUS=1
 	fi
+
 	case $WGCFSTATUS$SOCKS5STATUS in
 	01 ) change_sock5;;
 	10 ) change_wgcf;;
 	11 ) yellow " ${T[${L}108]} " && reading " ${T[${L}50]} " CHOOSESTATUS
 		case "$CHOOSESTATUS" in
-		1 ) change_wgcf;;	2 ) change_sock5;;	* ) red " ${T[${L}51]} [1-2]"; change_ip;;
+		1 ) change_wgcf;;	2 ) change_socks5;;	* ) red " ${T[${L}51]} [1-2]"; change_ip;;
 		esac;;
 	00 ) red " ${T[${L}122]} " && exit;;
 	esac	
