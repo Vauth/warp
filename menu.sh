@@ -23,8 +23,8 @@ declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="IMPORTANT:1.Support change the Netflix IP not only WGCF but also Socks5 Client. Both will keep the Plus status. Recommand runs under [screen]"
-T[C1]="重大更新：1.支持 WARP Interface 和 Socks5 Client 自动更换支持奈飞的IP，两者都会保留 Plus 的状态，建议在 screen 下在后台运行"
+T[E1]="1.Support change the Netflix IP not only WGCF but also Socks5 Client. Both will keep the Plus status. Recommand runs under [screen] 2.Support update to TEAM account online"
+T[C1]="1.支持 WARP Interface 和 Socks5 Client 自动更换支持奈飞的IP，两者都会保留 Plus 的状态，建议在 screen 下在后台运行 2.支持在线升级为 TEAM 账户"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -83,8 +83,8 @@ T[E29]="Input errors up to 5 times.The script is aborted."
 T[C29]="输入错误达5次，脚本退出"
 T[E30]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\):"
 T[C30]="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续\(剩余\$i次\):"
-T[E31]=""
-T[C31]=""
+T[E31]="\n 1.Update with WARP+ license\n 2.Update with Team (You need upload the Team file to a private storage space before. For example: gist.github.com)\n"
+T[C31]="\n 1.使用 WARP+ license 升级\n 2.使用 Team 升级 (你须事前把 Team 文件上传到私密存储空间，比如：gist.github.com )\n"
 T[E32]="Step 1/3: Install dependencies..."
 T[C32]="进度 1/3：安装系统依赖……"
 T[E33]="Step 2/3: WGCF is ready"
@@ -95,7 +95,7 @@ T[E35]="Update WARP+ account..."
 T[C35]="升级 WARP+ 账户中……"
 T[E36]="The upgrade failed, WARP+ account error or more than 5 devices have been activated. Free WARP account to continu."
 T[C36]="升级失败，WARP+ 账户错误或者已激活超过5台设备，自动更换免费 WARP 账户继续"
-T[E37]="Checking VPS infomations..."
+T[E37]="Checking VPS infomation..."
 T[C37]="检查环境中……"
 T[E38]="Create shortcut [warp] successfully"
 T[C38]="创建快捷 warp 指令成功"
@@ -249,8 +249,8 @@ T[E112]="Client is not installed."
 T[C112]="Client 未安装"
 T[E113]="Client is installed and disconnected"
 T[C113]="Client 已安装，状态为断开连接"
-T[E114]="WARP+ Interface is on"
-T[C114]="WARP+ 网络接口已开启"
+T[E114]="WARP\$TYPE Interface is on"
+T[C114]="WARP\$TYPE 网络接口已开启"
 T[E115]="WARP Interface is on"
 T[C115]="WARP 网络接口已开启"
 T[E116]="WARP Interface is off"
@@ -275,6 +275,12 @@ T[E125]="Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest afte
 T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 1 小时后重新测试"
 T[E126]="Try \$i. Failed. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retry after \$j seconds." 
 T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， \$j秒后重新测试"
+T[E127]="Please input Team file URL:" 
+T[C127]="请输入 Team 文件 URL:"
+T[E128]="Successfully upgraded to a WARP Team account"
+T[C128]="已升级为 WARP Team 账户"
+T[E129]="The current Team account is unavailable, automatically switch back to the free account"
+T[C129]="当前 Team 账户不可用，自动切换回免费账户"
 
 # 脚本当天及累计运行次数统计
 COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
@@ -295,7 +301,9 @@ ip4_info(){
 	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
 	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE4=$(curl -s4m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
-	[[ $TRACE4 = plus ]] && PLUS4=+
+	if [[ $TRACE4 = plus ]]; then 
+	grep 'Device name' /etc/wireguard/info.log 2>/dev/null && PLUS4=+ || PLUS4=' Team'
+	fi
 	[[ $TRACE4 = on || $TRACE4 = plus ]] && WARPSTATUS4="( WARP$PLUS4 IPv4 )"
 	}
 
@@ -306,7 +314,9 @@ ip6_info(){
 	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
 	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE6=$(curl -s6m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
-	[[ $TRACE6 = plus ]] && PLUS6=+
+	if [[ $TRACE6 = plus ]]; then 
+	grep 'Device name' /etc/wireguard/info.log 2>/dev/null && PLUS6=+ || PLUS6=' Team'
+	fi
 	[[ $TRACE6 = on || $TRACE6 = plus ]] && WARPSTATUS6="( WARP$PLUS6 IPv6 )"
 	}
 
@@ -532,7 +542,15 @@ net(){
 			systemctl restart wg-quick@wgcf >/dev/null 2>&1
 			ip4_info
 			[[ -n $IP4 ]] && ip6_info
-			[[ $i = "$j" ]] && (wg-quick down wgcf >/dev/null 2>&1; red " $(eval echo "${T[${L}13]}") ") && exit 1
+			if [[ $i = "$j" ]]; then
+				if [[ $LICENSETYPE = 2 ]]; then 
+				unset LICENSETYPE && i=0 && green " ${T[${L}129]} " &&
+				cp -f /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf
+				else
+				wg-quick down wgcf >/dev/null 2>&1
+				red " $(eval echo "${T[${L}13]}") " && exit 1
+				fi
+			fi
         	done
 	green " ${T[${L}14]} "
 	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
@@ -918,7 +936,9 @@ update(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " ${T[${L}58]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " ${T[${L}59]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
-	UPDATE_LICENSE=1 && update_license
+	yellow " ${T[${L}31]}" && reading " ${T[${L}50]} " LICENSETYPE
+	case $LICENSETYPE in
+	1 ) UPDATE_LICENSE=1 && update_license
 	cd /etc/wireguard || exit
 	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
 	wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 &&
@@ -927,7 +947,20 @@ update(){
 	wg-quick down wgcf >/dev/null 2>&1
 	net
 	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] &&
-	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} "
+	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
+	
+	2 ) reading " ${T[${L}127]} " URL
+	TEAM=$(curl -sSL $URL); echo "$TEAM" > /etc/wireguard/info.log 2>&1
+	sed -i "s#PrivateKey.*#PrivateKey = $(expr "$TEAM" : '.*private_key..\([^<]*\).*')#g;s#Address.*32#Address = $(expr "$TEAM" : '.*v4&quot;:&quot;\(172[^&]*\).*')/32#g;s#Address.*128#Address = $(expr "$TEAM" : '.*v6&quot;:&quot;\([^[&]*\).*')/128#g;s#PublicKey.*#PublicKey = $(expr "$TEAM" : '.*public_key&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf
+		case $IPV4$IPV6 in
+			01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*v6&quot;:&quot;\(\[[^&]*\).*')#g" /etc/wireguard/wgcf.conf;;
+			10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*endpoint&quot;:{&quot;v4&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf;;	
+		esac
+	wg-quick down wgcf >/dev/null 2>&1; net
+	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] && green " ${T[${L}128]} ";; 
+	
+	* ) red " ${T[${L}51]} [1-2] "; sleep 1; update
+	esac
 	}
 	
 	client_account(){
@@ -976,13 +1009,15 @@ menu(){
 	2 )	OPTION4=${T[${L}88]};; 3 ) OPTION4=${T[${L}89]};; * ) OPTION4=${T[${L}82]};;
 	esac
 	
+	grep 'Device name' /etc/wireguard/info.log 2>/dev/null && TYPE=+ && PLUSINFO="${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')" || TYPE=' Team'
+	
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
 	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}：\n	${T[${L}20]}：$SYS\n	${T[${L}21]}：$(uname -r)\n	${T[${L}22]}：$ARCHITECTURE\n	${T[${L}23]}：$VIRT "
 	green "	IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
 	green "	IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	${T[${L}114]}	${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	$(eval echo "${T[${L}114]}")	$PLUSINFO "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	${T[${L}115]} " 	
 	[[ $PLAN != 3 ]] && green "	${T[${L}116]} "
 	[[ $CLIENT = 0 ]] && green "	${T[${L}112]} "
