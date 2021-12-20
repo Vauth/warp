@@ -302,7 +302,7 @@ ip4_info(){
 	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE4=$(curl -s4m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	if [[ $TRACE4 = plus ]]; then 
-	grep 'Device name' /etc/wireguard/info.log 2>/dev/null && PLUS4=+ || PLUS4=' TEAM'
+	grep 'Device name' /etc/wireguard/info.log 2>/dev/null && PLUS4=+ || PLUS4=' Team'
 	fi
 	[[ $TRACE4 = on || $TRACE4 = plus ]] && WARPSTATUS4="( WARP$PLUS4 IPv4 )"
 	}
@@ -315,7 +315,7 @@ ip6_info(){
 	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE6=$(curl -s6m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	if [[ $TRACE6 = plus ]]; then 
-	grep 'Device name' /etc/wireguard/info.log 2>/dev/null && PLUS6=+ || PLUS6=' TEAM'
+	grep 'Device name' /etc/wireguard/info.log 2>/dev/null && PLUS6=+ || PLUS6=' Team'
 	fi
 	[[ $TRACE6 = on || $TRACE6 = plus ]] && WARPSTATUS6="( WARP$PLUS6 IPv6 )"
 	}
