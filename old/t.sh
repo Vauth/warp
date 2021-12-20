@@ -279,7 +279,8 @@ T[E127]="Please input Team file URL:"
 T[C127]="请输入 Team 文件 URL:"
 T[E128]="Successfully upgraded to a WARP Team account"
 T[C128]="已升级为 WARP Team 账户"
-
+T[E129]="The current Team account is unavailable, automatically switch back to the free account"
+T[C129]="当前 Team 账户不可用，自动切换回免费账户"
 
 # 脚本当天及累计运行次数统计
 COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
@@ -537,7 +538,15 @@ net(){
 			systemctl restart wg-quick@wgcf >/dev/null 2>&1
 			ip4_info
 			[[ -n $IP4 ]] && ip6_info
-			[[ $i = "$j" ]] && (wg-quick down wgcf >/dev/null 2>&1; red " $(eval echo "${T[${L}13]}") ") && exit 1
+			if [[ $i = "$j" ]]; then
+				if [[ $LICENSETYPE = 2 ]]; then 
+				unset LICENSETYPE && green " ${T[${L}129]} " &&
+				cp /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf && net
+				else
+				wg-quick down wgcf >/dev/null 2>&1
+				red " $(eval echo "${T[${L}13]}") ") && exit 1
+				fi
+			fi
         	done
 	green " ${T[${L}14]} "
 	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
