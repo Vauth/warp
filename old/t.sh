@@ -540,8 +540,8 @@ net(){
 			[[ -n $IP4 ]] && ip6_info
 			if [[ $i = "$j" ]]; then
 				if [[ $LICENSETYPE = 2 ]]; then 
-				unset LICENSETYPE && green " ${T[${L}129]} " &&
-				cp -f /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf && net
+				unset LICENSETYPE && i=1 && green " ${T[${L}129]} " &&
+				cp -f /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf
 				else
 				wg-quick down wgcf >/dev/null 2>&1
 				red " $(eval echo "${T[${L}13]}") " && exit 1
