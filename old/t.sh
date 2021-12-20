@@ -95,7 +95,7 @@ T[E35]="Update WARP+ account..."
 T[C35]="升级 WARP+ 账户中……"
 T[E36]="The upgrade failed, WARP+ account error or more than 5 devices have been activated. Free WARP account to continu."
 T[C36]="升级失败，WARP+ 账户错误或者已激活超过5台设备，自动更换免费 WARP 账户继续"
-T[E37]="Checking VPS infomations..."
+T[E37]="Checking VPS infomation..."
 T[C37]="检查环境中……"
 T[E38]="Create shortcut [warp] successfully"
 T[C38]="创建快捷 warp 指令成功"
@@ -249,8 +249,8 @@ T[E112]="Client is not installed."
 T[C112]="Client 未安装"
 T[E113]="Client is installed and disconnected"
 T[C113]="Client 已安装，状态为断开连接"
-T[E114]="WARP+ Interface is on"
-T[C114]="WARP+ 网络接口已开启"
+T[E114]="WARP \$TYPE Interface is on"
+T[C114]="WARP \$TYPE 网络接口已开启"
 T[E115]="WARP Interface is on"
 T[C115]="WARP 网络接口已开启"
 T[E116]="WARP Interface is off"
@@ -946,7 +946,7 @@ update(){
 	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
 	
 	2 ) reading " ${T[${L}127]} " URL
-	TEAM=$(curl -sSL $URL)
+	TEAM=$(curl -sSL $URL); echo "$TEAM" > /etc/wireguard/info.log 2>&1
 	sed -i "s#PrivateKey.*#PrivateKey = $(expr "$TEAM" : '.*private_key..\([^<]*\).*')#g;s#Address.*32#Address = $(expr "$TEAM" : '.*v4&quot;:&quot;\(172[^&]*\).*')/32#g;s#Address.*128#Address = $(expr "$TEAM" : '.*v6&quot;:&quot;\([^[&]*\).*')/128#g;s#PublicKey.*#PublicKey = $(expr "$TEAM" : '.*public_key&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf
 		case $IPV4$IPV6 in
 			01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*v6&quot;:&quot;\(\[[^&]*\).*')#g" /etc/wireguard/wgcf.conf;;
@@ -1005,13 +1005,15 @@ menu(){
 	2 )	OPTION4=${T[${L}88]};; 3 ) OPTION4=${T[${L}89]};; * ) OPTION4=${T[${L}82]};;
 	esac
 	
+	[[ grep 'Device name' /etc/wireguard/info.log 2>/dev/null ]] && TYPE=Plus && PLUSINFO="${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')" || TYPE=Team
+	
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
 	green " ${T[${L}17]}：$VERSION  ${T[${L}18]}：${T[${L}1]}\n ${T[${L}19]}：\n	${T[${L}20]}：$SYS\n	${T[${L}21]}：$(uname -r)\n	${T[${L}22]}：$ARCHITECTURE\n	${T[${L}23]}：$VIRT "
 	green "	IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
 	green "	IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	${T[${L}114]}	${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }') "
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	$(eval echo "${T[${L}114]}")	$PLUSINFO "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	${T[${L}115]} " 	
 	[[ $PLAN != 3 ]] && green "	${T[${L}116]} "
 	[[ $CLIENT = 0 ]] && green "	${T[${L}112]} "
