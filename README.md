@@ -135,6 +135,10 @@ WireGuard 网络接口数据，查看 ```wg```
 
 具体原创文章:https://parkercs.tech/cloudflare-for-teams-wireguard-config/
 
+Download 下载:
+1.Android Studio: [MAC](https://redirector.gvt1.com/edgedl/android/studio/install/2020.3.1.26/android-studio-2020.3.1.26-mac.dmg)     [WIN](https://redirector.gvt1.com/edgedl/android/studio/install/2020.3.1.26/android-studio-2020.3.1.26-windows.exe)     2.Android platform-tools:[MAC](https://dl.google.com/android/repository/platform-tools-latest-darwin.zip)     [WIN](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)
+
+
 感谢 Misaka 落地图文说明:https://blog.misaka.rest/202112/291.html    
 视频:https://www.bilibili.com/video/BV1gU4y1K7of/
 
