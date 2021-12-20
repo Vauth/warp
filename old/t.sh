@@ -249,8 +249,8 @@ T[E112]="Client is not installed."
 T[C112]="Client 未安装"
 T[E113]="Client is installed and disconnected"
 T[C113]="Client 已安装，状态为断开连接"
-T[E114]="WARP \$TYPE Interface is on"
-T[C114]="WARP \$TYPE 网络接口已开启"
+T[E114]="WARP\$TYPE Interface is on"
+T[C114]="WARP\$TYPE 网络接口已开启"
 T[E115]="WARP Interface is on"
 T[C115]="WARP 网络接口已开启"
 T[E116]="WARP Interface is off"
@@ -1005,7 +1005,7 @@ menu(){
 	2 )	OPTION4=${T[${L}88]};; 3 ) OPTION4=${T[${L}89]};; * ) OPTION4=${T[${L}82]};;
 	esac
 	
-	[[ grep 'Device name' /etc/wireguard/info.log 2>/dev/null ]] && TYPE=Plus && PLUSINFO="${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')" || TYPE=Team
+	grep 'Device name' /etc/wireguard/info.log 2>/dev/null && TYPE=+ && PLUSINFO="${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')" || TYPE=' Team'
 	
 	clear
 	yellow " ${T[${L}16]} "
