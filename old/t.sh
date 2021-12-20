@@ -23,8 +23,8 @@ declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="IMPORTANT:1.Support change the Netflix IP not only WGCF but also Socks5 Client. Both will keep the Plus status. Recommand runs under [screen]"
-T[C1]="重大更新：1.支持 WARP Interface 和 Socks5 Client 自动更换支持奈飞的IP，两者都会保留 Plus 的状态，建议在 screen 下在后台运行"
+T[E1]="1.Support change the Netflix IP not only WGCF but also Socks5 Client. Both will keep the Plus status. Recommand runs under [screen] 2.Support update to TEAM account online"
+T[C1]="1.支持 WARP Interface 和 Socks5 Client 自动更换支持奈飞的IP，两者都会保留 Plus 的状态，建议在 screen 下在后台运行 2.支持在线升级为 TEAM 账户"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -301,7 +301,9 @@ ip4_info(){
 	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
 	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE4=$(curl -s4m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
-	[[ $TRACE4 = plus ]] && PLUS4=+
+	if [[ $TRACE4 = plus ]]; then 
+	grep 'Device name' /etc/wireguard/info.log 2>/dev/null && PLUS4=+ || PLUS4=' TEAM'
+	fi
 	[[ $TRACE4 = on || $TRACE4 = plus ]] && WARPSTATUS4="( WARP$PLUS4 IPv4 )"
 	}
 
@@ -312,7 +314,9 @@ ip6_info(){
 	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
 	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE6=$(curl -s6m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
-	[[ $TRACE6 = plus ]] && PLUS6=+
+	if [[ $TRACE6 = plus ]]; then 
+	grep 'Device name' /etc/wireguard/info.log 2>/dev/null && PLUS6=+ || PLUS6=' TEAM'
+	fi
 	[[ $TRACE6 = on || $TRACE6 = plus ]] && WARPSTATUS6="( WARP$PLUS6 IPv6 )"
 	}
 
