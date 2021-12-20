@@ -541,10 +541,10 @@ net(){
 			if [[ $i = "$j" ]]; then
 				if [[ $LICENSETYPE = 2 ]]; then 
 				unset LICENSETYPE && green " ${T[${L}129]} " &&
-				cp /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf && net
+				cp -f /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf && net
 				else
 				wg-quick down wgcf >/dev/null 2>&1
-				red " $(eval echo "${T[${L}13]}") ") && exit 1
+				red " $(eval echo "${T[${L}13]}") " && exit 1
 				fi
 			fi
         	done
