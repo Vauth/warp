@@ -113,6 +113,8 @@ warp 2
 ```
 ## WARP+ License 及 ID 获取
 
+以下是使用WARP和Team后 Argo 2.0 的官方介绍:[Argo 2.0: Smart Routing Learns New Tricks](https://blog.cloudflare.com/argo-v2/)
+
 引用Luminous大神原话：实际测试WARP+在访问非CF的网站速度上和免费版没有差异，只有在访问CloudFlare的站点时付费版会通过Argo类似的技术通过与目标较近的数据中心前往源站，而免费版是仅限于连接地前往源站，仅此而已。
 
 <img src="https://user-images.githubusercontent.com/62703343/136070323-47f2600a-13e4-4eb0-a64d-d7eb805c28e2.png" width="70%" />
@@ -185,6 +187,7 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 * Hiram: https://hiram.wang/cloudflare-wrap-vps
 * Cloudflare: https://developers.cloudflare.com/warp-client/setting-up/linux  
 https://blog.cloudflare.com/announcing-warp-for-linux-and-proxy-mode/
+https://blog.cloudflare.com/argo-v2/
 * WireGuard: https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
 * Parker C. Stephens: https://parkercs.tech/cloudflare-for-teams-wireguard-config/
 
