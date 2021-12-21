@@ -281,8 +281,8 @@ T[E128]="Successfully upgraded to a WARP Team account"
 T[C128]="已升级为 WARP Team 账户"
 T[E129]="The current Team account is unavailable, automatically switch back to the free account"
 T[C129]="当前 Team 账户不可用，自动切换回免费账户"
-T[E130]="\n Please confirm the Team account infomation as follow:\n Private key: \$PRIVATEKEY\n Public key: \$PUBLICKEY\n Address IPv4: \$ADDRESS4\n Address IPv6: \$ADDRESS6\n"
-T[C130]="\n 请确认以下 Team 账户信息:\n Private key: \$PRIVATEKEY\n Public key: \$PUBLICKEY\n Address IPv4: \$ADDRESS4\n Address IPv6: \$ADDRESS6\n"
+T[E130]="\\\n Please confirm the Team account infomation as follow:\\\n Private key: \$PRIVATEKEY\\\n Public key: \$PUBLICKEY\\\n Address IPv4: \$ADDRESS4\\\n Address IPv6: \$ADDRESS6\\\n"
+T[C130]="\\\n 请确认以下 Team 账户信息:\\\n Private key: \$PRIVATEKEY\\\n Public key: \$PUBLICKEY\\\n Address IPv4: \$ADDRESS4\\\n Address IPv6: \$ADDRESS6\\\n"
 T[E131]="comfirm please enter [y] , and other keys to use free account:"
 T[C131]="确认请按 y ，其他按键则使用免费账户:"
 T[E132]="\n Is there a WARP+ or Team account?\n 1. WARP+\n 2. Team\n 3. use free account\n"
@@ -668,6 +668,15 @@ MODIFYS10='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4
 MODIFYD10='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
 MODIFYD11='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf'
 
+# 替换为 Team 账户信息
+team_change(){
+	sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" /etc/wireguard/wgcf.conf
+		case $IPV4$IPV6 in
+			01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*v6&quot;:&quot;\(\[[^&]*\).*')#g" /etc/wireguard/wgcf.conf;;
+			10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*endpoint&quot;:{&quot;v4&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf;;	
+		esac
+	}
+	
 # 输入 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
 input_license(){
 	[[ -z $LICENSE ]] && reading " ${T[${L}28]} " LICENSE
@@ -680,7 +689,7 @@ input_license(){
 		[[ -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
 		[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
 	fi
-}
+	}
 
 # 输入 Team 账户 URL（如有）
 input_url(){
@@ -859,8 +868,10 @@ install(){
 
 	echo "$MODIFY" | sh
 	
-	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
+	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf, 如有 Team，改为 Team 账户信息
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
+	
+	[[ $CONFIRM = [Yy] ]] && team_change
 
 	# 设置开机启动
 	systemctl enable --now wg-quick@wgcf >/dev/null 2>&1
@@ -973,15 +984,9 @@ update(){
 	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
 	
 	2 ) input_url
-	if [[ $CONFIRM = [Yy] ]]; then
-	sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" /etc/wireguard/wgcf.conf
-		case $IPV4$IPV6 in
-			01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*v6&quot;:&quot;\(\[[^&]*\).*')#g" /etc/wireguard/wgcf.conf;;
-			10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*endpoint&quot;:{&quot;v4&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf;;	
-		esac
+	[[ $CONFIRM = [Yy] ]] && (team_change
 	wg-quick down wgcf >/dev/null 2>&1; net
-	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] && green " ${T[${L}128]} ";; 
-	fi
+	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] && green " ${T[${L}128]} ");;
 
 	* ) red " ${T[${L}51]} [1-2] "; sleep 1; update
 	esac
