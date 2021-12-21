@@ -695,7 +695,7 @@ input_license(){
 # 输入 Team 账户 URL（如有）
 input_url(){
 	reading " ${T[${L}127]} " URL
-	TEAM=$(curl -sSL $URL); echo "$TEAM" > /etc/wireguard/info.log 2>&1
+	TEAM=$(curl -sSL $URL)
 	PRIVATEKEY=$(expr "$TEAM" : '.*private_key..\([^<]*\).*')
 	PUBLICKEY=$(expr "$TEAM" : '.*public_key&quot;:&quot;\([^&]*\).*')
 	ADDRESS4=$(expr "$TEAM" : '.*v4&quot;:&quot;\(172[^&]*\).*')
@@ -872,7 +872,7 @@ install(){
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf, 如有 Team，改为 Team 账户信息
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 	
-	[[ $CONFIRM = [Yy] ]] && team_change
+	[[ $CONFIRM = [Yy] ]] && team_change && echo "$TEAM" > /etc/wireguard/info.log 2>&1
 
 	# 设置开机启动
 	systemctl enable --now wg-quick@wgcf >/dev/null 2>&1
@@ -899,7 +899,6 @@ install(){
 	red "\n==============================================================\n"
 	green " IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
 	green " IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
-	if [[ $TRACE4 = plus || $TRACE6 = plus ]]; then
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") " && grep -sq 'Device name' /etc/wireguard/info.log &&  green " $(eval echo "${T[${L}133]}") "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $(eval echo "${T[${L}42]}") "
 	green " $PRIORITY "
@@ -986,7 +985,8 @@ update(){
 	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
 	
 	2 ) input_url
-	[[ $CONFIRM = [Yy] ]] && (team_change
+	[[ $CONFIRM = [Yy] ]] && (echo "$TEAM" > /etc/wireguard/info.log 2>&1
+	team_change
 	wg-quick down wgcf >/dev/null 2>&1; net
 	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] && green " ${T[${L}128]} ");;
 
