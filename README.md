@@ -135,7 +135,10 @@ WireGuard 网络接口数据，查看 ```wg```
 1.安装通安卓模拟器，并在上面安装 1.1.1.1 apk连上
 2.连上 teams 后抓包，把获取到的信息替换到wgcf.conf配置文件里
 
-具体原创文章:https://parkercs.tech/cloudflare-for-teams-wireguard-config/
+具体原创文章:[Cloudflare for Teams Wireguard Config](https://parkercs.tech/cloudflare-for-teams-wireguard-config/)
+
+感谢 asterriya 提供的资讯 [#42](https://github.com/fscarmen/warp/issues/42) 轻松获取 Team 账户，~~~而不需要用传统方法:注册Cloudflare--申请team--填邮箱--填验证码~~~
+具体操作视频:[How to Use unlimited WARP+ for free with Cloudflare Teams](https://www.youtube.com/watch?v=5cuz3SJSj4s)
 
 Download 下载:    
 1. Android Studio: [MAC](https://redirector.gvt1.com/edgedl/android/studio/install/2020.3.1.26/android-studio-2020.3.1.26-mac.dmg)     [WIN](https://redirector.gvt1.com/edgedl/android/studio/install/2020.3.1.26/android-studio-2020.3.1.26-windows.exe)    
