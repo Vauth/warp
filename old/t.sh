@@ -137,8 +137,8 @@ T[E56]="Run [mixool] script"
 T[C56]="运行 [mixool] 脚本"
 T[E57]="The target quota you want to get. The unit is GB, the default value is 10:"
 T[C57]="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
-T[E58]="WARP+ account is working now. No need to upgrade."
-T[C58]="已经是 WARP+ 账户，不需要升级"
+T[E58]="WARP+ or Team account is working now. No need to upgrade."
+T[C58]="已经是 WARP+ 或者 Team 账户，不需要升级"
 T[E59]="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License"
 T[C59]="找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
 T[E60]="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License"
@@ -162,7 +162,7 @@ T[C68]="为 IPv6 only 添加双栈网络接口"
 T[E69]="Add WARP dualstack interface to IPv4 only VPS"
 T[C69]="为 IPv4 only 添加双栈网络接口"
 T[E70]="Add WARP dualstack interface to native dualstack"
-T[C70]="为 原生双栈 添加 WARP双栈 网络接口"
+T[C70]="为 原生双栈 添加 WARP 双栈 网络接口"
 T[E71]="Turn on WARP"
 T[C71]="打开 WARP"
 T[E72]="Turn off, uninstall WARP interface and Linux Client"
@@ -281,8 +281,8 @@ T[E128]="Successfully upgraded to a WARP Team account"
 T[C128]="已升级为 WARP Team 账户"
 T[E129]="The current Team account is unavailable, automatically switch back to the free account"
 T[C129]="当前 Team 账户不可用，自动切换回免费账户"
-T[E130]="\\\n Please confirm the Team account infomation as follow:\\\n Private key: \$PRIVATEKEY\\\n Public key: \$PUBLICKEY\\\n Address IPv4: \$ADDRESS4\\\n Address IPv6: \$ADDRESS6\\\n"
-T[C130]="\\\n 请确认以下 Team 账户信息:\\\n Private key: \$PRIVATEKEY\\\n Public key: \$PUBLICKEY\\\n Address IPv4: \$ADDRESS4\\\n Address IPv6: \$ADDRESS6\\\n"
+T[E130]="\\\n Please confirm the Team account infomation as follow:\\\n Private key|:| \$PRIVATEKEY\\\n Public key|:| \$PUBLICKEY\\\n Address IPv4|:| \${ADDRESS4}/32\\\n Address IPv6|:| \${ADDRESS6}/128\\\n"
+T[C130]="\\\n 请确认以下 Team 账户信息|:|\\\n Private key|:| \$PRIVATEKEY\\\n Public key|:| \$PUBLICKEY\\\n Address IPv4|:| \${ADDRESS4}/32\\\n Address IPv6|:| \${ADDRESS6}/128\\\n"
 T[E131]="comfirm please enter [y] , and other keys to use free account:"
 T[C131]="确认请按 y ，其他按键则使用免费账户:"
 T[E132]="\n Is there a WARP+ or Team account?\n 1. WARP+\n 2. Team\n 3. use free account\n"
@@ -699,7 +699,7 @@ input_url(){
 	PUBLICKEY=$(expr "$TEAM" : '.*public_key&quot;:&quot;\([^&]*\).*')
 	ADDRESS4=$(expr "$TEAM" : '.*v4&quot;:&quot;\(172[^&]*\).*')
 	ADDRESS6=$(expr "$TEAM" : '.*v6&quot;:&quot;\([^[&]*\).*')
-	green " $(eval echo "${T[${L}130]}") " && reading " ${T[${L}131]} " CONFIRM
+	green " $(eval echo "${T[${L}130]}") | column -s '|' -t " && reading " ${T[${L}131]} " CONFIRM
 	}
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
