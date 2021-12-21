@@ -973,7 +973,7 @@ update(){
 	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
 	
 	2 ) input_url
-	green "  "
+	if [[ $CONFIRM = [Yy] ]]; then
 	sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" /etc/wireguard/wgcf.conf
 		case $IPV4$IPV6 in
 			01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*v6&quot;:&quot;\(\[[^&]*\).*')#g" /etc/wireguard/wgcf.conf;;
@@ -981,7 +981,8 @@ update(){
 		esac
 	wg-quick down wgcf >/dev/null 2>&1; net
 	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] && green " ${T[${L}128]} ";; 
-	
+	fi
+
 	* ) red " ${T[${L}51]} [1-2] "; sleep 1; update
 	esac
 	}
