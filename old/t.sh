@@ -695,6 +695,7 @@ input_license(){
 # 输入 Team 账户 URL（如有）
 input_url(){
 	reading " ${T[${L}127]} " URL
+	URL=${URL:-'https://gist.githubusercontent.com/fscarmen/56aaf02d743551737c9973b8be7a3496/raw/16cf34edf5fb28be00f53bb1c510e95a35491032/com.cloudflare.onedotonedotonedotone_preferences.xml'}
 	TEAM=$(curl -sSL $URL)
 	PRIVATEKEY=$(expr "$TEAM" : '.*private_key..\([^<]*\).*')
 	PUBLICKEY=$(expr "$TEAM" : '.*public_key&quot;:&quot;\([^&]*\).*')
