@@ -281,6 +281,13 @@ T[E128]="Successfully upgraded to a WARP Team account"
 T[C128]="已升级为 WARP Team 账户"
 T[E129]="The current Team account is unavailable, automatically switch back to the free account"
 T[C129]="当前 Team 账户不可用，自动切换回免费账户"
+T[E130]="\n Please confirm the Team account infomation as follow:\n Private key: \$PRIVATEKEY\n Public key: \$PUBLICKEY\n Address IPv4: \$ADDRESS4\n Address IPv6: \$ADDRESS6\n"
+T[C130]="\n 请确认以下 Team 账户信息:\n Private key: \$PRIVATEKEY\n Public key: \$PUBLICKEY\n Address IPv4: \$ADDRESS4\n Address IPv6: \$ADDRESS6\n"
+T[E131]="comfirm please enter [y] , and other keys to use free account:"
+T[C131]="确认请按 y ，其他按键则使用免费账户:"
+T[E132]="\n Is there a WARP+ or Team account?\n 1. WARP+\n 2. Team\n 3. use free account\n"
+T[C132]="\n 如有 WARP+ 或 Team 账户请选择\n 1. WARP+\n 2. Team\n 3. 使用免费账户\n"
+
 
 # 脚本当天及累计运行次数统计
 COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
@@ -675,6 +682,17 @@ input_license(){
 	fi
 }
 
+# 输入 Team 账户 URL（如有）
+input_url(){
+	reading " ${T[${L}127]} " URL
+	TEAM=$(curl -sSL $URL); echo "$TEAM" > /etc/wireguard/info.log 2>&1
+	PRIVATEKEY=$(expr "$TEAM" : '.*private_key..\([^<]*\).*')
+	PUBLICKEY=$(expr "$TEAM" : '.*public_key&quot;:&quot;\([^&]*\).*')
+	ADDRESS4=$(expr "$TEAM" : '.*v4&quot;:&quot;\(172[^&]*\).*')
+	ADDRESS6=$(expr "$TEAM" : '.*v6&quot;:&quot;\([^[&]*\).*')
+	green " $(eval echo "${T[${L}130]}") " && reading " ${T[${L}131]} " CONFIRM
+	}
+
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
 update_license(){
 	[[ -z $LICENSE ]] && reading " ${T[${L}61]} " LICENSE
@@ -715,7 +733,12 @@ install(){
 	# 先删除之前安装，可能导致失败的文件
 	rm -rf /usr/local/bin/wgcf /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	
-	INPUT_LICENSE=1 && input_license
+	# 询问是否有 WARP+ 或 Team 账户
+	yellow " ${T[${L}132]}" && reading " ${T[${L}50]} " LICENSETYPE
+	case $LICENSETYPE in
+	1 ) INPUT_LICENSE=1 && input_license;;	
+	2 ) input_url;;
+	esac
 
 	# 选择优先使用 IPv4 /IPv6 网络
 	yellow " ${T[${L}105]} " && reading " ${T[${L}50]} " PRIORITY
@@ -949,9 +972,9 @@ update(){
 	[[ $(curl -s4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -s6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] &&
 	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
 	
-	2 ) reading " ${T[${L}127]} " URL
-	TEAM=$(curl -sSL $URL); echo "$TEAM" > /etc/wireguard/info.log 2>&1
-	sed -i "s#PrivateKey.*#PrivateKey = $(expr "$TEAM" : '.*private_key..\([^<]*\).*')#g;s#Address.*32#Address = $(expr "$TEAM" : '.*v4&quot;:&quot;\(172[^&]*\).*')/32#g;s#Address.*128#Address = $(expr "$TEAM" : '.*v6&quot;:&quot;\([^[&]*\).*')/128#g;s#PublicKey.*#PublicKey = $(expr "$TEAM" : '.*public_key&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf
+	2 ) input_url
+	green "  "
+	sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" /etc/wireguard/wgcf.conf
 		case $IPV4$IPV6 in
 			01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*v6&quot;:&quot;\(\[[^&]*\).*')#g" /etc/wireguard/wgcf.conf;;
 			10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAM" : '.*endpoint&quot;:{&quot;v4&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf;;	
