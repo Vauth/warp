@@ -103,8 +103,8 @@ T[E39]="Running WARP"
 T[C39]="运行 WARP"
 T[E40]="\$COMPANY vps needs to restart and run [warp n] to open WARP."
 T[C40]="\$COMPANY vps 需要重启后运行 warp n 才能打开 WARP,现执行重启"
-T[E41]="Congratulations! WARP+ is turned on. Spend time:\$(( end - start )) seconds.\\\n The script runs today: \$TODAY. Total:\$TOTAL"
-T[C41]="恭喜！WARP+ 已开启，总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数：\$TOTAL"
+T[E41]="Congratulations! WARP\$TYPE is turned on. Spend time:\$(( end - start )) seconds.\\\n The script runs today: \$TODAY. Total:\$TOTAL"
+T[C41]="恭喜！WARP\$TYPE 已开启，总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数：\$TOTAL"
 T[E42]="Congratulations! WARP is turned on. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
 T[C42]="恭喜！WARP 已开启，总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数：\$TOTAL"
 T[E43]="Run again with warp [option] [lisence], such as"
@@ -899,7 +899,8 @@ install(){
 	red "\n==============================================================\n"
 	green " IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
 	green " IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
-	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") " && grep -sq 'Device name' /etc/wireguard/info.log &&  green " $(eval echo "${T[${L}133]}") "
+	grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && TYPE=+  TYPE=' Team'
+	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green " $(eval echo "${T[${L}41]}") " && grep -sq 'Device name' /etc/wireguard/info.log && green " $(eval echo "${T[${L}133]}") "
 	[[ $TRACE4 = on || $TRACE6 = on ]] && green " $(eval echo "${T[${L}42]}") "
 	green " $PRIORITY "
 	red "\n==============================================================\n"
@@ -1040,7 +1041,7 @@ menu(){
 	2 )	OPTION4=${T[${L}88]};; 3 ) OPTION4=${T[${L}89]};; * ) OPTION4=${T[${L}82]};;
 	esac
 	
-	grep 'Device name' /etc/wireguard/info.log 2>/dev/null && TYPE=+ && PLUSINFO="${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')" || TYPE=' Team'
+	grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && TYPE=+ && PLUSINFO="${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')" || TYPE=' Team'
 	
 	clear
 	yellow " ${T[${L}16]} "
