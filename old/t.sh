@@ -14,12 +14,12 @@ translate(){ curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUT
 
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关；p=刷 WARP+ 流量; 其他或空值=菜单界面
 [[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< $1)
-# 参数选项 LICENSE
-if [[ $2 =~ 'http' ]]; then 
-URL=$2 && LICENSETYPE=2
-else LICENSE=$2 && LICENSETYPE=1
+# 参数选项 URL 或 License
+if [[ $2 != '[lisence]' ]]; then
+	if [[ $2 =~ 'http' ]]; then
+	URL=$2 && LICENSETYPE=2
+	elif [[ ${#2} = 26 ]] && LICENSE=$2 && LICENSETYPE=1
 fi
-#[[ $2 != '[lisence]' ]] && LICENSE=$2
 
 # 自定义 WARP+ 设备名
 NAME=$3
@@ -750,7 +750,7 @@ install(){
 	rm -rf /usr/local/bin/wgcf /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	
 	# 询问是否有 WARP+ 或 Team 账户
-	yellow " ${T[${L}132]}" && reading " ${T[${L}50]} " LICENSETYPE
+	[[ -z $LICENSETYPE ]] && yellow " ${T[${L}132]}" && reading " ${T[${L}50]} " LICENSETYPE
 	case $LICENSETYPE in
 	1 ) INPUT_LICENSE=1 && input_license;;	
 	2 ) input_url;;
@@ -979,7 +979,7 @@ update(){
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " ${T[${L}59]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
 	
-	[[ -z $LICENSE && -z $URL ]] && yellow " ${T[${L}31]}" && reading " ${T[${L}50]} " LICENSETYPE
+	[[ -z $LICENSETYPE ]] && yellow " ${T[${L}31]}" && reading " ${T[${L}50]} " LICENSETYPE
 	case $LICENSETYPE in
 	1 ) UPDATE_LICENSE=1 && update_license
 	cd /etc/wireguard || exit
