@@ -152,8 +152,8 @@ T[E60]="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can re
 T[C60]="找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 WARP+ License"
 T[E61]="Please Input WARP+ license:"
 T[C61]="请输入WARP+ License:"
-T[E62]="Successfully upgraded to a WARP+ account"
-T[C62]="已升级为 WARP+ 账户"
+T[E62]="Successfully upgraded to a WARP+ or Teams account"
+T[C62]="已升级为 WARP+ 或 Teams 账户"
 T[E63]="WARP+ quota"
 T[C63]="剩余流量"
 T[E64]="Successfully synchronized the latest version"
@@ -544,7 +544,7 @@ ver(){
 net(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
 	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}10]} " && exit 1
-	i=1;j=10
+	i=1;j=6
 	yellow " $(eval echo "${T[${L}11]}")\n $(eval echo "${T[${L}12]}") "
 	[[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && wg-quick down wgcf >/dev/null 2>&1
 	systemctl start wg-quick@wgcf >/dev/null 2>&1
@@ -677,7 +677,7 @@ MODIFYD10='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4
 MODIFYD11='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf'
 
 # 替换为 Teams 账户信息
-team_change(){
+teams_change(){
 	sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" /etc/wireguard/wgcf.conf
 		case $IPV4$IPV6 in
 			01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v6&quot;:&quot;\(\[[^&]*\).*')#g" /etc/wireguard/wgcf.conf;;
