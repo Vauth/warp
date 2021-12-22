@@ -15,7 +15,9 @@ translate(){ curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUT
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关；p=刷 WARP+ 流量; 其他或空值=菜单界面
 [[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< $1)
 # 参数选项 LICENSE
-[[ $2 != '[lisence]' ]] && LICENSE=$2
+[[ ${#2} = 26 && ! $2 =~ '.' ]] && LICENSE=$2 || URL=$2
+# [[ $2 != '[lisence]' ]] && LICENSE=$2
+
 # 自定义 WARP+ 设备名
 NAME=$3
 
@@ -694,7 +696,7 @@ input_license(){
 
 # 输入 Team 账户 URL（如有）
 input_url(){
-	reading " ${T[${L}127]} " URL
+	[[ -z $URL ]] && reading " ${T[${L}127]} " URL
 	URL=${URL:-'https://gist.githubusercontent.com/fscarmen/56aaf02d743551737c9973b8be7a3496/raw/16cf34edf5fb28be00f53bb1c510e95a35491032/com.cloudflare.onedotonedotonedotone_preferences.xml'}
 	TEAM=$(curl -sSL $URL)
 	PRIVATEKEY=$(expr "$TEAM" : '.*private_key..\([^<]*\).*')
@@ -973,6 +975,7 @@ update(){
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && red " ${T[${L}58]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " ${T[${L}59]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
+	
 	yellow " ${T[${L}31]}" && reading " ${T[${L}50]} " LICENSETYPE
 	case $LICENSETYPE in
 	1 ) UPDATE_LICENSE=1 && update_license
