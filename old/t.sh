@@ -15,8 +15,11 @@ translate(){ curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUT
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关；p=刷 WARP+ 流量; 其他或空值=菜单界面
 [[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< $1)
 # 参数选项 LICENSE
-[[ ${#2} = 26 && ! $2 =~ '.' ]] && LICENSE=$2 || URL=$2
-# [[ $2 != '[lisence]' ]] && LICENSE=$2
+if [[ $2 =~ 'http' ]]; then 
+URL=$2 && LICENSETYPE=2
+else LICENSE=$2 && LICENSETYPE=1
+fi
+#[[ $2 != '[lisence]' ]] && LICENSE=$2
 
 # 自定义 WARP+ 设备名
 NAME=$3
@@ -976,7 +979,7 @@ update(){
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " ${T[${L}59]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
 	
-	yellow " ${T[${L}31]}" && reading " ${T[${L}50]} " LICENSETYPE
+	[[ -z $LICENSE && -z $URL ]] && yellow " ${T[${L}31]}" && reading " ${T[${L}50]} " LICENSETYPE
 	case $LICENSETYPE in
 	1 ) UPDATE_LICENSE=1 && update_license
 	cd /etc/wireguard || exit
