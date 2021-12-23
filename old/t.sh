@@ -30,8 +30,8 @@ declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1.Support change the Netflix IP not only WGCF but also Socks5 Client. Both will keep the Plus status. Recommand runs under [screen]; 2.Support update to TEAMS account online; 3.DNS set to 1.1.1.1 first. In order to use Argo 2.0 Smart Routing under WARP+ and Teams."
-T[C1]="1.支持 WARP Interface 和 Socks5 Client 自动更换支持奈飞的IP，两者都会保留 Plus 的状态，建议在 screen 下在后台运行 2.支持在线升级为 TEAMS 账户; 3.为了更好 WARP+ 和 Teams Argo 2.0 智能路由加速，把 1.1.1.1 设为 DNS 的优先级"
+T[E1]="1.Support change the Netflix IP not only WGCF but also Socks5 Client. Both will keep the Plus status. Recommand runs under [screen]; 2.Support update to TEAMS account online; 3.DNS set to 1.1.1.1 first. In order to use Argo 2.0 Smart Routing under WARP+ and Teams; 4.Support HAX LXC VPS"
+T[C1]="1.支持 WARP Interface 和 Socks5 Client 自动更换支持奈飞的IP，两者都会保留 Plus 的状态，建议在 screen 下在后台运行 2.支持在线升级为 TEAMS 账户; 3.为了更好 WARP+ 和 Teams Argo 2.0 智能路由加速，把 1.1.1.1 设为 DNS 的优先级; 4.支持 HAX LXC VPS"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
