@@ -869,10 +869,16 @@ install(){
 
 		# 升级所有包同时也升级软件和系统内核
 		${APTYUM} update
+		
+		# 再试检查 wireguard-tools 是否正常安装
+		! type -P wireguard-tools >/etc/null 2>&1 && ${APTYUM} install epel-release && ${APTYUM} install wireguard-tools
 		}
 
 	$SYSTEM
 
+	# 查询 iptable，没有则安装
+	! type -P iptables && ${APTYUM} install iptables
+	
 	wait
 
 	echo "$MODIFY" | sh
