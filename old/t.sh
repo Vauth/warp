@@ -877,7 +877,7 @@ install(){
 	$SYSTEM
 
 	# 查询 iptable，没有则安装
-	! type -P iptables && ${APTYUM} install iptables
+	! type -P iptables >/etc/null 2>&1 && ${APTYUM} install iptables
 	
 	wait
 
