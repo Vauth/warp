@@ -303,7 +303,7 @@ TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '
 	
 # 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语
 case $(cat /etc/wireguard/language 2>&1) in
-E ) L=E;;	C ) L=C && LANGUAGE=2;;	
+E ) L=E;;	C ) L=C;;	
 * ) L=E && [[ -z $OPTION || $OPTION = [chdpbvi12] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
 [[ $LANGUAGE = 2 ]] && L=C;;
 esac
@@ -345,7 +345,7 @@ proxy_info(){
 	PROXYJASON=$(curl -s4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
 	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
 	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
-	[[ $LANGUAGE = 2 ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
+	[[ $L = C ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
 	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	if [[ $ACCOUNT =~ 'Limited' ]]; then
@@ -420,10 +420,12 @@ change_ip(){
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
 	ip${NF}_info; until [[ -n "ip${NF}" ]]; do ip${NF}_info; done
-	[[ $LANGUAGE != 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(eval echo \$COUNTRY$NF)
-	[[ $LANGUAGE = 2 ]] && WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF) && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)")
-	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
-	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf && sleep $j
+	WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
+	[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
+	if [[ -n $REGION ]]; then
+	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
+	else red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf && sleep $j
+	fi
 	done
 	}
 	
@@ -440,9 +442,11 @@ change_ip(){
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
 	proxy_info; until [[ -n "$PROXYJASON" ]]; do proxy_info; done
 	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
-	[[ -n $REGION ]] && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
-	[[ -z $REGION ]] && red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
-	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license)>/dev/null 2>&1 && sleep 2
+	if [[ -n $REGION ]]; then
+	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
+	else red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
+	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1 && sleep 2
+	fi
 	done
 	}
 
@@ -529,8 +533,8 @@ uninstall(){
 	[[ $(type -P warp-cli) ]] && (uninstall_proxy; green " ${T[${L}119]} ")
 
 	# 显示卸载结果
-	ip4_info && [[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
-	ip6_info && [[ $LANGUAGE = 2 ]] && COUNTRY6=$(translate "$COUNTRY6")
+	ip4_info && [[ $L = C ]] && COUNTRY4=$(translate "$COUNTRY4")
+	ip6_info && [[ $L = C ]] && COUNTRY6=$(translate "$COUNTRY6")
 	green " ${T[${L}45]}\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 	
@@ -571,8 +575,8 @@ net(){
 			fi
         	done
 	green " ${T[${L}14]} "
-	[[ $LANGUAGE = 2 ]] && COUNTRY4=$(translate "$COUNTRY4")
-	[[ $LANGUAGE = 2 ]] && COUNTRY6=$(translate "$COUNTRY6")
+	[[ $L = C ]] && COUNTRY4=$(translate "$COUNTRY4")
+	[[ $L = C ]] && COUNTRY6=$(translate "$COUNTRY6")
 	[[ $OPTION = [on] ]] && green " IPv4:$WAN4 $WARPSTATUS4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $WARPSTATUS6 $COUNTRY6 $ASNORG6 "
 	}
 
@@ -658,8 +662,8 @@ type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${APTYUM} install cur
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
 [[ $IPV4 = 1 ]] && ip4_info
 [[ $IPV6 = 1 ]] && ip6_info
-[[ $LANGUAGE = 2 && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
-[[ $LANGUAGE = 2 && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
+[[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
+[[ $L = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
 [[ $TRACE4 = plus || $TRACE4 = on || $TRACE6 = plus || $TRACE6 = on ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
