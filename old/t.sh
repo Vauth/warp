@@ -878,7 +878,7 @@ install(){
 		${APTYUM} update
 		
 		# 再试检查 wireguard-tools 是否正常安装,使用国科技大学的elrepo源
-		! type -P type -P wg-quick >/etc/null 2>&1 && wget -6NP /etc/yum.repos.d/ https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/elrepo.repo && ${APTYUM} install epel-release && ${APTYUM} install wireguard-tools
+		! type -P wg-quick >/etc/null 2>&1 && wget -6NP /etc/yum.repos.d/ https://cdn.jsdelivr.net/gh/fscarmen/warp/DiG9/elrepo.repo && ${APTYUM} install epel-release && ${APTYUM} install wireguard-tools
 		}
 
 	$SYSTEM
