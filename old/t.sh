@@ -318,7 +318,7 @@ ip4_info(){
 	WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]*\).*')
 	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
 	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
-	TRACE4=$(curl -s4m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
+	TRACE4=$(curl -s4m6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	if [[ $TRACE4 = plus ]]; then 
 	grep -sq 'Device name' /etc/wireguard/info.log && PLUS4='+' || PLUS4=' Teams'
 	fi
@@ -331,7 +331,7 @@ ip6_info(){
 	WAN6=$(expr "$IP6" : '.*ip\":\"\([^"]*\).*')
 	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
 	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
-	TRACE6=$(curl -s6m4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
+	TRACE6=$(curl -s6m6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	if [[ $TRACE6 = plus ]]; then 
 	grep -sq 'Device name' /etc/wireguard/info.log && PLUS6='+' || PLUS6=' Teams'
 	fi
