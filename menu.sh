@@ -3,7 +3,7 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/b
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=2.23
+VERSION=2.24
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -30,8 +30,8 @@ declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1.Support change the Netflix IP not only WGCF but also Socks5 Client. Both will keep the Plus status. Recommand runs under [screen]; 2.Support update to TEAMS account online; 3.DNS set to 1.1.1.1 first. In order to use Argo 2.0 Smart Routing under WARP+ and Teams; 4.Support HAX LXC VPS"
-T[C1]="1.支持 WARP Interface 和 Socks5 Client 自动更换支持奈飞的IP，两者都会保留 Plus 的状态，建议在 screen 下在后台运行 2.支持在线升级为 TEAMS 账户; 3.为了更好 WARP+ 和 Teams Argo 2.0 智能路由加速，把 1.1.1.1 设为 DNS 的优先级; 4.支持 HAX LXC VPS"
+T[E1]="1.The default language will set to the one selected during installation; 2.Support HAX LXC VPS"
+T[C1]="1.默认语言设置为安装时候选择的; 2.支持 HAX LXC VPS"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -301,9 +301,12 @@ T[C133]="设备名:\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ pri
 COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
 TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
 	
-# 选择语言，默认英语
-L=E && [[ -z $OPTION || $OPTION = [chdpbvi12] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE
-[[ $LANGUAGE = 2 ]] && L=C
+# 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语
+case $(cat /etc/wireguard/language 2>&1) in
+E ) L=E;;	C ) L=C && LANGUAGE=2;;	
+* ) L=E && [[ -z $OPTION || $OPTION = [chdpbvi12] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
+[[ $LANGUAGE = 2 ]] && L=C;;
+esac
 
 # 定义三类系统通用的安装指令
 type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
@@ -898,9 +901,10 @@ install(){
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
 
-	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
+	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " ${T[${L}38]} "
+	echo "$L" >/etc/wireguard/language
 	
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地，IPv4 / IPv6 优先级别
 	green " ${T[${L}39]} "
@@ -966,10 +970,11 @@ proxy(){
 	red " ${T[${L}85]} " 
 	fi
 
-	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
+	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
 	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " ${T[${L}38]} "
+	echo "$L" >/etc/wireguard/language
 	
 	# 结果提示，脚本运行时间，次数统计
 	proxy_info
