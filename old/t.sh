@@ -301,9 +301,12 @@ T[C133]="设备名:\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ pri
 COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
 TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
 	
-# 选择语言，默认英语
-L=E && [[ -z $OPTION || $OPTION = [chdpbvi12] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE
-[[ $LANGUAGE = 2 ]] && L=C
+# 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语
+case $(cat /etc/wireguard/language 2>&1) in
+E ) L=E;;	C ) L=C;;	
+* ) L=E && [[ -z $OPTION || $OPTION = [chdpbvi12] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
+[[ $LANGUAGE = 2 ]] && L=C;;
+esac
 
 # 定义三类系统通用的安装指令
 type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
@@ -898,9 +901,10 @@ install(){
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
 
-	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
+	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " ${T[${L}38]} "
+	echo "$L" >/etc/wireguard/language
 	
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地，IPv4 / IPv6 优先级别
 	green " ${T[${L}39]} "
@@ -966,10 +970,11 @@ proxy(){
 	red " ${T[${L}85]} " 
 	fi
 
-	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令
+	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
 	mv -f menu.sh /etc/wireguard >/dev/null 2>&1
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " ${T[${L}38]} "
+	echo "$L" >/etc/wireguard/language
 	
 	# 结果提示，脚本运行时间，次数统计
 	proxy_info
