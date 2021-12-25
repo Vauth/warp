@@ -296,6 +296,8 @@ T[E132]="\n Is there a WARP+ or Teams account?\n 1. WARP+\n 2. Teams\n 3. use fr
 T[C132]="\n 如有 WARP+ 或 Teams 账户请选择\n 1. WARP+\n 2. Teams\n 3. 使用免费账户 (默认)\n"
 T[E133]="Device name：\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n Quota：\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
 T[C133]="设备名:\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量:\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
+T[E134]="Curren architecture \$(arch) is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
+T[C134]="当前架构 \$(arch) 暂不支持,问题反馈:[https://github.com/fscarmen/warp/issues]"
 
 # 脚本当天及累计运行次数统计
 COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
@@ -657,7 +659,10 @@ type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${APTYUM} install cur
 ! type -P curl >/dev/null 2>&1 && yellow " ${T[${L}9]} " && exit 1
 
 # 判断处理器架构
-[[ $(arch | tr '[:upper:]' '[:lower:]') =~ aarch ]] && ARCHITECTURE=arm64 || ARCHITECTURE=amd64
+case $(tr '[:upper:]' '[:lower:]' <<< "$(arch)") in
+aarch64 ) ARCHITECTURE=amd64;;	x86_64 ) ARCHITECTURE=amd64;;	s390x ) ARCHITECTURE=s390x;;	* ) red " $(eval echo "${T[${L}134]}") " && exit 1;;
+esac
+
 
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
 [[ $IPV4 = 1 ]] && ip4_info
