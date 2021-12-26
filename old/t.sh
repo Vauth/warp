@@ -881,6 +881,8 @@ install(){
 		# 升级所有包同时也升级软件和系统内核
 		${APTYUM} update
 		
+		# s390x wireguard-tools 安装
+		! type -P wg >/etc/null 2>&1 && rpm -i https://mirrors.cloud.tencent.com/epel/8/Everything/s390x/Packages/w/wireguard-tools-1.0.20210914-1.el8.s390x.rpm
 		}
 
 	$SYSTEM
