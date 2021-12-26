@@ -9,7 +9,7 @@
 - [WARP好处](README.md#WARP好处)
 - [运行脚本](README.md#运行脚本)
 - [WARP+ License 及 ID 获取](README.md#warp-license-及-id-获取)
-- [WARP Teams 信息用于 Linux 的方法](README.md#WARP-Teams-信息用于-Linux-的方法)
+- [WARP Teams 获取并用于 Linux 的方法](README.md#WARP-Teams-获取并用于-Linux-的方法)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
 - [WARP原理](README.md#WARP原理)
 - [鸣谢](README.md#鸣谢下列作者的文章和项目)
@@ -133,7 +133,7 @@ WireGuard 网络接口数据，查看 ```wg```
 禁止开机启动 ```systemctl disable --now wg-quick@wgcf```,恢复开机启动 ```systemctl enable --now wg-quick@wgcf```
 
 
-## WARP Teams 信息用于 Linux 的方法
+## WARP Teams 获取并用于 Linux 的方法
 
 感谢 TonyLCH 提供的资讯 [#26](https://github.com/fscarmen/warp/issues/26) ，由于Team是无限制的，省去了刷 WARP+ 流量。方法大体：
 1.安装通安卓模拟器，并在上面安装 1.1.1.1 apk连上
