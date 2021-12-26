@@ -373,7 +373,7 @@ help(){	yellow " ${T[${L}6]} "; }
 input(){
 	reading " ${T[${L}52]} " ID
 	i=5
-	until [[ ${#ID} =~ ^[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}$ ]]
+	until [[ $ID =~ ^[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}$ ]]
 		do
 		(( i-- )) || true
 		[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}53]}") " ID
