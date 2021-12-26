@@ -395,11 +395,11 @@ plus(){
 		    echo "$ID" | python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) input
 		    reading " ${T[${L}57]} " MISSION
-		    wget --no-check-certificate -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
-		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
-		    bash warp_plus.sh "${MISSION//[^0-9]/}";;
+		    MISSION=${MISSION//[^0-9]/}
+		    bash <(wget --no-check-certificate -qO- -T8 https://cdn.jsdelivr.net/gh/fscarmen/tools/warp_plus.sh) $MISSION $ID;;
 		3 ) input
 		    reading " ${T[${L}57]} " MISSION
+		    MISSION=${MISSION//[^0-9]/}
 		    bash <(wget --no-check-certificate -qO- -T8 https://cdn.jsdelivr.net/gh/SoftCreatR/warp-up/warp-up.sh) --disclaimer --id $ID --iterations $MISSION;;
 		4 ) [[ -n $PLAN ]] && menu "$PLAN" || exit;;
 		* ) red " ${T[${L}51]} [1-4] "; sleep 1; plus;;
