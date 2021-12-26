@@ -516,6 +516,7 @@ uninstall(){
 	wg-quick down wgcf >/dev/null 2>&1
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
 	${APTYUM} autoremove wireguard-tools wireguard-dkms 2>/dev/null
+	rpm -e wireguard-tools 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	}
@@ -640,7 +641,7 @@ for i in "${CMD[@]}"; do
 	SYS="$i" && [[ -n $SYS ]] && break
 done
 
-REGEX=("debian" "ubuntu" "centos|kernel|'oracle linux'|alma|rocky" "'amazon linux'")
+REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "'amazon linux'")
 RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS")
 COMPANY=("" "" "" "amazon")
 MAJOR=("10" "18" "7" "7")
@@ -881,6 +882,8 @@ install(){
 		# 升级所有包同时也升级软件和系统内核
 		${APTYUM} update
 		
+		# s390x wireguard-tools 安装
+		[[ $ARCHITECTURE = s390x ]] && ! type -P wg >/etc/null 2>&1 && rpm -i https://mirrors.cloud.tencent.com/epel/8/Everything/s390x/Packages/w/wireguard-tools-1.0.20210914-1.el8.s390x.rpm
 		}
 
 	$SYSTEM
@@ -901,8 +904,9 @@ install(){
 	systemctl enable --now wg-quick@wgcf >/dev/null 2>&1
 
 	# 如是 LXC，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
+	[[ $ARCHITECTURE = s390x ]] && S390X='-s390x'
 	[[ $LXC = 1 ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
-	wget --no-check-certificate -N $CDN -P /usr/bin https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go && chmod +x /usr/bin/wireguard-go
+	wget --no-check-certificate -N $CDN -O /usr/bin/wireguard-go https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go$S390X && chmod +x /usr/bin/wireguard-go
 
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
