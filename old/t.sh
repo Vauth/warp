@@ -18,7 +18,7 @@ translate(){ curl -sm4 "http://fanyi.youdao.com/translate?&doctype=json&type=AUT
 if [[ $2 != '[lisence]' ]]; then
 	if [[ $2 =~ 'http' ]]; then
 	LICENSETYPE=2 && URL=$2
-	elif [[ ${#2} = 26 ]]; then
+	elif [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then
 	LICENSETYPE=1 && LICENSE=$2
 	fi
 fi
@@ -51,7 +51,7 @@ T[C9]="安装 curl 失败，脚本中止，问题反馈:[https://github.com/fsca
 T[E10]="WireGuard tools are not installed or the configuration file wgcf.conf cannot be found, please reinstall."
 T[C10]="没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装。"
 T[E11]="Maximum \$j attempts to get WARP IP..."
-T[C11]="后台获取 WARP IP 中,最大尝\$j次……"
+T[C11]="后台获取 WARP IP 中,最大尝试\$j次……"
 T[E12]="Try \$i"
 T[C12]="第\$i次尝试"
 T[E13]="There have been more than \$j failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -373,7 +373,7 @@ help(){	yellow " ${T[${L}6]} "; }
 input(){
 	reading " ${T[${L}52]} " ID
 	i=5
-	until [[ ${#ID} = 36 ]]
+	until [[ ${#ID} =~ ^[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}$ ]]
 		do
 		(( i-- )) || true
 		[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}53]}") " ID
