@@ -136,12 +136,12 @@ T[E52]="Please input WARP+ ID:"
 T[C52]="请输入 WARP+ ID:"
 T[E53]="WARP+ ID should be 36 characters, please re-enter \(\$i times remaining\):"
 T[C53]="WARP+ ID 应为36位字符，请重新输入 \(剩余\$i次\):"
-T[E54]="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen."
-T[C54]="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
-T[E55]="Run [ALIILAPRO] script"
-T[C55]="运行 [ALIILAPRO] 脚本"
-T[E56]="Run [mixool] script"
-T[C56]="运行 [mixool] 脚本"
+T[E54]="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n	* [SoftCreatR]，[https://github.com/SoftCreatR/warp-up]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen."
+T[C54]="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n	* [SoftCreatR]，[https://github.com/SoftCreatR/warp-up]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
+T[E55]="1.Run [ALIILAPRO] script\n 2.Run [mixool] script\n 3.Run [SoftCreatR] script"
+T[C55]="1.运行 [ALIILAPRO] 脚本\n 2.运行 [mixool] 脚本\n 3.运行 [SoftCreatR] 脚本"
+T[E56]=""
+T[C56]=""
 T[E57]="The target quota you want to get. The unit is GB, the default value is 10:"
 T[C57]="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
 T[E58]="WARP+ or Teams account is working now. No need to upgrade."
@@ -373,7 +373,7 @@ help(){	yellow " ${T[${L}6]} "; }
 input(){
 	reading " ${T[${L}52]} " ID
 	i=5
-	until [[ ${#ID} =~ ^[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}$ ]]
+	until [[ $ID =~ ^[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}$ ]]
 		do
 		(( i-- )) || true
 		[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}53]}") " ID
@@ -383,9 +383,8 @@ input(){
 plus(){
 	red "\n=============================================================="
 	yellow " ${T[${L}54]}\n "
-	green " 1.${T[${L}55]} "
-	green " 2.${T[${L}56]} "
-	[[ -n $PLAN ]] && green " 3.${T[${L}49]} " || green " 3.${T[${L}76]} "
+	green " ${T[${L}55]} "
+	[[ -n $PLAN ]] && green " 4.${T[${L}49]} " || green " 4.${T[${L}76]} "
 	red "=============================================================="
 	reading " ${T[${L}50]} " CHOOSEPLUS
 	case "$CHOOSEPLUS" in
@@ -396,11 +395,14 @@ plus(){
 		    echo "$ID" | python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) input
 		    reading " ${T[${L}57]} " MISSION
-		    wget --no-check-certificate "$CDN" -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
+		    wget --no-check-certificate -N https://cdn.jsdelivr.net/gh/mixool/across/wireguard/warp_plus.sh
 		    sed -i "s/eb86bd52-fe28-4f03-a944-60428823540e/$ID/g" warp_plus.sh
 		    bash warp_plus.sh "${MISSION//[^0-9]/}";;
-		3 ) [[ -n $PLAN ]] && menu "$PLAN" || exit;;
-		* ) red " ${T[${L}51]} [1-3] "; sleep 1; plus;;
+		3 ) input
+		    reading " ${T[${L}57]} " MISSION
+		    bash <(wget --no-check-certificate -qO- -T8 https://cdn.jsdelivr.net/gh/SoftCreatR/warp-up/warp-up.sh) --disclaimer --id $ID --iterations $MISSION;;
+		4 ) [[ -n $PLAN ]] && menu "$PLAN" || exit;;
+		* ) red " ${T[${L}51]} [1-4] "; sleep 1; plus;;
 	esac
 	}
 
