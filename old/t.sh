@@ -384,7 +384,7 @@ plus(){
 	red "\n=============================================================="
 	yellow " ${T[${L}54]}\n "
 	green " ${T[${L}55]} "
-	[[ -n $PLAN ]] && green " 3.${T[${L}49]} " || green " 3.${T[${L}76]} "
+	[[ -n $PLAN ]] && green " 4.${T[${L}49]} " || green " 4.${T[${L}76]} "
 	red "=============================================================="
 	reading " ${T[${L}50]} " CHOOSEPLUS
 	case "$CHOOSEPLUS" in
@@ -400,7 +400,7 @@ plus(){
 		    bash warp_plus.sh "${MISSION//[^0-9]/}";;
 		3 ) input
 		    reading " ${T[${L}57]} " MISSION
-		    bash <(wget --no-check-certificate -qO- -T8 https://cdn.jsdelivr.net/gh/SoftCreatR/warp-up/warp-up.sh) --disclaimer --id $ID --iterations $MISSION
+		    bash <(wget --no-check-certificate -qO- -T8 https://cdn.jsdelivr.net/gh/SoftCreatR/warp-up/warp-up.sh) --disclaimer --id $ID --iterations $MISSION;;
 		4 ) [[ -n $PLAN ]] && menu "$PLAN" || exit;;
 		* ) red " ${T[${L}51]} [1-4] "; sleep 1; plus;;
 	esac
