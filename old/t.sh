@@ -640,7 +640,7 @@ for i in "${CMD[@]}"; do
 	SYS="$i" && [[ -n $SYS ]] && break
 done
 
-REGEX=("debian" "ubuntu" "centos|kernel|'oracle linux'|alma|rocky" "'amazon linux'")
+REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "'amazon linux'")
 RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS")
 COMPANY=("" "" "" "amazon")
 MAJOR=("10" "18" "7" "7")
