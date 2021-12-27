@@ -310,8 +310,38 @@ E ) L=E;;	C ) L=C;;
 [[ $LANGUAGE = 2 ]] && L=C;;
 esac
 
-# 定义三类系统通用的安装指令
-type -P yum >/dev/null 2>&1 && APTYUM="yum -y" || APTYUM="apt -y"
+# 多方式判断操作系统，试到有值为止。只支持 Debian 10/11、Ubuntu 18.04/20.04 或 CentOS 7/8 ,如非上述操作系统，退出脚本
+# 感谢猫大的技术指导优化重复的命令。https://github.com/Oreomeow
+CMD=(	"$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
+	"$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
+	"$(lsb_release -sd 2>/dev/null)"
+	"$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)"
+	"$(grep . /etc/redhat-release 2>/dev/null)"
+	"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
+	)
+
+for i in "${CMD[@]}"; do
+	SYS="$i" && [[ -n $SYS ]] && break
+done
+
+REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "'amazon linux'" "alpine")
+RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS" "Alpine")
+COMPANY=("" "" "" "amazon" "")
+MAJOR=("10" "18" "7" "7" "3")
+PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "yum -y update" "apk update")
+PACKAGE_INSTALL=("apt -y insatll" "apt -y install" "yum -y install" "yum -y install" "apk add")
+PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "yum -y autoremove" "apk del")
+
+for ((i=0; i<${#REGEX[@]}; i++)); do
+	[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[i]} ]] && SYSTEM="${RELEASE[i]}" && COMPANY="${COMPANY[i]}" && [[ -n $SYSTEM ]] && break
+done
+[[ -z $SYSTEM ]] && red " ${T[${L}5]} " && exit 1
+
+for ((i=0; i<${#RELEASE[@]}; i++)); do
+	[[ $SYSTEM = ${RELEASE[i]} ]] && [[ $(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*') -lt "${MAJOR[i]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
+done
+
+[[ $SYSTEM = Alpine ]] && ${PACKAGE_UPDATE[i]} && ${PACKAGE_INSTALL[i]} wget grep
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
@@ -389,8 +419,8 @@ plus(){
 	reading " ${T[${L}50]} " CHOOSEPLUS
 	case "$CHOOSEPLUS" in
 		1 ) input
-		    [[ $(type -P git) ]] || ${APTYUM} install git 2>/dev/null
-		    [[ $(type -P python3) ]] || ${APTYUM} install python3 2>/dev/null
+		    [[ $(type -P git) ]] || ${PACKAGE_INSTALL[i]} git 2>/dev/null
+		    [[ $(type -P python3) ]] || ${PACKAGE_INSTALL[i]} python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
 		    echo "$ID" | python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) input
@@ -493,7 +523,7 @@ green " ${T[${L}37]} "
 # 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go
 VIRT=$(systemd-detect-virt 2>/dev/null | tr '[:upper:]' '[:lower:]')
 [[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr '[:upper:]' '[:lower:]' | grep virtualization | sed "s/.*://g")
-[[ $VIRT =~ openvz|lxc ]] && LXC=1
+[[ $VIRT =~ openvz|lxc || -z $VIRT ]] && LXC=1
 
 # 安装BBR
 bbrInstall(){
@@ -517,7 +547,7 @@ uninstall(){
 	uninstall_wgcf(){
 	wg-quick down wgcf >/dev/null 2>&1
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
-	${APTYUM} autoremove wireguard-tools wireguard-dkms 2>/dev/null
+	${PACKAGE_UNINSTALL[i]} wireguard-tools wireguard-dkms 2>/dev/null
 	rpm -e wireguard-tools 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
@@ -528,7 +558,7 @@ uninstall(){
 	warp-cli --accept-tos disconnect >/dev/null 2>&1
 	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
 	warp-cli --accept-tos delete >/dev/null 2>&1
-	${APTYUM} autoremove cloudflare-warp 2>/dev/null
+	${PACKAGE_UNINSTALL[i]} cloudflare-warp 2>/dev/null
 	systemctl disable --now warp-svc >/dev/null 2>&1
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	}
@@ -629,36 +659,8 @@ if [[ $IPV4$IPV6 = 00 && -n $(wg) ]]; then
 fi
 [[ $IPV4$IPV6 = 00 ]] && red " ${T[${L}4]} " && exit 1
 
-# 多方式判断操作系统，试到有值为止。只支持 Debian 10/11、Ubuntu 18.04/20.04 或 CentOS 7/8 ,如非上述操作系统，退出脚本
-# 感谢猫大的技术指导优化重复的命令。https://github.com/Oreomeow
-CMD=(	"$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
-	"$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
-	"$(lsb_release -sd 2>/dev/null)"
-	"$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)"
-	"$(grep . /etc/redhat-release 2>/dev/null)"
-	"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
-	)
-
-for i in "${CMD[@]}"; do
-	SYS="$i" && [[ -n $SYS ]] && break
-done
-
-REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "'amazon linux'")
-RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS")
-COMPANY=("" "" "" "amazon")
-MAJOR=("10" "18" "7" "7")
-
-for ((i=0; i<${#REGEX[@]}; i++)); do
-	[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[i]} ]] && SYSTEM="${RELEASE[i]}" && COMPANY="${COMPANY[i]}" && [[ -n $SYSTEM ]] && break
-done
-[[ -z $SYSTEM ]] && red " ${T[${L}5]} " && exit 1
-
-for ((i=0; i<${#RELEASE[@]}; i++)); do
-	[[ $SYSTEM = ${RELEASE[i]} ]] && [[ $(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*') -lt "${MAJOR[i]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
-done
-
 # 安装 curl
-type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${APTYUM} install curl) || (yellow " ${T[${L}8]} " && ${APTYUM} update && ${APTYUM} install curl)
+type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${PACKAGE_INSTALL[i]} curl) || (yellow " ${T[${L}8]} " && ${PACKAGE_UPDATE[i]} && ${PACKAGE_INSTALL[i]} curl)
 ! type -P curl >/dev/null 2>&1 && yellow " ${T[${L}9]} " && exit 1
 
 # 判断处理器架构
@@ -846,52 +848,58 @@ install(){
 	
 	Debian(){
 		# 更新源
-		${APTYUM} update
+		${PACKAGE_UPDATE[i]}
 
 		# 添加 backports 源,之后才能安装 wireguard-tools 
-		${APTYUM} install lsb-release
+		${PACKAGE_INSTALL[i]} lsb-release
 		echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" > /etc/apt/sources.list.d/backports.list
 
 		# 再次更新源
-		${APTYUM} update
+		${PACKAGE_UPDATE[i]}
 
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${APTYUM} --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+		${PACKAGE_INSTALL[i]} --no-install-recommends net-tools iproute2 openresolv dnsutils wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		[[ $WG = 1 ]] && ${APTYUM} --no-install-recommends install linux-headers-"$(uname -r)" && ${APTYUM} --no-install-recommends install wireguard-dkms
+		[[ $WG = 1 ]] && ${PACKAGE_INSTALL[i]} --no-install-recommends install linux-headers-"$(uname -r)" && ${PACKAGE_INSTALL[i]} --no-install-recommends wireguard-dkms
 		}
 		
 	Ubuntu(){
 		# 更新源
-		${APTYUM} update
+		${PACKAGE_UPDATE[i]}
 
 		# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${APTYUM} --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+		${PACKAGE_INSTALL[i]} --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 		}
 		
 	CentOS(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		[[ $COMPANY = amazon ]] && ${APTYUM} upgrade && amazon-linux-extras install -y epel		
-		${APTYUM} install epel-release
-		${APTYUM} install wireguard-tools net-tools
+		[[ $COMPANY = amazon ]] && ${PACKAGE_UPDATE[i]} && amazon-linux-extras install -y epel		
+		${PACKAGE_INSTALL[i]} epel-release
+		${PACKAGE_INSTALL[i]} wireguard-tools net-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		VERSION_ID=$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')
 		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-"$VERSION_ID"/jdoss-wireguard-epel-"$VERSION_ID".repo &&
-		${APTYUM} install wireguard-dkms
+		${PACKAGE_INSTALL[i]} wireguard-dkms
 
 		# 升级所有包同时也升级软件和系统内核
-		${APTYUM} update
+		${PACKAGE_UPDATE[i]}
 		
 		# s390x wireguard-tools 安装
 		[[ $ARCHITECTURE = s390x ]] && ! type -P wg >/etc/null 2>&1 && rpm -i https://mirrors.cloud.tencent.com/epel/8/Everything/s390x/Packages/w/wireguard-tools-1.0.20210914-1.el8.s390x.rpm
 		}
 
+	Alpine(){
+		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
+		${PACKAGE_INSTALL[i]} net-tools iproute2 openresolv wireguard-tools
+		}
+
+
 	$SYSTEM
 
 	# 查询 iptable，没有则安装
-	! type -P iptables >/etc/null 2>&1 && ${APTYUM} install iptables
+	! type -P iptables >/etc/null 2>&1 && ${PACKAGE_INSTALL[i]} install iptables
 	
 	wait
 
@@ -965,13 +973,13 @@ proxy(){
 	if [[ $CLIENT = 0 ]]; then
 	green " ${T[${L}83]} "
 	[[ $SYSTEM = CentOS ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')".rpm
-	${APTYUM} upgrade; ${APTYUM} install cloudflare-warp)
-	[[ $SYSTEM != CentOS ]] && ${APTYUM} update && ${APTYUM} install lsb-release
-	[[ $SYSTEM = Debian && ! $(type -P gpg 2>/dev/null) ]] && ${APTYUM} install gnupg
-	[[ $SYSTEM = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && ${APTYUM} install apt-transport-https
+	${PACKAGE_UPDATE[i]}; ${PACKAGE_INSTALL[i]} cloudflare-warp)
+	[[ $SYSTEM != CentOS ]] && ${PACKAGE_UPDATE[i]} && ${PACKAGE_INSTALL[i]} lsb-release
+	[[ $SYSTEM = Debian && ! $(type -P gpg 2>/dev/null) ]] && ${PACKAGE_INSTALL[i]} gnupg
+	[[ $SYSTEM = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && ${PACKAGE_INSTALL[i]} apt-transport-https
 	[[ $SYSTEM != CentOS ]] && (curl https://pkg.cloudflareclient.com/pubkey.gpg | apt-key add -
 	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
-	${APTYUM} update; ${APTYUM} install cloudflare-warp)
+	${PACKAGE_UPDATE[i]}; ${PACKAGE_INSTALL[i]} cloudflare-warp)
 	settings
 
 	elif [[ $CLIENT = 2 && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing' ]]; then
