@@ -451,7 +451,7 @@ change_ip(){
 	[[ $RESULT = 200 ]] && 
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
-	ip${NF}_info; until [[ -n $(eval echo "\$ip$NF") ]]; do ip${NF}_info; done
+	ip${NF}_info; until [[ -n "ip${NF}" ]]; do ip${NF}_info; done
 	WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
 	[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
 	if [[ -n $REGION ]]; then
