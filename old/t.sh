@@ -343,7 +343,7 @@ done
 
 [[ $SYSTEM = ${RELEASE[int]} ]] && [[ $(echo $SYS | sed "s/[^0-9.]//g" | cut -d. -f1) -lt "${MAJOR[int]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
 
-[[ $SYSTEM = Alpine ]] && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} wget grep
+[[ $SYSTEM = Alpine ]] && type -P curl && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} wget grep
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
@@ -590,7 +590,7 @@ net(){
 	[[ ! $(type -P wg-quick) || ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}10]} " && exit 1
 	i=1;j=5
 	yellow " $(eval echo "${T[${L}11]}")\n $(eval echo "${T[${L}12]}") "
-	[[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && wg-quick down wgcf >/dev/null 2>&1
+	[[ $SYSTEM != Alpine ]] && [[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && wg-quick down wgcf >/dev/null 2>&1
 	${SYSTEMCTL_START[int]} >/dev/null 2>&1
 	wg-quick up wgcf >/dev/null 2>&1
 	ip4_info
