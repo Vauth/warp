@@ -334,7 +334,6 @@ PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "
 SYSTEMCTL_START=("systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "wg-quick up wgcf")
 SYSTEMCTL_RESTART=("systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "wg-quick down wgcf; wg-quick up wgcf")
 SYSTEMCTL_ENABLE=("systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "")
-#SYSTEMCTL_DISABLE=("systemctl disable --now wg-quick@wgcf" "systemctl disable --now wg-quick@wgcf" "systemctl disable --now wg-quick@wgcf" "systemctl disable --now wg-quick@wgcf" "wg-quick down wgcf")
 
 for ((int=0; int<${#REGEX[@]}; int++)); do
 	[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [[ -n $SYSTEM ]] && break
@@ -863,7 +862,7 @@ install(){
 		${PACKAGE_INSTALL[int]} --no-install-recommends net-tools iproute2 openresolv dnsutils wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		[[ $WG = 1 ]] && ${PACKAGE_INSTALL[int]} --no-install-recommends install linux-headers-"$(uname -r)" && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-dkms
+		[[ $WG = 1 ]] && ${PACKAGE_INSTALL[int]} --no-install-recommends linux-headers-"$(uname -r)" && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-dkms
 		}
 		
 	Ubuntu(){
@@ -871,7 +870,7 @@ install(){
 		${PACKAGE_UPDATE[int]}
 
 		# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${PACKAGE_INSTALL[int]} --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+		${PACKAGE_INSTALL[int]} --no-install-recommends net-tools iproute2 openresolv dnsutils wireguard-tools
 		}
 		
 	CentOS(){
