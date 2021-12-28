@@ -288,8 +288,8 @@ T[E128]="Successfully upgraded to a WARP Teams account"
 T[C128]="已升级为 WARP Teams 账户"
 T[E129]="The current Teams account is unavailable, automatically switch back to the free account"
 T[C129]="当前 Teams 账户不可用，自动切换回免费账户"
-T[E130]="\\\n Please confirm\\\n Private key   : \$PRIVATEKEY\\\n Public key    : \$PUBLICKEY\\\n Address IPv4  : \$ADDRESS4/32\\\n Address IPv6  : \$ADDRESS6/128\\\n"
-T[C130]="\\\n 请确认Teams 信息\\\n Private key   : \$PRIVATEKEY\\\n Public key    : \$PUBLICKEY\\\n Address IPv4  : \$ADDRESS4/32\\\n Address IPv6  : \$ADDRESS6/128\\\n"
+T[E130]="\\\n Please confirm\\\n Private key    : \$PRIVATEKEY\\\n Public key      : \$PUBLICKEY\\\n Address IPv4  : \$ADDRESS4/32\\\n Address IPv6  : \$ADDRESS6/128\\\n"
+T[C130]="\\\n 请确认Teams 信息\\\n Private key    : \$PRIVATEKEY\\\n Public key      : \$PUBLICKEY\\\n Address IPv4  : \$ADDRESS4/32\\\n Address IPv6  : \$ADDRESS6/128\\\n"
 T[E131]="comfirm please enter [y] , and other keys to use free account:"
 T[C131]="确认请按 y ，其他按键则使用免费账户:"
 T[E132]="\n Is there a WARP+ or Teams account?\n 1. WARP+\n 2. Teams\n 3. use free account (default)\n"
@@ -725,7 +725,7 @@ input_url(){
 	PUBLICKEY=$(expr "$TEAMS" : '.*public_key&quot;:&quot;\([^&]*\).*')
 	ADDRESS4=$(expr "$TEAMS" : '.*v4&quot;:&quot;\(172[^&]*\).*')
 	ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*')
-	yellow " ${eval echo "${T[${L}130]}") " && reading " ${T[${L}131]} " CONFIRM
+	yellow " $(eval echo "${T[${L}130]}") " && reading " ${T[${L}131]} " CONFIRM
 	}
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
