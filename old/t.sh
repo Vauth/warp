@@ -337,9 +337,7 @@ for ((int=0; int<${#REGEX[@]}; int++)); do
 done
 [[ -z $SYSTEM ]] && red " ${T[${L}5]} " && exit 1
 
-for ((int=0; i<${#RELEASE[@]}; int++)); do
-	[[ $SYSTEM = ${RELEASE[int]} ]] && [[ $(echo $SYS | sed "s/[^0-9.]//g" | cut -d. -f1) -lt "${MAJOR[int]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
-done
+[[ $SYSTEM = ${RELEASE[int]} ]] && [[ $(echo $SYS | sed "s/[^0-9.]//g" | cut -d. -f1) -lt "${MAJOR[int]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
 
 [[ $SYSTEM = Alpine ]] && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} wget grep
 
