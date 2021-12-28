@@ -80,8 +80,8 @@ T[E24]="Socks5 Client is on"
 T[C24]="Socks5 Client 已开启"
 T[E25]="Device name"
 T[C25]="设备名"
-T[E26]="Curren operating system is \$SYS.\\\n The system lower than \$SYSTEM \${MAJOR[i]} is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
-T[C26]="当前操作是 \$SYS\\\n 不支持 \$SYSTEM \${MAJOR[i]} 以下系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
+T[E26]="Curren operating system is \$SYS.\\\n The system lower than \$SYSTEM \${MAJOR[int]} is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
+T[C26]="当前操作是 \$SYS\\\n 不支持 \$SYSTEM \${MAJOR[int]} 以下系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E27]="Local Socks5:\$PROXYSOCKS5	WARP\$AC IPv4:\$PROXYIP \$PROXYCOUNTRY	\$PROXYASNORG"
 T[C27]="本地 Socks5:\$PROXYSOCKS5	WARP\$AC IPv4:\$PROXYIP \$PROXYCOUNTRY	\$PROXYASNORG"
 T[E28]="If there is a WARP+ License, please enter it, otherwise press Enter to continue:"
@@ -137,7 +137,7 @@ T[C52]="请输入 WARP+ ID:"
 T[E53]="WARP+ ID should be 36 characters, please re-enter \(\$i times remaining\):"
 T[C53]="WARP+ ID 应为36位字符，请重新输入 \(剩余\$i次\):"
 T[E54]="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n	* [SoftCreatR]，[https://github.com/SoftCreatR/warp-up]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen."
-T[C54]="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n	* [SoftCreatR]，[https://github.com/SoftCreatR/warp-up]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
+T[C54]="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n	* [SoftCreatR]，地址[https://github.com/SoftCreatR/warp-up]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
 T[E55]="1.Run [ALIILAPRO] script\n 2.Run [mixool] script\n 3.Run [SoftCreatR] script"
 T[C55]="1.运行 [ALIILAPRO] 脚本\n 2.运行 [mixool] 脚本\n 3.运行 [SoftCreatR] 脚本"
 T[E56]=""
@@ -332,16 +332,16 @@ PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "yum -y update" 
 PACKAGE_INSTALL=("apt -y insatll" "apt -y install" "yum -y install" "yum -y install" "apk add")
 PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "yum -y autoremove" "apk del")
 
-for ((i=0; i<${#REGEX[@]}; i++)); do
-	[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[i]} ]] && SYSTEM="${RELEASE[i]}" && COMPANY="${COMPANY[i]}" && [[ -n $SYSTEM ]] && break
+for ((int=0; int<${#REGEX[@]}; int++)); do
+	[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [[ -n $SYSTEM ]] && break
 done
 [[ -z $SYSTEM ]] && red " ${T[${L}5]} " && exit 1
 
-for ((i=0; i<${#RELEASE[@]}; i++)); do
-	[[ $SYSTEM = ${RELEASE[i]} ]] && [[ $(echo $SYS | sed "s/[^0-9.]//g" | cut -d. -f1) -lt "${MAJOR[i]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
+for ((int=0; i<${#RELEASE[@]}; int++)); do
+	[[ $SYSTEM = ${RELEASE[int]} ]] && [[ $(echo $SYS | sed "s/[^0-9.]//g" | cut -d. -f1) -lt "${MAJOR[int]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
 done
 
-[[ $SYSTEM = Alpine ]] && ${PACKAGE_UPDATE[i]} && ${PACKAGE_INSTALL[i]} wget grep
+[[ $SYSTEM = Alpine ]] && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} wget grep
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
@@ -419,8 +419,8 @@ plus(){
 	reading " ${T[${L}50]} " CHOOSEPLUS
 	case "$CHOOSEPLUS" in
 		1 ) input
-		    [[ $(type -P git) ]] || ${PACKAGE_INSTALL[i]} git 2>/dev/null
-		    [[ $(type -P python3) ]] || ${PACKAGE_INSTALL[i]} python3 2>/dev/null
+		    [[ $(type -P git) ]] || ${PACKAGE_INSTALL[int]} git 2>/dev/null
+		    [[ $(type -P python3) ]] || ${PACKAGE_INSTALL[int]} python3 2>/dev/null
 		    [[ -d ~/warp-plus-cloudflare ]] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
 		    echo "$ID" | python3 ~/warp-plus-cloudflare/wp-plus.py;;
 		2 ) input
@@ -547,7 +547,7 @@ uninstall(){
 	uninstall_wgcf(){
 	wg-quick down wgcf >/dev/null 2>&1
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
-	${PACKAGE_UNINSTALL[i]} wireguard-tools wireguard-dkms 2>/dev/null
+	${PACKAGE_UNINSTALL[int]} wireguard-tools wireguard-dkms 2>/dev/null
 	rpm -e wireguard-tools 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
@@ -558,7 +558,7 @@ uninstall(){
 	warp-cli --accept-tos disconnect >/dev/null 2>&1
 	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
 	warp-cli --accept-tos delete >/dev/null 2>&1
-	${PACKAGE_UNINSTALL[i]} cloudflare-warp 2>/dev/null
+	${PACKAGE_UNINSTALL[int]} cloudflare-warp 2>/dev/null
 	systemctl disable --now warp-svc >/dev/null 2>&1
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	}
@@ -660,7 +660,7 @@ fi
 [[ $IPV4$IPV6 = 00 ]] && red " ${T[${L}4]} " && exit 1
 
 # 安装 curl
-type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${PACKAGE_INSTALL[i]} curl) || (yellow " ${T[${L}8]} " && ${PACKAGE_UPDATE[i]} && ${PACKAGE_INSTALL[i]} curl)
+type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${PACKAGE_INSTALL[int]} curl) || (yellow " ${T[${L}8]} " && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl)
 ! type -P curl >/dev/null 2>&1 && yellow " ${T[${L}9]} " && exit 1
 
 # 判断处理器架构
@@ -848,43 +848,43 @@ install(){
 	
 	Debian(){
 		# 更新源
-		${PACKAGE_UPDATE[i]}
+		${PACKAGE_UPDATE[int]}
 
 		# 添加 backports 源,之后才能安装 wireguard-tools 
-		${PACKAGE_INSTALL[i]} lsb-release
+		${PACKAGE_INSTALL[int]} lsb-release
 		echo "deb http://deb.debian.org/debian $(lsb_release -sc)-backports main" > /etc/apt/sources.list.d/backports.list
 
 		# 再次更新源
-		${PACKAGE_UPDATE[i]}
+		${PACKAGE_UPDATE[int]}
 
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${PACKAGE_INSTALL[i]} --no-install-recommends net-tools iproute2 openresolv dnsutils wireguard-tools
+		${PACKAGE_INSTALL[int]} --no-install-recommends net-tools iproute2 openresolv dnsutils wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-		[[ $WG = 1 ]] && ${PACKAGE_INSTALL[i]} --no-install-recommends install linux-headers-"$(uname -r)" && ${PACKAGE_INSTALL[i]} --no-install-recommends wireguard-dkms
+		[[ $WG = 1 ]] && ${PACKAGE_INSTALL[int]} --no-install-recommends install linux-headers-"$(uname -r)" && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-dkms
 		}
 		
 	Ubuntu(){
 		# 更新源
-		${PACKAGE_UPDATE[i]}
+		${PACKAGE_UPDATE[int]}
 
 		# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${PACKAGE_INSTALL[i]} --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
+		${PACKAGE_INSTALL[int]} --no-install-recommends install net-tools iproute2 openresolv dnsutils wireguard-tools
 		}
 		
 	CentOS(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		[[ $COMPANY = amazon ]] && ${PACKAGE_UPDATE[i]} && amazon-linux-extras install -y epel		
-		${PACKAGE_INSTALL[i]} epel-release
-		${PACKAGE_INSTALL[i]} wireguard-tools net-tools
+		[[ $COMPANY = amazon ]] && ${PACKAGE_UPDATE[int]} && amazon-linux-extras install -y epel		
+		${PACKAGE_INSTALL[int]} epel-release
+		${PACKAGE_INSTALL[int]} wireguard-tools net-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		VERSION_ID=$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')
 		[[ $WG = 1 ]] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-"$VERSION_ID"/jdoss-wireguard-epel-"$VERSION_ID".repo &&
-		${PACKAGE_INSTALL[i]} wireguard-dkms
+		${PACKAGE_INSTALL[int]} wireguard-dkms
 
 		# 升级所有包同时也升级软件和系统内核
-		${PACKAGE_UPDATE[i]}
+		${PACKAGE_UPDATE[int]}
 		
 		# s390x wireguard-tools 安装
 		[[ $ARCHITECTURE = s390x ]] && ! type -P wg >/etc/null 2>&1 && rpm -i https://mirrors.cloud.tencent.com/epel/8/Everything/s390x/Packages/w/wireguard-tools-1.0.20210914-1.el8.s390x.rpm
@@ -892,14 +892,14 @@ install(){
 
 	Alpine(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${PACKAGE_INSTALL[i]} net-tools iproute2 openresolv wireguard-tools
+		${PACKAGE_INSTALL[int]} net-tools iproute2 openresolv wireguard-tools
 		}
 
 
 	$SYSTEM
 
 	# 查询 iptable，没有则安装
-	! type -P iptables >/etc/null 2>&1 && ${PACKAGE_INSTALL[i]} install iptables
+	! type -P iptables >/etc/null 2>&1 && ${PACKAGE_INSTALL[int]} install iptables
 	
 	wait
 
@@ -973,13 +973,13 @@ proxy(){
 	if [[ $CLIENT = 0 ]]; then
 	green " ${T[${L}83]} "
 	[[ $SYSTEM = CentOS ]] && (rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el"$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')".rpm
-	${PACKAGE_UPDATE[i]}; ${PACKAGE_INSTALL[i]} cloudflare-warp)
-	[[ $SYSTEM != CentOS ]] && ${PACKAGE_UPDATE[i]} && ${PACKAGE_INSTALL[i]} lsb-release
-	[[ $SYSTEM = Debian && ! $(type -P gpg 2>/dev/null) ]] && ${PACKAGE_INSTALL[i]} gnupg
-	[[ $SYSTEM = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && ${PACKAGE_INSTALL[i]} apt-transport-https
+	${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} cloudflare-warp)
+	[[ $SYSTEM != CentOS ]] && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} lsb-release
+	[[ $SYSTEM = Debian && ! $(type -P gpg 2>/dev/null) ]] && ${PACKAGE_INSTALL[int]} gnupg
+	[[ $SYSTEM = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && ${PACKAGE_INSTALL[int]} apt-transport-https
 	[[ $SYSTEM != CentOS ]] && (curl https://pkg.cloudflareclient.com/pubkey.gpg | apt-key add -
 	echo "deb http://pkg.cloudflareclient.com/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
-	${PACKAGE_UPDATE[i]}; ${PACKAGE_INSTALL[i]} cloudflare-warp)
+	${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} cloudflare-warp)
 	settings
 
 	elif [[ $CLIENT = 2 && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing' ]]; then
