@@ -331,6 +331,10 @@ MAJOR=("10" "18" "7" "7" "3")
 PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "yum -y update" "apk update")
 PACKAGE_INSTALL=("apt -y insatll" "apt -y install" "yum -y install" "yum -y install" "apk add")
 PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "yum -y autoremove" "apk del")
+SYSTEMCTL_START=("systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "wg-quick up wgcf")
+SYSTEMCTL_RESTART=("systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "wg-quick down wgcf; wg-quick up wgcf")
+SYSTEMCTL_ENABLE=("systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "")
+#SYSTEMCTL_DISABLE=("systemctl disable --now wg-quick@wgcf" "systemctl disable --now wg-quick@wgcf" "systemctl disable --now wg-quick@wgcf" "systemctl disable --now wg-quick@wgcf" "wg-quick down wgcf")
 
 for ((int=0; int<${#REGEX[@]}; int++)); do
 	[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [[ -n $SYSTEM ]] && break
@@ -456,7 +460,7 @@ change_ip(){
 	[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
 	if [[ -n $REGION ]]; then
 	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
-	else red " $(eval echo "${T[${L}126]}") " && systemctl restart wg-quick@wgcf && sleep $j
+	else red " $(eval echo "${T[${L}126]}") " && ${SYSTEMCTL_RESTART[int]} && sleep $j
 	fi
 	done
 	}
@@ -587,14 +591,14 @@ net(){
 	i=1;j=5
 	yellow " $(eval echo "${T[${L}11]}")\n $(eval echo "${T[${L}12]}") "
 	[[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && wg-quick down wgcf >/dev/null 2>&1
-	systemctl start wg-quick@wgcf >/dev/null 2>&1
+	${SYSTEMCTL_START[int]} >/dev/null 2>&1
 	wg-quick up wgcf >/dev/null 2>&1
 	ip4_info
 	[[ -n $IP4 ]] && ip6_info
 	until [[ -n $IP4 && -n $IP6 ]]
 		do	(( i++ )) || true
 			yellow " $(eval echo "${T[${L}12]}") "
-			systemctl restart wg-quick@wgcf >/dev/null 2>&1
+			${SYSTEMCTL_RESTART[int]} >/dev/null 2>&1
 			ip4_info
 			[[ -n $IP4 ]] && ip6_info
 			if [[ $i = "$j" ]]; then
@@ -909,7 +913,7 @@ install(){
 	[[ $CONFIRM = [Yy] ]] && teams_change && echo "$TEAMS" > /etc/wireguard/info.log 2>&1
 
 	# 设置开机启动
-	systemctl enable --now wg-quick@wgcf >/dev/null 2>&1
+	${SYSTEMCTL_ENABLE[int]}>/dev/null 2>&1
 
 	# 如是 LXC，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
 	[[ $LXC = 1 ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
