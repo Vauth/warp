@@ -725,7 +725,7 @@ input_url(){
 	PUBLICKEY=$(expr "$TEAMS" : '.*public_key&quot;:&quot;\([^&]*\).*')
 	ADDRESS4=$(expr "$TEAMS" : '.*v4&quot;:&quot;\(172[^&]*\).*')
 	ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*')
-	yellow " ${eval echo "$(T[${L}130]}") " && reading " ${T[${L}131]} " CONFIRM
+	yellow " ${eval echo "${T[${L}130]}") " && reading " ${T[${L}131]} " CONFIRM
 	}
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
