@@ -340,9 +340,7 @@ for ((int=0; int<${#REGEX[@]}; int++)); do
 done
 [[ -z $SYSTEM ]] && red " ${T[${L}5]} " && exit 1
 
-[[ $SYSTEM = ${RELEASE[int]} ]] && [[ $(echo $SYS | sed "s/[^0-9.]//g" | cut -d. -f1) -lt "${MAJOR[int]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
-
-[[ $SYSTEM = Alpine ]] && ! type -P curl >/dev/null 2>&1 && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl wget grep
+[[ $(echo $SYS | sed "s/[^0-9.]//g" | cut -d. -f1) -lt "${MAJOR[int]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
@@ -892,8 +890,11 @@ install(){
 		}
 
 	Alpine(){
+		# 升级所有包同时也升级软件和系统内核
+		${PACKAGE_UPDATE[int]}
+		
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${PACKAGE_INSTALL[int]} net-tools iproute2 openresolv wireguard-tools
+		${PACKAGE_INSTALL[int]} curl wget grep net-tools iproute2 openresolv wireguard-tools
 		}
 
 
