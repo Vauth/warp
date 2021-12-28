@@ -900,7 +900,7 @@ install(){
 	$SYSTEM
 
 	# 查询 iptables，没有则安装
-	! type -P iptables >/etc/null 2>&1 && ${PACKAGE_INSTALL[int]} install iptables
+	! type -P iptables >/etc/null 2>&1 && ${PACKAGE_INSTALL[int]} iptables
 	
 	wait
 
