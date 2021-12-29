@@ -17,7 +17,7 @@
 * * *
 
 ## 更新信息
-2021.12 29  大家可以试试另一位 WARP 作者甬哥的脚本: ```wget -N https://cdn.jsdelivr.net/gh/kkkyg/CFwarp/CFwarp.sh && bash CFwarp.sh```
+2021.12 29  大家可以试试另两位 WARP 作者脚本:1.甬哥 ```wget -N https://cdn.jsdelivr.net/gh/kkkyg/CFwarp/CFwarp.sh && bash CFwarp.sh```，2.P3terx ```bash <(curl -fsSL git.io/warp.sh) menu```
 
 2021.12.28  2.25: IMPORTANT: 1.First publication on a global scale. Support architecture s390x for IBM Linux One(Choose WARP ipv6 single stack),thx Brother Big B and Misaka; 2.Support Alpine Linux, thx Dong gua; 重要更新: 1. 全网首发，支持 IBM Linux One 的 s390x 架构 CPU (请选用 WARP ipv6单栈)，感谢Misaka和大B哥借机器测试 2.支持 Alpine Linux 系统，感谢 Dong gua 借机器测试
 
