@@ -10,7 +10,7 @@ red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
 green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
 yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
-translate(){ [[ -n $1 ]] && curl -sm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
+translate(){ [[ -n "$1" ]] && curl -sm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
 
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关；p=刷 WARP+ 流量; 其他或空值=菜单界面
 [[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")
@@ -305,7 +305,7 @@ TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '
 	
 # 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语
 case $(cat /etc/wireguard/language 2>&1) in
-E ) L=E;;	C ) L=C;;	
+E ) L=E;;	C ) L=C;;
 * ) L=E && [[ -z $OPTION || $OPTION = [chdpbvi12] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
 [[ $LANGUAGE = 2 ]] && L=C;;
 esac
@@ -546,7 +546,7 @@ bbrInstall(){
 	}
 
 # 关闭 WARP 网络接口，并删除 WGCF
-uninstall(){
+	uninstall(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
 	# 卸载 WGCF
 	uninstall_wgcf(){
@@ -574,8 +574,8 @@ uninstall(){
 
 	# 显示卸载结果
 	TIMEOUT='m8'
-	ip4_info && [[ $L = C ]] && COUNTRY4=$(translate "$COUNTRY4")
-	ip6_info && [[ $L = C ]] && COUNTRY6=$(translate "$COUNTRY6")
+	ip4_info; [[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
+	ip6_info; [[ $L = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
 	green " ${T[${L}45]}\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
 	}
 	
