@@ -546,7 +546,7 @@ bbrInstall(){
 	}
 
 # 关闭 WARP 网络接口，并删除 WGCF
-	uninstall(){
+uninstall(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
 	# 卸载 WGCF
 	uninstall_wgcf(){
