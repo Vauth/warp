@@ -17,11 +17,11 @@
 * * *
 
 ## 更新信息
+2021.12.28  2.25: IMPORTANT: 1.First publication on a global scale. Support architecture s390x for IBM Linux One(Choose WARP ipv6 single stack),thx Brother Big B and Misaka; 2.Support Alpine Linux, thx Dong gua; 3.support Debian bookworm; 重要更新: 1. 全网首发，支持 IBM Linux One 的 s390x 架构 CPU (请选用 WARP ipv6单栈)，感谢Misaka和大B哥借机器测试 2.支持 Alpine Linux 系统，感谢 Dong gua 借机器测试 3.支持 Debian bookworm系统
+
 2021.12 29  大家可以试试另两位 WARP 作者脚本:    
 1.甬哥 ```wget -N https://cdn.jsdelivr.net/gh/kkkyg/CFwarp/CFwarp.sh && bash CFwarp.sh```    
 2.P3terx ```bash <(curl -fsSL git.io/warp.sh) menu```
-
-2021.12.28  2.25: IMPORTANT: 1.First publication on a global scale. Support architecture s390x for IBM Linux One(Choose WARP ipv6 single stack),thx Brother Big B and Misaka; 2.Support Alpine Linux, thx Dong gua; 重要更新: 1. 全网首发，支持 IBM Linux One 的 s390x 架构 CPU (请选用 WARP ipv6单栈)，感谢Misaka和大B哥借机器测试 2.支持 Alpine Linux 系统，感谢 Dong gua 借机器测试
 
 2021.12.24  2.24: 1.The default language will set to the one selected during installation. ```echo 'E' >/etc/wireguard/language; warp v```; 2.Support HAX LXC VPS. It needs run ```until curl -s4m8 ip.gs; do warp n; done``` to brush the warp network; 1.默认语言设置为安装时候选择的,```中文 echo 'C' >/etc/wireguard/language; warp v```; 2.支持 HAX LXC VPSlxc 机器母鸡资源不够，warp 需要不停的刷才能获取到 ```until curl -s4m8 ip.gs; do warp n; done```
 
