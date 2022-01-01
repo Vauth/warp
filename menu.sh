@@ -278,10 +278,10 @@ T[E123]="Change the WARP IP to support Netflix"
 T[C123]="更换支持 Netflix 的 IP"
 T[E124]="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging:"
 T[C124]="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
-T[E125]="Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 1 hour." 
-T[C125]="\$REGION 区域解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 1 小时后重新测试"
-T[E126]="Try \$i. Failed. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retry after \$j seconds." 
-T[C126]="尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， \$j秒后重新测试"
+T[E125]="\$(date +'%F %T') Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 1 hour." 
+T[C125]="\$(date +'%F %T') 区域 \$REGION 解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， 1 小时后重新测试"
+T[E126]="\$(date +'%F %T') Try \$i. Failed. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retry after \$j seconds." 
+T[C126]="\$(date +'%F %T') 尝试第\$i次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG， \$j秒后重新测试"
 T[E127]="Please input Teams file URL (To use the one provided by the script if left blank):" 
 T[C127]="请输入 Teams 文件 URL (如果留空，则使用脚本提供的):"
 T[E128]="Successfully upgraded to a WARP Teams account"
@@ -492,6 +492,9 @@ change_ip(){
 	done
 	}
 
+	# 设置时区，让时间戳时间准确，中文为 GMT+8，英文为 UTC
+	[[ $L = C ]] && timedatectl set-timezone Asia/Shanghai || timedatectl set-timezone UTC
+	
 	# 判断刷 IP 时 WGCF 和 Client 的状态，分情况处理
 	WGCFSTATUS=0; SOCKS5STATUS=0
 	yellow " ${T[${L}121]} "
