@@ -447,7 +447,7 @@ plus(){
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
 	change_wgcf(){
-	reading "请输入你想要的区域（如日本 JP）：" AREA
+	reading " 请输入你想要的区域（如日本 JP）：" AREA
 	if [[ $WGCFSTATUS$SOCKS5STATUS != 11 ]]; then
 		[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " ${T[${L}124]} " NETFLIX || NF=4
 		[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
@@ -462,7 +462,8 @@ change_ip(){
 	[[ $RESULT = 200 ]] && 
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
-	ip${NF}_info; until [[ -n "ip${NF}" && $AREA = "$REGION" ]]; do ip${NF}_info; done
+	yellow "$REGION" && [[ $AREA = "$REGION" ]] && break
+	ip${NF}_info; until [[ -n "ip${NF}" ]]; do ip${NF}_info; done
 	WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
 	[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
 	if [[ -n $REGION ]]; then
