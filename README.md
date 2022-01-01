@@ -17,7 +17,7 @@
 * * *
 
 ## 更新信息
-2022 1.1 Happy new year bros. I wish everyone good health and lots of money. Thanks for your support to this project. This project belongs to bros, I just summarized your fragmented information.  元旦快乐，祝各位身体健康，赚钱多多。本项目是属于网友们的，我只是把大家碎片化的信息汇总而已.
+2022.1.1  1.Happy new year bros. I wish everyone good health and lots of money. Thanks for your support to this project. This project belongs to bros, I just summarized your fragmented information; 2.Add timestamp while brushing Netflix IP. 1.元旦快乐，祝各位身体健康，赚钱多多。本项目是属于网友们的，我只是把大家碎片化的信息汇总而已; 2.新年第一更刷奈飞IP时加入时间戳
 
 2021.12.28  2.25: IMPORTANT: 1.First publication on a global scale. Support architecture s390x for IBM Linux One(Choose WARP ipv6 single stack),thx Brother Big B and Misaka; 2.Support Alpine Linux, thx Dong gua; 3.add whitelist. support Debian bookworm; 重要更新: 1. 全网首发，支持 IBM Linux One 的 s390x 架构 CPU (请选用 WARP ipv6单栈)，感谢Misaka和大B哥借机器测试 2.支持 Alpine Linux 系统，感谢 Dong gua 借机器测试 3.支持 Debian bookworm系统，增加白名单，遇到没有大版本号的系统可以往里面放
 
