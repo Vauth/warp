@@ -18,9 +18,14 @@
 
 ## 更新信息
 2022.1.6  重大技术突破，绝对原创，绝对原创，绝对原创。成功把 WGCF 配置文件与环境依赖分离。本着万物皆可 Docker 的思路，以超轻量级的 Alpine 为底包（底包5M+依赖22M=27MB），配置放在映射目录处，解决某些旧系统不能使用 WARP 服务的问题。    
-试用，暂时未完善细节，包括 WARP+ 和 Teams未加进去。技术天花板，docker 安装依赖方案只能是单栈，并不能双栈，不服来辩。
+试用，暂时未完善细节，包括 WARP+ 和 Teams未加进去。该技术已经是 WGCF 和 wireguard 的天花板，docker 安装依赖方案只能是单栈，并不能双栈，不服来辩。
 ```
-bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/tools/main/a.sh)
+bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/tools/main/a.sh) ## 安装 docker、拉镜像和安装容器
+
+docker exec -it wgcf sh #进入容器
+
+wg-quick up wgcf; exit #运行 WGCF 并退出容器。不知道为何容器外 docker exec -it wgcf wg-quick up wgcf 不行，一定要分开执行的。
+
 ```
 
 ![image](https://user-images.githubusercontent.com/62703343/148343358-67d0089a-591e-4af2-915c-e725422a5b0e.png)
