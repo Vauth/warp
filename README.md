@@ -17,8 +17,15 @@
 * * *
 
 ## 更新信息
-2022.1.6  重大技术突破，绝对原创，绝对原创，绝对原创。成功把 WGCF 配置文件与环境依赖分离。本着万物皆可 Docker 的思路，以超轻量级的 Alpine 为底包（底包5M+依赖22M=27MB），配置放在映射目录处，解决某些旧系统不能使用 WARP 服务的问题。后续先完善的脚本。接着尝试把环境放到 OpenWRT ，并在后台刷 奈飞 IP，让用软路由+电视看奈飞的伙伴更爽。
+2022.1.6  重大技术突破，绝对原创，绝对原创，绝对原创。成功把 WGCF 配置文件与环境依赖分离。本着万物皆可 Docker 的思路，以超轻量级的 Alpine 为底包（底包5M+依赖22M=27MB），配置放在映射目录处，解决某些旧系统不能使用 WARP 服务的问题。    
+试用，暂时未完善细节，包括 WARP+ 和 Teams未加进去。技术天花板，docker 安装依赖方案只能是单栈，并不能双栈，不服来辩。
+```
+bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/tools/main/a.sh)
+```
+
 ![image](https://user-images.githubusercontent.com/62703343/148343358-67d0089a-591e-4af2-915c-e725422a5b0e.png)
+
+
 
 2022.1.1  1.Happy new year bros. I wish everyone good health and lots of money. Thanks for your support to this project. This project belongs to bros, I just summarized your fragmented information; 2.Add timestamp and running time while brushing Netflix IP. 1.元旦快乐，祝各位身体健康，赚钱多多。本项目是属于网友们的，我只是把大家碎片化的信息汇总而已; 2.新年第一更刷奈飞IP时加入时间戳和运行时长
 
