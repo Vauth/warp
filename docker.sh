@@ -673,8 +673,8 @@ menu(){
 	green " 1. $OPTION1\n 2. ${T[${L}78]}\n 3. ${T[${L}72]}\n 0. ${T[${L}76]}\n "
 	reading " ${T[${L}50]} " CHOOSE1
 		case "$CHOOSE1" in
-		1 )	[[ $OPTION1 = ${T[${L}66]} || $OPTION1 = ${T[${L}67]} ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6) && install
-			[[ $OPTION1 = ${T[${L}70]} ]] && MODIFY=$(eval echo \$MODIFYD$IPV4$IPV6) && install;;
+		1 )	[[ $IPV4$IPV6 = 11 ]] && MODIFY=$MODIFYS10 || MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6)
+			install;;
 		2 )	update;;
 		3 )	uninstall;;
 		0 )	exit;;
