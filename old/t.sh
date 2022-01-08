@@ -443,7 +443,6 @@ change_ip(){
 		[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
 	else NF=6
 	fi
-	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
 	i=0;j=3
 	while true
@@ -453,7 +452,7 @@ change_ip(){
 	if [[ $RESULT = 200 ]]; then
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-US}
-	ip${NF}_info; until [[ -n $(eval echo \$ip$NF) ]]; do ip${NF}_info; done
+	ip${NF}_info; until [[ -n $(eval echo \$IP$NF) ]]; do ip${NF}_info; done
 	WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
 	[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
 	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
@@ -464,7 +463,6 @@ change_ip(){
 	
 	change_socks5(){
 	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
-	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 	
 	i=0; [[ -e /etc/wireguard/license ]] && j=8 || j=10
 	while true
@@ -483,10 +481,11 @@ change_ip(){
 	done
 	}
 
-	# 设置时区，让时间戳时间准确，显示脚本运行时长，中文为 GMT+8，英文为 UTC
+	# 设置时区，让时间戳时间准确，显示脚本运行时长，中文为 GMT+8，英文为 UTC; 设置 UA
 	ip_start=$(date +%s)
 	[[ $L = C ]] && timedatectl set-timezone Asia/Shanghai || timedatectl set-timezone UTC
-	
+	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
+
 	# 判断刷 IP 时 WGCF 和 Client 的状态，分情况处理
 	WGCFSTATUS=0; SOCKS5STATUS=0
 	yellow " ${T[${L}121]} "
