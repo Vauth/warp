@@ -707,7 +707,7 @@ teams_change(){
 input_license(){
 	[[ -z $LICENSE ]] && reading " ${T[${L}28]} " LICENSE
 	i=5
-	until [[ -z $LICENSE || ${#LICENSE} =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
+	until [[ -z $LICENSE || $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}30]}") " LICENSE
 		done
@@ -733,7 +733,7 @@ input_url(){
 update_license(){
 	[[ -z $LICENSE ]] && reading " ${T[${L}61]} " LICENSE
 	i=5
-	until [[ ${#LICENSE} =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
+	until [[ $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}100]}") " LICENSE
 	       done
