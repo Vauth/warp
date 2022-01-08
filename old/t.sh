@@ -794,8 +794,9 @@ install(){
 	chmod +x /usr/local/bin/wgcf
 	
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
+	echo -e "access_token = \"b0d7d10f-adc9-4128-8de2-f68b1ab2a593\"\ndevice_id = \"09daf9de-78a2-4b37-95da-cd70d5a4c89d\"\nlicense_key = \"6RFq9Y81-9HN01I2u-5u13NG7M\"\nprivate_key = \"uOk6zKRP4xKYzPP3qG8TU26WdZ1JR4yMk5HCX2NnNU4=\"" > wgcf-account.toml
 	until [[ -e wgcf-account.toml ]] >/dev/null 2>&1; do
-	   wgcf register --accept-tos >/dev/null 2>&1 && break
+		wgcf register --accept-tos >/dev/null 2>&1 && break
 	done
 
 	# 如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
@@ -804,7 +805,8 @@ install(){
 	( wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 || red " \n${T[${L}36]}\n " )
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
-	wgcf generate >/dev/null 2>&1
+	echo -e "[Interface]\nPrivateKey = uOk6zKRP4xKYzPP3qG8TU26WdZ1JR4yMk5HCX2NnNU4=\nAddress = 172.16.0.2/32\nAddress = fd01:5ca1:ab1e:86ca:8ede:6c0b:b0a7:4a04/128\nDNS = 1.1.1.1\nMTU = 1280\n[Peer]\nPublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=\nAllowedIPs = 0.0.0.0/0\nAllowedIPs = ::/0\nEndpoint = engage.cloudflareclient.com" > wgcf-profile.conf
+	[[ ! -e wgcf-account.toml ]] && wgcf generate >/dev/null 2>&1
 	green " \n${T[${L}33]}\n "
 
 	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
