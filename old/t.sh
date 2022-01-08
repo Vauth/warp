@@ -805,7 +805,7 @@ install(){
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	[[ -z $LICENSE && $CONFIRM != [Yy] ]] && echo -e "access_token = \"b0d7d10f-adc9-4128-8de2-f68b1ab2a593\"\ndevice_id = \"09daf9de-78a2-4b37-95da-cd70d5a4c89d\"\nlicense_key = \"6RFq9Y81-9HN01I2u-5u13NG7M\"\nprivate_key = \"uOk6zKRP4xKYzPP3qG8TU26WdZ1JR4yMk5HCX2NnNU4=\"" > wgcf-account.toml
 	until [[ -e wgcf-account.toml ]] >/dev/null 2>&1; do
-	   wgcf register --accept-tos >/dev/null 2>&1 && break
+		wgcf register --accept-tos >/dev/null 2>&1 && break
 	done
 	[[ -n $LICENSE ]] && yellow " \n${T[${L}35]}\n " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
 	( wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 || red " \n${T[${L}36]}\n " )
