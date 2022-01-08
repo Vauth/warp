@@ -395,16 +395,7 @@ proxy_info(){
 	fi
 	}
 
-# IPv4 / IPv6 优先选项
-stack_priority(){
-	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
-	case "$PRIORITY" in
-		2 )	echo "label 2002::/16   2" >> /etc/gai.conf;;
-		3 )	;;
-		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
-	esac
-}	
-
+# 帮助说明
 help(){	yellow " ${T[${L}6]} "; }
 
 # 刷 WARP+ 流量
@@ -459,13 +450,12 @@ change_ip(){
 	do (( i++ )) || true
 	ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
 	RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
-	[[ $RESULT = 200 ]] && 
-	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
-	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
-	ip${NF}_info; until [[ -n "ip${NF}" ]]; do ip${NF}_info; done
+	if [[ $RESULT = 200 ]]; then
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	REGION=${REGION:-US}
+	ip${NF}_info; until [[ -n $(eval echo \$ip$NF) ]]; do ip${NF}_info; done
 	WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
 	[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
-	if [[ -n $REGION ]]; then
 	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
 	else red " $(eval echo "${T[${L}126]}") " && ${SYSTEMCTL_RESTART[int]} && sleep $j
 	fi
@@ -481,12 +471,11 @@ change_ip(){
 	do (( i++ )) || true
 	ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
 	RESULT=$(curl --user-agent "${UA_Browser}" --socks5 "$PROXYSOCKS5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
-	[[ $RESULT = 200 ]] && 
+	if [[ $RESULT = 200 ]]; then
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
-	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
+	REGION=${REGION:-US}
 	proxy_info; until [[ -n "$PROXYJASON" ]]; do proxy_info; done
 	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
-	if [[ -n $REGION ]]; then
 	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
 	else red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
 	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1 && sleep 2
@@ -719,7 +708,7 @@ teams_change(){
 input_license(){
 	[[ -z $LICENSE ]] && reading " ${T[${L}28]} " LICENSE
 	i=5
-	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
+	until [[ -z $LICENSE || ${#LICENSE} =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}30]}") " LICENSE
 		done
@@ -745,7 +734,7 @@ input_url(){
 update_license(){
 	[[ -z $LICENSE ]] && reading " ${T[${L}61]} " LICENSE
 	i=5
-	until [[ ${#LICENSE} = 26 ]]
+	until [[ ${#LICENSE} =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}100]}") " LICENSE
 	       done
@@ -766,7 +755,7 @@ input_port(){
 		done
 }
 
-# IPv4, IPv6 优先
+# IPv4 / IPv6 优先
 stack_priority(){
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	case "$PRIORITY" in
