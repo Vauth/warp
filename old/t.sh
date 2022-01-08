@@ -805,7 +805,7 @@ install(){
 	( wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 || red " \n${T[${L}36]}\n " )
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
-	echo -e "[Interface]\nPrivateKey = uOk6zKRP4xKYzPP3qG8TU26WdZ1JR4yMk5HCX2NnNU4=\nAddress = 172.16.0.2/32\nAddress = fd01:5ca1:ab1e:86ca:8ede:6c0b:b0a7:4a04/128\nDNS = 1.1.1.1\nMTU = 1280\n[Peer]\nPublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=\nAllowedIPs = 0.0.0.0/0\nAllowedIPs = ::/0\nEndpoint = engage.cloudflareclient.com" > wgcf-profile.conf
+	# echo -e "[Interface]\nPrivateKey = uOk6zKRP4xKYzPP3qG8TU26WdZ1JR4yMk5HCX2NnNU4=\nAddress = 172.16.0.2/32\nAddress = fd01:5ca1:ab1e:86ca:8ede:6c0b:b0a7:4a04/128\nDNS = 1.1.1.1\nMTU = 1280\n[Peer]\nPublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=\nAllowedIPs = 0.0.0.0/0\nAllowedIPs = ::/0\nEndpoint = engage.cloudflareclient.com" > wgcf-profile.conf
 	[[ ! -e wgcf-account.toml ]] && wgcf generate >/dev/null 2>&1
 	green " \n${T[${L}33]}\n "
 
