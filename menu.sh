@@ -395,16 +395,7 @@ proxy_info(){
 	fi
 	}
 
-# IPv4 / IPv6 优先选项
-stack_priority(){
-	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
-	case "$PRIORITY" in
-		2 )	echo "label 2002::/16   2" >> /etc/gai.conf;;
-		3 )	;;
-		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
-	esac
-}	
-
+# 帮助说明
 help(){	yellow " ${T[${L}6]} "; }
 
 # 刷 WARP+ 流量
@@ -452,20 +443,18 @@ change_ip(){
 		[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
 	else NF=6
 	fi
-	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
 	i=0;j=3
 	while true
 	do (( i++ )) || true
 	ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
 	RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
-	[[ $RESULT = 200 ]] && 
-	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
-	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
-	ip${NF}_info; until [[ -n "ip${NF}" ]]; do ip${NF}_info; done
+	ip${NF}_info; until [[ -n $(eval echo \$IP$NF) ]]; do ip${NF}_info; done
 	WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
 	[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
-	if [[ -n $REGION ]]; then
+	if [[ $RESULT = 200 ]]; then
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	REGION=${REGION:-US}
 	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
 	else red " $(eval echo "${T[${L}126]}") " && ${SYSTEMCTL_RESTART[int]} && sleep $j
 	fi
@@ -474,19 +463,17 @@ change_ip(){
 	
 	change_socks5(){
 	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
-	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 	
 	i=0; [[ -e /etc/wireguard/license ]] && j=8 || j=10
 	while true
 	do (( i++ )) || true
 	ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
 	RESULT=$(curl --user-agent "${UA_Browser}" --socks5 "$PROXYSOCKS5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
-	[[ $RESULT = 200 ]] && 
-	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
-	[[ $RESULT = 200 ]] && REGION=${REGION:-US}
 	proxy_info; until [[ -n "$PROXYJASON" ]]; do proxy_info; done
 	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
-	if [[ -n $REGION ]]; then
+	if [[ $RESULT = 200 ]]; then
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	REGION=${REGION:-US}
 	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
 	else red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
 	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1 && sleep 2
@@ -494,10 +481,11 @@ change_ip(){
 	done
 	}
 
-	# 设置时区，让时间戳时间准确，显示脚本运行时长，中文为 GMT+8，英文为 UTC
+	# 设置时区，让时间戳时间准确，显示脚本运行时长，中文为 GMT+8，英文为 UTC; 设置 UA
 	ip_start=$(date +%s)
 	[[ $L = C ]] && timedatectl set-timezone Asia/Shanghai || timedatectl set-timezone UTC
-	
+	UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
+
 	# 判断刷 IP 时 WGCF 和 Client 的状态，分情况处理
 	WGCFSTATUS=0; SOCKS5STATUS=0
 	yellow " ${T[${L}121]} "
@@ -719,7 +707,7 @@ teams_change(){
 input_license(){
 	[[ -z $LICENSE ]] && reading " ${T[${L}28]} " LICENSE
 	i=5
-	until [[ -z $LICENSE || ${#LICENSE} = 26 ]]
+	until [[ -z $LICENSE || $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}30]}") " LICENSE
 		done
@@ -745,7 +733,7 @@ input_url(){
 update_license(){
 	[[ -z $LICENSE ]] && reading " ${T[${L}61]} " LICENSE
 	i=5
-	until [[ ${#LICENSE} = 26 ]]
+	until [[ $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}100]}") " LICENSE
 	       done
@@ -766,7 +754,7 @@ input_port(){
 		done
 }
 
-# IPv4, IPv6 优先
+# IPv4 / IPv6 优先
 stack_priority(){
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	case "$PRIORITY" in
@@ -941,6 +929,9 @@ install(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
 	[[ $COMPANY = amazon ]] && red " $(eval echo "${T[${L}40]}") " && reboot || net
 	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && PRIORITY=${T[${L}106]} || PRIORITY=${T[${L}107]}
+	
+	# 部分 LXC 内核已经包含 WireGuard 模块则会优先使用，此场景下删除 WireGuard-go
+	[[ -e /usr/bin/wireguard-go ]] && ! pgrep -laf "wireguard-go" >/dev/null 2>&1 && rm -f /usr/bin/wireguard-go
 
 	# 结果提示，脚本运行时间，次数统计
 	end=$(date +%s)
