@@ -288,8 +288,8 @@ T[E128]="Successfully upgraded to a WARP Teams account"
 T[C128]="已升级为 WARP Teams 账户"
 T[E129]="The current Teams account is unavailable, automatically switch back to the free account"
 T[C129]="当前 Teams 账户不可用，自动切换回免费账户"
-T[E130]="\\\n Please confirm\\\n Private key : \$PRIVATEKEY\\\n Public key : \$PUBLICKEY\\\n Address IPv4 : \$ADDRESS4/32\\\n Address IPv6 : \$ADDRESS6/128\\\n"
-T[C130]="\\\n 请确认Teams 信息\\\n Private key : \$PRIVATEKEY\\\n Public key : \$PUBLICKEY\\\n Address IPv4 : \$ADDRESS4/32\\\n Address IPv6 : \$ADDRESS6/128\\\n"
+T[E130]="\\\n Please confirm\\\n Private key : \$PRIVATEKEY \$MATCH1\\\n Public key : \$PUBLICKEY \$MATCH2\\\n Address IPv4 : \$ADDRESS4/32 \$MATCH3\\\n Address IPv6 : \$ADDRESS6/128 \$MATCH4\\\n"
+T[C130]="\\\n 请确认Teams 信息\\\n Private key : \$PRIVATEKEY \$MATCH1\\\n Public key : \$PUBLICKEY \$MATCH2\\\n Address IPv4 : \$ADDRESS4/32 \$MATCH3\\\n Address IPv6 : \$ADDRESS6/128 \$MATCH4\\\n"
 T[E131]="comfirm please enter [y] , and other keys to use free account:"
 T[C131]="确认请按 y ，其他按键则使用免费账户:"
 T[E132]="\n Is there a WARP+ or Teams account?\n 1. WARP+\n 2. Teams\n 3. use free account (default)\n"
@@ -298,6 +298,10 @@ T[E133]="Device name：\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{
 T[C133]="设备名:\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量:\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
 T[E134]="Curren architecture \$(arch) is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C134]="当前架构 \$(arch) 暂不支持,问题反馈:[https://github.com/fscarmen/warp/issues]"
+T[E135]="( match √ )"
+T[C135]="( 符合 √ )"
+T[E136]="( mismatch X )"
+T[C136]="( 不符合 X )"
 
 # 脚本当天及累计运行次数统计
 COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
@@ -726,6 +730,10 @@ input_url(){
 	PUBLICKEY=$(expr "$TEAMS" : '.*public_key&quot;:&quot;\([^&]*\).*')
 	ADDRESS4=$(expr "$TEAMS" : '.*v4&quot;:&quot;\(172[^&]*\).*')
 	ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*')
+	[[ $PRIVATEKEY =~ ^[A-Z0-9a-z/+]{43}=$ ]] && MATCH1=${T[${L}135]} || MATCH1=${T[${L}136]}
+	[[ $PUBLICKEY =~ ^[A-Z0-9a-z/+]{43}=$ ]] && MATCH2=${T[${L}135]} || MATCH2=${T[${L}136]}
+	[[ $ADDRESS4 =~ ^172.16.[01].[0-9]{1,3}$ ]] && MATCH3=${T[${L}135]} || MATCH3=${T[${L}136]}
+	[[ $ADDRESS6 =~ ^fd01(:[0-9a-f]{0,4}){7}$ ]] && MATCH4=${T[${L}135]} || MATCH4=${T[${L}136]}
 	yellow " $(eval echo "${T[${L}130]}") " && reading " ${T[${L}131]} " CONFIRM
 	}
 
@@ -793,18 +801,17 @@ install(){
 	wget --no-check-certificate $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_"$latest"_linux_$ARCHITECTURE
 	chmod +x /usr/local/bin/wgcf
 	
-	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
+	# 注册 WARP 账户 ( wgcf-account.toml 使用默认值加加快速度)。如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
+	mkdir -p /etc/wireguard/ >/dev/null 2>&1
+	[[ -z $LICENSE && $CONFIRM != [Yy] ]] && echo -e "access_token = \"b0d7d10f-adc9-4128-8de2-f68b1ab2a593\"\ndevice_id = \"09daf9de-78a2-4b37-95da-cd70d5a4c89d\"\nlicense_key = \"6RFq9Y81-9HN01I2u-5u13NG7M\"\nprivate_key = \"uOk6zKRP4xKYzPP3qG8TU26WdZ1JR4yMk5HCX2NnNU4=\"" > wgcf-account.toml
 	until [[ -e wgcf-account.toml ]] >/dev/null 2>&1; do
 		wgcf register --accept-tos >/dev/null 2>&1 && break
 	done
-
-	# 如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
-	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	[[ -n $LICENSE ]] && yellow " \n${T[${L}35]}\n " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
 	( wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 || red " \n${T[${L}36]}\n " )
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
-	wgcf generate >/dev/null 2>&1
+	[[ -e wgcf-account.toml ]] && wgcf generate >/dev/null 2>&1
 	green " \n${T[${L}33]}\n "
 
 	# 反复测试最佳 MTU。 Wireguard Header：IPv4=60 bytes,IPv6=80 bytes，1280 ≤1 MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
