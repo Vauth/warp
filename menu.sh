@@ -721,8 +721,8 @@ input_license(){
 input_url(){
 	[[ -z $URL ]] && reading " ${T[${L}127]} " URL
 	URL=${URL:-'https://gist.githubusercontent.com/fscarmen/56aaf02d743551737c9973b8be7a3496/raw/16cf34edf5fb28be00f53bb1c510e95a35491032/com.cloudflare.onedotonedotonedotone_preferences.xml'}
-	TEAMS=$(curl -sSL "$URL")
-	PRIVATEKEY=$(expr "$TEAMS" : '.*private_key..\([^<]*\).*')
+	TEAMS=$(curl -sSL "$URL" | sed "s/\"/\&quot;/g")
+	PRIVATEKEY=$(expr "$TEAMS" : '.*private_key&quot;>\([^<]*\).*')
 	PUBLICKEY=$(expr "$TEAMS" : '.*public_key&quot;:&quot;\([^&]*\).*')
 	ADDRESS4=$(expr "$TEAMS" : '.*v4&quot;:&quot;\(172[^&]*\).*')
 	ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*')
@@ -795,7 +795,7 @@ install(){
 	
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 	until [[ -e wgcf-account.toml ]] >/dev/null 2>&1; do
-	   wgcf register --accept-tos >/dev/null 2>&1 && break
+		wgcf register --accept-tos >/dev/null 2>&1 && break
 	done
 
 	# 如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
