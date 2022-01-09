@@ -911,6 +911,9 @@ install(){
 
 	echo "$MODIFY" | sh
 	
+	# 特殊 VPS 的配置文件 DNS 次序
+	[[ $(hostname 2>&1) = DiG9 ]] && sed -i "s/DNS.*/DNS = 8.8.8.8,8.8.4.4,9.9.9.9/g" wgcf-profile.conf
+
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf, 如有 Teams，改为 Teams 账户信息
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 	
