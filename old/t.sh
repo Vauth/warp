@@ -803,7 +803,6 @@ install(){
 	
 	# 注册 WARP 账户 ( wgcf-account.toml 使用默认值加加快速度)。如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
-	[[ -z $LICENSE && $CONFIRM != [Yy] ]] && echo -e "access_token = \"b0d7d10f-adc9-4128-8de2-f68b1ab2a593\"\ndevice_id = \"09daf9de-78a2-4b37-95da-cd70d5a4c89d\"\nlicense_key = \"6RFq9Y81-9HN01I2u-5u13NG7M\"\nprivate_key = \"uOk6zKRP4xKYzPP3qG8TU26WdZ1JR4yMk5HCX2NnNU4=\"" > wgcf-account.toml
 	until [[ -e wgcf-account.toml ]] >/dev/null 2>&1; do
 		wgcf register --accept-tos >/dev/null 2>&1 && break
 	done
