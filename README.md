@@ -43,7 +43,7 @@ wg-quick up wgcf; exit #运行 WGCF 并退出容器。
 
 2021.12.17  2.23: Support change the Netflix IP not only WGCF but also Socks5 Client. Both will keep the Plus status. Recommand runs under [screen]; 2.Support update to TEAM account online. [URL for you](https://gist.githubusercontent.com/fscarmen/56aaf02d743551737c9973b8be7a3496/raw/16cf34edf5fb28be00f53bb1c510e95a35491032/com.cloudflare.onedotonedotonedotone_preferences.xml) 1.支持 WARP Interface 和 Socks5 Client 自动更换支持奈飞的IP，两者都会保留 Plus 的状态，建议在 screen 下在后台运行,如果是中文，需要 screen -U 解决乱码问题; 2.支持在线升级为 TEAM 账户。 [这此获取 URL](https://gist.githubusercontent.com/fscarmen/56aaf02d743551737c9973b8be7a3496/raw/16cf34edf5fb28be00f53bb1c510e95a35491032/com.cloudflare.onedotonedotonedotone_preferences.xml)
 
-2021.12.14  2.22: 1.First in the whole network. Use WARP Team account instead of Plus. No need to brush Plus traffic any more. 50 user limited. return to version 2.21; 1.全网首创，使用脚本提供 TEAM 账户替代 Plus，免刷流量。<s>翻车了，官方说了免费team有50个账户的限制，我心存侥幸，想着1个账户多人用，现在看来是行不通了，暂先回退到2.21版本</s>
+2021.12.14  2.22: 1.First in the whole network. Use WARP Team account instead of Plus. No need to brush Plus traffic any more. 50 user limited. return to version 2.21; 1.全网首创，使用脚本提供 TEAM 账户替代 Plus，免刷流量。~翻车了，官方说了免费team有50个账户的限制，我心存侥幸，想着1个账户多人用，现在看来是行不通了，暂先回退到2.21版本~
 
 2021.12.11  2.21: 1.BoringTUN removed because of unstable; 2.Change the DNS to Google first. 3.Count the number of runs1.BoringTUN 因不稳定而移除 2.域名解析服务器首先谷歌 3.统计运行次数
 
