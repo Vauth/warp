@@ -140,8 +140,8 @@ T[E54]="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[h
 T[C54]="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n	* [SoftCreatR]，地址[https://github.com/SoftCreatR/warp-up]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
 T[E55]="1.Run [ALIILAPRO] script\n 2.Run [mixool] script\n 3.Run [SoftCreatR] script"
 T[C55]="1.运行 [ALIILAPRO] 脚本\n 2.运行 [mixool] 脚本\n 3.运行 [SoftCreatR] 脚本"
-T[E56]=""
-T[C56]=""
+T[E56]="The current Netflix region is \$REGION. Confirm press [y] . If you want another regions, please enter the two-digit region abbreviation (such as hk,sg)" 
+T[C56]="当前 Netflix 地区是\$REGION，需要解锁当前地区请按 y , 如需其他地址请输入两位地区简写（如 hk ,sg)"
 T[E57]="The target quota you want to get. The unit is GB, the default value is 10:"
 T[C57]="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
 T[E58]="WARP+ or Teams account is working now. No need to upgrade."
@@ -439,26 +439,25 @@ plus(){
 	esac
 	}
 # 更换 Netflix IP 时确认期望区域
-expect_region(){
-	RESULT=$(curl --user-agent "${UA_Browser}" $NF $PROXYSOCKS5 -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
+input_region(){
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" "$NF" "$S5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	until [[ $EXPECT = [Yy] || $EXPECT = [A-Za-z]{2} ]]; do
-	reading " ${T[${L}56]} " EXPECT
-
-	
-	
-	
+		reading " $(eval echo "${T[${L}56]}") " EXPECT
+	done
+	[[ $EXPECT = [Yy] ]] && EXPECT="$REGION"
 	}
 
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
 	change_wgcf(){
 	if [[ $WGCFSTATUS$SOCKS5STATUS != 11 ]]; then
-		[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " ${T[${L}124]} " NETFLIX || NF='-4'
-		[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
+		[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF='-6' && reading " ${T[${L}124]} " NETFLIX || NF='-4'
+		[[ $NETFLIX = [Yy] ]] && NF='-4' && PRIORITY=1 && stack_priority
 	else NF='-6'
 	fi
 
-	i=0;j=3
+	input_region
+	i=0;j=5
 	while true
 	do (( i++ )) || true
 	ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
@@ -466,8 +465,8 @@ change_ip(){
 	ip${NF}_info; until [[ -n $(eval echo \$IP$NF) ]]; do ip${NF}_info; done
 	WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
 	[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
-	if [[ $RESULT = 200 ]]; then
-	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	if [[ $RESULT = 200 && $REGION="$EXPECT" ]]; then
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" "$NF" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-US}
 	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
 	else red " $(eval echo "${T[${L}126]}") " && ${SYSTEMCTL_RESTART[int]} && sleep $j
@@ -476,17 +475,17 @@ change_ip(){
 	}
 	
 	change_socks5(){
-	PROXYSOCKS5="--socks5 $(ss -nltp | grep warp | grep -oP '127.0*\S+')"
-	
-	i=0; [[ -e /etc/wireguard/license ]] && j=8 || j=10
+	S5="--socks5 $(ss -nltp | grep warp | grep -oP '127.0*\S+')"
+	input_region
+	i=0; [[ -e /etc/wireguard/license ]] && j=13 || j=15
 	while true
 	do (( i++ )) || true
 	ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
-	RESULT=$(curl --user-agent "${UA_Browser}" --socks5 "$PROXYSOCKS5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
+	RESULT=$(curl --user-agent "${UA_Browser}" "$S5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	proxy_info; until [[ -n "$PROXYJASON" ]]; do proxy_info; done
 	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
-	if [[ $RESULT = 200 ]]; then
-	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	if [[ $RESULT = 200 && $REGION="$EXPECT" ]]; then
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" "$S5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-US}
 	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
 	else red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
