@@ -450,7 +450,8 @@ stack_priority(){
 }
 # 更换 Netflix IP 时确认期望区域
 input_region(){
-	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" "$NF46" "$S5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
+	[[ -n $NF ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g')) ||
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" --socks5 "S5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	until [[ $EXPECT = [Yy] || $EXPECT =~ [A-Za-z]{2} ]]; do
 		reading " $(eval echo "${T[${L}56]}") " EXPECT
 	done
@@ -465,13 +466,13 @@ change_ip(){
 		[[ $NETFLIX = [Yy] ]] && NF='4' && PRIORITY=1 && stack_priority
 	else NF='6'
 	fi
-	NF46="-$NF"
+
 	input_region
 	i=0;j=5
 	while true
 	do (( i++ )) || true
 	ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
-	RESULT=$(curl --user-agent "${UA_Browser}" $NF46 -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
+	RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	ip${NF}_info; until [[ -n $(eval echo \$IP$NF) ]]; do ip${NF}_info; done
 	WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
 	[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
@@ -485,13 +486,13 @@ change_ip(){
 	}
 	
 	change_socks5(){
-	S5="--socks5 $(ss -nltp | grep warp | grep -oP '127.0*\S+')"
+	S5="$(ss -nltp | grep warp | grep -oP '127.0*\S+')"
 	input_region
 	i=0; [[ -e /etc/wireguard/license ]] && j=13 || j=15
 	while true
 	do (( i++ )) || true
 	ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
-	RESULT=$(curl --user-agent "${UA_Browser}" "$S5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
+	RESULT=$(curl --user-agent "${UA_Browser}" --socks5 "$S5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	proxy_info; until [[ -n "$PROXYJASON" ]]; do proxy_info; done
 	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
 	if [[ $RESULT = 200 && $REGION = "$EXPECT" ]]; then
