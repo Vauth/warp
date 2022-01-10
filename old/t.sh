@@ -465,7 +465,7 @@ change_ip(){
 	ip${NF}_info; until [[ -n $(eval echo \$IP$NF) ]]; do ip${NF}_info; done
 	WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
 	[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
-	if [[ $RESULT = 200 && $REGION="$EXPECT" ]]; then
+	if [[ $RESULT = 200 && $REGION = "$EXPECT" ]]; then
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -"$NF" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-US}
 	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
@@ -484,7 +484,7 @@ change_ip(){
 	RESULT=$(curl --user-agent "${UA_Browser}" "$S5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	proxy_info; until [[ -n "$PROXYJASON" ]]; do proxy_info; done
 	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
-	if [[ $RESULT = 200 && $REGION="$EXPECT" ]]; then
+	if [[ $RESULT = 200 && $REGION = "$EXPECT" ]]; then
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" "$S5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-US}
 	green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
