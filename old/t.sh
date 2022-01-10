@@ -438,21 +438,31 @@ plus(){
 		* ) red " ${T[${L}51]} [1-4] "; sleep 1; plus;;
 	esac
 	}
+# 更换 Netflix IP 时确认期望区域
+expect_region(){
+	RESULT=$(curl --user-agent "${UA_Browser}" $NF $PROXYSOCKS5 -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
+	until [[ $EXPECT = [Yy] || $EXPECT = [A-Za-z]{2} ]]; do
+	reading " ${T[${L}56]} " EXPECT
+
+	
+	
+	
+	}
 
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip(){
 	change_wgcf(){
 	if [[ $WGCFSTATUS$SOCKS5STATUS != 11 ]]; then
-		[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " ${T[${L}124]} " NETFLIX || NF=4
+		[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF=6 && reading " ${T[${L}124]} " NETFLIX || NF='-4'
 		[[ $NETFLIX = [Yy] ]] && NF=4 && PRIORITY=1 && stack_priority
-	else NF=6
+	else NF='-6'
 	fi
 
 	i=0;j=3
 	while true
 	do (( i++ )) || true
 	ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
-	RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
+	RESULT=$(curl --user-agent "${UA_Browser}" $NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	ip${NF}_info; until [[ -n $(eval echo \$IP$NF) ]]; do ip${NF}_info; done
 	WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
 	[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
@@ -466,7 +476,7 @@ change_ip(){
 	}
 	
 	change_socks5(){
-	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
+	PROXYSOCKS5="--socks5 $(ss -nltp | grep warp | grep -oP '127.0*\S+')"
 	
 	i=0; [[ -e /etc/wireguard/license ]] && j=8 || j=10
 	while true
@@ -692,11 +702,11 @@ esac
 [[ $LXC != 1 && $(($(uname -r | cut -d . -f1) * 100 +  $(uname -r | cut -d . -f2))) -lt 506 ]] && WG=1
 
 # WGCF 配置修改，其中用到的 162.159.192.1 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的IP
-MODIFYS01='sed -i "s/1.1.1.1/2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111,1.1.1.1,8.8.8.8,8.8.4.4/g;/\:\:\/0/d;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
-MODIFYD01='sed -i "s/1.1.1.1/2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
-MODIFYS10='sed -i "s/1.1.1.1/8.8.8.8,8.8.4.4,1.1.1.1,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;/0\.\0\/0/d;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
-MODIFYD10='sed -i "s/1.1.1.1/8.8.8.8,8.8.4.4,1.1.1.1,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
-MODIFYD11='sed -i "s/1.1.1.1/8.8.8.8,8.8.4.4,1.1.1.1,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf'
+MODIFYS01='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;/\:\:\/0/d;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
+MODIFYD01='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
+MODIFYS10='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;/0\.\0\/0/d;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
+MODIFYD10='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
+MODIFYD11='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf'
 
 # 替换为 Teams 账户信息
 teams_change(){
@@ -909,6 +919,9 @@ install(){
 	wait
 
 	echo "$MODIFY" | sh
+	
+	# 特殊 VPS 的配置文件 DNS 次序
+	[[ $(hostname 2>&1) = DiG9 ]] && sed -i "s/DNS.*/DNS = 2001:4860:4860::8888,2001:4860:4860::8844,8.8.8.8,8.8.4.4/g" wgcf-profile.conf
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf, 如有 Teams，改为 Teams 账户信息
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
