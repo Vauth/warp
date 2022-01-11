@@ -453,7 +453,7 @@ input_region(){
 	[[ -n $NF ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g')) ||
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" --socks5 "S5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-US}
-	until [[ $EXPECT = [Yy] || $EXPECT =~ [A-Za-z]{2} ]]; do
+	until [[ $EXPECT = [Yy] || $EXPECT =~ ^[A-Za-z]{2}& ]]; do
 		reading " $(eval echo "${T[${L}56]}") " EXPECT
 	done
 	EXPECT=$(tr '[:lower:]' '[:upper:]' <<< "$EXPECT") && [[ $EXPECT = Y ]] && EXPECT="$REGION"
