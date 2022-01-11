@@ -506,7 +506,7 @@ change_ip(){
 	if [[ $RESULT = 200 ]]; then
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" --socks5 "$S5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-US}
-		if [ $REGION = "$EXPECT" ]]; then
+		if [[ $REGION = "$EXPECT" ]]; then
 		green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
 		else socks5_restart
 		fi
