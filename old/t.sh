@@ -453,11 +453,12 @@ input_region(){
 	[[ -n $NF ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g')) ||
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" --socks5 "$S5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-'US'}
+	reading " $(eval echo "${T[${L}56]}") " EXPECT
 	until [[ -z $EXPECT || $EXPECT = [Yy] || $EXPECT =~ ^[A-Za-z]{2}$ ]]; do
 		reading " $(eval echo "${T[${L}56]}") " EXPECT
-		EXPECT=${REGION:-"$REGION"}
 	done
-	EXPECT=$(tr '[:lower:]' '[:upper:]' <<< "$EXPECT") && [[ $EXPECT = Y ]] && EXPECT="$REGION"
+	[[ -z $EXPECT || $EXPECT = Y ]] && EXPECT="$REGION"
+	EXPECT=$(tr '[:lower:]' '[:upper:]' <<< "$EXPECT")
 	}
 
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
