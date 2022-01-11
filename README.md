@@ -17,6 +17,9 @@
 * * *
 
 ## 更新信息
+2022.1.11  2.26: 1.Asking the unlock Netflix region where you expect before brushing WARP IP; 1.在刷解锁 Netflix WARP IP 之前，让用户输入想要的区域的简写
+
+
 2022.1.6  重大技术突破，绝对原创，绝对原创，绝对原创。成功把 WGCF 配置文件与环境依赖分离。本着万物皆可 Docker 的思路，以超轻量级的 Alpine 为底包（底包5M+依赖22M=27MB），配置放在映射目录处，解决某些旧系统不能使用 WARP 服务的问题。docker 安装依赖方案只能是单栈，并不能双栈。该技术已经是 WGCF 和 wireguard 的天花板，不服来辩。
 ```
 wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/docker.sh && bash docker.sh [option] [lisence] ## 安装 docker、拉镜像和安装容器
