@@ -455,7 +455,7 @@ type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${PACKAGE_INSTALL[int
 
 # 判断处理器架构
 case $(tr '[:upper:]' '[:lower:]' <<< "$(arch)") in
-aarch64 ) ARCHITECTURE=arm64;;	x86_64 ) ARCHITECTURE=amd64;;	s390x ) ARCHITECTURE=s390x && S390X='-s390x';;	* ) red " $(eval echo "${T[${L}134]}") " && exit 1;;
+aarch64 ) ARCHITECTURE=ARM64;;	x86_64 ) ARCHITECTURE=AMD64;;	s390x ) ARCHITECTURE=s390x;;	* ) red " $(eval echo "${T[${L}134]}") " && exit 1;;
 esac
 
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP, Linux Client 是否开启
@@ -581,7 +581,7 @@ install(){
 	# 安装 docker, 拉取镜像+创建容器
 	{ green " \n${T[${L}32]}\n " && ! systemctl is-active docker >/dev/null 2>&1 && curl -sSL get.docker.com | sh
 
-	docker run -dit --restart=always --network=host --name wgcf --device /dev/net/tun --privileged --cap-add net_admin --cap-add sys_module  -v /etc/wireguard:/etc/wireguard -v /lib/modules:/lib/modules fscarmen/wgcf:1.0
+	docker run -dit --restart=always --network=host --name wgcf --device /dev/net/tun --privileged --cap-add net_admin --cap-add sys_module  -v /etc/wireguard:/etc/wireguard -v /lib/modules:/lib/modules fscarmen/wgcf:"$ARCHITECTURE"
 	}&
 	
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
@@ -647,9 +647,6 @@ install(){
         sysctl -w net.ipv6.conf.all.disable_ipv6=0)
 	}&
 
-        # 优先使用 IPv4 /IPv6 网络
-	{ stack_priority; }&
-	
 	wait
 
 	echo "$MODIFY" | sh
