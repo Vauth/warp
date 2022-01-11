@@ -141,7 +141,7 @@ T[C54]="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟�
 T[E55]="1.Run [ALIILAPRO] script\n 2.Run [mixool] script\n 3.Run [SoftCreatR] script"
 T[C55]="1.运行 [ALIILAPRO] 脚本\n 2.运行 [mixool] 脚本\n 3.运行 [SoftCreatR] 脚本"
 T[E56]="The current Netflix region is \$REGION. Confirm press [y] . If you want another regions, please enter the two-digit region abbreviation. \(such as hk,sg\):" 
-T[C56]="当前 Netflix 地区是\$REGION，需要解锁当前地区请按 y , 如需其他地址请输入两位地区简写 \(如 hk ,sg\):"
+T[C56]="当前 Netflix 地区是:\$REGION，需要解锁当前地区请按 y , 如需其他地址请输入两位地区简写 \(如 hk ,sg\):"
 T[E57]="The target quota you want to get. The unit is GB, the default value is 10:"
 T[C57]="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
 T[E58]="WARP+ or Teams account is working now. No need to upgrade."
@@ -453,7 +453,7 @@ input_region(){
 	[[ -n $NF ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g')) ||
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" --socks5 "S5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-US}
-	until [[ $EXPECT = [Yy] || $EXPECT =~ ^[A-Za-z]{2}& ]]; do
+	until [[ $EXPECT = [Yy] || $EXPECT =~ ^[A-Za-z]{2}$ ]]; do
 		reading " $(eval echo "${T[${L}56]}") " EXPECT
 	done
 	EXPECT=$(tr '[:lower:]' '[:upper:]' <<< "$EXPECT") && [[ $EXPECT = Y ]] && EXPECT="$REGION"
