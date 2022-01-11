@@ -69,14 +69,14 @@ until [ $? -eq 0 ]
   do
    echo -e "\033[32m warp 注册接口繁忙，3秒后自动重试直到成功。 \033[0m"
    sleep 3
-   echo | wgcf register
+   wgcf register --accept-tos
 done
 
 # 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 wgcf generate
   
 # 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 WireGuard 接管，让 IPv4 的流量通过 WARP IPv6 节点以 NAT 的方式访问外部 IPv4 网络
-sed -i '/\:\:\/0/d' wgcf-profile.conf | sed -i 's/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g' wgcf-profile.conf
+sed -i "s/1.1.1.1/2001:4860:4860::8888,2001:4860:4860::8844,8.8.8.8,8.8.4.4/g;/\:\:\/0/d;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf
 
 # 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 cp wgcf-profile.conf /etc/wireguard/wgcf.conf
