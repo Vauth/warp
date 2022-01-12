@@ -926,7 +926,7 @@ install(){
 
 
 	$SYSTEM
-	f
+
 	wait
 
 	echo "$MODIFY" | sh
