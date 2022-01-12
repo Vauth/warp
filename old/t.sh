@@ -655,9 +655,7 @@ net(){
 	}
 
 # WARP 开关
-onoff(){
-	[[ -n $(wg 2>/dev/null) ]] && (wg-quick down wgcf >/dev/null 2>&1; green " ${T[${L}15]} ") || net
-	}
+onoff(){ [[ -n $(wg 2>/dev/null) ]] && (wg-quick down wgcf >/dev/null 2>&1; green " ${T[${L}15]} ") || net; }
 
 # PROXY 开关
 proxy_onoff(){
