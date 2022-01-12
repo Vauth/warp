@@ -41,7 +41,7 @@ T[C4]="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 16
 T[E5]="The script supports Debian, Ubuntu, CentOS or Alpine systems only. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C5]="本脚本只支持 Debian、Ubuntu、CentOS 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp d (Upgrade to WARP+ account)\n warp d N5670ljg-sS9jD334-6o6g4M9F (Upgrade to WARP+ account with the license)\n warp d http://gist.github.com/teams.xml (Upgrade to Teams account with the URL)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 1 (Add WARP IPv6 interface to native IPv4 VPS or WARP IPv4 interface to native IPv6 VPS)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck (Add IPv4 or IPV6 WARP+ interface with the license and named Goodluck)\n warp 2 (Add WARP dualstack interface IPv4 + IPv6)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck (Add WARP+ dualstack interface with the license and named Goodluck)\n warp c (Install WARP Linux Client)\n warp c N5670ljg-sS9jD334-6o6g4M9F(Install WARP+ Linux Client with the license)\n warp i (Change the WARP IP to support Netflix)"
-T[C6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 WARP+)\n warp d http://gist.github.com/teams.xml (指定 URL 升级 Teams)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 1 (Warp单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License Warp 单栈，设备名为 Goodluck)\n warp 2 (WARP 双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License 双栈，设备名为 Goodluck)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp c N5670ljg-sS9jD334-6o6g4M9F (指定 Warp+ License 安装 WARP Linux Client，开启 Socks5 代理模式)\n warp i (更换支持 Netflix 的IP)"
+T[C6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp d (免费 WARP 账户升级 WARP+)\n warp d N5670ljg-sS9jD334-6o6g4M9F (指定 License 升级 WARP+)\n warp d http://gist.github.com/teams.xml (指定 URL 升级 Teams)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 1 (WARP 单栈)\n warp 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License WARP 单栈，设备名为 Goodluck)\n warp 2 (WARP 双栈)\n warp 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck (指定 WARP+ License 双栈，设备名为 Goodluck)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp c N5670ljg-sS9jD334-6o6g4M9F (指定 WARP+ License 安装 WARP Linux Client，开启 Socks5 代理模式)\n warp i (更换支持 Netflix 的IP)"
 T[E7]="Installing curl..."
 T[C7]="安装curl中……"
 T[E8]="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..."
@@ -89,7 +89,7 @@ T[C28]="如有 WARP+ License 请输入，没有可回车继续:"
 T[E29]="Input errors up to 5 times.The script is aborted."
 T[C29]="输入错误达5次，脚本退出"
 T[E30]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\):"
-T[C30]="License 应为26位字符，请重新输入 Warp+ License，没有可回车继续\(剩余\$i次\):"
+T[C30]="License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\$i次\):"
 T[E31]="\n 1.Update with WARP+ license\n 2.Update with Teams (You need upload the Teams file to a private storage space before. For example: gist.github.com)\n"
 T[C31]="\n 1.使用 WARP+ license 升级\n 2.使用 Teams 升级 (你须事前把 Teams 文件上传到私密存储空间，比如：gist.github.com )\n"
 T[E32]="Step 1/3: Install dependencies..."
@@ -97,7 +97,7 @@ T[C32]="进度 1/3：安装系统依赖……"
 T[E33]="Step 2/3: WGCF is ready"
 T[C33]="进度 2/3：已安装 WGCF"
 T[E34]="This system is a native dualstack. You can only choose the WARP dualstack. Same options as 1"
-T[C34]="此系统为原生双栈，只能选择 Warp 双栈方案，选项与 1 相同"
+T[C34]="此系统为原生双栈，只能选择 WARP 双栈方案，选项与 1 相同"
 T[E35]="Update WARP+ account..."
 T[C35]="升级 WARP+ 账户中……"
 T[E36]="The upgrade failed, WARP+ account error or more than 5 devices have been activated. Free WARP account to continu."
@@ -187,7 +187,7 @@ T[C77]="暂时关闭 WARP"
 T[E78]="Upgrade to WARP+ or Teams account"
 T[C78]="升级为 WARP+ 或 Teams 账户"
 T[E79]="This system is a native dualstack. You can only choose the WARP dualstack, please enter [y] to continue, and other keys to exit:"
-T[C79]="此系统为原生双栈，只能选择 Warp 双栈方案，继续请输入 y，其他按键退出:"
+T[C79]="此系统为原生双栈，只能选择 WARP 双栈方案，继续请输入 y，其他按键退出:"
 T[E80]="The WARP is working. It will be closed, please run the previous command to install or enter !!"
 T[C80]="检测 WARP 已开启，自动关闭后运行上一条命令安装或者输入 !!"
 T[E81]="Step 3/3: Searching for the best MTU value is ready."
@@ -926,7 +926,7 @@ install(){
 
 
 	$SYSTEM
-	
+	f
 	wait
 
 	echo "$MODIFY" | sh
