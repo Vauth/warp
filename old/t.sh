@@ -30,7 +30,7 @@ declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1.Asking the unlock Netflix region where you expect before brushing WARP IP; 1.在刷解锁 Netflix WARP IP 之前，让用户输入想要的区域的简写"
+T[E1]="1.Asking the unlock Netflix region where you expect before brushing WARP IP; 2.Single and Dual stack switch to each other quickly. 1.在刷解锁 Netflix WARP IP 之前，让用户输入想要的区域的简写; 2.单栈与双栈快速切换"
 T[C1]="1.重要:全网首发，支持IBM Linux One 的 s390x 架构 CPU (请选用 WARP ipv6单栈) 2.支持 Alpine Linux 系统 3.支持 Debian bookworm"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
@@ -729,7 +729,7 @@ if [[ $TRACE4$TRACE6 =~ on|plus ]]; then
 	101 ) STACK_AFTER=IPv6 && OPTION9=$(eval echo "${T[${L}139]}");;
 	111 ) OPTION9=${T[${L}140]};;
 	esac
-	else OPTION9=" ${T[${L}137]} "
+	else OPTION9=${T[${L}137]}
 fi
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
