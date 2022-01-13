@@ -1175,7 +1175,7 @@ menu(){
 		6 )	bbrInstall;;
 		7 )	plus;;
 		8 )	ver;;
-		9 )	[[ -n $OPTION9 ]] && stack_switch || menu;;
+		9 )	[[ -z $OPTION9 ]] && red " ${T[${L}51]} [0-8] " && sleep 1 && menu || stack_switch;;
 		0 )	exit;;
 		* )	red " ${T[${L}51]} [0-9] "; sleep 1; [[ $CLIENT -gt 2 ]] && menu 3 || menu $PLAN;;
 		esac
