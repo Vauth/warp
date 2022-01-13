@@ -808,9 +808,9 @@ input_port(){
 # 单双栈在线互换
 stack_switch(){
 	if [[ -e /etc/wireguard/wgcf.conf ]]; then
-	grep -sq '\-4' wgcf-profile.conf && STACK4=1 || STACK4=0
-	grep -sq '\-6' wgcf-profile.conf && STACK6=1 || STACK6=0
-	grep -sq '^#' wgcf-profile.conf && DUALSTACK=0 || DUALSTACK=1
+	grep -sq '\-4' /etc/wireguard/wgcf.conf && STACK4=1 || STACK4=0
+	grep -sq '\-6' /etc/wireguard/wgcf.conf && STACK6=1 || STACK6=0
+	grep -sq '^#' /etc/wireguard/wgcf.conf && DUALSTACK=0 || DUALSTACK=1
 	case $STACK4$$STACK6$DUALSTACK in
 	010 ) STACK_NOW=IPv4 && OPTION9=$(eval echo "${T[${L}138]}");;
 	011 ) STACK_AFTER=IPv4 && OPTION9=$(eval echo "${T[${L}139]}");;
