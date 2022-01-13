@@ -365,6 +365,7 @@ for ex in "${EXCLUDE[@]}"; do [[ ! $(echo "$SYS" | tr '[:upper:]' '[:lower:]')  
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
+	unset IP4 LAN4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
 	IP4=$(curl -s4m8 https://ip.gs/json)
 	LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+')
 	WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]*\).*')
@@ -378,6 +379,7 @@ ip4_info(){
 	}
 
 ip6_info(){
+	unset IP6 LAN6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
 	IP6=$(curl -s6m8 https://ip.gs/json)
 	LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
 	WAN6=$(expr "$IP6" : '.*ip\":\"\([^"]*\).*')
@@ -1173,9 +1175,9 @@ menu(){
 		6 )	bbrInstall;;
 		7 )	plus;;
 		8 )	ver;;
-		9 )	[[ -n $OPTION9 ]] && stack_switch;;
+		9 )	[[ -n $OPTION9 ]] && stack_switch || menu;;
 		0 )	exit;;
-		* )	red " ${T[${L}51]} [0-8] "; sleep 1; [[ $CLIENT -gt 2 ]] && menu 3 || menu $PLAN;;
+		* )	red " ${T[${L}51]} [0-9] "; sleep 1; [[ $CLIENT -gt 2 ]] && menu 3 || menu $PLAN;;
 		esac
 	}
 
