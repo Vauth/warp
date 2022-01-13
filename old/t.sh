@@ -302,6 +302,14 @@ T[E135]="( match √ )"
 T[C135]="( 符合 √ )"
 T[E136]="( mismatch X )"
 T[C136]="( 不符合 X )"
+T[E137]="Cannot find the configuration file: /etc/wireguard/wgcf.conf. You should install WARP first"
+T[C137]="找不到配置文件 /etc/wireguard/wgcf.conf，请先安装 WARP"
+T[E138]="WARP \$STACK_NOW only switch to dualstack"
+T[C138]="单栈 WARP \$STACK_NOW 改为双栈 WARP"
+T[E139]="Dualstack switch to WARP \$STACK_AFTER only"
+T[C139]="双栈 WARP 改为单栈 WARP \$STACK_AFTER"
+T[E140]="Native dualstack could not be changed."
+T[C140]="原生双栈 WARP 不能作更改"
 
 # 脚本当天及累计运行次数统计
 COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
@@ -310,7 +318,7 @@ TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '
 # 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语
 case $(cat /etc/wireguard/language 2>&1) in
 E ) L=E;;	C ) L=C;;
-* ) L=E && [[ -z $OPTION || $OPTION = [chdpbvi12] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
+* ) L=E && [[ -z $OPTION || $OPTION = [chdpbvis12] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
 [[ $LANGUAGE = 2 ]] && L=C;;
 esac
 
@@ -723,11 +731,15 @@ esac
 [[ $LXC != 1 && $(($(uname -r | cut -d . -f1) * 100 +  $(uname -r | cut -d . -f2))) -lt 506 ]] && WG=1
 
 # WGCF 配置修改，其中用到的 162.159.192.1 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的IP
-MODIFYS01='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;/\:\:\/0/d;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
+MODIFYS01='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/^.*\:\:\/0/#&/g;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
 MODIFYD01='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
-MODIFYS10='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;/0\.\0\/0/d;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
+MODIFYS10='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
 MODIFYD10='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
 MODIFYD11='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf'
+SWITCH010='sed -i "s/^#//g" /etc/wireguard/wgcf.conf'
+SWITCH011='sed -i "s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
+SWITCH100='sed -i "s/^#//g" /etc/wireguard/wgcf.conf'
+SWITCH101='sed -i "s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
 
 # 替换为 Teams 账户信息
 teams_change(){
@@ -791,7 +803,28 @@ input_port(){
 			echo "$PORT" | grep -qvE "^[1-9][0-9]{1,4}$" && reading " $(eval echo "${T[${L}111]}") " PORT
 			echo "$PORT" | grep -qE "^[1-9][0-9]{1,4}$" && [[ $(ss -nltp) =~ :"$PORT"[[:space:]] ]] && reading " $(eval echo "${T[${L}103]}") " PORT
 		done
-}
+	}
+
+# 单双栈在线互换
+stack_switch(){
+	if [[ -e /etc/wireguard/wgcf.conf ]]; then
+	grep -sq '\-4' wgcf-profile.conf && STACK4=1 || STACK4=0
+	grep -sq '\-6' wgcf-profile.conf && STACK6=1 || STACK6=0
+	grep -sq '^#' wgcf-profile.conf && DUALSTACK=0 || DUALSTACK=1
+	case $STACK4$$STACK6$DUALSTACK in
+	010 ) STACK_NOW=IPv4 && OPTION9=$(eval echo "${T[${L}138]}");;
+	011 ) STACK_AFTER=IPv4 && OPTION9=$(eval echo "${T[${L}139]}");;
+	100 ) STACK_NOW=IPv6 && OPTION9=$(eval echo "${T[${L}138]}");;
+	101 ) STACK_AFTER=IPv6 && OPTION9=$(eval echo "${T[${L}139]}");;
+	111 ) OPTION9=${T[${L}140]};;
+	esac
+	sh -c $(eval echo "\$SWITCH$STACK4$$STACK6$DUALSTACK")
+	${SYSTEMCTL_RESTART[int]}
+	net
+	else red " ${T[${L[137]} "
+	fi
+
+	}
 
 # WGCF 安装
 install(){
@@ -929,7 +962,7 @@ install(){
 
 	wait
 
-	echo "$MODIFY" | sh
+	sh -c "$MODIFY"
 	
 	# 特殊 VPS 的配置文件 DNS 次序
 	[[ $(hostname 2>&1) = DiG9 ]] && sed -i "s/DNS.*/DNS = 8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844/g" wgcf-profile.conf
@@ -1127,7 +1160,7 @@ menu(){
 	[[ $CLIENT = 2 ]] && green "	${T[${L}113]} "
 	[[ $CLIENT = 3 ]] && green "	WARP$AC ${T[${L}24]}	$(eval echo "${T[${L}27]}") "
  	red "\n======================================================================================================================\n"
-	green " 1. $OPTION1\n 2. $OPTION2\n 3. $OPTION3\n 4. $OPTION4\n 5. ${T[${L}72]}\n 6. ${T[${L}73]}\n 7. ${T[${L}74]}\n 8. ${T[${L}75]}\n 0. ${T[${L}76]}\n "
+	green " 1. $OPTION1\n 2. $OPTION2\n 3. $OPTION3\n 4. $OPTION4\n 5. ${T[${L}72]}\n 6. ${T[${L}73]}\n 7. ${T[${L}74]}\n 8. ${T[${L}75]}\n 0. ${T[${L}76]}\n 9. $OPTION9\n"
 	reading " ${T[${L}50]} " CHOOSE1
 		case "$CHOOSE1" in
 		1 )	[[ $OPTION1 = ${T[${L}66]} || $OPTION1 = ${T[${L}67]} ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6) && install
@@ -1142,6 +1175,7 @@ menu(){
 		6 )	bbrInstall;;
 		7 )	plus;;
 		8 )	ver;;
+		9 )	stack_switch;;
 		0 )	exit;;
 		* )	red " ${T[${L}51]} [0-8] "; sleep 1; [[ $CLIENT -gt 2 ]] && menu 3 || menu $PLAN;;
 		esac
@@ -1171,5 +1205,6 @@ case "$OPTION" in
 
 c )	[[ $CLIENT = 3 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
 d )	update;;
+s )	stack_switch;;
 * )	[[ $CLIENT -gt 2 ]] && menu 3 || menu "$PLAN";;
 esac
