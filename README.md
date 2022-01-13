@@ -18,6 +18,7 @@
 
 ## 更新信息
 2022.1.11  2.26: 1.Asking the unlock Netflix region where you expect before brushing WARP IP; 2.Single and Dual stack switch to each other quickly. 1.在刷解锁 Netflix WARP IP 之前，让用户输入想要的区域的简写; 2.单栈与双栈快速切换;
+
 WARP docker solution support ARM64,AMD64 and s390x; WARP docker 方案支持 ARM64,AMD64 和 s390x CPU 架构
 Dualstack on IPv4 only ,IPv6 only and native dualstack VPS is coming; 双栈 WARP docker 已经有方案，即将推出。
 
