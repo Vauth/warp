@@ -818,12 +818,11 @@ stack_switch(){
 	101 ) STACK_AFTER=IPv6 && OPTION9=$(eval echo "${T[${L}139]}");;
 	111 ) OPTION9=${T[${L}140]};;
 	esac
-	sh -c $(eval echo "\$SWITCH$STACK4$$STACK6$DUALSTACK")
+	sh -c "$(eval echo "\$SWITCH$STACK4$STACK6$DUALSTACK")"
 	${SYSTEMCTL_RESTART[int]}
 	net
-	else red " ${T[${L[137]} "
+	else OPTION9=" ${T[${L}137]} "
 	fi
-
 	}
 
 # WGCF 安装
