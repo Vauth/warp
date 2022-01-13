@@ -1176,10 +1176,10 @@ menu(){
 		7 )	plus;;
 		8 )	ver;;
 		9 )	case $OPTION9 in
-			) red " ${T[${L}51]} [0-8] "; sleep 1; menu;;
+			^$) red " ${T[${L}51]} [0-8] "; sleep 1; menu;;
 			111 ) red " ${T[${L}140]} "; exit 1;;
 			*) stack_switch;;
-			esac
+			esac;;
 		0 )	exit;;
 		* )	red " ${T[${L}51]} [0-9] "; sleep 1; [[ $CLIENT -gt 2 ]] && menu 3 || menu $PLAN;;
 		esac
@@ -1209,6 +1209,10 @@ case "$OPTION" in
 
 c )	[[ $CLIENT = 3 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
 d )	update;;
-s )	[[ -e /etc/wireguard/wgcf.conf ]] && stack_switch || red " ${T[${L}137]} ";;
+s )	case $OPTION9 in
+	^$ ) red " ${T[${L}137]} ";;
+	111 ) red " ${T[${L}140]} ";;
+	* ) stack_switch;;
+	esac;;
 * )	[[ $CLIENT -gt 2 ]] && menu 3 || menu "$PLAN";;
 esac
