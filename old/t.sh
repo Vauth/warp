@@ -729,7 +729,6 @@ if [[ $TRACE4$TRACE6 =~ on|plus ]]; then
 	101 ) STACK_AFTER=IPv6 && OPTION9=$(eval echo "${T[${L}139]}");;
 	111 ) OPTION9=${T[${L}140]};;
 	esac
-	else OPTION9=${T[${L}137]}
 fi
 
 # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
@@ -1174,7 +1173,7 @@ menu(){
 		6 )	bbrInstall;;
 		7 )	plus;;
 		8 )	ver;;
-		9 )	stack_switch;;
+		9 )	[[ -n $OPTION9 ]] && stack_switch;;
 		0 )	exit;;
 		* )	red " ${T[${L}51]} [0-8] "; sleep 1; [[ $CLIENT -gt 2 ]] && menu 3 || menu $PLAN;;
 		esac
@@ -1204,6 +1203,6 @@ case "$OPTION" in
 
 c )	[[ $CLIENT = 3 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
 d )	update;;
-s )	stack_switch;;
+s )	[[ -e /etc/wireguard/wgcf.conf ]] && stack_switch || red " ${T[${L}137]} ";;
 * )	[[ $CLIENT -gt 2 ]] && menu 3 || menu "$PLAN";;
 esac
