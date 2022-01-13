@@ -140,9 +140,9 @@ warp [option] [lisence]
 ```bash
 wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh 2
 ```
-或者再次运行
+刷 Netflix 运行
 ```bash
-warp 2
+warp i
 ```
 ## WARP+ License 及 ID 获取
 
