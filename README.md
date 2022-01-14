@@ -23,6 +23,10 @@ WARP docker solution support ARM64,AMD64 and s390x; WARP docker 方案支持 ARM
 Dualstack on IPv4 only ,IPv6 only and native dualstack VPS is coming; 双栈 WARP docker 已经有方案，即将推出。
 
 2022.1.6  重大技术突破，绝对原创，绝对原创，绝对原创。成功把 WGCF 配置文件与环境依赖分离。本着万物皆可 Docker 的思路，以超轻量级的 Alpine 为底包（底包5M+依赖22M=27MB），配置放在映射目录处，解决某些旧系统不能使用 WARP 服务的问题。~docker 安装依赖方案只能是单栈，并不能双栈。该技术已经是 WGCF 和 wireguard 的天花板，不服来辩。~
+
+<details>
+    <summary>点击即可展开或收起查看 docker 命令</summary>
+
 ```
 wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/docker.sh && bash docker.sh [option] [lisence] ## 安装 docker、拉镜像和安装容器
 
@@ -31,7 +35,8 @@ docker exec -it wgcf sh #部分系统在容器外 docker exec -it wgcf wg-quick 
 wg-quick up wgcf; exit #运行 WGCF 并退出容器。
 
 ```
-
+</details>
+    
 ![image](https://user-images.githubusercontent.com/62703343/148343358-67d0089a-591e-4af2-915c-e725422a5b0e.png)
 
 
