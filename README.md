@@ -17,9 +17,9 @@
 * * *
 
 ## 更新信息
-To be updated: huanx and malikshi [#63](https://github.com/fscarmen/warp/issues/63) needs, hope like [P3terx](https://github.com/P3TERX/warp .sh/blob/main/warp.sh) scripts, all support WARP single-stack and dual-stack solutions.
+To be updated: huanx and malikshi [#63](https://github.com/fscarmen/warp/issues/63) needs, hope like [P3terx](https://github.com/P3TERX/warp .sh/blob/main/warp.sh) scripts, all support WARP single-stack and dual-stack solutions. Plan to rebuild menu modules and pass parameters with arrays.
 
-待更新：唤醒大神和 malikshi [#63](https://github.com/fscarmen/warp/issues/63) 的需求，希望像 [P3terx](https://github.com/P3TERX/warp.sh/blob/main/warp.sh) 脚本一样，全部支持 WARP 单栈和双栈方案。
+待更新：唤醒大神和 malikshi [#63](https://github.com/fscarmen/warp/issues/63) 的需求，希望像 [P3terx](https://github.com/P3TERX/warp.sh/blob/main/warp.sh) 脚本一样，全部支持 WARP 单栈和双栈方案。计划花点时间用数组重构菜单模块和传参。
 
 2022.1.11  2.26: 1.Asking the unlock Netflix region where you expect before brushing WARP IP; 2.Single and Dual stack switch to each other quickly. 1.在刷解锁 Netflix WARP IP 之前，让用户输入想要的区域的简写; 2.单栈与双栈快速切换;
 
