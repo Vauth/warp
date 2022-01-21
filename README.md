@@ -17,7 +17,9 @@
 * * *
 
 ## 更新信息
-To be updated: huanx and malikshi [#63](https://github.com/fscarmen/warp/issues/63) needs, hope like [P3terx](https://github.com/P3TERX/warp .sh/blob/main/warp.sh) scripts, all support WARP single-stack and dual-stack solutions. Plan to rebuild menu modules and pass parameters with arrays.
+2022.1.21  2.30: 1.All support WARP single-stack and dual-stack solutions. Switch to each other easily and quickly. Such as [warp s 4],[warp s 6],[warp s d]; 2.Brush Netflix Unlock IP with the expect area. Such as [warp i hk]. You can use it with crontab,screen,nohup & etc. 1.全面支持WARP单栈与双栈方案，简单并快速切换，如[warp s 4],[warp s 6],[warp s d]; 2.在刷解锁 Netflix WARP IP 时可以带上期望的地区,如 [warp i hk]。你可以结合 crontab,screen,nohup & 等方式使用
+
+To be updated: huanx and malikshi [#63](https://github.com/fscarmen/warp/issues/63) needs, hope like [P3terx](https://github.com/P3TERX/warp.sh/blob/main/warp.sh) scripts, all support WARP single-stack and dual-stack solutions. Plan to rebuild menu modules and pass parameters with arrays.
 
 待更新：唤醒大神和 malikshi [#63](https://github.com/fscarmen/warp/issues/63) 的需求，希望像 [P3terx](https://github.com/P3TERX/warp.sh/blob/main/warp.sh) 脚本一样，全面支持 WARP 单栈和双栈方案。计划花点时间用数组重构菜单模块和传参。
 
@@ -136,15 +138,15 @@ warp [option] [lisence]
   | u | 卸载 Warp |
   | n | 断网时，用于刷WARP网络 (WARP bug) |
   | b | 升级内核、开启BBR及DD |
-  | d | 免费 WARP 账户升级 WARP+ |
-  | d lisence | 在上面基础上把 WARP+ Lisence 添加进去，如 ```bash menu.sh d N5670ljg-sS9jD334-6o6g4M9F```  |
+  | a | 免费 WARP 账户升级 WARP+ |
+  | a lisence | 在上面基础上把 WARP+ Lisence 添加进去，如 ```bash menu.sh a N5670ljg-sS9jD334-6o6g4M9F```  |
   | p | 刷 Warp+ 流量 |
   | c | 安装 WARP Linux Client，开启 Socks5 代理模式 |
   | c lisence | 在上面基础上把 WARP+ Lisence 添加进去，如 ```bash menu.sh c N5670ljg-sS9jD334-6o6g4M9F```  |
   | r | WARP Linux Client 开关 |
   | v | 同步脚本至最新版本 |
   | i | 更换 WARP IP |
-  | s | 单栈与双栈快速切换 |
+  | s | 单栈与双栈快速切换 ，如 ```warp s 4```,```warp s 6```,```warp s d```|
   | 其他或空值| 菜单界面 |
 
 举例：想为 IPv4 的甲骨文添加 Warp 双栈，首次运行
