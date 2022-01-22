@@ -159,7 +159,7 @@ wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh 2
 warp i
 ```
 
-## 刷 Netflix 解锁 WARP ip 的方法
+## 刷 Netflix 解锁 WARP IP 的方法
     
 以刷 香港 hk 为例
     
