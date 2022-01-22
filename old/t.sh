@@ -1151,6 +1151,8 @@ update(){
 T4="$TRACE4"; T6="$TRACE6"; [[ $T4 = plus ]] && T4='on'; [[ $T6 = plus ]] && T6='on'
 CASE=("@off" "off@" "off@off" "@on" "off@on" "on@" "on@off" "on@on")
 for ((m=0;m<${#CASE[@]};m++)); do [[ $T4@$T6 = ${CASE[m]} ]] && break; done
+TO1=("" "" "" "014" "014" "106" "106" "114")
+TO2=("" "" "" "01D" "01D" "10D" "10D" "116")
 
 case $CLIENT in
 2 ) OPTION1="${T[${L}88]}"; OPTION2="${T[${L}143]}"; OPTION3="${T[${L}144]}"; OPTION4="${T[${L}78]}"; OPTION5="${T[${L}77]}";
@@ -1173,8 +1175,6 @@ case $CLIENT in
 	WARP_AFTER1=("" "" "" "WARP IPv4" "WARP IPv4" "WARP IPv6" "WARP IPv6" "WARP IPv4")
 	WARP_AFTER2=("" "" "" "${T[${L}70]}" "${T[${L}70]}" "${T[${L}70]}" "WARP IPv4" "WARP IPv6")
 	OPTION1="$(eval echo "${T[${L}141]}")"; OPTION2="$(eval echo "${T[${L}142]}")"; OPTION3="${T[${L}78]}"; OPTION4="${T[${L}77]}"
-	TO1=("" "" "" "014" "014" "106" "106" "114")
-	TO2=("" "" "" "01D" "01D" "10D" "10D" "116")
 	ACTION1(){ TO=${TO1[m]}; stack_switch; }; ACTION2(){ TO=${TO2[m]}; stack_switch; }; ACTION3(){ update; }; ACTION4(){ onoff; };;
 esac;;
 esac
