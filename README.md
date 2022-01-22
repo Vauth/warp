@@ -9,6 +9,7 @@
 - [WARP好处](README.md#WARP好处)
 - [运行脚本](README.md#运行脚本)
 - [刷 Netflix 解锁 WARP IP 的方法](README.md#刷-Netflix-解锁-WARP-IP-的方法)
+- [Netflix 分流到 WARP Client Proxy 的方法](README.md#Netflix-分流到-WARP-Client-Proxy-的方法)
 - [WARP+ License 及 ID 获取](README.md#warp-license-及-id-获取)
 - [WARP Teams 获取并用于 Linux 的方法](README.md#WARP-Teams-获取并用于-Linux-的方法)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
@@ -188,6 +189,47 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 ```     
 
 * 其他，可以做个定时任务，比如5分钟后台检测一次是否解锁，如果不是就换，等等搭配多种指令的玩法很多，大家的习惯也不同。另外遇到问题仍然有一定的判断能力，如结束时没有网络，可以用 ```warp o``` 开关来获取，因此并没有写死在脚本里了。
+    
+## Netflix 分流到 WARP Client Proxy 的方法
+
+先安装 WARP Client，假设使用默认的 40000 端口
+并安装 [mack-a 八合一脚本](https://github.com/mack-a/v2ray-agent) 为例。编辑  /etc/v2ray-agent/xray/conf/10_ipv4_outbounds.json
+
+```
+{
+    "outbounds": [
+        {
+            "protocol": "freedom"
+        },
+        {
+            "tag": "media-unlock",
+            "protocol": "socks",
+            "settings": {
+                "servers": [
+                    {
+                        "address": "127.0.0.1",
+                        "port": 40000,
+                        "users": []
+                    }
+                ]
+            }
+        }
+    ],
+    "routing": {
+        "domainStrategy": "AsIs",
+        "rules": [
+            {
+                "type": "field",
+                "domain": [
+                    "geosite:netflix"
+                ],
+                "outboundTag": "media-unlock"
+            }
+        ]
+    }
+
+}
+```
     
 ## WARP+ License 及 ID 获取
 
