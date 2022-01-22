@@ -230,7 +230,9 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 
 }
 ```
-    
+
+感谢 vpsxb admin原创: [继续解锁奈飞（七）-WARP socks5 client分流](https://vpsxb.net/1069/)
+
 ## WARP+ License 及 ID 获取
 
 以下是使用WARP和Team后 Argo 2.0 的官方介绍:[Argo 2.0: Smart Routing Learns New Tricks](https://blog.cloudflare.com/argo-v2/)
