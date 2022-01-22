@@ -192,8 +192,10 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
     
 ## Netflix 分流到 WARP Client Proxy 的方法
 
+感谢 vpsxb admin 原创教程: [继续解锁奈飞（七）-WARP socks5 client分流](https://vpsxb.net/1069/)
+
 先安装 WARP Client，假设使用默认的 40000 端口
-并安装 [mack-a 八合一脚本](https://github.com/mack-a/v2ray-agent) 为例。编辑  /etc/v2ray-agent/xray/conf/10_ipv4_outbounds.json
+并安装 [mack-a 八合一脚本](https://github.com/mack-a/v2ray-agent) 为例。编辑  ```/etc/v2ray-agent/xray/conf/10_ipv4_outbounds.json```
 
 ```
 {
@@ -230,8 +232,6 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 
 }
 ```
-
-感谢 vpsxb admin原创: [继续解锁奈飞（七）-WARP socks5 client分流](https://vpsxb.net/1069/)
 
 ## WARP+ License 及 ID 获取
 
