@@ -20,7 +20,7 @@ if [[ $2 != '[lisence]' ]]; then
 	if [[ $2 =~ 'http' ]]; then LICENSETYPE=2 && URL=$2
 	elif [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then LICENSETYPE=1 && LICENSE=$2
 	elif [[ $2 = [46Dd] ]]; then SWITCHCHOOSE=$2
-	elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$(tr '[:lower:]' '[:upper:]' <<< "$2")
+	elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
 	fi
 fi
 
@@ -484,7 +484,6 @@ input_region(){
 		reading " $(eval echo "${T[${L}56]}") " EXPECT
 	done
 	[[ -z $EXPECT || $EXPECT = Y ]] && EXPECT="$REGION"
-	EXPECT=$(tr '[:lower:]' '[:upper:]' <<< "$EXPECT")
 	}
 
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
@@ -509,10 +508,7 @@ change_ip(){
 	if [[ $RESULT = 200 ]]; then
 	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -"$NF" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-'US'}
-		if [[ $REGION = "$EXPECT" ]]; then
-		green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h
-		else wgcf_restart
-		fi
+	echo "$REGION" | grep -qi "$EXPECT" && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h || wgcf_restart
 	else wgcf_restart
 	fi
 	done
