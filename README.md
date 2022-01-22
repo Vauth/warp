@@ -8,6 +8,7 @@
 - [脚本特点](README.md#脚本特点)
 - [WARP好处](README.md#WARP好处)
 - [运行脚本](README.md#运行脚本)
+- [刷 Netflix 解锁 WARP ip](README.md#刷-Netflix-解锁-WARP-ip)
 - [WARP+ License 及 ID 获取](README.md#warp-license-及-id-获取)
 - [WARP Teams 获取并用于 Linux 的方法](README.md#WARP-Teams-获取并用于-Linux-的方法)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
@@ -157,6 +158,37 @@ wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh 2
 ```bash
 warp i
 ```
+
+## 刷 Netflix 解锁 WARP ip
+    
+    以刷 香港 hk 为例， 如结束时没有网络，可以用 ```warp o``` 开关来获取
+ 
+    * nohup & 后台运行方式，把结果输出到 log 文件
+    ```
+    nohup warp i hk > logs 2>&1 &   ##放进后台运行
+    jobs -l | grep warp  ##看后台任务
+    cat logs  ##查看运行日志文件
+    kill -9 $(jobs -l | grep warp | awk '{print $2}')  ##结束进程
+    ```     
+    
+    * screen 多会话方式运行，会话任务名为 n
+    ```
+    screen -USdm n warp i hk  ##创建名为 n 的会话
+    screen -Udr n ##进入会话 n 看运行情况
+    ## 按 Ctrl+a 再按 d 退出话 n，返回主界面
+    screen -ls  ##查看会话窗口列表
+    screen -SX n quit  ##关闭会议 n，结束运行
+    ```    
+    
+    * crobtab 计划任务
+    ```
+    echo '@reboot root warp i hk' >>/etc/crobtab   ##在计划任务里加入一条新任务
+    sed -i '/warp i/d' /etc/crontab   ##删掉计划任务
+    kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
+    ```     
+
+    * 其他，可以做个定时任务，比如5分钟后台检测一次是否解锁，如果不是就换。等等玩法很多，大家的习惯也不同。另外遇到问题仍然有一定的判断能力，所以并没有写死在脚本里了。
+    
 ## WARP+ License 及 ID 获取
 
 以下是使用WARP和Team后 Argo 2.0 的官方介绍:[Argo 2.0: Smart Routing Learns New Tricks](https://blog.cloudflare.com/argo-v2/)
