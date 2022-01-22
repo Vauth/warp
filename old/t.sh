@@ -1164,7 +1164,7 @@ case $CLIENT in
     ACTION3(){ CONF=106; [[ $TRACE6 != off ]] && red " ${T[${L}145]} " && exit 1 || install; }; ACTION4(){ update; }; ACTION5(){ onff; };;
 
 * ) T4="$TRACE4"; T6="$TRACE6"; [[ $T4 = plus ]] && T4='on'; [[ $T6 = plus ]] && T6='on'
-CASE=("@off" "off@" "off@off" "@on|@plus" "off@on" "on@" "on@off" "on@on")
+CASE=("@off" "off@" "off@off" "@on" "off@on" "on@" "on@off" "on@on")
 for ((m=0;m<${#CASE[@]};m++)); do [[ $T4@$T6 = ${CASE[m]} ]] && break; done
 case "$m" in
 [0-2] ) NATIVE=("IPv6 only" "IPv4 only" "${T[${L}69]}")
