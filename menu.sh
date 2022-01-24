@@ -19,7 +19,7 @@ translate(){ [[ -n "$1" ]] && curl -sm8 "http://fanyi.youdao.com/translate?&doct
 if [[ $2 != '[lisence]' ]]; then
 	if [[ $2 =~ 'http' ]]; then LICENSETYPE=2 && URL=$2
 	elif [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then LICENSETYPE=1 && LICENSE=$2
-	elif [[ $2 = [46Dd] ]]; then SWITCHCHOOSE=$2
+	elif [[ $2 = [46Dd] ]]; then SWITCHCHOOSE=$(tr '[:lower:]' '[:upper:]' <<< "$2")
 	elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
 	fi
 fi
@@ -309,8 +309,8 @@ T[E138]=""
 T[C138]=""
 T[E139]=""
 T[C139]=""
-T[E140]=""
-T[C140]=""
+T[E140]="Socks5 Proxy Client on IPv4 VPS is working now. WARP IPv6 interface could not be installed. Feedback: [https://github.com/fscarmen/warp/issues]"
+T[C140]="IPv4 only VPS，并且 Socks5 代理正在运行中，不能安装 WARP IPv6 网络接口，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E141]="Switch \${WARP_BEFORE[m]} to \${WARP_AFTER1[m]}"
 T[C141]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]}"
 T[E142]="Switch \${WARP_BEFORE[m]} to \${WARP_AFTER2[m]}"
@@ -319,8 +319,6 @@ T[E143]="Change Client port"
 T[C143]="更改 Client 端口"
 T[E144]="Install WARP IPv6 interface"
 T[C144]="安装 WARP IPv6 网络接口"
-T[E145]="Socks5 Proxy Client on IPv4 VPS is working now. WARP IPv6 interface could not be installed. Feedback: [https://github.com/fscarmen/warp/issues]"
-T[C145]="IPv4 only VPS，并且 Socks5 代理正在运行中，不能安装 WARP IPv6 网络接口，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E145]="\\\n WARP ineterface can be switched to the following:\\\n 1. \$OPTION1\\\n 2. \$OPTION2\\\n 0. \${T[\${L}76]}\\\n"
 T[C145]="\\\n WARP 网络接口可以切换为以下方式:\\\n 1. \$OPTION1\\\n 2. \$OPTION2\\\n 0. \${T[\${L}76]}\\\n"
 T[E146]="Cannot switch to the same form as the current one."
@@ -565,6 +563,14 @@ change_ip(){
 	esac	
 	}
 
+# WARP 单双栈切换选项
+SWITCH014='sed -i "s/#//g;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
+SWITCH01D='sed -i "s/#//g" /etc/wireguard/wgcf.conf'
+SWITCH106='sed -i "s/#//g;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
+SWITCH10D='sed -i "s/#//g" /etc/wireguard/wgcf.conf'
+SWITCH114='sed -i "s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
+SWITCH116='sed -i "s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
+
 # 设置部分后缀 1/3
 case "$OPTION" in
 h ) help; exit 0;;
@@ -648,13 +654,14 @@ net(){
 	[[ $SYSTEM != Alpine ]] && [[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && wg-quick down wgcf >/dev/null 2>&1
 	${SYSTEMCTL_START[int]} >/dev/null 2>&1
 	wg-quick up wgcf >/dev/null 2>&1
-	ip4_info; ip6_info
+	grep '0/0' /etc/wireguard/wgcf.conf | grep -qv '#' && ip4_info
+	grep ':/0' /etc/wireguard/wgcf.conf | grep -qv '#' && ip6_info
 	until [[ $TRACE4$TRACE6 =~ on|plus ]]
 		do	(( i++ )) || true
 			yellow " $(eval echo "${T[${L}12]}") "
 			${SYSTEMCTL_RESTART[int]} >/dev/null 2>&1
-			grep -q "^A.*\.0\/0" /etc/wireguard/wgcf.conf && ip4_info
-			grep -q "^A.*\:\/0" /etc/wireguard/wgcf.conf && ip6_info
+			grep '0/0' /etc/wireguard/wgcf.conf | grep -qv '#' && ip4_info
+			grep ':/0' /etc/wireguard/wgcf.conf | grep -qv '#' && ip6_info
 			if [[ $i = "$j" ]]; then
 				if [[ $LICENSETYPE = 2 ]]; then 
 				unset LICENSETYPE && i=0 && green " ${T[${L}129]} " &&
@@ -690,6 +697,44 @@ proxy_onoff(){
 	esac
     }
 
+# 检查系统 WARP 单双栈情况。为了速度，先检查 WGCF 配置文件里的情况，再判断 trace
+check_stack(){
+	if [[ -e /etc/wireguard/wgcf.conf ]]; then
+		grep '0/0' /etc/wireguard/wgcf.conf | grep -q '#' && T4='0' || T4='1'
+		grep ':/0' /etc/wireguard/wgcf.conf | grep -q '#' && T6='0' || T6='1'
+		else 
+		case "$TRACE4" in off ) T4='0';; 'on'|'plus' ) T4='1';; esac
+		case "$TRACE6" in off ) T6='0';; 'on'|'plus' ) T6='1';; esac
+	fi
+	CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1")
+	for ((m=0;m<${#CASE[@]};m++)); do [[ $T4@$T6 = ${CASE[m]} ]] && break; done
+	WARP_BEFORE=("" "" "" "WARP IPv6 only" "WARP IPv6" "WARP IPv4 only" "WARP IPv4" "${T[${L}70]}")
+	WARP_AFTER1=("" "" "" "WARP IPv4" "WARP IPv4" "WARP IPv6" "WARP IPv6" "WARP IPv4")
+	WARP_AFTER2=("" "" "" "${T[${L}70]}" "${T[${L}70]}" "${T[${L}70]}" "${T[${L}70]}" "WARP IPv6")
+	TO1=("" "" "" "014" "014" "106" "106" "114")
+	TO2=("" "" "" "01D" "01D" "10D" "10D" "116")
+	}
+
+# 单双栈在线互换。先看菜单是否有选择，再看传参数值，再没有显示2个可选项
+stack_switch(){
+	[[ $CLIENT = 3 && $SWITCHCHOOSE = [4D] ]] && red " ${T[${L}109]} " && exit 1
+	check_stack
+	if [[ $CHOOSE1 = [12] ]]; then TO=$(eval echo \${TO$CHOOSE1[m]})
+	elif [[ $SWITCHCHOOSE = [46D] ]]; then
+	[[ "$T4@$T6@$SWITCHCHOOSE" =~ '1@0@4'|'0@1@6'|'1@1@D' ]] && red " ${T[${L}146]} " && exit 1 || TO="$T4$T6$SWITCHCHOOSE"
+	else
+	OPTION1="$(eval echo "${T[${L}141]}")"; OPTION2="$(eval echo "${T[${L}142]}")"
+	yellow " $(eval echo "${T[${L}145]}") " && reading " ${T[${L}50]} " SWITCHTO
+		case "$SWITCHTO" in
+		1 ) TO=${TO1[m]};;	2 ) TO=${TO2[m]};;	0 ) exit;;
+		* ) red " ${T[${L}51]} [0-2] "; sleep 1; stack_switch;;
+		esac
+	fi
+	sh -c "$(eval echo "\$SWITCH$TO")"
+	${SYSTEMCTL_RESTART[int]}
+	OPTION=n && net
+	}
+
 # 设置部分后缀 2/3
 case "$OPTION" in
 b ) bbrInstall; exit 0;;
@@ -698,6 +743,7 @@ v ) ver; exit 0;;
 n ) net; exit 0;;
 o ) onoff; exit 0;;
 r ) proxy_onoff; exit 0;;
+s ) stack_switch; exit 0;;
 esac
 
 # 必须加载 TUN 模块
@@ -804,8 +850,7 @@ input_port(){
 		done
 	}
 
-
-# WGCF 配置修改，其中用到的 162.159.192.1 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的IP。单双栈的转换
+# WGCF 配置修改，其中用到的 162.159.192.1 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的 IP
 MODIFY014='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/^.*\:\:\/0/#&/g;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
 MODIFY016='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/^.*0\.\0\/0/#&/g;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
 MODIFY01D='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
@@ -815,33 +860,6 @@ MODIFY10D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4
 MODIFY114='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*\:\:\/0/#&/g" wgcf-profile.conf'
 MODIFY116='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g" wgcf-profile.conf'
 MODIFY11D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf'
-SWITCH014='sed -i "s/^#//g;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-SWITCH01D='sed -i "s/^#//g" /etc/wireguard/wgcf.conf'
-SWITCH106='sed -i "s/^#//g;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-SWITCH10D='sed -i "s/^#//g" /etc/wireguard/wgcf.conf'
-SWITCH114='sed -i "s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-SWITCH116='sed -i "s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-
-# 单双栈在线互换
-stack_switch(){
-	if [[ $OPTION = s ]]; then
-	[[ $CLIENT = 3 && $SWITCHCHOOSE = [4d] ]] && red " ${T[${L}109]} " && exit 1
-	case "$SWITCHCHOOSE" in
-	4 ) [[ $T4@$T6 = on@ || $T4@$T6 = on@off ]] && red " ${T[${L}146]} " && exit 1 || TO=${TO1[m]};;
-	6 ) [[ $T4@$T6 = @on || $T4@$T6 = off@on ]] && red " ${T[${L}146]} " && exit 1
-	    [[ $T4@$T6 = on@on ]] && TO=${TO2[m]} || TO=${TO1[m]};;
-	d ) [[ $T4@$T6 = on@on ]] && red " ${T[${L}146]} " && exit 1 || TO=${TO2[m]};;
-	* ) yellow " $(eval echo "${T[${L}145]}") " && reading " ${T[${L}50]} " SWITCHTO
-		case "$SWITCHTO" in
-		1 ) TO=${TO1[m]};;	2 ) TO=${TO2[m]};;	0 ) exit;;
-		* ) red " ${T[${L}51]} [0-2] "; sleep 1; stack_switch;;
-		esac;;
-	esac
-	fi
-	sh -c "$(eval echo "\$SWITCH$TO")"
-	${SYSTEMCTL_RESTART[int]}
-	OPTION=n && net
-	}
 
 # WGCF 安装
 install(){
@@ -1148,22 +1166,17 @@ update(){
 }
 
 # 判断当前 WARP 网络接口及 Client 的运行状态，并对应的给菜单和动作赋值
-T4="$TRACE4"; T6="$TRACE6"; [[ $T4 = plus ]] && T4='on'; [[ $T6 = plus ]] && T6='on'
-CASE=("@off" "off@" "off@off" "@on" "off@on" "on@" "on@off" "on@on")
-for ((m=0;m<${#CASE[@]};m++)); do [[ $T4@$T6 = ${CASE[m]} ]] && break; done
-TO1=("" "" "" "014" "014" "106" "106" "114")
-TO2=("" "" "" "01D" "01D" "10D" "10D" "116")
-
 case $CLIENT in
 2 ) OPTION1="${T[${L}88]}"; OPTION2="${T[${L}143]}"; OPTION3="${T[${L}144]}"; OPTION4="${T[${L}78]}"; OPTION5="${T[${L}77]}";
     ACTION1(){ proxy_onoff; }; ACTION2(){ input_port; warp-cli --accept-tos set-proxy-port "$PORT"; };
-    ACTION3(){ CONF=106; [[ $TRACE6 != off ]] && red " ${T[${L}145]} " && exit 1 || install; }; ACTION4(){ update; }; ACTION5(){ onff; };;
+    ACTION3(){ CONF=106; [[ $TRACE6 != off ]] && red " ${T[${L}140]} " && exit 1 || install; }; ACTION4(){ update; }; ACTION5(){ onff; };;
 
 3 ) OPTION1="${T[${L}89]}"; OPTION2="${T[${L}143]}"; OPTION3="${T[${L}144]}"; OPTION4="${T[${L}78]}"; OPTION5="${T[${L}77]}";
     ACTION1(){ proxy_onoff; }; ACTION2(){ input_port; warp-cli --accept-tos set-proxy-port "$PORT"; };
-    ACTION3(){ CONF=106; [[ $TRACE6 != off ]] && red " ${T[${L}145]} " && exit 1 || install; }; ACTION4(){ update; }; ACTION5(){ onff; };;
+    ACTION3(){ CONF=106; [[ $TRACE6 != off ]] && red " ${T[${L}140]} " && exit 1 || install; }; ACTION4(){ update; }; ACTION5(){ onff; };;
 
-* ) case "$m" in
+* ) check_stack
+case "$m" in
 [0-2] ) NATIVE=("IPv6 only" "IPv4 only" "${T[${L}69]}")
 	CONF1=("014" "104" "114")
 	CONF2=("016" "106" "116")
@@ -1171,11 +1184,8 @@ case $CLIENT in
 	OPTION1="$(eval echo "${T[${L}66]}")"; OPTION2="$(eval echo "${T[${L}67]}")"; OPTION3="$(eval echo "${T[${L}68]}")"; OPTION4="${T[${L}71]}"
 	ACTION1(){ CONF=${CONF1[m]}; install; }; ACTION2(){ CONF=${CONF2[m]}; install; }; ACTION3(){ CONF=${CONF3[m]}; install; }; ACTION4(){ OPTION=o; net; };;
 
-* )	WARP_BEFORE=("" "" "" "WARP IPv6 only" "WARP IPv6" "WARP IPv4 only" "WARP IPv4" "${T[${L}70]}")
-	WARP_AFTER1=("" "" "" "WARP IPv4" "WARP IPv4" "WARP IPv6" "WARP IPv6" "WARP IPv4")
-	WARP_AFTER2=("" "" "" "${T[${L}70]}" "${T[${L}70]}" "${T[${L}70]}" "WARP IPv4" "WARP IPv6")
-	OPTION1="$(eval echo "${T[${L}141]}")"; OPTION2="$(eval echo "${T[${L}142]}")"; OPTION3="${T[${L}78]}"; OPTION4="${T[${L}77]}"
-	ACTION1(){ TO=${TO1[m]}; stack_switch; }; ACTION2(){ TO=${TO2[m]}; stack_switch; }; ACTION3(){ update; }; ACTION4(){ onoff; };;
+* )	OPTION1="$(eval echo "${T[${L}141]}")"; OPTION2="$(eval echo "${T[${L}142]}")"; OPTION3="${T[${L}78]}"; OPTION4="${T[${L}77]}"
+	ACTION1(){ stack_switch; }; ACTION2(){ stack_switch; }; ACTION3(){ update; }; ACTION4(){ onoff; };;
 esac;;
 esac
 
@@ -1222,6 +1232,5 @@ case "$OPTION" in
 	install;;
 c )	[[ $CLIENT = 3 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
 a )	update;;
-s )	stack_switch;;
 * )	menu;;
 esac
