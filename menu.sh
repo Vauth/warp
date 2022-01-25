@@ -752,7 +752,7 @@ TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
 # 判断是否大陆 VPS。先尝试连接 CloudFlare WARP 服务的 Endpoint IP，如遇到 WARP 断网则先关闭、杀进程后重试一次，仍然不通则 WARP 项目不可用。
 ping6 -c2 -w8 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
 ping -c2 -W8 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
-if [[ $IPV4$IPV6 = 00 && -n $(wg) ]]; then
+if [[ $IPV4$IPV6 = 00 && -n $(wg 2>/dev/null) ]]; then
 	wg-quick down wgcf >/dev/null 2>&1
 	kill -9 $(pgrep -f wireguard 2>/dev/null)
 	ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
@@ -1221,7 +1221,7 @@ menu(){
 # 设置部分后缀 3/3
 case "$OPTION" in
 # 在已运行 Linux Client 前提下，不能安装 WARP IPv4 或者双栈网络接口。如已经运行 WARP ，参数 4,6,d 从原来的安装改为切换
-[46d] )	if [[ -n $(wg) ]]; then
+[46d] )	if [[ -n $(wg 2>/dev/null) ]]; then
 	SWITCHCHOOSE="$OPTION"; OPTION='s'
 	yellow " ${T[${L}79]} " && stack_switch
 	else
