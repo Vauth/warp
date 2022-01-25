@@ -171,6 +171,11 @@ warp i
     
 以刷 香港 hk 为例
     
+* crontab 计划任务方式，流媒体解锁守护进程
+```
+bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/tools/main/warp_crontab.sh)
+``` 
+
 * screen 多会话方式运行，会话任务名为 n
 ```
 screen -USdm n warp i hk  ##创建名为 n 的会话
