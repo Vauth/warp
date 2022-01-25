@@ -17,7 +17,7 @@
 - [鸣谢](README.md#鸣谢下列作者的文章和项目)
 
 * * *
-TODO: Unlock status is detected every 5 minutes. If unlocked, the scheduled task exits immediately. If it is not unlocked, it will be swiped successfully in the background.
+TODO: Unlock status is detected every 5 minutes. If unlocked, the scheduled task exits immediately. If it is not unlocked, it will be swiped successfully in the background.    
 计划: 每5分钟检测一次解锁状态。如果解锁，定时任务马上退出。如果不解锁，将会在后台刷至成功。
 
 ## 更新信息
