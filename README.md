@@ -168,6 +168,8 @@ warp i
 ```
 
 ## 刷 Netflix 解锁 WARP IP 的方法
+
+也可以用另一个通过 WARP 解锁流媒体的一键脚本: [【刷 WARP IP】 - 为 WARP 解锁流媒体而生](https://github.com/fscarmen/warp_unlock)
     
 以刷 香港 hk 为例
     
