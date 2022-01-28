@@ -1249,7 +1249,7 @@ menu_setting
 case "$OPTION" in
 # 在已运行 Linux Client 前提下，不能安装 WARP IPv4 或者双栈网络接口。如已经运行 WARP ，参数 4,6,d 从原来的安装改为切换
 [46d] )	if [[ -n $(wg 2>/dev/null) ]]; then
-	SWITCHCHOOSE="$OPTION"; OPTION='s'
+	SWITCHCHOOSE="$(tr '[:lower:]' '[:upper:]' <<< "$OPTION")"; OPTION='s'
 	yellow " ${T[${L}79]} " && stack_switch
 	else
 		case "$OPTION" in
