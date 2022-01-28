@@ -765,7 +765,8 @@ type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${PACKAGE_INSTALL[int
 
 # 判断处理器架构
 case $(tr '[:upper:]' '[:lower:]' <<< "$(arch)") in
-aarch64 ) ARCHITECTURE=arm64;;	x86_64 ) ARCHITECTURE=amd64;;	s390x ) ARCHITECTURE=s390x && S390X='-s390x';;	* ) red " $(eval echo "${T[${L}134]}") " && exit 1;;
+aarch64 ) ARCHITECTURE=arm64;;	x86_64 ) ARCHITECTURE=amd64;;	s390x ) ARCHITECTURE=s390x && S390X='-s390x';;	
+armv7*) ARCHITECTURE=armv7;; * ) red " $(eval echo "${T[${L}134]}") " && exit 1;;
 esac
 
 # 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP 方案, Linux Client 是否开启
@@ -1061,7 +1062,7 @@ proxy(){
 		sleep 2 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " ${T[${L}87]} " && exit 1 || green " $(eval echo "${T[${L}86]}") "
 		}
 	
-	[[ $ARCHITECTURE = arm64 ]] && red " ${T[${L}101]} " && exit 1
+	[[ $ARCHITECTURE =~ arm64|armv7 ]] && red " ${T[${L}101]} " && exit 1
 	[[ $TRACE4 != off ]] && red " ${T[${L}95]} " && exit 1
 
  	# 安装 WARP Linux Client
@@ -1134,7 +1135,7 @@ update(){
 	}
 	
 	client_account(){
-	[[ $ARCHITECTURE = arm64 ]] && red " ${T[${L}101]} " && exit 1
+	[[ $ARCHITECTURE =~ arm64|armv7 ]] && red " ${T[${L}101]} " && exit 1
 	[[ $(warp-cli --accept-tos account) =~ Limited ]] && red " ${T[${L}97]} " && exit 1
 	update_license
 	warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1; sleep 1
