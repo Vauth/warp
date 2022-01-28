@@ -5,28 +5,6 @@ export LANG=en_US.UTF-8
 # 当前脚本版本号和新增功能
 VERSION=2.30
 
-# 自定义字体彩色，read 函数，友道翻译函数
-red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
-green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
-yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
-reading(){ read -rp "$(green "$1")" "$2"; }
-translate(){ [[ -n "$1" ]] && curl -sm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
-
-# 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关；p=刷 WARP+ 流量; 其他或空值=菜单界面
-[[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")
-
-# 参数选项 URL 或 License 或转换 WARP 单双栈
-if [[ $2 != '[lisence]' ]]; then
-	if [[ $2 =~ 'http' ]]; then LICENSETYPE=2 && URL=$2
-	elif [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then LICENSETYPE=1 && LICENSE=$2
-	elif [[ $2 = [46Dd] ]]; then SWITCHCHOOSE=$(tr '[:lower:]' '[:upper:]' <<< "$2")
-	elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
-	fi
-fi
-
-# 自定义 WARP+ 设备名
-NAME=$3
-
 declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
@@ -187,7 +165,7 @@ T[E77]="Turn off WARP"
 T[C77]="暂时关闭 WARP"
 T[E78]="Upgrade to WARP+ or Teams account"
 T[C78]="升级为 WARP+ 或 Teams 账户"
-T[E79]="WARP is already running and will change to single and dual stack mutual switching mode"
+T[E79]="WARP is already running and will switch to single and dual stack mutual switching mode"
 T[C79]="WARP 已经运行，将改为单双栈相互切换模式"
 T[E80]=""
 T[C80]=""
@@ -324,57 +302,123 @@ T[C145]="\\\n WARP 网络接口可以切换为以下方式:\\\n 1. \$OPTION1\\\n
 T[E146]="Cannot switch to the same form as the current one."
 T[C146]="不能切换为当前一样的形态"
 
+# WGCF 配置修改，其中用到的 162.159.192.1 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的 IP
+MODIFY014='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/^.*\:\:\/0/#&/g;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
+MODIFY016='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/^.*0\.\0\/0/#&/g;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
+MODIFY01D='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
+MODIFY104='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*\:\:\/0/#&/g;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
+MODIFY106='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
+MODIFY10D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
+MODIFY114='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*\:\:\/0/#&/g" wgcf-profile.conf'
+MODIFY116='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g" wgcf-profile.conf'
+MODIFY11D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf'
+
+# WARP 单双栈切换选项
+SWITCH014='sed -i "s/#//g;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
+SWITCH01D='sed -i "s/#//g" /etc/wireguard/wgcf.conf'
+SWITCH106='sed -i "s/#//g;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
+SWITCH10D='sed -i "s/#//g" /etc/wireguard/wgcf.conf'
+SWITCH114='sed -i "s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
+SWITCH116='sed -i "s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
+
+# 自定义字体彩色，read 函数，友道翻译函数
+red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
+green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
+yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
+reading(){ read -rp "$(green "$1")" "$2"; }
+translate(){ [[ -n "$1" ]] && curl -sm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
+
+# 传参
+pass_parameters(){
+	# 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关；p=刷 WARP+ 流量; 其他或空值=菜单界面
+	[[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")
+
+	# 参数选项 URL 或 License 或转换 WARP 单双栈
+
+	if [[ $2 != '[lisence]' ]]; then
+		if [[ $2 =~ 'http' ]]; then LICENSETYPE=2 && URL=$2
+		elif [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then LICENSETYPE=1 && LICENSE=$2
+		elif [[ $2 = [46Dd] ]]; then SWITCHCHOOSE=$(tr '[:lower:]' '[:upper:]' <<< "$2")
+		elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
+		fi
+	fi
+	
+	# 自定义 WARP+ 设备名
+	NAME=$3
+	}
+
 # 脚本当天及累计运行次数统计
+statistics_of_run-times(){
 COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
 TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
+	}
 	
 # 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语
-case $(cat /etc/wireguard/language 2>&1) in
-E ) L=E;;	C ) L=C;;
-* ) L=E && [[ -z $OPTION || $OPTION = [achdpbvis46] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
-[[ $LANGUAGE = 2 ]] && L=C;;
-esac
+select_language(){
+	case $(cat /etc/wireguard/language 2>&1) in
+	E ) L=E;;	C ) L=C;;
+	* ) L=E && [[ -z $OPTION || $OPTION = [achdpbvis46] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
+	[[ $LANGUAGE = 2 ]] && L=C;;
+	esac
+	}
+
+# 必须以root运行脚本
+check_root_virt(){
+	[[ $(id -u) != 0 ]] && red " ${T[${L}2]} " && exit 1
+	
+	# 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go
+	VIRT=$(systemd-detect-virt 2>/dev/null | tr '[:upper:]' '[:lower:]')
+	[[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr '[:upper:]' '[:lower:]' | grep virtualization | sed "s/.*://g")
+	[[ $VIRT =~ openvz|lxc || -z $VIRT ]] && LXC=1
+	}
 
 # 多方式判断操作系统，试到有值为止。只支持 Debian 10/11、Ubuntu 18.04/20.04 或 CentOS 7/8 ,如非上述操作系统，退出脚本
 # 感谢猫大的技术指导优化重复的命令。https://github.com/Oreomeow
-CMD=(	"$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
-	"$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
-	"$(lsb_release -sd 2>/dev/null)"
-	"$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)"
-	"$(grep . /etc/redhat-release 2>/dev/null)"
-	"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
-	)
+check_operating_system(){
+	CMD=(	"$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
+		"$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
+		"$(lsb_release -sd 2>/dev/null)"
+		"$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)"
+		"$(grep . /etc/redhat-release 2>/dev/null)"
+		"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
+		)
 
-for i in "${CMD[@]}"; do
-	SYS="$i" && [[ -n $SYS ]] && break
-done
+	for i in "${CMD[@]}"; do
+		SYS="$i" && [[ -n $SYS ]] && break
+	done
 
-# 自定义 Alpine 系统若干函数
-alpine_wgcf_restart(){ wg-quick down wgcf >/dev/null 2>&1; wg-quick up wgcf >/dev/null 2>&1; }
-alpine_wgcf_enable(){ echo 'nohup wg-quick up wgcf &' > /etc/local.d/wgcf.start; chmod +x /etc/local.d/wgcf.start; rc-update add local; }
+	# 自定义 Alpine 系统若干函数
+	alpine_wgcf_restart(){ wg-quick down wgcf >/dev/null 2>&1; wg-quick up wgcf >/dev/null 2>&1; }
+	alpine_wgcf_enable(){ echo 'nohup wg-quick up wgcf &' > /etc/local.d/wgcf.start; chmod +x /etc/local.d/wgcf.start; rc-update add local; }
 
-REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "'amazon linux'" "alpine")
-RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS" "Alpine")
-EXCLUDE=("bookworm")
-COMPANY=("" "" "" "amazon" "")
-MAJOR=("10" "18" "7" "7" "3")
-PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "yum -y update" "apk update -f")
-PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "yum -y install" "apk add -f")
-PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "yum -y autoremove" "apk del -f")
-SYSTEMCTL_START=("systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "wg-quick up wgcf")
-SYSTEMCTL_RESTART=("systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "alpine_wgcf_restart")
-SYSTEMCTL_ENABLE=("systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "alpine_wgcf_enable")
+	REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "'amazon linux'" "alpine")
+	RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS" "Alpine")
+	EXCLUDE=("bookworm")
+	COMPANY=("" "" "" "amazon" "")
+	MAJOR=("10" "18" "7" "7" "3")
+	PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "yum -y update" "apk update -f")
+	PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "yum -y install" "apk add -f")
+	PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "yum -y autoremove" "apk del -f")
+	SYSTEMCTL_START=("systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "systemctl start wg-quick@wgcf" "wg-quick up wgcf")
+	SYSTEMCTL_RESTART=("systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "systemctl restart wg-quick@wgcf" "alpine_wgcf_restart")
+	SYSTEMCTL_ENABLE=("systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "alpine_wgcf_enable")
 
-for ((int=0; int<${#REGEX[@]}; int++)); do
-	[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [[ -n $SYSTEM ]] && break
-done
-[[ -z $SYSTEM ]] && red " ${T[${L}5]} " && exit 1
+	for ((int=0; int<${#REGEX[@]}; int++)); do
+		[[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [[ -n $SYSTEM ]] && break
+	done
+	[[ -z $SYSTEM ]] && red " ${T[${L}5]} " && exit 1
 
-# 先排除 EXCLUDE 里包括的特定系统，其他系统需要作大发行版本的比较
-for ex in "${EXCLUDE[@]}"; do [[ ! $(echo "$SYS" | tr '[:upper:]' '[:lower:]')  =~ $ex ]]; done &&
-[[ $(echo $SYS | sed "s/[^0-9.]//g" | cut -d. -f1) -lt "${MAJOR[int]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
+	# 先排除 EXCLUDE 里包括的特定系统，其他系统需要作大发行版本的比较
+	for ex in "${EXCLUDE[@]}"; do [[ ! $(echo "$SYS" | tr '[:upper:]' '[:lower:]')  =~ $ex ]]; done &&
+	[[ $(echo $SYS | sed "s/[^0-9.]//g" | cut -d. -f1) -lt "${MAJOR[int]}" ]] && red " $(eval echo "${T[${L}26]}") " && exit 1
+	}
 
-[[ $SYSTEM = Alpine ]] && ! type -P curl >/dev/null 2>&1 && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl wget grep
+# 安装 curl
+check_dependencies(){
+	type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${PACKAGE_INSTALL[int]} curl) || (yellow " ${T[${L}8]} " && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl)
+	! type -P curl >/dev/null 2>&1 && yellow " ${T[${L}9]} " && exit 1
+	[[ $SYSTEM = Alpine ]] && ! type -P curl >/dev/null 2>&1 && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl wget grep
+	}
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
@@ -470,7 +514,7 @@ stack_priority(){
 		3 )	;;
 		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
 	esac
-}
+	}
 
 # 更换 Netflix IP 时确认期望区域
 input_region(){
@@ -512,10 +556,10 @@ change_ip(){
 	done
 	}
 
-	change_socks5(){
-		socks5_restart(){
-		red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
-		[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1 && sleep 2; }
+change_socks5(){
+	socks5_restart(){
+	red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
+	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1 && sleep 2; }
 	PROXYSOCKS5="$(ss -nltp | grep warp | grep -oP '127.0*\S+')"
 	[[ -z "$EXPECT" ]] && input_region
 	i=0; [[ -e /etc/wireguard/license ]] && j=13 || j=15
@@ -562,23 +606,6 @@ change_ip(){
 	00 ) red " ${T[${L}122]} " && exit;;
 	esac	
 	}
-
-# 设置部分后缀 1/3
-case "$OPTION" in
-h ) help; exit 0;;
-p ) plus; exit 0;;
-i ) change_ip; exit 0;;
-esac
-
-green " ${T[${L}37]} "
-
-# 必须以root运行脚本
-[[ $(id -u) != 0 ]] && red " ${T[${L}2]} " && exit 1
-
-# 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go
-VIRT=$(systemd-detect-virt 2>/dev/null | tr '[:upper:]' '[:lower:]')
-[[ -n $VIRT ]] || VIRT=$(hostnamectl 2>/dev/null | tr '[:upper:]' '[:lower:]' | grep virtualization | sed "s/.*://g")
-[[ $VIRT =~ openvz|lxc || -z $VIRT ]] && LXC=1
 
 # 安装BBR
 bbrInstall(){
@@ -685,7 +712,7 @@ proxy_onoff(){
 		fi;;
 	* ) red " ${T[${L}93]} " && exit 1;;
 	esac
-    }
+	}
 
 # 检查系统 WARP 单双栈情况。为了速度，先检查 WGCF 配置文件里的情况，再判断 trace
 check_stack(){
@@ -708,15 +735,6 @@ check_stack(){
 # 单双栈在线互换。先看菜单是否有选择，再看传参数值，再没有显示2个可选项
 stack_switch(){
 	[[ $CLIENT = 3 && $SWITCHCHOOSE = [4D] ]] && red " ${T[${L}109]} " && exit 1
-
-	# WARP 单双栈切换选项
-	SWITCH014='sed -i "s/#//g;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-	SWITCH01D='sed -i "s/#//g" /etc/wireguard/wgcf.conf'
-	SWITCH106='sed -i "s/#//g;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-	SWITCH10D='sed -i "s/#//g" /etc/wireguard/wgcf.conf'
-	SWITCH114='sed -i "s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-	SWITCH116='sed -i "s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-
 	check_stack
 	if [[ $CHOOSE1 = [12] ]]; then TO=$(eval echo \${TO$CHOOSE1[m]})
 	elif [[ $SWITCHCHOOSE = [46D] ]]; then
@@ -734,57 +752,46 @@ stack_switch(){
 	OPTION=n && net
 	}
 
-# 设置部分后缀 2/3
-case "$OPTION" in
-b ) bbrInstall; exit 0;;
-u ) uninstall; exit 0;;
-v ) ver; exit 0;;
-n ) net; exit 0;;
-o ) onoff; exit 0;;
-r ) proxy_onoff; exit 0;;
-s ) stack_switch; exit 0;;
-esac
+# 检测系统信息
+check_system_info(){
+	green " ${T[${L}37]} "
 
-# 必须加载 TUN 模块
-TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
-[[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && red " ${T[${L}3]} " && exit 1
+	# 必须加载 TUN 模块
+	TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
+	[[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && red " ${T[${L}3]} " && exit 1
 
-# 判断是否大陆 VPS。先尝试连接 CloudFlare WARP 服务的 Endpoint IP，如遇到 WARP 断网则先关闭、杀进程后重试一次，仍然不通则 WARP 项目不可用。
-ping6 -c2 -w8 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
-ping -c2 -W8 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
-if [[ $IPV4$IPV6 = 00 && -n $(wg 2>/dev/null) ]]; then
-	wg-quick down wgcf >/dev/null 2>&1
-	kill -9 $(pgrep -f wireguard 2>/dev/null)
-	ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
-	ping -c2 -W10 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4
-fi
+	# 判断是否大陆 VPS。先尝试连接 CloudFlare WARP 服务的 Endpoint IP，如遇到 WARP 断网则先关闭、杀进程后重试一次，仍然不通则 WARP 项目不可用。
+	ping6 -c2 -w8 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
+	ping -c2 -W8 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
+	if [[ $IPV4$IPV6 = 00 && -n $(wg 2>/dev/null) ]]; then
+		wg-quick down wgcf >/dev/null 2>&1
+		kill -9 $(pgrep -f wireguard 2>/dev/null)
+		ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
+		ping -c2 -W10 162.159.192.1 >/dev/null 2>&1 && IPV4=1 && CDN=-4
+	fi
 
-# 安装 curl
-type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${PACKAGE_INSTALL[int]} curl) || (yellow " ${T[${L}8]} " && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl)
-! type -P curl >/dev/null 2>&1 && yellow " ${T[${L}9]} " && exit 1
+	# 判断处理器架构
+	case $(tr '[:upper:]' '[:lower:]' <<< "$(arch)") in
+	aarch64 ) ARCHITECTURE=arm64;;	x86_64 ) ARCHITECTURE=amd64;;	s390x ) ARCHITECTURE=s390x && S390X='-s390x';;	* ) red " $(eval echo "${T[${L}134]}") " && exit 1;;
+	esac
 
-# 判断处理器架构
-case $(tr '[:upper:]' '[:lower:]' <<< "$(arch)") in
-aarch64 ) ARCHITECTURE=arm64;;	x86_64 ) ARCHITECTURE=amd64;;	s390x ) ARCHITECTURE=s390x && S390X='-s390x';;	
-armv7*) ARCHITECTURE=armv7;; * ) red " $(eval echo "${T[${L}134]}") " && exit 1;;
-esac
+	# 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP 方案, Linux Client 是否开启
+	[[ $IPV4 = 1 ]] && ip4_info
+	[[ $IPV6 = 1 ]] && ip6_info
+	[[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
+	[[ $L = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
 
-# 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP 方案, Linux Client 是否开启
-[[ $IPV4 = 1 ]] && ip4_info
-[[ $IPV6 = 1 ]] && ip6_info
-[[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
-[[ $L = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
+	# 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
+	[[ $TRACE4$TRACE6 =~ on|plus ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
 
-# 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
-[[ $TRACE4$TRACE6 =~ on|plus ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
+	# 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义：0=未安装  1=已安装未激活  2=状态激活  3=Clinet 已开启
+	[[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
+	[[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
+	[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3 && proxy_info
 
-# 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义：0=未安装  1=已安装未激活  2=状态激活  3=Clinet 已开启
-[[ $(type -P warp-cli 2>/dev/null) ]] && CLIENT=1 || CLIENT=0
-[[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
-[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3 && proxy_info
-
-# 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
-[[ $LXC != 1 && $(($(uname -r | cut -d . -f1) * 100 +  $(uname -r | cut -d . -f2))) -lt 506 ]] && WG=1
+	# 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
+	[[ $LXC != 1 && $(($(uname -r | cut -d . -f1) * 100 +  $(uname -r | cut -d . -f2))) -lt 506 ]] && WG=1
+	}
 
 # 替换为 Teams 账户信息
 teams_change(){
@@ -802,7 +809,7 @@ input_license(){
 	until [[ -z $LICENSE || $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}30]}") " LICENSE
-		done
+	done
 	if [[ $INPUT_LICENSE = 1 ]]; then
 		[[ -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
 		[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
@@ -832,7 +839,7 @@ update_license(){
 	until [[ $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}100]}") " LICENSE
-	       done
+	done
 	[[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
 	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
 }
@@ -847,19 +854,8 @@ input_port(){
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1
 			echo "$PORT" | grep -qvE "^[1-9][0-9]{1,4}$" && reading " $(eval echo "${T[${L}111]}") " PORT
 			echo "$PORT" | grep -qE "^[1-9][0-9]{1,4}$" && [[ $(ss -nltp) =~ :"$PORT"[[:space:]] ]] && reading " $(eval echo "${T[${L}103]}") " PORT
-		done
+	done
 	}
-
-# WGCF 配置修改，其中用到的 162.159.192.1 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的 IP
-MODIFY014='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/^.*\:\:\/0/#&/g;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
-MODIFY016='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/^.*0\.\0\/0/#&/g;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
-MODIFY01D='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
-MODIFY104='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*\:\:\/0/#&/g;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
-MODIFY106='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
-MODIFY10D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.192.1/g" wgcf-profile.conf'
-MODIFY114='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*\:\:\/0/#&/g" wgcf-profile.conf'
-MODIFY116='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g" wgcf-profile.conf'
-MODIFY11D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf'
 
 # WGCF 安装
 install(){
@@ -1062,7 +1058,7 @@ proxy(){
 		sleep 2 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " ${T[${L}87]} " && exit 1 || green " $(eval echo "${T[${L}86]}") "
 		}
 	
-	[[ $ARCHITECTURE =~ arm64|armv7 ]] && red " ${T[${L}101]} " && exit 1
+	[[ $ARCHITECTURE = arm64 ]] && red " ${T[${L}101]} " && exit 1
 	[[ $TRACE4 != off ]] && red " ${T[${L}95]} " && exit 1
 
  	# 安装 WARP Linux Client
@@ -1135,7 +1131,7 @@ update(){
 	}
 	
 	client_account(){
-	[[ $ARCHITECTURE =~ arm64|armv7 ]] && red " ${T[${L}101]} " && exit 1
+	[[ $ARCHITECTURE = arm64 ]] && red " ${T[${L}101]} " && exit 1
 	[[ $(warp-cli --accept-tos account) =~ Limited ]] && red " ${T[${L}97]} " && exit 1
 	update_license
 	warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1; sleep 1
@@ -1166,32 +1162,34 @@ update(){
 }
 
 # 判断当前 WARP 网络接口及 Client 的运行状态，并对应的给菜单和动作赋值
-case $CLIENT in
-2 ) OPTION1="${T[${L}88]}"; OPTION2="${T[${L}143]}"; OPTION3="${T[${L}144]}"; OPTION4="${T[${L}78]}"; OPTION5="${T[${L}77]}";
-    ACTION1(){ proxy_onoff; }; ACTION2(){ input_port; warp-cli --accept-tos set-proxy-port "$PORT"; };
-    ACTION3(){ CONF=106; [[ $TRACE6 != off ]] && red " ${T[${L}140]} " && exit 1 || install; }; ACTION4(){ update; }; ACTION5(){ onff; };;
+menu_setting(){
+	case $CLIENT in
+	2 ) OPTION1="${T[${L}88]}"; OPTION2="${T[${L}143]}"; OPTION3="${T[${L}144]}"; OPTION4="${T[${L}78]}"; OPTION5="${T[${L}77]}";
+	    ACTION1(){ proxy_onoff; }; ACTION2(){ input_port; warp-cli --accept-tos set-proxy-port "$PORT"; };
+	    ACTION3(){ CONF=106; [[ $TRACE6 != off ]] && red " ${T[${L}140]} " && exit 1 || install; }; ACTION4(){ update; }; ACTION5(){ onff; };;
 
-3 ) OPTION1="${T[${L}89]}"; OPTION2="${T[${L}143]}"; OPTION3="${T[${L}144]}"; OPTION4="${T[${L}78]}"; OPTION5="${T[${L}77]}";
-    ACTION1(){ proxy_onoff; }; ACTION2(){ input_port; warp-cli --accept-tos set-proxy-port "$PORT"; };
-    ACTION3(){ CONF=106; [[ $TRACE6 != off ]] && red " ${T[${L}140]} " && exit 1 || install; }; ACTION4(){ update; }; ACTION5(){ onff; };;
+	3 ) OPTION1="${T[${L}89]}"; OPTION2="${T[${L}143]}"; OPTION3="${T[${L}144]}"; OPTION4="${T[${L}78]}"; OPTION5="${T[${L}77]}";
+	    ACTION1(){ proxy_onoff; }; ACTION2(){ input_port; warp-cli --accept-tos set-proxy-port "$PORT"; };
+	    ACTION3(){ CONF=106; [[ $TRACE6 != off ]] && red " ${T[${L}140]} " && exit 1 || install; }; ACTION4(){ update; }; ACTION5(){ onff; };;
 
-* ) check_stack
-case "$m" in
-[0-2] ) NATIVE=("IPv6 only" "IPv4 only" "${T[${L}69]}")
-	CONF1=("014" "104" "114")
-	CONF2=("016" "106" "116")
-	CONF3=("01D" "10D" "11D")
-	OPTION1="$(eval echo "${T[${L}66]}")"; OPTION2="$(eval echo "${T[${L}67]}")"; OPTION3="$(eval echo "${T[${L}68]}")"; OPTION4="${T[${L}71]}"
-	ACTION1(){ CONF=${CONF1[m]}; install; }; ACTION2(){ CONF=${CONF2[m]}; install; }; ACTION3(){ CONF=${CONF3[m]}; install; }; ACTION4(){ OPTION=o; net; };;
+	* ) check_stack
+	case "$m" in
+	[0-2] ) NATIVE=("IPv6 only" "IPv4 only" "${T[${L}69]}")
+		CONF1=("014" "104" "114")
+		CONF2=("016" "106" "116")
+		CONF3=("01D" "10D" "11D")
+		OPTION1="$(eval echo "${T[${L}66]}")"; OPTION2="$(eval echo "${T[${L}67]}")"; OPTION3="$(eval echo "${T[${L}68]}")"; OPTION4="${T[${L}71]}"
+		ACTION1(){ CONF=${CONF1[m]}; install; }; ACTION2(){ CONF=${CONF2[m]}; install; }; ACTION3(){ CONF=${CONF3[m]}; install; }; ACTION4(){ OPTION=o; net; };;
+	
+	* )	OPTION1="$(eval echo "${T[${L}141]}")"; OPTION2="$(eval echo "${T[${L}142]}")"; OPTION3="${T[${L}78]}"; OPTION4="${T[${L}77]}"
+		ACTION1(){ stack_switch; }; ACTION2(){ stack_switch; }; ACTION3(){ update; }; ACTION4(){ onoff; };;
+	esac;;
+	esac
 
-* )	OPTION1="$(eval echo "${T[${L}141]}")"; OPTION2="$(eval echo "${T[${L}142]}")"; OPTION3="${T[${L}78]}"; OPTION4="${T[${L}77]}"
-	ACTION1(){ stack_switch; }; ACTION2(){ stack_switch; }; ACTION3(){ update; }; ACTION4(){ onoff; };;
-esac;;
-esac
-
-OPTION5="${T[${L}82]}"; 
-OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}";  OPTION0="${T[${L}76]}"
-ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; ACTION0(){ exit; }
+	OPTION5="${T[${L}82]}"; 
+	OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}";  OPTION0="${T[${L}76]}"
+	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; ACTION0(){ exit; }
+	}
 
 # 显示菜单
 menu(){
@@ -1219,11 +1217,43 @@ menu(){
 		esac
 	}
 
+# 主程序运行 1/3
+pass_parameters
+statistics_of_run-times
+select_language
+check_operating_system
+
+# 设置部分后缀 1/3
+case "$OPTION" in
+h ) help; exit 0;;
+p ) plus; exit 0;;
+i ) change_ip; exit 0;;
+esac
+
+# 主程序运行 2/3
+check_root_virt
+
+# 设置部分后缀 2/3
+case "$OPTION" in
+b ) bbrInstall; exit 0;;
+u ) uninstall; exit 0;;
+v ) ver; exit 0;;
+n ) net; exit 0;;
+o ) onoff; exit 0;;
+r ) proxy_onoff; exit 0;;
+s ) stack_switch; exit 0;;
+esac
+
+# 主程序运行 3/3
+check_dependencies
+check_system_info
+menu_setting
+
 # 设置部分后缀 3/3
 case "$OPTION" in
 # 在已运行 Linux Client 前提下，不能安装 WARP IPv4 或者双栈网络接口。如已经运行 WARP ，参数 4,6,d 从原来的安装改为切换
 [46d] )	if [[ -n $(wg 2>/dev/null) ]]; then
-	SWITCHCHOOSE=$(tr '[:upper:]' '[:lower:]' <<< "$OPTION"); OPTION='s'
+	SWITCHCHOOSE="$OPTION"; OPTION='s'
 	yellow " ${T[${L}79]} " && stack_switch
 	else
 		case "$OPTION" in
