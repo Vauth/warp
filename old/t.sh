@@ -328,25 +328,6 @@ yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
 translate(){ [[ -n "$1" ]] && curl -sm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
 
-# 传参
-pass_parameters(){
-	# 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关；p=刷 WARP+ 流量; 其他或空值=菜单界面
-	[[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")
-
-	# 参数选项 URL 或 License 或转换 WARP 单双栈
-
-	if [[ $2 != '[lisence]' ]]; then
-		if [[ $2 =~ 'http' ]]; then LICENSETYPE=2 && URL=$2
-		elif [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then LICENSETYPE=1 && LICENSE=$2
-		elif [[ $2 = [46Dd] ]]; then SWITCHCHOOSE=$(tr '[:lower:]' '[:upper:]' <<< "$2")
-		elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
-		fi
-	fi
-	
-	# 自定义 WARP+ 设备名
-	NAME=$3
-	}
-
 # 脚本当天及累计运行次数统计
 statistics_of_run-times(){
 COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
@@ -1217,8 +1198,23 @@ menu(){
 		esac
 	}
 
+# 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关；p=刷 WARP+ 流量; 其他或空值=菜单界面
+[[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")
+
+# 参数选项 URL 或 License 或转换 WARP 单双栈
+
+if [[ $2 != '[lisence]' ]]; then
+	if [[ $2 =~ 'http' ]]; then LICENSETYPE=2 && URL=$2
+	elif [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then LICENSETYPE=1 && LICENSE=$2
+	elif [[ $2 = [46Dd] ]]; then SWITCHCHOOSE=$(tr '[:lower:]' '[:upper:]' <<< "$2")
+	elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
+	fi
+fi
+
+# 自定义 WARP+ 设备名
+NAME=$3
+
 # 主程序运行 1/3
-pass_parameters
 statistics_of_run-times
 select_language
 check_operating_system
