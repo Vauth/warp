@@ -487,7 +487,7 @@ input_region(){
 	until [[ -z $EXPECT || $EXPECT = [Yy] || $EXPECT =~ ^[A-Za-z]{2}$ ]]; do
 		reading " $(eval echo "${T[${L}56]}") " EXPECT
 	done
-	[[ -z $EXPECT || $EXPECT = Y ]] && EXPECT="$REGION"
+	[[ -z $EXPECT || $EXPECT = [Yy] ]] && EXPECT="$REGION"
 	}
 
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
