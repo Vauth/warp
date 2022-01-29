@@ -223,8 +223,8 @@ T[E106]="IPv6 priority"
 T[C106]="IPv6 优先"
 T[E107]="IPv4 priority"
 T[C107]="IPv4 优先"
-T[E108]="\n 1. WGCF WARP IP ( Only IPv6 can be brushed when WGCF and Client exist at the same time )\n 2. WARP Linux Client IP\n"
-T[C108]="\n 1. WGCF WARP IP ( WGCF 和 Client 并存时只能刷 IPv6)\n 2. WARP Linux Client IP\n"
+T[E108]="\n 1. WARP Linux Client IP\n 2. WGCF WARP IP ( Only IPv6 can be brushed when WGCF and Client exist at the same time )\n"
+T[C108]="\n 1. WARP Linux Client IP\n 2. WGCF WARP IP ( WGCF 和 Client 并存时只能刷 IPv6)\n"
 T[E109]="Socks5 Proxy Client is working now. WARP IPv4 and dualstack interface could not be switch to. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C109]="Socks5 代理正在运行中，不能转为 WARP IPv4 或者双栈网络接口，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E110]="Socks5 Proxy Client is working now. WARP IPv4 and dualstack interface could not be installed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -563,7 +563,7 @@ change_socks5(){
 	10 ) change_wgcf;;
 	11 ) yellow " ${T[${L}108]} " && reading " ${T[${L}50]} " CHOOSESTATUS
 		case "$CHOOSESTATUS" in
-		1 ) change_wgcf;;	2 ) change_socks5;;	* ) red " ${T[${L}51]} [1-2]"; change_ip;;
+		1 ) change_socks5;;	2 ) change_wgcf;;	* ) red " ${T[${L}51]} [1-2]"; change_ip;;
 		esac;;
 	00 ) red " ${T[${L}122]} " && exit;;
 	esac	
