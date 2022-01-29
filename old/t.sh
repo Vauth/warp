@@ -1261,7 +1261,7 @@ case "$OPTION" in
 		esac
 		install
 	fi;;
-c )	[[ $CLIENT = 3 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
+c )	[[ $CLIENT -ge 2 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
 a )	update;;
 * )	menu;;
 esac
