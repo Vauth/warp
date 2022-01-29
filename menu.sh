@@ -481,7 +481,7 @@ stack_priority(){
 # 更换 Netflix IP 时确认期望区域
 input_region(){
 	[[ -n $NF ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')) ||
-	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" --socks5 "$PROXYSOCKS5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -s4m7 --socks5 "$PROXYSOCKS5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-'US'}
 	reading " $(eval echo "${T[${L}56]}") " EXPECT
 	until [[ -z $EXPECT || $EXPECT = [Yy] || $EXPECT =~ ^[A-Za-z]{2}$ ]]; do
@@ -530,9 +530,9 @@ change_socks5(){
 	ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
 	proxy_info
 	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
-	RESULT=$(curl --user-agent "${UA_Browser}" --socks5 "$PROXYSOCKS5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
+	RESULT=$(curl --user-agent "${UA_Browser}" -s4m7 --socks5 "$PROXYSOCKS5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/81215567"  2>&1)
 	if [[ $RESULT = 200 ]]; then
-	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" --socks5 "$PROXYSOCKS5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -s4m7 --socks5 "$PROXYSOCKS5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/80018499" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-'US'}
 	echo "$REGION" | grep -qi "$EXPECT" && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h || socks5_restart
 	else socks5_restart
