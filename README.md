@@ -139,12 +139,12 @@ warp [option] [lisence]
   | [option] 变量1 变量2 | 具体动作说明 |
   | ----------------- | --------------- |
   | h | 帮助 |
-  | 1 | 原生IPv4 -> （原生IPv4 + WARP IPv6) 或者 原生IPv6 -> (WARP IPv4 + 原生IPv6) |
-  | 1 lisence name | 把 WARP+ Lisence 和设备名添加进去，如 ```bash menu.sh 1 N5670ljg-sS9jD334-6o6g4M9F Goodluck``` |
-  | 2 | 原无论任何状态 -> WARP 双栈 |
-  | 2 lisence name | 把 WARP+ Lisence 和设备名添加进去，如 ```bash menu.sh 2 N5670ljg-sS9jD334-6o6g4M9F Goodluck```  |
+  | 4 | 原无论任何状态 -> WARP IPv4 |
+  | 4 lisence name | 把 WARP+ Lisence 和设备名添加进去，如 ```bash menu.sh 4 N5670ljg-sS9jD334-6o6g4M9F Goodluck``` |
+  | 6 | 原无论任何状态 -> WARP IPv6 |
+  | d | 原无论任何状态 -> WARP 双栈 |
   | o | WARP 开关，脚本主动判断当前状态，自动开或关 |
-  | u | 卸载 Warp |
+  | u | 卸载 WARP |
   | n | 断网时，用于刷WARP网络 (WARP bug) |
   | b | 升级内核、开启BBR及DD |
   | a | 免费 WARP 账户升级 WARP+ |
