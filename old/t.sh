@@ -390,7 +390,7 @@ ip4_info(){
 	WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]*\).*')
 	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
 	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
-	TRACE4=$(curl -s4m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
+	TRACE4=$(curl -s4m8 --interface wgcf https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	if [[ $TRACE4 = plus ]]; then
 	grep -sq 'Device name' /etc/wireguard/info.log && PLUS4='+' || PLUS4=' Teams'
 	fi
@@ -404,7 +404,7 @@ ip6_info(){
 	WAN6=$(expr "$IP6" : '.*ip\":\"\([^"]*\).*')
 	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
 	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
-	TRACE6=$(curl -s6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
+	TRACE6=$(curl -s6m8 --interface wgcf https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	if [[ $TRACE6 = plus ]]; then
 	grep -sq 'Device name' /etc/wireguard/info.log && PLUS6='+' || PLUS6=' Teams'
 	fi
@@ -847,7 +847,7 @@ iptables_solution(){
 	ip route add default dev wgcf table warp
 	iptables -t nat -A POSTROUTING -m mark --mark 0x2 -j MASQUERADE
 	iptables -t mangle -A POSTROUTING -o wgcf -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu	
-	EOF
+EOF
 
 	cat >/etc/wireguard/down << EOF
 	#!/bin/bash
@@ -862,7 +862,7 @@ iptables_solution(){
 	iptables -t mangle -X fwmark
 	sleep 2
 	ipset destroy warp
-	EOF
+EOF
 
 	chmod +x /etc/wireguard/up /etc/wireguard/down
 	
@@ -1143,7 +1143,7 @@ stream(){
 	red "=============================================================="
 	reading " ${T[${L}50]} " IPTABLES
 	case "$IPTABLES" in
-		1 ) ANEMONE=1; intall;;
+		1 ) CONF=${CONF1[m]}; ANEMONE=1; intall;;
 		2 ) [[ -n $PLAN ]] && menu || exit;;
 		* ) red " ${T[${L}51]} [1-2]"; sleep 1; bbrInstall;;
 	esac
@@ -1240,7 +1240,7 @@ menu_setting(){
 	OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}"; OPTION11="${T[${L}80]}"; OPTION12="${T[${L}138]}"; OPTION0="${T[${L}76]}"
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
 	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
-	ACTION12(){ ANEMONE=1 ;install; }; ACTION0(){ exit; }
+	ACTION12(){ CONF=${CONF1[m]}; ANEMONE=1 ;install; }; ACTION0(){ exit; }
 	}
 
 # 显示菜单
@@ -1334,5 +1334,6 @@ case "$OPTION" in
 	fi;;
 c )	[[ $CLIENT -ge 2 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
 a )	update;;
+e )	stream;;
 * )	menu;;
 esac
