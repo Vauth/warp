@@ -283,10 +283,10 @@ T[E136]="( mismatch X )"
 T[C136]="( 不符合 X )"
 T[E137]="Cannot find the configuration file: /etc/wireguard/wgcf.conf. You should install WARP first"
 T[C137]="找不到配置文件 /etc/wireguard/wgcf.conf，请先安装 WARP"
-T[E138]=""
-T[C138]=""
-T[E139]=""
-T[C139]=""
+T[E138]="Let WARP only take over the streaming media traffic"
+T[C138]="让 WARP 只接管流媒体流量"
+T[E139]="Through Iptable+dnsmasq+ipset, adapted from the mature works of [Anemone],[https://github.com/acacia233/Project-WARP-Unlock]"
+T[C139]="通过 Iptable+dnsmasq+ipset，改编于 [Anemone] 的成熟作品，地址[https://github.com/acacia233/Project-WARP-Unlock]，请熟知"
 T[E140]="Socks5 Proxy Client on IPv4 VPS is working now. WARP IPv6 interface could not be installed. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C140]="IPv4 only VPS，并且 Socks5 代理正在运行中，不能安装 WARP IPv6 网络接口，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E141]="Switch \${WARP_BEFORE[m]} to \${WARP_AFTER1[m]}"
@@ -595,6 +595,7 @@ uninstall(){
 	rpm -e wireguard-tools 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
+	[[ -e /etc/resolv.conf.bak ]] && mv /etc/resolv.conf.bak /etc/resolv.conf
 	}
 	
 	# 卸载 Linux Client
@@ -827,6 +828,56 @@ input_port(){
 	done
 	}
 
+# 选用 iptables+dnsmasq+ipset 方案执行
+iptables_solution(){
+	${PACKAGE_INSTALL[int]} ipset dnsmasq resolvconf mtr
+	
+	wget -qO /etc/dnsmasq.d/warp.conf https://raw.githubusercontent.com/acacia233/Project-WARP-Unlock/main/dnsmasq/warp.conf
+	
+	# 创建 PostUp 和 PreDown
+	cat >/etc/wireguard/up << EOF
+	#!/bin/bash
+
+	ipset create warp hash:ip
+	iptables -t mangle -N fwmark
+	iptables -t mangle -A PREROUTING -j fwmark
+	iptables -t mangle -A OUTPUT -j fwmark
+	iptables -t mangle -A fwmark -m set --match-set warp dst -j MARK --set-mark 2
+	ip rule add fwmark 2 table warp
+	ip route add default dev wgcf table warp
+	iptables -t nat -A POSTROUTING -m mark --mark 0x2 -j MASQUERADE
+	iptables -t mangle -A POSTROUTING -o wgcf -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu	
+	EOF
+
+	cat >/etc/wireguard/down << EOF
+	#!/bin/bash
+
+	iptables -t mangle -D PREROUTING -j fwmark
+	iptables -t mangle -D OUTPUT -j fwmark
+	iptables -t mangle -D fwmark -m set --match-set warp dst -j MARK --set-mark 2
+	ip rule del fwmark 2 table warp
+	iptables -t mangle -D POSTROUTING -o wgcf -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+	iptables -t nat -D POSTROUTING -m mark --mark 0x2 -j MASQUERADE
+	iptables -t mangle -F fwmark
+	iptables -t mangle -X fwmark
+	sleep 2
+	ipset destroy warp
+	EOF
+
+	chmod +x /etc/wireguard/up /etc/wireguard/down
+	
+	# 修改 wgcf-profile.conf 和 warp.conf 文件
+	sed -i "7 i Table = off\nPostUp = /etc/wireguard/up\nPredown = /etc/wireguard/down" wgcf-profile.conf
+	sed -i '$a PersistentKeepalive = 5' wgcf-profile.conf
+	[[ $m = 0 ]] && sed -i "1i server=2606:4700:4700::1111\nserver=2001:4860:4860::8888\nserver=2001:4860:4860::8844" /etc/dnsmasq.d/warp.conf
+	rt_tables_status="$(cat /etc/iproute2/rt_tables | grep warp)"
+    	[[  -z "$rt_tables_status" ]] && echo '250   warp' >>/etc/iproute2/rt_tables
+	systemctl disable systemd-resolved --now >/dev/null 2>&1 && sleep 2
+	systemctl enable dnsmasq --now >/dev/null 2>&1 && sleep 2
+	cp /etc/resolv.conf /etc/resolv.conf.bak
+	echo 'nameserver 127.0.0.1' > /etc/resolv.conf
+	}
+
 # WGCF 安装
 install(){
 	# 先删除之前安装，可能导致失败的文件
@@ -959,7 +1010,6 @@ install(){
 		${PACKAGE_INSTALL[int]} net-tools iproute2 openresolv wireguard-tools openrc iptables
 		}
 
-
 	$SYSTEM
 
 	wait
@@ -976,7 +1026,9 @@ install(){
 	MODIFY11D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf'
 
 	sh -c "$(eval echo "\$MODIFY$CONF")"
-	
+
+	[[ $ANEMONE = 1 ]] && iptables_solution
+
 	# 特殊 VPS 的配置文件 DNS 次序
 	[[ $(hostname 2>&1) = DiG9 ]] && sed -i "s/DNS.*/DNS = 8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844/g" wgcf-profile.conf
 
@@ -1082,6 +1134,22 @@ proxy(){
 	yellow " ${T[${L}43]}\n " && help
 	}
 
+# iptables+dnsmasq+ipset 方案
+stream(){
+	red "\n=============================================================="
+	yellow " ${T[${L}139]}\n "
+	green " 1.${T[${L}48]} "
+	[[ -n $PLAN ]] && green " 2.${T[${L}49]} " || green " 2.${T[${L}76]} "
+	red "=============================================================="
+	reading " ${T[${L}50]} " IPTABLES
+	case "$IPTABLES" in
+		1 ) ANEMONE=1; intall;;
+		2 ) [[ -n $PLAN ]] && menu || exit;;
+		* ) red " ${T[${L}51]} [1-2]"; sleep 1; bbrInstall;;
+	esac
+	}
+
+
 # 免费 WARP 账户升级 WARP+ 账户
 update(){
 	wgcf_account(){
@@ -1169,9 +1237,10 @@ menu_setting(){
 	esac
 
 	OPTION5="${T[${L}82]}"; 
-	OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}"; OPTION11="${T[${L}80]}"; OPTION0="${T[${L}76]}"
+	OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}"; OPTION11="${T[${L}80]}"; OPTION12="${T[${L}138]}"; OPTION0="${T[${L}76]}"
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
-	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; ACTION0(){ exit; }
+	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
+	ACTION12(){ ANEMONE=1 ;install; }; ACTION0(){ exit; }
 	}
 
 # 显示菜单
@@ -1191,12 +1260,12 @@ menu(){
 	[[ $CLIENT = 2 ]] && green "	${T[${L}113]} "
 	[[ $CLIENT = 3 ]] && green "	WARP$AC ${T[${L}24]}	$(eval echo "${T[${L}27]}") "
  	red "\n======================================================================================================================\n"
-	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11 \n 0.  $OPTION0\n "
+	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11 \n 12. $OPTION12 \n 0.  $OPTION0\n "
 	reading " ${T[${L}50]} " CHOOSE1
 		case "$CHOOSE1" in
 		1 ) ACTION1;; 2 ) ACTION2;; 3 ) ACTION3;; 4 ) ACTION4;; 5 ) ACTION5;;
 		6 ) ACTION6;; 7 ) ACTION7;; 8 ) ACTION8;; 9 ) ACTION9;; 10 ) ACTION10;;
-		11 ) ACTION11;; 0 ) ACTION0;; * ) red " ${T[${L}51]} [0-10] "; sleep 1; menu;;
+		11 ) ACTION11;; 12 ) ACTION12;; 0 ) ACTION0;; * ) red " ${T[${L}51]} [0-10] "; sleep 1; menu;;
 		esac
 	}
 
