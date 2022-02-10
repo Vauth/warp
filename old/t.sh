@@ -846,6 +846,7 @@ iptables_solution(){
 	server=/yt3.ggpht.com/1.1.1.1
 	server=/gstatic.com/1.1.1.1
 
+	ipset=/www.cloudflare.com/warp
 	ipset=/ip.gs/warp
 	ipset=/googlevideo.com/warp
 	ipset=/youtube.com/warp
@@ -922,11 +923,11 @@ EOF
 	# 修改 wgcf-profile.conf 和 warp.conf 文件
 	sed -i "7 i Table = off\nPostUp = /etc/wireguard/up\nPredown = /etc/wireguard/down" wgcf-profile.conf
 	sed -i '$a PersistentKeepalive = 5' wgcf-profile.conf
-	[[ $m = 0 ]] && sed -i "1i server=2606:4700:4700::1111\nserver=2001:4860:4860::8888\nserver=2001:4860:4860::8844" /etc/dnsmasq.d/warp.conf
+	[[ $m = 0 ]] && sed -i "	1i server=2606:4700:4700::1111\nserver=2001:4860:4860::8888\nserver=2001:4860:4860::8844" /etc/dnsmasq.d/warp.conf
 	rt_tables_status="$(cat /etc/iproute2/rt_tables | grep warp)"
     	[[  -z "$rt_tables_status" ]] && echo '250   warp' >>/etc/iproute2/rt_tables
 	systemctl disable systemd-resolved --now >/dev/null 2>&1 && sleep 2
-	systemctl enable dnsmasq --now >/dev/null 2>&1
+	systemctl enable dnsmasq --now >/dev/null 2>&1 && sleep 2
 	cp /etc/resolv.conf /etc/resolv.conf.bak
 	echo 'nameserver 127.0.0.1' > /etc/resolv.conf
 	}
