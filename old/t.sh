@@ -832,8 +832,61 @@ input_port(){
 iptables_solution(){
 	${PACKAGE_INSTALL[int]} ipset dnsmasq resolvconf mtr
 	
-	wget -qO /etc/dnsmasq.d/warp.conf https://raw.githubusercontent.com/acacia233/Project-WARP-Unlock/main/dnsmasq/warp.conf
-	
+	# 创建 dnsmasq 规则文件
+	cat >/etc/dnsmasq.d/warp.conf << EOF
+	#!/bin/bash
+	server=1.1.1.1
+	server=8.8.8.8
+	# ----- WARP ----- #
+	# > Youtube Premium
+	server=/googlevideo.com/1.1.1.1
+	server=/youtube.com/1.1.1.1
+	server=/youtubei.googleapis.com/1.1.1.1
+	server=/fonts.googleapis.com/1.1.1.1
+	server=/yt3.ggpht.com/1.1.1.1
+	server=/gstatic.com/1.1.1.1
+
+	ipset=/ip.gs/warp
+	ipset=/googlevideo.com/warp
+	ipset=/youtube.com/warp
+	ipset=/youtubei.googleapis.com/warp
+	ipset=/fonts.googleapis.com/warp
+	ipset=/yt3.ggpht.com/warp
+
+	# > Netflix
+	ipset=/fast.com/warp
+	ipset=/netflix.com/warp
+	ipset=/netflix.net/warp
+	ipset=/nflxext.com/warp
+	ipset=/nflximg.com/warp
+	ipset=/nflximg.net/warp
+	ipset=/nflxso.net/warp
+	ipset=/nflxvideo.net/warp
+
+	# > TVBAnywhere+
+	ipset=/uapisfm.tvbanywhere.com.sg/warp
+
+	# > Disney+
+	ipset=/bamgrid.com/warp
+	ipset=/disney-plus.net/warp
+	ipset=/disneyplus.com/warp
+	ipset=/dssott.com/warp
+	ipset=/disneynow.com/warp
+	ipset=/disneystreaming.com/warp
+	ipset=/cdn.registerdisney.go.com/warp
+
+	# > TikTok
+	ipset=/byteoversea.com/warp
+	ipset=/ibytedtos.com/warp
+	ipset=/ipstatp.com/warp
+	ipset=/muscdn.com/warp
+	ipset=/musical.ly/warp
+	ipset=/tiktok.com/warp
+	ipset=/tik-tokapi.com/warp
+	ipset=/tiktokcdn.com/warp
+	ipset=/tiktokv.com/warp
+EOF
+		
 	# 创建 PostUp 和 PreDown
 	cat >/etc/wireguard/up << EOF
 	#!/bin/bash
@@ -873,7 +926,7 @@ EOF
 	rt_tables_status="$(cat /etc/iproute2/rt_tables | grep warp)"
     	[[  -z "$rt_tables_status" ]] && echo '250   warp' >>/etc/iproute2/rt_tables
 	systemctl disable systemd-resolved --now >/dev/null 2>&1 && sleep 2
-	systemctl enable dnsmasq --now >/dev/null 2>&1 && sleep 2
+	systemctl enable dnsmasq --now >/dev/null 2>&1
 	cp /etc/resolv.conf /etc/resolv.conf.bak
 	echo 'nameserver 127.0.0.1' > /etc/resolv.conf
 	}
@@ -1039,6 +1092,7 @@ install(){
 
 	# 设置开机启动
 	${SYSTEMCTL_ENABLE[int]}>/dev/null 2>&1
+	[[ $ANEMONE = 1 ]] && systemctl restart dnsmasq >/dev/null 2>&1
 
 	# 如是 LXC，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
 	[[ $LXC = 1 ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
