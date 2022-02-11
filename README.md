@@ -19,6 +19,8 @@
 * * *
 
 ## 更新信息
+2022.2.11  1.iptables + dnsmasq + ipset to unlock stream media. (Not available for IPv6 only VPS) 1.iptables + dnsmasq + ipset 最小化解锁流媒体，warp 只接管流媒体流量 (不适合 IPv6 only VPS)
+
 2022.1.25  Media unlock daemon.  Check it every 5 minutes. If unlocked, the scheduled task exits immediately. If it is not unlocked, it will be swiped successfully in the background. Advantages: Minimized use of system resources. Please support professional unlock one-click script: https://github.com/fscarmen/warp_unlock
 
 流媒体解锁守护进程,定时5分钟检查一次,遇到不解锁时更换 WARP IP，直至刷成功。请大家支持一下兄弟项目: https://github.com/fscarmen/warp_unlock
@@ -331,6 +333,8 @@ https://blog.cloudflare.com/announcing-warp-for-linux-and-proxy-mode/
 https://blog.cloudflare.com/argo-v2/
 * WireGuard: https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
 * Parker C. Stephens: https://parkercs.tech/cloudflare-for-teams-wireguard-config/
+* Anemone: https://cutenico.best/posts/blogs/cloudflare-warp-fixed-youtube-location/    
+https://github.com/acacia233/Project-WARP-Unlock
 
 服务提供（排名不分先后）：
 * CloudFlare Warp(+): https://1.1.1.1/
