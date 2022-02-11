@@ -593,10 +593,12 @@ uninstall(){
 	uninstall_wgcf(){
 	wg-quick down wgcf >/dev/null 2>&1
 	systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
-	${PACKAGE_UNINSTALL[int]} wireguard-tools wireguard-dkms 2>/dev/null
+	${PACKAGE_UNINSTALL[int]} wireguard-tools wireguard-dkms ipset dnsmasq resolvconf mtr 2>/dev/null
 	rpm -e wireguard-tools 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
+	[[ $(systemctl is-active systemd-resolved) != active ]] && systemctl enable --now systemd-resolved >/dev/null 2>&1
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
+	sed -i "/250   warp/d" /etc/iproute2/rt_tables
 	}
 	
 	# 卸载 Linux Client
@@ -834,7 +836,7 @@ input_port(){
 # 选用 iptables+dnsmasq+ipset 方案执行
 iptables_solution(){
 	${PACKAGE_INSTALL[int]} ipset dnsmasq resolvconf mtr
-	
+
 	# 创建 dnsmasq 规则文件
 	cat >/etc/dnsmasq.d/warp.conf << EOF
 #!/bin/bash
@@ -927,8 +929,7 @@ EOF
 	sed -i "s/^Post.*/#&/g;\$a PersistentKeepalive = 5" wgcf-profile.conf
 	sed -i "7 i Table = off\nPostUp = /etc/wireguard/up\nPredown = /etc/wireguard/down" wgcf-profile.conf
 	[[ $m = 0 ]] && sed -i "2i server=2606:4700:4700::1111\nserver=2001:4860:4860::8888\nserver=2001:4860:4860::8844" /etc/dnsmasq.d/warp.conf
-	rt_tables_status="$(cat /etc/iproute2/rt_tables | grep warp)"
-    	[[  -z "$rt_tables_status" ]] && echo '250   warp' >>/etc/iproute2/rt_tables
+	! grep -q 'warp' /etc/iproute2/rt_tables && echo '250   warp' >>/etc/iproute2/rt_tables
 	systemctl disable systemd-resolved --now >/dev/null 2>&1 && sleep 2
 	systemctl enable dnsmasq --now >/dev/null 2>&1 && sleep 2
 	}
