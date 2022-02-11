@@ -104,7 +104,7 @@ T[C46]="没有清除干净，请重启(reboot)后尝试再次删除"
 T[E47]="Upgrade kernel, turn on BBR, change Linux system by other authors [ylx2016],[https://github.com/ylx2016/Linux-NetSpeed]"
 T[C47]="BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
 T[E48]="Run script"
-T[C48]="安装脚本【推荐原版BBR+FQ】"
+T[C48]="安装脚本"
 T[E49]="Return to main menu"
 T[C49]="回退主目录"
 T[E50]="Choose:"
@@ -1200,7 +1200,7 @@ stream(){
 	red "=============================================================="
 	reading " ${T[${L}50]} " IPTABLES
 	case "$IPTABLES" in
-		1 ) CONF=${CONF1[m]}; ANEMONE=1; intall;;
+		1 ) CONF=${CONF1[m]}; ANEMONE=1; install;;
 		2 ) [[ -n $PLAN ]] && menu || exit;;
 		* ) red " ${T[${L}51]} [1-2]"; sleep 1; bbrInstall;;
 	esac
