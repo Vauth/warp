@@ -923,8 +923,8 @@ EOF
 	chmod +x /etc/wireguard/up /etc/wireguard/down
 	
 	# 修改 wgcf-profile.conf 和 warp.conf 文件
-	sed -i "7 i Table = off\nPostUp = /etc/wireguard/up\nPredown = /etc/wireguard/down" wgcf-profile.conf
-	sed -i '$a PersistentKeepalive = 5' wgcf-profile.conf
+	sed -i "s/^Post.*/#&/g;\$a PersistentKeepalive = 5" wgcf-profile.conf
+	sed -i "6 i Table = off\nPostUp = /etc/wireguard/up\nPredown = /etc/wireguard/down" wgcf-profile.conf
 	[[ $m = 0 ]] && sed -i "2i server=2606:4700:4700::1111\nserver=2001:4860:4860::8888\nserver=2001:4860:4860::8844" /etc/dnsmasq.d/warp.conf
 	rt_tables_status="$(cat /etc/iproute2/rt_tables | grep warp)"
     	[[  -z "$rt_tables_status" ]] && echo '250   warp' >>/etc/iproute2/rt_tables
