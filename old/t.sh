@@ -283,10 +283,10 @@ T[E136]="( mismatch X )"
 T[C136]="( 不符合 X )"
 T[E137]="Cannot find the configuration file: /etc/wireguard/wgcf.conf. You should install WARP first"
 T[C137]="找不到配置文件 /etc/wireguard/wgcf.conf，请先安装 WARP"
-T[E138]="Let WARP only take over the streaming media traffic"
-T[C138]="让 WARP 只接管流媒体流量"
-T[E139]="Through Iptable+dnsmasq+ipset, adapted from the mature works of [Anemone],[https://github.com/acacia233/Project-WARP-Unlock]"
-T[C139]="通过 Iptable+dnsmasq+ipset，改编于 [Anemone] 的成熟作品，地址[https://github.com/acacia233/Project-WARP-Unlock]，请熟知"
+T[E138]="Install iptable + dnsmasq + ipset. Let WARP only take over the streaming media traffic"
+T[C138]="安装 iptable + dnsmasq + ipset，让 WARP IPv4 only 接管流媒体流量"
+T[E139]="Through Iptable + dnsmasq + ipset, minimize the realization of media unblocking such as Netflix, WARP IPv4 only takes over the streaming media traffic,adapted from the mature works of [Anemone],[https://github.com/acacia233/Project-WARP-Unlock]"
+T[C139]="通过 Iptable + dnsmasq + ipset，最小化实现 Netflix 等媒体解锁，WARP IPv4 只接管流媒体流量，改编自 [Anemone] 的成熟作品，地址[https://github.com/acacia233/Project-WARP-Unlock]，请熟知"
 T[E140]="Socks5 Proxy Client on IPv4 VPS is working now. WARP IPv6 interface could not be installed. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C140]="IPv4 only VPS，并且 Socks5 代理正在运行中，不能安装 WARP IPv6 网络接口，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E141]="Switch \${WARP_BEFORE[m]} to \${WARP_AFTER1[m]}"
@@ -636,11 +636,13 @@ net(){
 	[[ $SYSTEM != Alpine ]] && [[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && wg-quick down wgcf >/dev/null 2>&1
 	${SYSTEMCTL_START[int]} >/dev/null 2>&1
 	wg-quick up wgcf >/dev/null 2>&1
+	[[ $(type -P dnsmasq 2>/dev/null) ]] && systemctl restart dnsmasq >/dev/null 2>&1
 	ip4_info; ip6_info
 	until [[ $TRACE4$TRACE6 =~ on|plus ]]
 		do	(( i++ )) || true
 			yellow " $(eval echo "${T[${L}12]}") "
 			${SYSTEMCTL_RESTART[int]} >/dev/null 2>&1
+			[[ $(type -P dnsmasq 2>/dev/null) ]] && systemctl restart dnsmasq >/dev/null 2>&1
 			ip4_info; ip6_info
 			if [[ $i = "$j" ]]; then
 				if [[ $LICENSETYPE = 2 ]]; then 
@@ -834,88 +836,88 @@ iptables_solution(){
 	
 	# 创建 dnsmasq 规则文件
 	cat >/etc/dnsmasq.d/warp.conf << EOF
-	#!/bin/bash
-	server=1.1.1.1
-	server=8.8.8.8
-	# ----- WARP ----- #
-	# > Youtube Premium
-	server=/googlevideo.com/1.1.1.1
-	server=/youtube.com/1.1.1.1
-	server=/youtubei.googleapis.com/1.1.1.1
-	server=/fonts.googleapis.com/1.1.1.1
-	server=/yt3.ggpht.com/1.1.1.1
-	server=/gstatic.com/1.1.1.1
+#!/bin/bash
+server=1.1.1.1
+server=8.8.8.8
+# ----- WARP ----- #
+# > Youtube Premium
+server=/googlevideo.com/1.1.1.1
+server=/youtube.com/1.1.1.1
+server=/youtubei.googleapis.com/1.1.1.1
+server=/fonts.googleapis.com/1.1.1.1
+server=/yt3.ggpht.com/1.1.1.1
+server=/gstatic.com/1.1.1.1
 
-	ipset=/www.cloudflare.com/warp
-	ipset=/ip.gs/warp
-	ipset=/googlevideo.com/warp
-	ipset=/youtube.com/warp
-	ipset=/youtubei.googleapis.com/warp
-	ipset=/fonts.googleapis.com/warp
-	ipset=/yt3.ggpht.com/warp
+ipset=/www.cloudflare.com/warp
+ipset=/ip.gs/warp
+ipset=/googlevideo.com/warp
+ipset=/youtube.com/warp
+ipset=/youtubei.googleapis.com/warp
+ipset=/fonts.googleapis.com/warp
+ipset=/yt3.ggpht.com/warp
 
-	# > Netflix
-	ipset=/fast.com/warp
-	ipset=/netflix.com/warp
-	ipset=/netflix.net/warp
-	ipset=/nflxext.com/warp
-	ipset=/nflximg.com/warp
-	ipset=/nflximg.net/warp
-	ipset=/nflxso.net/warp
-	ipset=/nflxvideo.net/warp
+# > Netflix
+ipset=/fast.com/warp
+ipset=/netflix.com/warp
+ipset=/netflix.net/warp
+ipset=/nflxext.com/warp
+ipset=/nflximg.com/warp
+ipset=/nflximg.net/warp
+ipset=/nflxso.net/warp
+ipset=/nflxvideo.net/warp
 
-	# > TVBAnywhere+
-	ipset=/uapisfm.tvbanywhere.com.sg/warp
+# > TVBAnywhere+
+ipset=/uapisfm.tvbanywhere.com.sg/warp
 
-	# > Disney+
-	ipset=/bamgrid.com/warp
-	ipset=/disney-plus.net/warp
-	ipset=/disneyplus.com/warp
-	ipset=/dssott.com/warp
-	ipset=/disneynow.com/warp
-	ipset=/disneystreaming.com/warp
-	ipset=/cdn.registerdisney.go.com/warp
+# > Disney+
+ipset=/bamgrid.com/warp
+ipset=/disney-plus.net/warp
+ipset=/disneyplus.com/warp
+ipset=/dssott.com/warp
+ipset=/disneynow.com/warp
+ipset=/disneystreaming.com/warp
+ipset=/cdn.registerdisney.go.com/warp
 
-	# > TikTok
-	ipset=/byteoversea.com/warp
-	ipset=/ibytedtos.com/warp
-	ipset=/ipstatp.com/warp
-	ipset=/muscdn.com/warp
-	ipset=/musical.ly/warp
-	ipset=/tiktok.com/warp
-	ipset=/tik-tokapi.com/warp
-	ipset=/tiktokcdn.com/warp
-	ipset=/tiktokv.com/warp
+# > TikTok
+ipset=/byteoversea.com/warp
+ipset=/ibytedtos.com/warp
+ipset=/ipstatp.com/warp
+ipset=/muscdn.com/warp
+ipset=/musical.ly/warp
+ipset=/tiktok.com/warp
+ipset=/tik-tokapi.com/warp
+ipset=/tiktokcdn.com/warp
+ipset=/tiktokv.com/warp
 EOF
 		
 	# 创建 PostUp 和 PreDown
 	cat >/etc/wireguard/up << EOF
-	#!/bin/bash
+#!/bin/bash
 
-	ipset create warp hash:ip
-	iptables -t mangle -N fwmark
-	iptables -t mangle -A PREROUTING -j fwmark
-	iptables -t mangle -A OUTPUT -j fwmark
-	iptables -t mangle -A fwmark -m set --match-set warp dst -j MARK --set-mark 2
-	ip rule add fwmark 2 table warp
-	ip route add default dev wgcf table warp
-	iptables -t nat -A POSTROUTING -m mark --mark 0x2 -j MASQUERADE
-	iptables -t mangle -A POSTROUTING -o wgcf -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu	
+ipset create warp hash:ip
+iptables -t mangle -N fwmark
+iptables -t mangle -A PREROUTING -j fwmark
+iptables -t mangle -A OUTPUT -j fwmark
+iptables -t mangle -A fwmark -m set --match-set warp dst -j MARK --set-mark 2
+ip rule add fwmark 2 table warp
+ip route add default dev wgcf table warp
+iptables -t nat -A POSTROUTING -m mark --mark 0x2 -j MASQUERADE
+iptables -t mangle -A POSTROUTING -o wgcf -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu	
 EOF
 
 	cat >/etc/wireguard/down << EOF
-	#!/bin/bash
+#!/bin/bash
 
-	iptables -t mangle -D PREROUTING -j fwmark
-	iptables -t mangle -D OUTPUT -j fwmark
-	iptables -t mangle -D fwmark -m set --match-set warp dst -j MARK --set-mark 2
-	ip rule del fwmark 2 table warp
-	iptables -t mangle -D POSTROUTING -o wgcf -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-	iptables -t nat -D POSTROUTING -m mark --mark 0x2 -j MASQUERADE
-	iptables -t mangle -F fwmark
-	iptables -t mangle -X fwmark
-	sleep 2
-	ipset destroy warp
+iptables -t mangle -D PREROUTING -j fwmark
+iptables -t mangle -D OUTPUT -j fwmark
+iptables -t mangle -D fwmark -m set --match-set warp dst -j MARK --set-mark 2
+ip rule del fwmark 2 table warp
+iptables -t mangle -D POSTROUTING -o wgcf -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+iptables -t nat -D POSTROUTING -m mark --mark 0x2 -j MASQUERADE
+iptables -t mangle -F fwmark
+iptables -t mangle -X fwmark
+sleep 2
+ipset destroy warp
 EOF
 
 	chmod +x /etc/wireguard/up /etc/wireguard/down
@@ -923,7 +925,7 @@ EOF
 	# 修改 wgcf-profile.conf 和 warp.conf 文件
 	sed -i "7 i Table = off\nPostUp = /etc/wireguard/up\nPredown = /etc/wireguard/down" wgcf-profile.conf
 	sed -i '$a PersistentKeepalive = 5' wgcf-profile.conf
-	[[ $m = 0 ]] && sed -i "	1i server=2606:4700:4700::1111\nserver=2001:4860:4860::8888\nserver=2001:4860:4860::8844" /etc/dnsmasq.d/warp.conf
+	[[ $m = 0 ]] && sed -i "2i server=2606:4700:4700::1111\nserver=2001:4860:4860::8888\nserver=2001:4860:4860::8844" /etc/dnsmasq.d/warp.conf
 	rt_tables_status="$(cat /etc/iproute2/rt_tables | grep warp)"
     	[[  -z "$rt_tables_status" ]] && echo '250   warp' >>/etc/iproute2/rt_tables
 	systemctl disable systemd-resolved --now >/dev/null 2>&1 && sleep 2
