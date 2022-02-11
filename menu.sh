@@ -3,14 +3,14 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/b
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=2.30
+VERSION=2.31
 
 declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1.All support WARP single-stack and dual-stack solutions. Switch to each other easily and quickly. Such as [warp s 4],[warp s 6],[warp s d]; 2.Brush Netflix Unlock IP with the expect area. Such as [warp i hk]. You can use it with crontab,screen,nohup & etc."
-T[C1]="1.全面支持WARP单栈与双栈方案，简单并快速切换，如[warp s 4],[warp s 6],[warp s d]; 2.在刷解锁 Netflix WARP IP 时可以带上期望的地区,如 warp i hk。你可以结合 crontab,screen,nohup & 等方式使用"
+T[E1]="1.Iptables + dnsmasq + ipset to unlock stream media (Not available for IPv6 only VPS)"
+T[C1]="1.Iptables + dnsmasq + ipset 最小化解锁奈飞等流媒体 (暂不适用于 IPv6 only VPS)"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -104,7 +104,7 @@ T[C46]="没有清除干净，请重启(reboot)后尝试再次删除"
 T[E47]="Upgrade kernel, turn on BBR, change Linux system by other authors [ylx2016],[https://github.com/ylx2016/Linux-NetSpeed]"
 T[C47]="BBR、DD脚本用的[ylx2016]的成熟作品，地址[https://github.com/ylx2016/Linux-NetSpeed]，请熟知"
 T[E48]="Run script"
-T[C48]="安装脚本【推荐原版BBR+FQ】"
+T[C48]="安装脚本"
 T[E49]="Return to main menu"
 T[C49]="回退主目录"
 T[E50]="Choose:"
@@ -283,10 +283,10 @@ T[E136]="( mismatch X )"
 T[C136]="( 不符合 X )"
 T[E137]="Cannot find the configuration file: /etc/wireguard/wgcf.conf. You should install WARP first"
 T[C137]="找不到配置文件 /etc/wireguard/wgcf.conf，请先安装 WARP"
-T[E138]=""
-T[C138]=""
-T[E139]=""
-T[C139]=""
+T[E138]="Install iptable + dnsmasq + ipset. Let WARP only take over the streaming media traffic (Not available for ipv6 only)"
+T[C138]="安装 iptable + dnsmasq + ipset，让 WARP IPv4 only 接管流媒体流量 (不适用于 IPv6 only VPS)"
+T[E139]="Through Iptable + dnsmasq + ipset, minimize the realization of media unblocking such as Netflix, WARP IPv4 only takes over the streaming media traffic,adapted from the mature works of [Anemone],[https://github.com/acacia233/Project-WARP-Unlock]"
+T[C139]="通过 Iptable + dnsmasq + ipset，最小化实现 Netflix 等媒体解锁，WARP IPv4 只接管流媒体流量，改编自 [Anemone] 的成熟作品，地址[https://github.com/acacia233/Project-WARP-Unlock]，请熟知"
 T[E140]="Socks5 Proxy Client on IPv4 VPS is working now. WARP IPv6 interface could not be installed. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C140]="IPv4 only VPS，并且 Socks5 代理正在运行中，不能安装 WARP IPv6 网络接口，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E141]="Switch \${WARP_BEFORE[m]} to \${WARP_AFTER1[m]}"
@@ -301,6 +301,8 @@ T[E145]="\\\n WARP ineterface can be switched to the following:\\\n 1. \$OPTION1
 T[C145]="\\\n WARP 网络接口可以切换为以下方式:\\\n 1. \$OPTION1\\\n 2. \$OPTION2\\\n 0. \${T[\${L}76]}\\\n"
 T[E146]="Cannot switch to the same form as the current one."
 T[C146]="不能切换为当前一样的形态"
+T[E147]="Not available for IPv6 only VPS"
+T[C147]="IPv6 only VPS 不能使用此方案"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -319,7 +321,7 @@ TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '
 select_language(){
 	case $(cat /etc/wireguard/language 2>&1) in
 	E ) L=E;;	C ) L=C;;
-	* ) L=E && [[ -z $OPTION || $OPTION = [achdpbvis46] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
+	* ) L=E && [[ -z $OPTION || $OPTION = [acehdpbvis46] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
 	[[ $LANGUAGE = 2 ]] && L=C;;
 	esac
 	}
@@ -446,7 +448,7 @@ plus(){
 	red "\n=============================================================="
 	yellow " ${T[${L}54]}\n "
 	green " ${T[${L}55]} "
-	[[ -n $PLAN ]] && green " 4.${T[${L}49]} " || green " 4.${T[${L}76]} "
+	[[ $OPTION != p ]] && green " 4.${T[${L}49]} " || green " 4.${T[${L}76]} "
 	red "=============================================================="
 	reading " ${T[${L}50]} " CHOOSEPLUS
 	case "$CHOOSEPLUS" in
@@ -463,7 +465,7 @@ plus(){
 		    reading " ${T[${L}57]} " MISSION
 		    MISSION=${MISSION//[^0-9]/}
 		    bash <(wget --no-check-certificate -qO- -T8 https://cdn.jsdelivr.net/gh/SoftCreatR/warp-up/warp-up.sh) --disclaimer --id $ID --iterations $MISSION;;
-		4 ) [[ -n $PLAN ]] && menu || exit;;
+		4 ) [[ $OPTION != p ]] && menu || exit;;
 		* ) red " ${T[${L}51]} [1-4] "; sleep 1; plus;;
 	esac
 	}
@@ -574,12 +576,12 @@ bbrInstall(){
 	red "\n=============================================================="
 	yellow " ${T[${L}47]}\n "
 	green " 1.${T[${L}48]} "
-	[[ -n $PLAN ]] && green " 2.${T[${L}49]} " || green " 2.${T[${L}76]} "
+	[[ $OPTION != b ]] && green " 2.${T[${L}49]} " || green " 2.${T[${L}76]} "
 	red "=============================================================="
 	reading " ${T[${L}50]} " BBR
 	case "$BBR" in
 		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-		2 ) [[ -n $PLAN ]] && menu || exit;;
+		2 ) [[ $OPTION != b ]] && menu || exit;;
 		* ) red " ${T[${L}51]} [1-2]"; sleep 1; bbrInstall;;
 	esac
 	}
@@ -635,11 +637,13 @@ net(){
 	[[ $SYSTEM != Alpine ]] && [[ $(systemctl is-active wg-quick@wgcf) != 'active' ]] && wg-quick down wgcf >/dev/null 2>&1
 	${SYSTEMCTL_START[int]} >/dev/null 2>&1
 	wg-quick up wgcf >/dev/null 2>&1
+	type -P dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
 	ip4_info; ip6_info
 	until [[ $TRACE4$TRACE6 =~ on|plus ]]
 		do	(( i++ )) || true
 			yellow " $(eval echo "${T[${L}12]}") "
 			${SYSTEMCTL_RESTART[int]} >/dev/null 2>&1
+			type -P dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
 			ip4_info; ip6_info
 			if [[ $i = "$j" ]]; then
 				if [[ $LICENSETYPE = 2 ]]; then 
@@ -681,7 +685,7 @@ check_stack(){
 	if [[ -e /etc/wireguard/wgcf.conf ]]; then
 		grep '0/0' /etc/wireguard/wgcf.conf | grep -q '#' && T4='0' || T4='1'
 		grep ':/0' /etc/wireguard/wgcf.conf | grep -q '#' && T6='0' || T6='1'
-		else 
+		else
 		case "$TRACE4" in off ) T4='0';; 'on'|'plus' ) T4='1';; esac
 		case "$TRACE6" in off ) T6='0';; 'on'|'plus' ) T6='1';; esac
 	fi
@@ -827,6 +831,108 @@ input_port(){
 	done
 	}
 
+# 选用 iptables+dnsmasq+ipset 方案执行
+iptables_solution(){
+	${PACKAGE_INSTALL[int]} ipset dnsmasq resolvconf mtr
+	
+	# 创建 dnsmasq 规则文件
+	cat >/etc/dnsmasq.d/warp.conf << EOF
+#!/bin/bash
+server=1.1.1.1
+server=8.8.8.8
+# ----- WARP ----- #
+# > Youtube Premium
+server=/googlevideo.com/1.1.1.1
+server=/youtube.com/1.1.1.1
+server=/youtubei.googleapis.com/1.1.1.1
+server=/fonts.googleapis.com/1.1.1.1
+server=/yt3.ggpht.com/1.1.1.1
+server=/gstatic.com/1.1.1.1
+
+ipset=/www.cloudflare.com/warp
+ipset=/ip.gs/warp
+ipset=/googlevideo.com/warp
+ipset=/youtube.com/warp
+ipset=/youtubei.googleapis.com/warp
+ipset=/fonts.googleapis.com/warp
+ipset=/yt3.ggpht.com/warp
+
+# > Netflix
+ipset=/fast.com/warp
+ipset=/netflix.com/warp
+ipset=/netflix.net/warp
+ipset=/nflxext.com/warp
+ipset=/nflximg.com/warp
+ipset=/nflximg.net/warp
+ipset=/nflxso.net/warp
+ipset=/nflxvideo.net/warp
+
+# > TVBAnywhere+
+ipset=/uapisfm.tvbanywhere.com.sg/warp
+
+# > Disney+
+ipset=/bamgrid.com/warp
+ipset=/disney-plus.net/warp
+ipset=/disneyplus.com/warp
+ipset=/dssott.com/warp
+ipset=/disneynow.com/warp
+ipset=/disneystreaming.com/warp
+ipset=/cdn.registerdisney.go.com/warp
+
+# > TikTok
+ipset=/byteoversea.com/warp
+ipset=/ibytedtos.com/warp
+ipset=/ipstatp.com/warp
+ipset=/muscdn.com/warp
+ipset=/musical.ly/warp
+ipset=/tiktok.com/warp
+ipset=/tik-tokapi.com/warp
+ipset=/tiktokcdn.com/warp
+ipset=/tiktokv.com/warp
+EOF
+		
+	# 创建 PostUp 和 PreDown
+	cat >/etc/wireguard/up << EOF
+#!/bin/bash
+
+ipset create warp hash:ip
+iptables -t mangle -N fwmark
+iptables -t mangle -A PREROUTING -j fwmark
+iptables -t mangle -A OUTPUT -j fwmark
+iptables -t mangle -A fwmark -m set --match-set warp dst -j MARK --set-mark 2
+ip rule add fwmark 2 table warp
+ip route add default dev wgcf table warp
+iptables -t nat -A POSTROUTING -m mark --mark 0x2 -j MASQUERADE
+iptables -t mangle -A POSTROUTING -o wgcf -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu	
+EOF
+
+	cat >/etc/wireguard/down << EOF
+#!/bin/bash
+
+iptables -t mangle -D PREROUTING -j fwmark
+iptables -t mangle -D OUTPUT -j fwmark
+iptables -t mangle -D fwmark -m set --match-set warp dst -j MARK --set-mark 2
+ip rule del fwmark 2 table warp
+iptables -t mangle -D POSTROUTING -o wgcf -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+iptables -t nat -D POSTROUTING -m mark --mark 0x2 -j MASQUERADE
+iptables -t mangle -F fwmark
+iptables -t mangle -X fwmark
+sleep 2
+ipset destroy warp
+EOF
+
+	chmod +x /etc/wireguard/up /etc/wireguard/down
+	
+	# 修改 wgcf-profile.conf 和 warp.conf 文件
+	sed -i "s/^Post.*/#&/g;\$a PersistentKeepalive = 5" wgcf-profile.conf
+	sed -i "7 i Table = off\nPostUp = /etc/wireguard/up\nPredown = /etc/wireguard/down" wgcf-profile.conf
+	[[ $m = 0 ]] && sed -i "2i server=2606:4700:4700::1111\nserver=2001:4860:4860::8888\nserver=2001:4860:4860::8844" /etc/dnsmasq.d/warp.conf
+	rt_tables_status="$(cat /etc/iproute2/rt_tables | grep warp)"
+    	[[  -z "$rt_tables_status" ]] && echo '250   warp' >>/etc/iproute2/rt_tables
+	systemctl disable systemd-resolved --now >/dev/null 2>&1 && sleep 2
+	systemctl enable dnsmasq --now >/dev/null 2>&1 && sleep 2
+	}
+
 # WGCF 安装
 install(){
 	# 先删除之前安装，可能导致失败的文件
@@ -959,7 +1065,6 @@ install(){
 		${PACKAGE_INSTALL[int]} net-tools iproute2 openresolv wireguard-tools openrc iptables
 		}
 
-
 	$SYSTEM
 
 	wait
@@ -976,7 +1081,9 @@ install(){
 	MODIFY11D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" wgcf-profile.conf'
 
 	sh -c "$(eval echo "\$MODIFY$CONF")"
-	
+
+	[[ $ANEMONE = 1 ]] && iptables_solution
+
 	# 特殊 VPS 的配置文件 DNS 次序
 	[[ $(hostname 2>&1) = DiG9 ]] && sed -i "s/DNS.*/DNS = 8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844/g" wgcf-profile.conf
 
@@ -987,6 +1094,7 @@ install(){
 
 	# 设置开机启动
 	${SYSTEMCTL_ENABLE[int]}>/dev/null 2>&1
+	type -P dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
 
 	# 如是 LXC，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
 	[[ $LXC = 1 ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
@@ -1082,6 +1190,22 @@ proxy(){
 	yellow " ${T[${L}43]}\n " && help
 	}
 
+# iptables+dnsmasq+ipset 方案
+stream(){
+	red "\n=============================================================="
+	yellow " ${T[${L}139]}\n "
+	green " 1.${T[${L}48]} "
+	[[ $OPTION != e ]] && green " 2.${T[${L}49]} " || green " 2.${T[${L}76]} "
+	red "=============================================================="
+	reading " ${T[${L}50]} " IPTABLES
+	case "$IPTABLES" in
+		1 ) CONF=${CONF1[m]}; ANEMONE=1; install;;
+		2 ) [[ $OPTION != e ]] && menu || exit;;
+		* ) red " ${T[${L}51]} [1-2]"; sleep 1; stream;;
+	esac
+	}
+
+
 # 免费 WARP 账户升级 WARP+ 账户
 update(){
 	wgcf_account(){
@@ -1169,9 +1293,10 @@ menu_setting(){
 	esac
 
 	OPTION5="${T[${L}82]}"; 
-	OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}"; OPTION11="${T[${L}80]}"; OPTION0="${T[${L}76]}"
+	OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}"; OPTION11="${T[${L}80]}"; OPTION12="${T[${L}138]}"; OPTION0="${T[${L}76]}"
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
-	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; ACTION0(){ exit; }
+	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
+	ACTION12(){ [[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1; CONF=${CONF1[m]}; ANEMONE=1 ;install; }; ACTION0(){ exit; }
 	}
 
 # 显示菜单
@@ -1191,12 +1316,12 @@ menu(){
 	[[ $CLIENT = 2 ]] && green "	${T[${L}113]} "
 	[[ $CLIENT = 3 ]] && green "	WARP$AC ${T[${L}24]}	$(eval echo "${T[${L}27]}") "
  	red "\n======================================================================================================================\n"
-	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11 \n 0.  $OPTION0\n "
+	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11 \n 12. $OPTION12 \n 0.  $OPTION0\n "
 	reading " ${T[${L}50]} " CHOOSE1
 		case "$CHOOSE1" in
 		1 ) ACTION1;; 2 ) ACTION2;; 3 ) ACTION3;; 4 ) ACTION4;; 5 ) ACTION5;;
 		6 ) ACTION6;; 7 ) ACTION7;; 8 ) ACTION8;; 9 ) ACTION9;; 10 ) ACTION10;;
-		11 ) ACTION11;; 0 ) ACTION0;; * ) red " ${T[${L}51]} [0-10] "; sleep 1; menu;;
+		11 ) ACTION11;; 12 ) ACTION12;; 0 ) ACTION0;; * ) red " ${T[${L}51]} [0-10] "; sleep 1; menu;;
 		esac
 	}
 
@@ -1265,5 +1390,6 @@ case "$OPTION" in
 	fi;;
 c )	[[ $CLIENT -ge 2 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
 a )	update;;
+e )	[[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1 || stream;;
 * )	menu;;
 esac
