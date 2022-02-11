@@ -597,7 +597,6 @@ uninstall(){
 	rpm -e wireguard-tools 2>/dev/null
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
-	[[ -e /etc/resolv.conf.bak ]] && mv /etc/resolv.conf.bak /etc/resolv.conf
 	}
 	
 	# 卸载 Linux Client
@@ -834,7 +833,6 @@ input_port(){
 
 # 选用 iptables+dnsmasq+ipset 方案执行
 iptables_solution(){
-	cp /etc/resolv.conf /etc/resolv.conf.bak
 	${PACKAGE_INSTALL[int]} ipset dnsmasq resolvconf mtr
 	
 	# 创建 dnsmasq 规则文件
@@ -933,7 +931,6 @@ EOF
     	[[  -z "$rt_tables_status" ]] && echo '250   warp' >>/etc/iproute2/rt_tables
 	systemctl disable systemd-resolved --now >/dev/null 2>&1 && sleep 2
 	systemctl enable dnsmasq --now >/dev/null 2>&1 && sleep 2
-	echo 'nameserver 127.0.0.1' > /etc/resolv.conf
 	}
 
 # WGCF 安装
