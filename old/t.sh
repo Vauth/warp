@@ -834,6 +834,7 @@ input_port(){
 
 # 选用 iptables+dnsmasq+ipset 方案执行
 iptables_solution(){
+	cp /etc/resolv.conf /etc/resolv.conf.bak
 	${PACKAGE_INSTALL[int]} ipset dnsmasq resolvconf mtr
 	
 	# 创建 dnsmasq 规则文件
@@ -932,7 +933,6 @@ EOF
     	[[  -z "$rt_tables_status" ]] && echo '250   warp' >>/etc/iproute2/rt_tables
 	systemctl disable systemd-resolved --now >/dev/null 2>&1 && sleep 2
 	systemctl enable dnsmasq --now >/dev/null 2>&1 && sleep 2
-	cp /etc/resolv.conf /etc/resolv.conf.bak
 	echo 'nameserver 127.0.0.1' > /etc/resolv.conf
 	}
 
