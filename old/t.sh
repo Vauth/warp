@@ -301,6 +301,8 @@ T[E145]="\\\n WARP ineterface can be switched to the following:\\\n 1. \$OPTION1
 T[C145]="\\\n WARP 网络接口可以切换为以下方式:\\\n 1. \$OPTION1\\\n 2. \$OPTION2\\\n 0. \${T[\${L}76]}\\\n"
 T[E146]="Cannot switch to the same form as the current one."
 T[C146]="不能切换为当前一样的形态"
+T[E147]="Not available for IPv6 only VPS"
+T[C147]="IPv6 only VPS 不能使用此方案"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -684,7 +686,7 @@ check_stack(){
 	if [[ -e /etc/wireguard/wgcf.conf ]]; then
 		grep '0/0' /etc/wireguard/wgcf.conf | grep -q '#' && T4='0' || T4='1'
 		grep ':/0' /etc/wireguard/wgcf.conf | grep -q '#' && T6='0' || T6='1'
-		else 
+		else
 		case "$TRACE4" in off ) T4='0';; 'on'|'plus' ) T4='1';; esac
 		case "$TRACE6" in off ) T6='0';; 'on'|'plus' ) T6='1';; esac
 	fi
@@ -1095,7 +1097,7 @@ install(){
 
 	# 设置开机启动
 	${SYSTEMCTL_ENABLE[int]}>/dev/null 2>&1
-	[[ $ANEMONE = 1 ]] && systemctl restart dnsmasq >/dev/null 2>&1
+	[[ $(type -P dnsmasq 2>/dev/null) ]] && systemctl restart dnsmasq >/dev/null 2>&1
 
 	# 如是 LXC，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
 	[[ $LXC = 1 ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
@@ -1297,7 +1299,7 @@ menu_setting(){
 	OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}"; OPTION11="${T[${L}80]}"; OPTION12="${T[${L}138]}"; OPTION0="${T[${L}76]}"
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
 	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
-	ACTION12(){ CONF=${CONF1[m]}; ANEMONE=1 ;install; }; ACTION0(){ exit; }
+	ACTION12(){ [[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1; CONF=${CONF1[m]}; ANEMONE=1 ;install; }; ACTION0(){ exit; }
 	}
 
 # 显示菜单
@@ -1391,6 +1393,6 @@ case "$OPTION" in
 	fi;;
 c )	[[ $CLIENT -ge 2 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
 a )	update;;
-e )	stream;;
+e )	[[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1 || stream;;
 * )	menu;;
 esac
