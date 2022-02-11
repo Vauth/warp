@@ -319,7 +319,7 @@ TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '
 select_language(){
 	case $(cat /etc/wireguard/language 2>&1) in
 	E ) L=E;;	C ) L=C;;
-	* ) L=E && [[ -z $OPTION || $OPTION = [achdpbvis46] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
+	* ) L=E && [[ -z $OPTION || $OPTION = [acehdpbvis46] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
 	[[ $LANGUAGE = 2 ]] && L=C;;
 	esac
 	}
@@ -637,13 +637,13 @@ net(){
 	${SYSTEMCTL_START[int]} >/dev/null 2>&1
 	wg-quick up wgcf >/dev/null 2>&1
 	[[ $(type -P dnsmasq 2>/dev/null) ]] && systemctl restart dnsmasq >/dev/null 2>&1
-	ip4_info; ip6_info
+	ip4_info; grep -q Table /etc/wireguard/wgcf.conf || ip6_info
 	until [[ $TRACE4$TRACE6 =~ on|plus ]]
 		do	(( i++ )) || true
 			yellow " $(eval echo "${T[${L}12]}") "
 			${SYSTEMCTL_RESTART[int]} >/dev/null 2>&1
 			[[ $(type -P dnsmasq 2>/dev/null) ]] && systemctl restart dnsmasq >/dev/null 2>&1
-			ip4_info; ip6_info
+			ip4_info; grep -q Table /etc/wireguard/wgcf.conf || ip6_info
 			if [[ $i = "$j" ]]; then
 				if [[ $LICENSETYPE = 2 ]]; then 
 				unset LICENSETYPE && i=0 && green " ${T[${L}129]} " &&
