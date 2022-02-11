@@ -446,7 +446,7 @@ plus(){
 	red "\n=============================================================="
 	yellow " ${T[${L}54]}\n "
 	green " ${T[${L}55]} "
-	[[ -n $PLAN ]] && green " 4.${T[${L}49]} " || green " 4.${T[${L}76]} "
+	[[ $OPTION != p ]] && green " 4.${T[${L}49]} " || green " 4.${T[${L}76]} "
 	red "=============================================================="
 	reading " ${T[${L}50]} " CHOOSEPLUS
 	case "$CHOOSEPLUS" in
@@ -463,7 +463,7 @@ plus(){
 		    reading " ${T[${L}57]} " MISSION
 		    MISSION=${MISSION//[^0-9]/}
 		    bash <(wget --no-check-certificate -qO- -T8 https://cdn.jsdelivr.net/gh/SoftCreatR/warp-up/warp-up.sh) --disclaimer --id $ID --iterations $MISSION;;
-		4 ) [[ -n $PLAN ]] && menu || exit;;
+		4 ) [[ $OPTION != p ]] && menu || exit;;
 		* ) red " ${T[${L}51]} [1-4] "; sleep 1; plus;;
 	esac
 	}
@@ -574,12 +574,12 @@ bbrInstall(){
 	red "\n=============================================================="
 	yellow " ${T[${L}47]}\n "
 	green " 1.${T[${L}48]} "
-	[[ -n $PLAN ]] && green " 2.${T[${L}49]} " || green " 2.${T[${L}76]} "
+	[[ $OPTION != b ]] && green " 2.${T[${L}49]} " || green " 2.${T[${L}76]} "
 	red "=============================================================="
 	reading " ${T[${L}50]} " BBR
 	case "$BBR" in
 		1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-		2 ) [[ -n $PLAN ]] && menu || exit;;
+		2 ) [[ $OPTION != b ]] && menu || exit;;
 		* ) red " ${T[${L}51]} [1-2]"; sleep 1; bbrInstall;;
 	esac
 	}
@@ -1196,13 +1196,13 @@ stream(){
 	red "\n=============================================================="
 	yellow " ${T[${L}139]}\n "
 	green " 1.${T[${L}48]} "
-	[[ -n $PLAN ]] && green " 2.${T[${L}49]} " || green " 2.${T[${L}76]} "
+	[[ $OPTION != e ]] && green " 2.${T[${L}49]} " || green " 2.${T[${L}76]} "
 	red "=============================================================="
 	reading " ${T[${L}50]} " IPTABLES
 	case "$IPTABLES" in
 		1 ) CONF=${CONF1[m]}; ANEMONE=1; install;;
-		2 ) [[ -n $PLAN ]] && menu || exit;;
-		* ) red " ${T[${L}51]} [1-2]"; sleep 1; bbrInstall;;
+		2 ) [[ $OPTION != e ]] && menu || exit;;
+		* ) red " ${T[${L}51]} [1-2]"; sleep 1; stream;;
 	esac
 	}
 
