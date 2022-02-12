@@ -496,11 +496,14 @@ input_region(){
 change_ip(){
 	change_wgcf(){
 		wgcf_restart(){ red " $(eval echo "${T[${L}126]}") " && ${SYSTEMCTL_RESTART[int]}; ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1; sleep $j; }
-	if [[ $WGCFSTATUS$SOCKS5STATUS != 11 ]]; then
-		[[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF='6' && reading " ${T[${L}124]} " NETFLIX || NF='4'
+		
+		grep -q "^#.*0\.\0\/0" /etc/wireguard/wgcf.conf || T4=1
+		grep -q "^#.*\:\:\/0" /etc/wireguard/wgcf.conf || T6=1
+		case $T4@$T6 in
+		@1 ) NF='6';;	1@ ) NF='4';;
+		1@1 ) [[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF='6' && reading " ${T[${L}124]} " NETFLIX || NF='4'
 		[[ $NETFLIX = [Yy] ]] && NF='4' && PRIORITY=1 && stack_priority
-	else NF='6'
-	fi
+		esac
 
 	[[ -z "$EXPECT" ]] && input_region
 	i=0;j=5
