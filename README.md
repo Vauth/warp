@@ -19,7 +19,7 @@
 * * *
 
 ## 更新信息
-2022.2.15 Happy Lantern Festival. Bringing you a docker project based on alpine, content wgcf and unblocking Netflix scripts. Change unlock warp ip automatically. 元宵节快乐。为大家带来个 docker 项目，以 alpine 为基础系统，内容 wgcf 和解锁 Netflix 脚本，自动切换解锁 WARP IP，暂时只适合 IPv4 only VPS    
+2022.2.15 Happy Lantern Festival. Bring you a new experience of docker unlock, another way to unlock Netflix. Project based on alpine, content wgcf and unblocking Netflix scripts. Change unlock warp ip automatically. 元宵节快乐。为大家带来个 docker 解锁的全新体验，换个姿势解锁 Netflix。项目以 alpine 为基础系统，内含 wgcf 和解锁 Netflix 脚本，自动切换解锁 WARP IP    
 https://github.com/fscarmen/warp_unlock
 
 2022.2.11  1.iptables + dnsmasq + ipset to unlock stream media. (Not available for IPv6 only VPS). It is better than setting the outbound in xray/v2ray. 1.iptables + dnsmasq + ipset 最小化解锁流媒体，warp 只接管流媒体流量 (不适合 IPv6 only VPS)，比在 xray/v2ray 设置分流的方案要更好
