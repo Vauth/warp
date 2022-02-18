@@ -496,12 +496,12 @@ input_region(){
 change_ip(){
 	change_wgcf(){
 		wgcf_restart(){ red " $(eval echo "${T[${L}126]}") " && ${SYSTEMCTL_RESTART[int]}; ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1; sleep $j; }
-		
-		grep -q "^#.*0\.\0\/0" /etc/wireguard/wgcf.conf || T4=1
-		grep -q "^#.*\:\:\/0" /etc/wireguard/wgcf.conf || T6=1
-		case $T4@$T6 in
-		@1 ) NF='6';;	1@ ) NF='4';;
-		1@1 ) [[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF='6' && reading " ${T[${L}124]} " NETFLIX || NF='4'
+		unset T4 T6
+		grep -q "^#.*0\.\0\/0" /etc/wireguard/wgcf.conf && T4=0 || T4=1
+		grep -q "^#.*\:\:\/0" /etc/wireguard/wgcf.conf && T6=0 || T6=1
+		case "$T4$T6" in
+		01 ) NF='6';;	10 ) NF='4';;
+		11 ) [[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF='6' && reading " ${T[${L}124]} " NETFLIX || NF='4'
 		[[ $NETFLIX = [Yy] ]] && NF='4' && PRIORITY=1 && stack_priority;;
 		esac
 
@@ -688,8 +688,8 @@ proxy_onoff(){
 # 检查系统 WARP 单双栈情况。为了速度，先检查 WGCF 配置文件里的情况，再判断 trace
 check_stack(){
 	if [[ -e /etc/wireguard/wgcf.conf ]]; then
-		grep '0/0' /etc/wireguard/wgcf.conf | grep -q '#' && T4='0' || T4='1'
-		grep ':/0' /etc/wireguard/wgcf.conf | grep -q '#' && T6='0' || T6='1'
+		grep -q "^#.*0\.\0\/0" /etc/wireguard/wgcf.conf && T4=0 || T4=1
+		grep -q "^#.*\:\:\/0" /etc/wireguard/wgcf.conf && T6=0 || T6=1
 		else
 		case "$TRACE4" in off ) T4='0';; 'on'|'plus' ) T4='1';; esac
 		case "$TRACE6" in off ) T6='0';; 'on'|'plus' ) T6='1';; esac
