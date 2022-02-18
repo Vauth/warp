@@ -33,7 +33,10 @@ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unl
 
 2022.1.21  2.30: 1.All support WARP single-stack and dual-stack solutions. Switch to each other easily and quickly. Such as [warp s 4],[warp s 6],[warp s d]; 2.Brush Netflix Unlock IP with the expect area. Such as [warp i hk]. You can use it with crontab,screen,nohup & etc. [Detail](README.md#刷-Netflix-解锁-WARP-IP-的方法); 3.Fixed stuck when brushing Netflix IP 1.全面支持WARP单栈与双栈方案，简单并快速切换，如[warp s 4],[warp s 6],[warp s d]; 2.在刷解锁 Netflix WARP IP 时可以带上期望的地区,如 [warp i hk]。你可以结合 crontab,screen,nohup & 等方式使用,[详细方法](README.md#刷-Netflix-解锁-WARP-IP-的方法); 3.修正刷 Netflix IP 时可能发生的卡死不动的bug
 
-~To be updated: huanx and malikshi [#63](https://github.com/fscarmen/warp/issues/63) needs, hope like [P3terx](https://github.com/P3TERX/warp.sh/blob/main/warp.sh) scripts, all support WARP single-stack and dual-stack solutions. Plan to rebuild menu modules and pass parameters with arrays.(DONE)~
+<details>
+    <summary>点击即可展开或收起查看 docker 命令</summary>
+
+ ~To be updated: huanx and malikshi [#63](https://github.com/fscarmen/warp/issues/63) needs, hope like [P3terx](https://github.com/P3TERX/warp.sh/blob/main/warp.sh) scripts, all support WARP single-stack and dual-stack solutions. Plan to rebuild menu modules and pass parameters with arrays.(DONE)~
 
 ~待更新：唤醒大神和 malikshi [#63](https://github.com/fscarmen/warp/issues/63) 的需求，希望像 [P3terx](https://github.com/P3TERX/warp.sh/blob/main/warp.sh) 脚本一样，全面支持 WARP 单栈和双栈方案。计划花点时间用数组重构菜单模块和传参。（已完成）~
 
@@ -45,8 +48,6 @@ Dualstack on IPv4 only ,IPv6 only and native dualstack VPS is coming; 双栈 WAR
 
 2022.1.6  重大技术突破，绝对原创，绝对原创，绝对原创。成功把 WGCF 配置文件与环境依赖分离。本着万物皆可 Docker 的思路，以超轻量级的 Alpine 为底包（底包5M+依赖22M=27MB），配置放在映射目录处，解决某些旧系统不能使用 WARP 服务的问题。~docker 安装依赖方案只能是单栈，并不能双栈。该技术已经是 WGCF 和 wireguard 的天花板，不服来辩。~
 
-<details>
-    <summary>点击即可展开或收起查看 docker 命令</summary>
 
 ```
 wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/docker.sh && bash docker.sh [option] [lisence] ## 安装 docker、拉镜像和安装容器
