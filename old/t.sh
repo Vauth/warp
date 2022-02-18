@@ -502,7 +502,7 @@ change_ip(){
 		case $T4@$T6 in
 		@1 ) NF='6';;	1@ ) NF='4';;
 		1@1 ) [[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF='6' && reading " ${T[${L}124]} " NETFLIX || NF='4'
-		[[ $NETFLIX = [Yy] ]] && NF='4' && PRIORITY=1 && stack_priority
+		[[ $NETFLIX = [Yy] ]] && NF='4' && PRIORITY=1 && stack_priority;;
 		esac
 
 	[[ -z "$EXPECT" ]] && input_region
