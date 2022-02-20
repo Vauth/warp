@@ -39,7 +39,7 @@ T[E14]="Got the WARP IP successfully."
 T[C14]="已成功获取 WARP 网络"
 T[E15]="WARP is turned off. It could be turned on again by [warp o]"
 T[C15]="已暂停 WARP，再次开启可以用 warp o"
-T[E16]="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support WARP+ account. Third-party scripts are use to increase WARP+ quota or upgrade kernel.\n	* Not only menus, but commands with option.\n	* Intelligent analysis of operating system：Ubuntu 18.04、20.04，Debian 10、11，CentOS 7、8, Alpine 3. Be sure to choose the LTS system. And architecture：AMD or ARM\n	* Automatically select four WireGuard solutions. Performance: Kernel with WireGuard integration＞Install kernel module＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Suppert WARP Linux client.\n	* Output WARP status, IP region and asn\n"
+T[E16]="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support WARP+ account. Third-party scripts are use to increase WARP+ quota or upgrade kernel.\n	* Not only menus, but commands with option.\n	* Intelligent analysis of operating system：Ubuntu 16.04、18.04、20.04，Debian 10、11，CentOS 7、8, Alpine 3. Be sure to choose the LTS system. And architecture：AMD or ARM\n	* Automatically select four WireGuard solutions. Performance: Kernel with WireGuard integration＞Install kernel module＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Suppert WARP Linux client.\n	* Output WARP status, IP region and asn\n"
 T[C16]="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 WARP+ 账户，附带第三方刷 WARP+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断操作系统：Ubuntu 、Debian 、CentOS 和 Alpine，请务必选择 LTS 系统；硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选4个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 支持 WARP Linux Socks5 Client\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地和线路提供商\n"
 T[E17]="Version"
 T[C17]="脚本版本"
@@ -359,7 +359,7 @@ check_operating_system(){
 	RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS" "Alpine")
 	EXCLUDE=("bookworm")
 	COMPANY=("" "" "" "amazon" "")
-	MAJOR=("10" "18" "7" "7" "3")
+	MAJOR=("10" "16" "7" "7" "3")
 	PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "yum -y update" "apk update -f")
 	PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "yum -y install" "apk add -f")
 	PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "yum -y autoremove" "apk del -f")
@@ -387,7 +387,7 @@ check_dependencies(){
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
 	unset IP4 LAN4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
-	IP4=$(curl -s4m8 https://ip.gs/json)
+	IP4=$(curl -ks4m8 https://ip.gs/json)
 	LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+')
 	WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]*\).*')
 	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
@@ -401,7 +401,7 @@ ip4_info(){
 
 ip6_info(){
 	unset IP6 LAN6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
-	IP6=$(curl -s6m8 https://ip.gs/json)
+	IP6=$(curl -ks6m8 https://ip.gs/json)
 	LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
 	WAN6=$(expr "$IP6" : '.*ip\":\"\([^"]*\).*')
 	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
@@ -417,7 +417,7 @@ ip6_info(){
 proxy_info(){
 	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
 	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
-	PROXYJASON=$(curl -s4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
+	PROXYJASON=$(curl -ks4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
 	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
 	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
 	[[ $L = C ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
@@ -501,7 +501,7 @@ change_ip(){
 		grep -q "^#.*\:\:\/0" /etc/wireguard/wgcf.conf && T6=0 || T6=1
 		case "$T4$T6" in
 		01 ) NF='6';;	10 ) NF='4';;
-		11 ) [[ $(curl -sm8 https://ip.gs) =~ ":" ]] && NF='6' && reading " ${T[${L}124]} " NETFLIX || NF='4'
+		11 ) [[ $(curl -ksm8 https://ip.gs) =~ ":" ]] && NF='6' && reading " ${T[${L}124]} " NETFLIX || NF='4'
 		[[ $NETFLIX = [Yy] ]] && NF='4' && PRIORITY=1 && stack_priority;;
 		esac
 
@@ -1116,7 +1116,7 @@ install(){
 	green " ${T[${L}39]} "
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
 	[[ $COMPANY = amazon ]] && red " $(eval echo "${T[${L}40]}") " && reboot || net
-	[[ $(curl -sm8 https://ip.gs) = "$WAN6" ]] && PRIORITY=${T[${L}106]} || PRIORITY=${T[${L}107]}
+	[[ $(curl -ksm8 https://ip.gs) = "$WAN6" ]] && PRIORITY=${T[${L}106]} || PRIORITY=${T[${L}107]}
 	
 	# 部分 LXC 内核已经包含 WireGuard 模块则会优先使用，此场景下删除 WireGuard-go
 	[[ -e /usr/bin/wireguard-go ]] && ! pgrep -laf "wireguard-go" >/dev/null 2>&1 && rm -f /usr/bin/wireguard-go
