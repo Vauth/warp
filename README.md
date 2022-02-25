@@ -19,10 +19,12 @@
 * * *
 
 ## 更新信息
+2022.2.25  2.32: 1.Change the WARP endpoint; 2. Sync the Netflix title with lmc999; 1.更换 WARP 的 endpoint; 2. 同步 lmc999 的 Netflix 检测 title
+
 2022.2.15 Happy Lantern Festival. Bring you a new experience of docker unlock, another way to unlock Netflix. Project based on alpine, content wgcf and unblocking Netflix scripts. Change unlock warp ip automatically. 元宵节快乐。为大家带来个 docker 解锁的全新体验，换个姿势解锁 Netflix。项目以 alpine 为基础系统，内含 wgcf 和解锁 Netflix 脚本，自动切换解锁 WARP IP    
 https://github.com/fscarmen/warp_unlock
 
-2022.2.11  1.iptables + dnsmasq + ipset to unlock stream media. (Not available for IPv6 only VPS). It is better than setting the outbound in xray/v2ray. 1.iptables + dnsmasq + ipset 最小化解锁流媒体，warp 只接管流媒体流量 (不适合 IPv6 only VPS)，比在 xray/v2ray 设置分流的方案要更好
+2022.2.11  2.31: 1.iptables + dnsmasq + ipset to unlock stream media. (Not available for IPv6 only VPS). It is better than setting the outbound in xray/v2ray. 1.iptables + dnsmasq + ipset 最小化解锁流媒体，warp 只接管流媒体流量 (不适合 IPv6 only VPS)，比在 xray/v2ray 设置分流的方案要更好
 
 2022.1.25  Media unlock daemon.  Check it every 5 minutes. If unlocked, the scheduled task exits immediately. If it is not unlocked, it will be swiped successfully in the background. Advantages: Minimized use of system resources. Please support professional unlock one-click script: https://github.com/fscarmen/warp_unlock
 
@@ -339,7 +341,7 @@ https://blog.cloudflare.com/argo-v2/
 * Parker C. Stephens: https://parkercs.tech/cloudflare-for-teams-wireguard-config/
 * Anemone: https://cutenico.best/posts/blogs/cloudflare-warp-fixed-youtube-location/    
 https://github.com/acacia233/Project-WARP-Unlock
-
+    
 服务提供（排名不分先后）：
 * CloudFlare Warp(+): https://1.1.1.1/
 * WGCF 项目原作者: https://github.com/ViRb3/wgcf/
@@ -348,5 +350,6 @@ https://github.com/acacia233/Project-WARP-Unlock
 * ALIILAPRO 的成熟作品: https://github.com/ALIILAPRO/warp-plus-cloudflare
 * mixool 的成熟作品: https://github.com/mixool/across/tree/master/wireguard
 * luoxue-bot 的成熟作品:https://github.com/luoxue-bot/warp_auto_change_ip
+* lmc999 的成熟作品: https://github.com/lmc999/RegionRestrictionCheck
 * 获取公网 IP 及归属地查询: https://ip.gs/
 * 统计PV网:https://hits.seeyoufarm.com/
