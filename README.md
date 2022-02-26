@@ -138,7 +138,7 @@ wg-quick up wgcf; exit #运行 WGCF 并退出容器。
 
 首次运行
 ```
-wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh [option] [lisence]
+wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && bash menu.sh [option] [lisence]
 ```
 再次运行
 ```bash
@@ -168,11 +168,11 @@ warp [option] [lisence]
 
 举例：想为 IPv4 的甲骨文添加 Warp 双栈，首次运行
 ```bash
-wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh 2
+wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh d
 ```
-刷 Netflix 运行
+刷日本 Netflix  运行
 ```bash
-warp i
+warp i jp
 ```
 
 ## 刷 Netflix 解锁 WARP IP 的方法
