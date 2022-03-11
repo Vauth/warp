@@ -19,6 +19,8 @@
 * * *
 
 ## 更新信息
+2022.3.11  2.33: 1.Open TUN for OVZ. You needn't setting it in the control panel. Thx @Q_lilll; 2. First publication on a global scale. WARP Client support Ubuntu 18.04 and CentOS 7; 1.感谢 @Q_lilll 提供方案，为 OVZ VPS 在线打开 TUN,不需要到面板处理; 2. 全网首发， WARP Client 支持 Ubuntu 18.04 and CentOS 7
+
 2022.2.25  2.32: 1.Change the WARP endpoint; 2. Sync the Netflix title with lmc999; 1.更换 WARP 的 endpoint; 2. 同步 lmc999 的 Netflix 检测 title
 
 2022.2.15 Happy Lantern Festival. Bring you a new experience of docker unlock, another way to unlock Netflix. Project based on alpine, content wgcf and unblocking Netflix scripts. Change unlock warp ip automatically. 元宵节快乐。为大家带来个 docker 解锁的全新体验，换个姿势解锁 Netflix。项目以 alpine 为基础系统，内含 wgcf 和解锁 Netflix 脚本，自动切换解锁 WARP IP    
@@ -340,6 +342,7 @@ https://blog.cloudflare.com/argo-v2/
 * Parker C. Stephens: https://parkercs.tech/cloudflare-for-teams-wireguard-config/
 * Anemone: https://cutenico.best/posts/blogs/cloudflare-warp-fixed-youtube-location/    
 https://github.com/acacia233/Project-WARP-Unlock
+* wangying202: https://blog.csdn.net/wangying202/article/details/113178159
     
 服务提供（排名不分先后）：
 * CloudFlare Warp(+): https://1.1.1.1/
