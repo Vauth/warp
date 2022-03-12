@@ -1173,8 +1173,8 @@ proxy(){
 			rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el8.rpm >/dev/null 2>&1
 			#  CentOS 7，需要用 Cloudflare CentOS 8 的库以安装 Client，并在线编译升级 C 运行库 Glibc 2.28
 			if	[[ $(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*') = 7 && ! $(strings /lib64/libc.so.6 ) =~ GLIBC_2.28 ]]; then
-				{ wget -O /usr/bin/make https://github.com/fscarmen/tools/raw/main/make
-				wget -O ./glibc-2.28.tar.gz https://link.jscdn.cn/1drv/aHR0cHM6Ly8xZHJ2Lm1zL3UvcyFBczJObkY3TXVRYlhnVkIwUkRIbGoza1JiUHJf
+				{ wget -O /usr/bin/make https://github.com/fscarmen/warp/releases/download/Glibc/make
+				wget https://github.com/fscarmen/warp/releases/download/Glibc/glibc-2.28.tar.gz
 				tar -xzvf glibc-2.28.tar.gz; }&
 				sed -i "s/\$releasever/8/g" /etc/yum.repos.d/cloudflare.repo
 				${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} cloudflare-warp
