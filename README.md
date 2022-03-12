@@ -158,14 +158,15 @@ warp [option] [lisence]
   | n | 断网时，用于刷WARP网络 (WARP bug) |
   | b | 升级内核、开启BBR及DD |
   | a | 免费 WARP 账户升级 WARP+ |
-  | a lisence | 在上面基础上把 WARP+ Lisence 添加进去，如 ```bash menu.sh a N5670ljg-sS9jD334-6o6g4M9F```  |
+  | a lisence | 在上面基础上把 WARP+ Lisence 添加进去，如 ```bash menu.sh a N5670ljg-sS9jD334-6o6g4M9F``` |
   | p | 刷 Warp+ 流量 |
   | c | 安装 WARP Linux Client，开启 Socks5 代理模式 |
-  | c lisence | 在上面基础上把 WARP+ Lisence 添加进去，如 ```bash menu.sh c N5670ljg-sS9jD334-6o6g4M9F```  |
+  | c lisence | 在上面基础上把 WARP+ Lisence 添加进去，如 ```bash menu.sh c N5670ljg-sS9jD334-6o6g4M9F``` |
   | r | WARP Linux Client 开关 |
   | v | 同步脚本至最新版本 |
   | i | 更换 WARP IP |
-  | s | 单栈与双栈快速切换 ，如 ```warp s 4```,```warp s 6```,```warp s d```|
+  | s | 单栈与双栈快速切换 ，如 ```warp s 4```,```warp s 6```,```warp s d``` |
+  | e | 安装 iptables + dnsmasq + ipset 分流流媒体方案 |
   | 其他或空值| 菜单界面 |
 
 举例：想为 IPv4 的甲骨文添加 Warp 双栈，首次运行
