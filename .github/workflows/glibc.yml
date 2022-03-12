@@ -1,0 +1,54 @@
+name: "Build glibc & make"
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  Building:
+    name: "Build on CentOS 7"
+    runs-on: ubuntu-latest
+    container: docker.io/centos:7
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        yum -y install gcc bison make centos-release-scl wget
+        yum -y install devtoolset-8-gcc
+        yum -y install devtoolset-8-gcc-c++
+        yum -y install devtoolset-8-binutils
+        mkdir -p /opt/release/
+
+    - name: Build make v4.3
+      run: |
+        wget http://ftp.gnu.org/gnu/make/make-4.3.tar.gz
+        tar -xzf make-4.3.tar.gz
+        cd make-4.3
+        ./configure
+        make
+        make install
+        echo y | cp -f ./make /usr/bin/
+        cp ./make /opt/release/
+        cd ~
+
+    - name: Build glibc v2.28
+      run: |
+        source /opt/rh/devtoolset-8/enable
+        wget http://ftp.gnu.org/gnu/glibc/glibc-2.28.tar.gz
+        tar -zxf glibc-2.28.tar.gz
+        mkdir -p ./glibc-2.28/build
+        cd ./glibc-2.28/build
+        ../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin
+        make
+        make install
+        cd ..; cd ..
+        tar -czf /opt/release/glibc-2.28.tar.gz ./glibc-2.28
+
+    - name: Binaries Release
+      uses: softprops/action-gh-release@v1
+      with:
+          files: /opt/release/*
+      env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
