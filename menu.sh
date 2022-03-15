@@ -607,6 +607,7 @@ uninstall(){
 	[[ $(systemctl is-active systemd-resolved) != active ]] && systemctl enable --now systemd-resolved >/dev/null 2>&1
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
+	[[ -e /usr/bin/tun.sh ]] && rm -f /usr/bin/tun.sh && sed -i '/tun.sh/d' /etc/crontab
 	sed -i "/250   warp/d" /etc/iproute2/rt_tables
 	}
 	
@@ -741,11 +742,22 @@ stack_switch(){
 check_system_info(){
 	green " ${T[${L}37]} "
 
-	# 必须加载 TUN 模块，先尝试在线打开 TUN
+	# 必须加载 TUN 模块，先尝试在线打开 TUN。尝试成功放到启动项，失败作提示并退出脚本
 	TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
- 	[[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]] && mkdir -p /dev/net && mknod /dev/net/tun c 10 200 && chmod 0666 /dev/net/tun &&
-	TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]') &&
-	[[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]] && red " ${T[${L}3]} " && exit 1
+ 	if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
+	cat >/usr/bin/tun.sh << EOF
+#!/bin/bash
+mkdir -p /dev/net
+mknod /dev/net/tun c 10 200
+chmod 0666 /dev/net/tun
+EOF
+	bash /usr/bin/tun.sh
+	TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
+		if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
+			rm -f /usr/bin//tun.sh && red " ${T[${L}3]} " && exit 1
+		else echo "@reboot root bash /usr/bin/tun.sh" >> /etc/crontab
+		fi
+	fi
 
 	# 判断是否大陆 VPS。先尝试连接 CloudFlare WARP 服务的 Endpoint IP，如遇到 WARP 断网则先关闭、杀进程后重试一次，仍然不通则 WARP 项目不可用。
 	ping6 -c2 -w8 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
