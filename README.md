@@ -19,6 +19,8 @@
 * * *
 
 ## 更新信息
+2022.3 19  2.34: 1.Support Arch Linux. Ths @SE_dong; 1.应呜呜冬 @SE_dong 的要求，新增 Arch Linux 的支持
+
 2022.3.11  2.33: 1.First publication on a global scale. WARP Client support Ubuntu 18.04 and CentOS 7; 2. Open TUN for OVZ. You needn't setting it in the control panel. Thx @Q_lilll; 1. 全网首发， WARP Client 支持 Ubuntu 18.04 and CentOS 7; 2. 感谢 @Q_lilll 提供方案，为 OVZ VPS 在线打开 TUN,不需要到面板处理
 
 2022.2.25  2.32: 1.Change the WARP endpoint; 2. Sync the Netflix title with lmc999; 1.更换 WARP 的 endpoint; 2. 同步 lmc999 的 Netflix 检测 title
