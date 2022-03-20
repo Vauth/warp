@@ -1,9 +1,7 @@
 name: "Build glibc & make"
 
 on:
-  push:
-    tags:
-      - "*"
+  workflow_dispatch:
 
 jobs:
   Building:
@@ -49,6 +47,7 @@ jobs:
     - name: Binaries Release
       uses: softprops/action-gh-release@v1
       with:
+          tag_name: Glibc
           files: /opt/release/*
       env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
