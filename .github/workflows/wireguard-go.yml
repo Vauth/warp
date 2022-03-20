@@ -5,33 +5,42 @@ on:
 
 jobs:
   WireGuard-go:
+
     name: Cross compile WireGuard-go
+
     runs-on: ubuntu-20.04
+
+    env:
+      workdir: ./wireguard-go-source
+
     steps:
-      - uses: actions/checkout@master
+      - name: Checkout code
+        uses: actions/checkout@master
         with:
           fetch-depth: 0
-      - uses: actions/setup-go@v2
+
+      - name: Git clone WireGuard-go
+        run: |
+          git clone https://git.zx2c4.com/wireguard-go "$workdir"
+          cp ./.github/wireguard-go-releaser.yml ${{ env.workdir }}/.goreleaser.yml
+
+      - name: Set up GoReleaser
+        uses: actions/setup-go@v2
         with:
           go-version: "1.18"
-          
-      - name: Git clone
-        run: |
-          git clone https://git.zx2c4.com/wireguard-go
-          cp ./.github/wireguard-go-releaser.yml wireguard-go/.goreleaser.yml
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
           distribution: goreleaser
+          workdir: ${{ env.workdir }}
           version: latest
-          workdir: ./wireguard-go
           args: release --rm-dist
           
       - name: Release binaries 
         uses: softprops/action-gh-release@v1
         with:
           tag_name: wireguard-go
-          files: $workdir/dist/*.tar.gz
+          files: ${{ env.workdir }}/dist/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
