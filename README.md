@@ -298,7 +298,7 @@ Download 下载:
 2. Android platform-tools: [MAC](https://dl.google.com/android/repository/platform-tools-latest-darwin.zip)     [WIN](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)    
 3. 1.1.1.1: Faster & Safer Internet: [Android](https://d-03.winudf.com/b/APK/Y29tLmNsb3VkZmxhcmUub25lZG90b25lZG90b25lZG90b25lXzIxNThfNWJkNDQwZjY?_fn=MSAxIDEgMSBGYXN0ZXIgU2FmZXIgSW50ZXJuZXRfdjYuMTBfYXBrcHVyZS5jb20uYXBr&_p=Y29tLmNsb3VkZmxhcmUub25lZG90b25lZG90b25lZG90b25l&am=Cu4e_5crBHRTOxscnCuK9g&at=1640012866&k=33522f995f6facc602071a659868d26161c1edc3)
 
-感谢 Misaka 演示视频:https://www.bilibili.com/video/BV1gU4y1K7of/
+感谢 Misaka 演示: [1.视频教程](https://www.bilibili.com/video/BV1gU4y1K7of/)&emsp;[2.图文教程](https://owo.misaka.rest/cf-teams/)
 
 ## WARP原理
 
