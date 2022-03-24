@@ -123,8 +123,8 @@ wg-quick up wgcf; exit #运行 WGCF 并退出容器。
 
 * 支持 WARP+ 账户，附带第三方刷 WARP+ 流量和升级内核 BBR 脚本
 * 普通用户友好的菜单，进阶者通过后缀选项快速搭建
-* 智能判断vps操作系统：Ubuntu 16.04、18.04、20.04, Debian 9、10、11，CentOS 7、8；Alpine 和 Arch Linux，请务必选择 LTS 系统；   
-  智能判断硬件结构类型：AMD 或者 ARM
+* 智能判断vps操作系统：Ubuntu 16.04、18.04、20.04; Debian 9、10、11，CentOS 7、8; Alpine 和 Arch Linux，请务必选择 LTS 系统   
+  智能判断硬件结构类型：AMD、ARM 和 s390x
 * 结合 Linux 版本和虚拟化方式，自动优选三个 WireGuard 方案。  
   网络性能方面：内核集成 WireGuard＞安装内核模块＞BoringTun＞wireguard-go
 * 智能判断 WGCF 作者 github库的最新版本 （Latest release）
