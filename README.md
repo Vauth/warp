@@ -298,7 +298,7 @@ WireGuard 网络接口数据，查看 ```wg```
 Download 下载:    
 1. Android Studio: [MAC](https://redirector.gvt1.com/edgedl/android/studio/install/2020.3.1.26/android-studio-2020.3.1.26-mac.dmg)     [WIN](https://redirector.gvt1.com/edgedl/android/studio/install/2020.3.1.26/android-studio-2020.3.1.26-windows.exe)    
 2. Android platform-tools: [MAC](https://dl.google.com/android/repository/platform-tools-latest-darwin.zip)     [WIN](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)    
-3. 1.1.1.1: Faster & Safer Internet: [Android](https://d-03.winudf.com/b/APK/Y29tLmNsb3VkZmxhcmUub25lZG90b25lZG90b25lZG90b25lXzIxNThfNWJkNDQwZjY?_fn=MSAxIDEgMSBGYXN0ZXIgU2FmZXIgSW50ZXJuZXRfdjYuMTBfYXBrcHVyZS5jb20uYXBr&_p=Y29tLmNsb3VkZmxhcmUub25lZG90b25lZG90b25lZG90b25l&am=Cu4e_5crBHRTOxscnCuK9g&at=1640012866&k=33522f995f6facc602071a659868d26161c1edc3)
+3. 1.1.1.1: Faster & Safer Internet V6.10: [Android](https://download.apkpure.com/b/APK/Y29tLmNsb3VkZmxhcmUub25lZG90b25lZG90b25lZG90b25lXzIzNTVfNzAyYzFiMTQ?_fn=MSAxIDEgMSBGYXN0ZXIgU2FmZXIgSW50ZXJuZXRfdjYuMTRfYXBrcHVyZS5jb20uYXBr&as=27156915883578d0054656b5327b4d79623e78ec&ai=-1038120276&at=1648261236&_sa=ai%2Cat&k=f01226d766fcb20b6785e333509ab89962411b74&r=https%3A%2F%2Fapkpure.com%2Fcn%2Fsearch%3Fq%3D1.1.1.1&_p=Y29tLmNsb3VkZmxhcmUub25lZG90b25lZG90b25lZG90b25l&c=1%7CTOOLS%7CZGV2PUNsb3VkZmxhcmUlMkMlMjBJbmMuJnQ9YXBrJnM9MjI1NTAyMzAmdm49Ni4xNCZ2Yz0yMzU1)
 
 感谢 Misaka 演示: [1.视频教程](https://www.bilibili.com/video/BV1gU4y1K7of/)&emsp;[2.图文教程](https://owo.misaka.rest/cf-teams/)
 
