@@ -419,9 +419,10 @@ ip6_info(){
 
 # 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
 proxy_info(){
-	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
+	unset PROXYSOCKS5 PROXYPORT PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
 	PROXYSOCKS5=$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')
-	PROXYJASON=$(curl -ks4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
+	PROXYPORT=$(echo $PROXYSOCKS5 | cut -d: -f2)
+	PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT https://ip.gs/json)
 	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
 	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
 	[[ $L = C ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
@@ -487,7 +488,7 @@ stack_priority(){
 # 更换 Netflix IP 时确认期望区域
 input_region(){
 	[[ -n $NF ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')) ||
-	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -ks4m7 --socks5 "$PROXYSOCKS5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-'US'}
 	reading " $(eval echo "${T[${L}56]}") " EXPECT
 	until [[ -z $EXPECT || $EXPECT = [Yy] || $EXPECT =~ ^[A-Za-z]{2}$ ]]; do
@@ -531,7 +532,7 @@ change_socks5(){
 	socks5_restart(){
 	red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
 	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1 && sleep 2; }
-	PROXYSOCKS5="$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')"
+	PROXYPORT="$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+' | cut -d: -f2)"
 	[[ -z "$EXPECT" ]] && input_region
 	i=0; [[ -e /etc/wireguard/license ]] && j=13 || j=15
 	while true
@@ -539,9 +540,9 @@ change_socks5(){
 	ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
 	proxy_info
 	WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
-	RESULT=$(curl --user-agent "${UA_Browser}" -ks4m7 --socks5 "$PROXYSOCKS5" -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
+	RESULT=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
 	if [[ $RESULT = 200 ]]; then
-	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -ks4m7 --socks5 "$PROXYSOCKS5" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-'US'}
 	echo "$REGION" | grep -qi "$EXPECT" && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h || socks5_restart
 	else socks5_restart
@@ -610,10 +611,11 @@ uninstall(){
 	${PACKAGE_UNINSTALL[int]} wireguard-tools openresolv 2>/dev/null
 	rpm -e wireguard-tools 2>/dev/null
 	[[ $(systemctl is-active systemd-resolved) != active ]] && systemctl enable --now systemd-resolved >/dev/null 2>&1
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	[[ -e /usr/bin/tun.sh ]] && rm -f /usr/bin/tun.sh && sed -i '/tun.sh/d' /etc/crontab
 	sed -i "/250   warp/d" /etc/iproute2/rt_tables
+	kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1
 	}
 	
 	# 卸载 Linux Client
@@ -1121,6 +1123,7 @@ install(){
 	sh -c "$(eval echo "\$MODIFY$CONF")"
 
 	if [[ $OCTEEP = 1 ]]; then
+	PEERENDPOINT='162.159.193.10' && [[ $m = 0 ]] && PEERENDPOINT='[2606:4700:d0::a29f:c001]'
 	cat > /etc/wireguard/proxy.conf << EOF
 # SelfSecretKey is the secret key of your wireguard peer
 SelfSecretKey = $(grep PrivateKey wgcf-profile.conf | sed "s/PrivateKey = //g")
@@ -1129,7 +1132,7 @@ SelfEndpoint = 172.16.0.2
 # PeerPublicKey is the public key of the wireguard server you want to connect to
 PeerPublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
 # PeerEndpoint is the endpoint of the wireguard server you want to connect to
-PeerEndpoint = 162.159.193.10:2408
+PeerEndpoint = $PEERENDPOINT:2408
 # DNS is the nameservers that will be used by wireproxy.
 # Multple nameservers can be specified as such: DNS = 1.1.1.1, 1.0.0.1
 DNS = 1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844
@@ -1417,7 +1420,7 @@ menu_setting(){
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
 	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
 	ACTION12(){ [[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1; CONF=${CONF1[m]}; ANEMONE=1 ;install; }; 
-	ACTION13(){ [[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1; OCTEEP=1; install; };
+	ACTION13(){ OCTEEP=1; install; };
 	ACTION0(){ exit; }
 	}
 
