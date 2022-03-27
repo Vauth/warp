@@ -3,14 +3,14 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/b
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=2.35
+VERSION=2.36
 
 declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1. WARP support Debian 9"
-T[C1]="1. WARP 支持 Debian 9"
+T[E1]="1. First publication on a global scale. Wireguard client that exposes itself as a socks5 proxy"
+T[C1]="1. 全网首发: 通过 wireproxy，让 WARP 在本地建议一个 socks5 代理"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -179,8 +179,8 @@ T[E84]="Step 2/2: Setting to Proxy Mode"
 T[C84]="进度 2/2： 设置代理模式"
 T[E85]="Client was installed. You can connect/disconnect by [warp r]"
 T[C85]="Linux Client 已安装，连接/断开 Client 可以用 warp r"
-T[E86]="Client is working. Socks5 proxy listening on: \$(ss -nltp | grep warp | grep -oP '127.0*\S+')"
-T[C86]="Linux Client 正常运行中。 Socks5 代理监听:\$(ss -nltp | grep warp | grep -oP '127.0*\S+')"
+T[E86]="Client is working. Socks5 proxy listening on: \$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')"
+T[C86]="Linux Client 正常运行中。 Socks5 代理监听:\$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')"
 T[E87]="Fail to establish Socks5 proxy. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C87]="创建 Socks5 代理失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E88]="Connect the client"
@@ -303,6 +303,10 @@ T[E146]="Cannot switch to the same form as the current one."
 T[C146]="不能切换为当前一样的形态"
 T[E147]="Not available for IPv6 only VPS"
 T[C147]="IPv6 only VPS 不能使用此方案"
+T[E148]="Install wireproxy. Wireguard client that exposes itself as a socks5 proxy or tunnels"
+T[C148]="安装 wireproxy，让 WARP 在本地建议一个 socks5 代理"
+T[E149]="Congratulations! WirePorxy is working. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
+T[C149]="恭喜！WirePorxy 工作中, 总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数：\$TOTAL"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -416,7 +420,7 @@ ip6_info(){
 # 检测 Client 是否开启，普通还是 Plus账户 和 IP 信息
 proxy_info(){
 	unset PROXYSOCKS5 PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC
-	PROXYSOCKS5=$(ss -nltp | grep warp | grep -oP '127.0*\S+')
+	PROXYSOCKS5=$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')
 	PROXYJASON=$(curl -ks4m7 --socks5 "$PROXYSOCKS5" https://ip.gs/json)
 	PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
 	PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
@@ -527,7 +531,7 @@ change_socks5(){
 	socks5_restart(){
 	red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
 	[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1 && sleep 2; }
-	PROXYSOCKS5="$(ss -nltp | grep warp | grep -oP '127.0*\S+')"
+	PROXYSOCKS5="$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')"
 	[[ -z "$EXPECT" ]] && input_region
 	i=0; [[ -e /etc/wireguard/license ]] && j=13 || j=15
 	while true
@@ -1116,7 +1120,67 @@ install(){
 
 	sh -c "$(eval echo "\$MODIFY$CONF")"
 
-	[[ $ANEMONE = 1 ]] && iptables_solution
+	if [[ $OCTEEP = 1 ]]; then
+	cat > /etc/wireguard/proxy.conf << EOF
+# SelfSecretKey is the secret key of your wireguard peer
+SelfSecretKey = $(grep PrivateKey wgcf-profile.conf | sed "s/PrivateKey = //g")
+# SelfEndpoint is the IP of your wireguard peer
+SelfEndpoint = 172.16.0.2
+# PeerPublicKey is the public key of the wireguard server you want to connect to
+PeerPublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
+# PeerEndpoint is the endpoint of the wireguard server you want to connect to
+PeerEndpoint = 162.159.193.10:2408
+# DNS is the nameservers that will be used by wireproxy.
+# Multple nameservers can be specified as such: DNS = 1.1.1.1, 1.0.0.1
+DNS = 1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844
+# KeepAlive is the persistent keep alive interval of the wireguard device
+# usually not needed
+# KeepAlive = 25
+# PreSharedKey is the pre shared key of your wireguard device
+# if you don't know what this is you don't need it
+# PreSharedKey = UItQuvLsyh50ucXHfjF0bbR4IIpVBd74lwKc8uIPXXs=
+
+# TCPClientTunnel is a tunnel listening on your machine, and
+# forward any TCP traffic received to the specified target via wireguard
+# some applications on your LAN -> 127.0.0.1:25565 --wireguard--> play.cubecraft.net:25565
+#[TCPClientTunnel]
+#BindAddress = 127.0.0.1:25565
+#Target = play.cubecraft.net:25565
+
+# TCPServerTunnel is a tunnel listening on wireguard, and
+# forward any TCP traffic received to the specified target via local network
+# some applications on your wireguard network --wireguard--> 172.16.31.2:3422 -> localhost:25545
+#[TCPServerTunnel]
+#ListenPort = 3422
+#Target = localhost:25545
+
+# Socks5 create a socks5 proxy on your LAN, and any traffic would be routed via wireguard
+[Socks5]
+BindAddress = 127.0.0.1:40000
+EOF
+	
+	# 安装并运行 wireproxy
+	wget -N https://github.com/fscarmen/warp/releases/download/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
+	tar -xzf wireproxy_linux_$ARCHITECTURE.tar.gz -C /usr/bin/; rm -f wireproxy_linux*
+	nohup wireproxy /etc/wireguard/proxy.conf >/dev/null 2>&1 &
+	sleep 2; proxy_info
+	
+	# 保存好配置文件
+	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
+
+	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
+	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
+	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " ${T[${L}38]} "
+	echo "$L" >/etc/wireguard/language
+
+	# 结果提示，脚本运行时间，次数统计
+	proxy_info
+	end=$(date +%s)
+	green " $(eval echo "${T[${L}149]}")\n $(eval echo "${T[${L}99]}") "
+	red "\n==============================================================\n"
+	yellow " ${T[${L}43]}\n " && help
+
+	else [[ $ANEMONE = 1 ]] && iptables_solution
 
 	# 特殊 VPS 的配置文件 DNS 次序
 	[[ $(hostname 2>&1) = DiG9 ]] && sed -i "s/DNS.*/DNS = 8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844/g" wgcf-profile.conf
@@ -1163,6 +1227,7 @@ install(){
 	red "\n==============================================================\n"
 	yellow " ${T[${L}43]}\n " && help
 	[[ $TRACE4$TRACE6 = offoff ]] && red " ${T[${L}44]} "
+	fi
 	}
 
 proxy(){
@@ -1259,6 +1324,8 @@ stream(){
 	esac
 	}
 
+
+
 # 免费 WARP 账户升级 WARP+ 账户
 update(){
 	wgcf_account(){
@@ -1346,10 +1413,12 @@ menu_setting(){
 	esac
 
 	OPTION5="${T[${L}82]}"; 
-	OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}"; OPTION11="${T[${L}80]}"; OPTION12="${T[${L}138]}"; OPTION0="${T[${L}76]}"
+	OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}"; OPTION11="${T[${L}80]}"; OPTION12="${T[${L}138]}"; OPTION13="${T[${L}148]}"; OPTION0="${T[${L}76]}"
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
 	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
-	ACTION12(){ [[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1; CONF=${CONF1[m]}; ANEMONE=1 ;install; }; ACTION0(){ exit; }
+	ACTION12(){ [[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1; CONF=${CONF1[m]}; ANEMONE=1 ;install; }; 
+	ACTION13(){ [[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1; OCTEEP=1; install; };
+	ACTION0(){ exit; }
 	}
 
 # 显示菜单
@@ -1369,12 +1438,12 @@ menu(){
 	[[ $CLIENT = 2 ]] && green "	${T[${L}113]} "
 	[[ $CLIENT = 3 ]] && green "	WARP$AC ${T[${L}24]}	$(eval echo "${T[${L}27]}") "
  	red "\n======================================================================================================================\n"
-	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11 \n 12. $OPTION12 \n 0.  $OPTION0\n "
+	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11 \n 12. $OPTION12\n 13. $OPTION13\n 0. $OPTION0\n "
 	reading " ${T[${L}50]} " CHOOSE1
 		case "$CHOOSE1" in
 		1 ) ACTION1;; 2 ) ACTION2;; 3 ) ACTION3;; 4 ) ACTION4;; 5 ) ACTION5;;
 		6 ) ACTION6;; 7 ) ACTION7;; 8 ) ACTION8;; 9 ) ACTION9;; 10 ) ACTION10;;
-		11 ) ACTION11;; 12 ) ACTION12;; 0 ) ACTION0;; * ) red " ${T[${L}51]} [0-10] "; sleep 1; menu;;
+		11 ) ACTION11;; 12 ) ACTION12;; 13 ) ACTION13;; 0 ) ACTION0;; * ) red " ${T[${L}51]} [0-10] "; sleep 1; menu;;
 		esac
 	}
 
