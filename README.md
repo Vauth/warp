@@ -19,6 +19,8 @@
 * * *
 
 ## 更新信息
+2022.3.27  2.36 1. First publication on a global scale. Wireguard client that exposes itself as a socks5 proxy; 1. 全网首发: 通过 wireproxy，让 WARP 在本地建议一个 socks5 代理
+
 2022.3.23  2.35 1.Support WARP on Debian9; 1.支持 Debian 9 上安装 WARP
 
 Over 1,000 users star. Thank you for your support. 项目 star 破千，感谢各用户的大力支持。
