@@ -9,8 +9,8 @@ declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1. First publication on a global scale. Wireguard client that exposes itself as a socks5 proxy"
-T[C1]="1. 全网首发: 通过 wireproxy，让 WARP 在本地建议一个 socks5 代理"
+T[E1]="1. First publication on a global scale. Wireguard client that exposes itself as a socks5 proxy; 2. WARP+ and Teams can be used in WireProxy"
+T[C1]="1. 全网首发: 通过 WireProxy，让 WARP 在本地建议一个 socks5 代理; 2. WARP+ 和 Teams 账户可用于 WireProxy 安装或者升级"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -97,8 +97,8 @@ T[E43]="Run again with warp [option] [lisence], such as"
 T[C43]="再次运行用 warp [option] [lisence]，如"
 T[E44]="WARP installation failed. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C44]="WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-T[E45]="WARP interface and Linux Client have been completely deleted!"
-T[C45]="WARP 网络接口和 Linux Client 已彻底删除!"
+T[E45]="WARP interface, Linux Client and WirePorxy have been completely deleted!"
+T[C45]="WARP 网络接口、 Linux Client 和 WirePorxy 已彻底删除!"
 T[E46]="Not cleaned up, please reboot and try again."
 T[C46]="没有清除干净，请重启(reboot)后尝试再次删除"
 T[E47]="Upgrade kernel, turn on BBR, change Linux system by other authors [ylx2016],[https://github.com/ylx2016/Linux-NetSpeed]"
@@ -203,10 +203,10 @@ T[E96]="Client connecting failure. It may be a CloudFlare IPv4."
 T[C96]="Client 连接失败，可能是 CloudFlare IPv4."
 T[E97]="It is a WARP+ account already. Update is aborted."
 T[C97]="已经是 WARP+ 账户，不需要升级"
-T[E98]="\n 1. WGCF WARP account\n 2. WARP Linux Client account\n"
-T[C98]="\n 1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n"
-T[E99]="Local Socks5:\$PROXYSOCKS5\\\n WARP\$AC IPv4:\$PROXYIP\\\n \$PROXYCOUNTRY\\\n \$PROXYASNORG"
-T[C99]="本地 Socks5:\$PROXYSOCKS5\\\n WARP\$AC IPv4:\$PROXYIP\\\n \$PROXYCOUNTRY\\\n \$PROXYASNORG"
+T[E98]="Uninstall WirePorxy was complete."
+T[C98]="WirePorxy 卸载成功"
+T[E99]="Local Socks5:\$PROXYSOCKS5\\\n WARP\$AC IPv4:\$PROXYIP\\\n \$PROXYCOUNTRY \$PROXYASNORG"
+T[C99]="本地 Socks5:\$PROXYSOCKS5\\\n WARP\$AC IPv4:\$PROXYIP\\\n \$PROXYCOUNTRY \$PROXYASNORG"
 T[E100]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\): "
 T[C100]="License 应为26位字符,请重新输入 WARP+ License \(剩余\$i次\): "
 T[E101]="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -307,6 +307,16 @@ T[E148]="Install wireproxy. Wireguard client that exposes itself as a socks5 pro
 T[C148]="安装 wireproxy，让 WARP 在本地建议一个 socks5 代理"
 T[E149]="Congratulations! WirePorxy is working. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
 T[C149]="恭喜！WirePorxy 工作中, 总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数：\$TOTAL"
+T[E150]="\n WGCF WARP, WARP Linux Client, WireProxy hasn't been installed yet. The script is aborted.\n"
+T[C150]="\n WGCF WARP, WARP Linux Client 和 WireProxy 均未安装，脚本退出\n"
+T[E151]="\n 1. WARP Linux Client account\n 2. WireProxy account\n"
+T[C151]="\n 1. WARP Linux Client 账户\n 2. WireProxy 账户\n"
+T[E152]="\n 1. WGCF WARP account\n 2. WireProxy account\n"
+T[C152]="\n 1. WGCF WARP 账户\n 2. WireProxy 账户\n"
+T[E153]="\n 1. WGCF WARP account\n 2. WARP Linux Client account\n"
+T[C153]="\n 1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n"
+T[E154]="\n 1. WGCF WARP account\n 2. WARP Linux Client account\n 3. WireProxy account\n"
+T[C154]="\n 1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 3. WireProxy 账户\n"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -615,7 +625,6 @@ uninstall(){
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	[[ -e /usr/bin/tun.sh ]] && rm -f /usr/bin/tun.sh && sed -i '/tun.sh/d' /etc/crontab
 	sed -i "/250   warp/d" /etc/iproute2/rt_tables
-	kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1
 	}
 	
 	# 卸载 Linux Client
@@ -628,9 +637,23 @@ uninstall(){
 	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 	}
 	
+	# 卸载 WirePorxy
+ 	uninstall_wireproxy(){
+	kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1
+	[[ $SYSTEM != "Arch" ]] && ${PACKAGE_UNINSTALL[int]} wireguard-dkms resolvconf 2>/dev/null
+	${PACKAGE_UNINSTALL[int]} openresolv 2>/dev/null
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy
+	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
+	[[ -e /usr/bin/tun.sh ]] && rm -f /usr/bin/tun.sh && sed -i '/tun.sh/d' /etc/crontab
+	}
+
 	# 根据已安装情况执行卸载任务并显示结果
-	[[ $(type -P wg-quick) ]] && (uninstall_wgcf; green " ${T[${L}117]} ")
-	[[ $(type -P warp-cli) ]] && (uninstall_proxy; green " ${T[${L}119]} ")
+	UNINSTALL_CHECK=("wg-quick"		"warp-cli"		"wireproxy")
+	UNINSTALL_DO=("uninstall_wgcf"		"uninstall_proxy"	"uninstall_wireproxy")
+	UNINSTALL_RESULT=("${T[${L}117]}"	"${T[${L}119]}"		"${T[${L}98]}")
+	for ((i=0; i<${#UNINSTALL_CHECK}; i++)); do
+		type -P ${UNINSTALL_CHECK[i]} >/dev/null 2>&1 && (${UNINSTALL_DO[i]}; green " ${UNINSTALL_RESULT[i]} ")
+	done
 
 	# 显示卸载结果
 	ip4_info; [[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
@@ -852,9 +875,9 @@ update_license(){
 
 # 输入 Linux Client 端口,先检查默认的40000是否被占用,限制4-5位数字,准确匹配空闲端口
 input_port(){
+	i=5
 	ss -nltp | grep -q ':40000'[[:space:]] && reading " $(eval echo "${T[${L}103]}") " PORT || reading " ${T[${L}104]} " PORT
 	PORT=${PORT:-'40000'}
-	i=5
 	until echo "$PORT" | grep -qE "^[1-9][0-9]{3,4}$" && [[ ! $(ss -nltp) =~ :"$PORT"[[:space:]] ]]
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1
@@ -1062,7 +1085,8 @@ install(){
 		${PACKAGE_UPDATE[int]}
 
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${PACKAGE_INSTALL[int]} --no-install-recommends net-tools iproute2 openresolv dnsutils wireguard-tools iptables
+		${PACKAGE_INSTALL[int]} --no-install-recommends net-tools iproute2 openresolv dnsutils iptables
+		[[ $OCTEEP != 1 ]] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		[[ $WG = 1 ]] && ${PACKAGE_INSTALL[int]} --no-install-recommends linux-headers-"$(uname -r)" && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-dkms
@@ -1073,14 +1097,16 @@ install(){
 		${PACKAGE_UPDATE[int]}
 
 		# 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${PACKAGE_INSTALL[int]} --no-install-recommends net-tools iproute2 openresolv dnsutils wireguard-tools iptables
+		${PACKAGE_INSTALL[int]} --no-install-recommends net-tools iproute2 openresolv dnsutils iptables
+		[[ $OCTEEP != 1 ]] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
 		}
 		
 	CentOS(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
 		[[ $COMPANY = amazon ]] && ${PACKAGE_UPDATE[int]} && amazon-linux-extras install -y epel		
 		${PACKAGE_INSTALL[int]} epel-release
-		${PACKAGE_INSTALL[int]} wireguard-tools net-tools iptables
+		${PACKAGE_INSTALL[int]} net-tools iptables
+		[[ $OCTEEP != 1 ]] && ${PACKAGE_INSTALL[int]} wireguard-tools
 
 		# 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
 		VERSION_ID=$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')
@@ -1097,13 +1123,15 @@ install(){
 
 	Alpine(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${PACKAGE_INSTALL[int]} net-tools iproute2 openresolv wireguard-tools openrc iptables
+		${PACKAGE_INSTALL[int]} net-tools iproute2 openresolv openrc iptables
+		[[ $OCTEEP != 1 ]] && ${PACKAGE_INSTALL[int]} wireguard-tools
 		}
-		
+
 	Arch(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${PACKAGE_INSTALL[int]} wireguard-tools openresolv
-		}		
+		${PACKAGE_INSTALL[int]} openresolv
+		[[ $OCTEEP != 1 ]] && ${PACKAGE_INSTALL[int]} wireguard-tools
+		}
 
 	$SYSTEM
 
@@ -1126,7 +1154,7 @@ install(){
 	PEERENDPOINT='162.159.193.10' && [[ $m = 0 ]] && PEERENDPOINT='[2606:4700:d0::a29f:c001]'
 	cat > /etc/wireguard/proxy.conf << EOF
 # SelfSecretKey is the secret key of your wireguard peer
-SelfSecretKey = $(grep PrivateKey wgcf-profile.conf | sed "s/PrivateKey = //g")
+SelfSecretKey = ${PRIVATEKEY:-"$(grep PrivateKey wgcf-profile.conf | sed "s/PrivateKey = //g")"}
 # SelfEndpoint is the IP of your wireguard peer
 SelfEndpoint = 172.16.0.2
 # PeerPublicKey is the public key of the wireguard server you want to connect to
@@ -1167,9 +1195,11 @@ EOF
 	tar -xzf wireproxy_linux_$ARCHITECTURE.tar.gz -C /usr/bin/; rm -f wireproxy_linux*
 	nohup wireproxy /etc/wireguard/proxy.conf >/dev/null 2>&1 &
 	sleep 2; proxy_info
-	
-	# 保存好配置文件
-	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
+
+	# 保存好配置文件, 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf, 如有 Teams，改为 Teams 账户信息	
+	mv -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
+	mv -f wgcf-account.toml menu.sh /etc/wireguard >/dev/null 2>&1
+	[[ $CONFIRM = [Yy] ]] && teams_change && echo "$TEAMS" > /etc/wireguard/info.log 2>&1
 
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
@@ -1302,7 +1332,7 @@ proxy(){
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " ${T[${L}38]} "
 	echo "$L" >/etc/wireguard/language
-	
+
 	# 结果提示，脚本运行时间，次数统计
 	proxy_info
 	end=$(date +%s)
@@ -1327,15 +1357,13 @@ stream(){
 	esac
 	}
 
-
-
 # 免费 WARP 账户升级 WARP+ 账户
 update(){
 	wgcf_account(){
 	[[ $TRACE4$TRACE6 =~ plus ]] && red " ${T[${L}58]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " ${T[${L}59]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
-	
+
 	[[ -z $LICENSETYPE ]] && yellow " ${T[${L}31]}" && reading " ${T[${L}50]} " LICENSETYPE
 	case $LICENSETYPE in
 	1 ) UPDATE_LICENSE=1 && update_license
@@ -1348,7 +1376,7 @@ update(){
 	net
 	[[ $(curl -ks4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -ks6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] &&
 	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
-	
+
 	2 ) input_url
 	[[ $CONFIRM = [Yy] ]] && (echo "$TEAMS" > /etc/wireguard/info.log 2>&1
 	teams_change
@@ -1358,7 +1386,7 @@ update(){
 	* ) red " ${T[${L}51]} [1-2] "; sleep 1; update
 	esac
 	}
-	
+
 	client_account(){
 	[[ $ARCHITECTURE = arm64 ]] && red " ${T[${L}101]} " && exit 1
 	[[ $(warp-cli --accept-tos account) =~ Limited ]] && red " ${T[${L}97]} " && exit 1
@@ -1370,22 +1398,63 @@ update(){
 	QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
 	[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TB" ||  QUOTA="$((QUOTA/1000000000)) GB"
 	green " ${T[${L}62]}\n ${T[${L}63]}：$QUOTA "
-	
+
 	else red " ${T[${L}36]} "
 	fi
 	}
+	
+	wireproxy_account(){
+	[[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && red " ${T[${L}58]} " && exit 1
+	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " ${T[${L}59]} " && exit 1
+	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
 
-	# 根据 WARP interface 和 Client 的安装情况判断升级的对象
-	[[ $(type -P wg-quick) ]] && WGCFINSTALL=1 || WGCFINSTALL=0
-	[[ $(type -P warp-cli) ]] && SOCK5INSTALL=1 || SOCK5INSTALL=0
-	case $WGCFINSTALL$SOCK5INSTALL in
-	01 ) client_account; exit 0;;
-	10 ) wgcf_account; exit 0;;
-	11 ) yellow " ${T[${L}98]} " && reading " ${T[${L}50]} " MODE
+	[[ -z $LICENSETYPE ]] && yellow " ${T[${L}31]}" && reading " ${T[${L}50]} " LICENSETYPE
+	case $LICENSETYPE in
+	1 ) UPDATE_LICENSE=1 && update_license
+	cd /etc/wireguard || exit
+	sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
+	wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 &&
+	(wgcf generate >/dev/null 2>&1
+	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#;3s#.*#$(sed -ne 3p wgcf-profile.conf)#;4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
+	sed -i "s#SelfSecretKey.*#SelfSecretKey = $(grep "PrivateKey.*" /etc/wireguard/wgcf.conf | sed "s#PrivateKey = ##g")#g" proxy.conf
+	kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1
+	nohup wireproxy /etc/wireguard/proxy.conf >/dev/null 2>&1 &
+	[[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] &&
+	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
+
+	2 ) input_url
+	[[ $CONFIRM = [Yy] ]] && (echo "$TEAMS" > /etc/wireguard/info.log 2>&1
+	sed -i "s#SelfSecretKey.*#SelfSecretKey = $PRIVATEKEY#g" /etc/wireguard/proxy.conf
+	kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1
+	nohup wireproxy /etc/wireguard/proxy.conf >/dev/null 2>&1 &
+	[[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && green " ${T[${L}128]} ");;
+
+	* ) red " ${T[${L}51]} [1-2] "; sleep 1; update
+	esac
+	}
+	# 根据 WARP interface 、 Client 和 WirePorxy 的安装情况判断升级的对象
+	INSTALL_CHECK=("wg-quick" "warp-cli" "wireproxy")
+	CASE_RESAULT=("0 0 0"		"0 0 1"			"0 1 0"			"0 1 1"			"1 0 0"			"1 0 1"			"1 1 0"			"1 1 1")
+	SHOW_CHOOSE=("${T[${L}150]}"	""			""			"${T[${L}151]}"		""			"${T[${L}152]}"		"${T[${L}153]}"		"${T[${L}154]}")
+	ACCOUNT1=(""			"wireproxy_account"	"client_account"	"client_account"	"wgcf_account"		"wgcf_account"		"wgcf_account"		"wgcf_account")
+	ACCOUNT2=(""			"" 			"" 			"wireproxy_account" 	""			"wireproxy_account" 	"client_account" 	"client_account")
+	ACCOUNT3=(""			"" 			""			""			""			""			""			"wireproxy_account")
+
+	for ((c=0; c<${#INSTALL_CHECK[@]}; c++)); do
+		type -P ${INSTALL_CHECK[c]} >/dev/null 2>&1 && INSTALL_RESULT[c]=1 || INSTALL_RESULT[c]=0
+	done
+
+	for ((d=0; d<${#CASE_RESAULT[@]}; d++)); do
+		[[ ${INSTALL_RESULT[@]} = "${CASE_RESAULT[d]}" ]] && break
+	done
+
+	case "$d" in
+	0 ) red " ${T[${L}150]} " && exit 1;;
+	1|2|4 ) ${ACCOUNT1[d]};;
+	* ) yellow " ${SHOW_CHOOSE[d]} " && reading " ${T[${L}50]} " MODE
 		case "$MODE" in
-		1 ) wgcf_account; exit 0;;
-		2 ) client_account; exit 0;;
-		* ) red " ${T[${L}51]} [1-2] "; sleep 1; update;;
+		[1-3] ) $(eval echo "\${ACCOUNT$MODE[d]}");;
+		* ) red " ${T[${L}51]} [1-3] "; sleep 1; update;;
 		esac;;
 	esac
 }
