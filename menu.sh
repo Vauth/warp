@@ -77,8 +77,8 @@ T[E32]="Step 1/3: Install dependencies..."
 T[C32]="进度 1/3：安装系统依赖……"
 T[E33]="Step 2/3: WGCF is ready"
 T[C33]="进度 2/3：已安装 WGCF"
-T[E34]=""
-T[C34]=""
+T[E34]="Failed to change port. Feedback: [https://github.com/fscarmen/warp/issues]"
+T[C34]="更换端口不成功，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E35]="Update WARP+ account..."
 T[C35]="升级 WARP+ 账户中……"
 T[E36]="The upgrade failed, WARP+ account error or more than 5 devices have been activated. Free WARP account to continu."
@@ -207,16 +207,16 @@ T[E97]="It is a WARP+ account already. Update is aborted."
 T[C97]="已经是 WARP+ 账户，不需要升级"
 T[E98]="Uninstall WirePorxy was complete."
 T[C98]="WirePorxy 卸载成功"
-T[E99]=""
-T[C99]=""
+T[E99]="WireProxy is connected"
+T[C99]="WireProxy 已连接"
 T[E100]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\): "
 T[C100]="License 应为26位字符,请重新输入 WARP+ License \(剩余\$i次\): "
 T[E101]="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C101]="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E102]="Please customize the WARP+ device name (Default is [WARP] if left blank):"
 T[C102]="请自定义 WARP+ 设备名 (如果不输入，默认为 [WARP]):"
-T[E103]="Port is in use. Please input another Port\(\$i times remaining\):"
-T[C103]="端口占用中，请使用另一端口\(剩余\$i次\):"
+T[E103]="Port 40000 is in use. Please input another Port\(\$i times remaining\):"
+T[C103]="40000 端口占用中，请使用另一端口\(剩余\$i次\):"
 T[E104]="Please customize the Client port (It must be 4-5 digits. Default to 40000 if it is blank):"
 T[C104]="请自定义 Client 端口号 (必须为4-5位自然数，如果不输入，会默认40000):"
 T[E105]="\n Please choose the priority:\n  1.IPv4 (default)\n  2.IPv6\n  3.Use initial settings\n"
@@ -253,8 +253,8 @@ T[E120]="Uninstall Socks5 Proxy Client was fail."
 T[C120]="Socks5 Proxy Client 卸载失败"
 T[E121]="Changing Netflix IP is adapted from other authors [luoxue-bot],[https://github.com/luoxue-bot/warp_auto_change_ip]"
 T[C121]="更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]，请熟知"
-T[E122]=""
-T[C122]=""
+T[E122]="Port change to \$PORT succeeded."
+T[C122]="端口成功更换至 \$PORT"
 T[E123]="Change the WARP IP to support Netflix"
 T[C123]="更换支持 Netflix 的 IP"
 T[E124]="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging:"
@@ -324,7 +324,7 @@ T[C155]="WGCF WARP 还未安装"
 T[E156]="Socks5 Proxy Client has not been installed yet."
 T[C156]="Socks5 Proxy 客户端还未安装"
 T[E157]="WireProxy has not been installed yet."
-T[C157]="WireProxy 还未安6"
+T[C157]="WireProxy 还未安装"
 T[E158]="WireProxy is disconnected. It could be connect again by [warp y]"
 T[C158]="已断开 WirePorxy，再次连接可以用 warp y"
 T[E159]="WireProxy is on"
@@ -339,8 +339,6 @@ T[E163]="Connect the WirePorxy"
 T[C163]="连接 WirePorxy"
 T[E164]="Disconnect the WirePorxy"
 T[C164]="断开 WirePorxy"
-
-
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -805,7 +803,7 @@ wireproxy_onoff(){
 
 	else nohup wireproxy /etc/wireguard/proxy.conf >/dev/null 2>&1 &
 		sleep 1 && proxy_info
-		green " $(eval echo "${T[${L}162]}") "
+		green " ${T[${L}99]}\n $(eval echo "${T[${L}162]}") "
 	fi
 	}
 
@@ -999,19 +997,21 @@ change_port(){
 	CHANGE_PORT1=("wireproxy_port"	"socks5_port"	"socks5_port")
 	CHANGE_PORT2=(""		"" 		"wireproxy_port")
 
-	for ((e=0;c<${#INSTALL_CHECK[@]};e++)); do
+	for ((e=0;e<${#INSTALL_CHECK[@]}; e++)); do
 		[[ "${INSTALL_CHECK[e]}" -gt 1 ]]  && INSTALL_RESULT[e]=1 ||  INSTALL_RESULT[e]=0
 	done
 
-	for ((f=0; b<${#CASE_RESAULT[@]}; f++)); do
-		[[ ${INSTALL_RESULT[@]} = "${CASE_RESAULT[b]}" ]] && break
+	for ((f=0; f<${#CASE_RESAULT[@]}; f++)); do
+		[[ ${INSTALL_RESULT[@]} = "${CASE_RESAULT[f]}" ]] && break
 	done
 
 	case "$f" in
-	0|1 ) ${CHANGE_PORT1[f]};;
+	0|1 ) ${CHANGE_PORT1[f]}
+		ss -nltp | grep -q ":$PORT" && green " $(eval echo "${T[${L}122]}") " || red " ${T[${L}34]} ";;
 	2 ) yellow " ${SHOW_CHOOSE[f]} " && reading " ${T[${L}50]} " MODE
 		case "$MODE" in
-		[1-2] ) $(eval echo "\${CHANGE_IP$MODE[f]}");;
+		[1-2] ) $(eval echo "\${CHANGE_IP$MODE[f]}")
+		ss -nltp | grep -q ":$PORT" && green " $(eval echo "${T[${L}122]}") " || red " ${T[${L}34]} ";;
 		* ) red " ${T[${L}51]} [1-2] "; sleep 1; change_port;;
 		esac;;
 	esac	
