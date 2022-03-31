@@ -1321,7 +1321,7 @@ DNS = $DNS
 
 # Socks5 create a socks5 proxy on your LAN, and any traffic would be routed via wireguard
 [Socks5]
-BindAddress = 127.0.0.1:40000
+BindAddress = 127.0.0.1:$PORT
 
 # Socks5 authentication parameters, specifying username and password enables
 # proxy authentication.
