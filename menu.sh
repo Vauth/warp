@@ -795,12 +795,12 @@ proxy_onoff(){
 wireproxy_onoff(){
 	! type -P wireproxy >/dev/null 2>&1 && red " ${T[${L}157]} " && exit 1 || OCTEEP=1
 	if ss -nltp | grep wireproxy >/dev/null 2>&1; then
-		kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1
-		green " ${T[${L}158]} "
+		systemctl disable --now wireproxy >/dev/null 2>&1
+		[[ ! $(ss -nltp) =~ 'wireproxy' ]] && green " ${T[${L}158]} "
 
-	else systemctl restart wireproxy
-		sleep 1 && proxy_info
-		green " ${T[${L}99]}\n $(eval echo "${T[${L}162]}") "
+	else systemctl enable --now wireproxy >/dev/null 2>&1
+		sleep 1 && proxy_info 
+		[[ $(ss -nltp) =~ 'wireproxy' ]] && green " ${T[${L}99]}\n $(eval echo "${T[${L}162]}") "
 	fi
 	}
 
