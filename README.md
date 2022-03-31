@@ -21,7 +21,8 @@
 ## 更新信息
 TODO: Better integration with WirePorxy. Better user experience. 更深度的集成 WireProxy. 更好的 UE.
 
-2022.3.27  2.36 1. First publication on a global scale. By WireProxy, Wireguard client that exposes itself as a socks5 proxy; Ths Fangliding for the information:[#113](https://github.com/fscarmen/warp/issues/113); 2. 2. WARP+ and Teams can be used in WireProxy; 1. 全网首发: 通过 wireproxy，让 WARP 在本地建议一个 socks5 代理。感谢风扇滑翔翼 提供的资讯:[#113](https://github.com/fscarmen/warp/issues/113); 2. WARP+ 和 Teams 账户可用于 WireProxy 安装或者升级
+
+2022.3.27  2.36 1. First publication on a global scale. By WireProxy, Wireguard client that exposes itself as a socks5 proxy; Ths Fangliding for the information:[#113](https://github.com/fscarmen/warp/issues/113); 2. WARP+ and Teams can be used in WireProxy; 3. Systemd and change Netflix IP for WireProxy. 1. 全网首发: 通过 wireproxy，让 WARP 在本地建议一个 socks5 代理。感谢风扇滑翔翼 提供的资讯:[#113](https://github.com/fscarmen/warp/issues/113); 2. WARP+ 和 Teams 账户可用于 WireProxy 安装或者升级; 3. WireProxy systemd 进程守护，同时支持更换 Netflix IP
 
 2022.3.23  2.35 1.Support WARP on Debian9; 1.支持 Debian 9 上安装 WARP
 
@@ -177,6 +178,7 @@ warp [option] [lisence]
   | i | 更换 WARP IP |
   | s | 单栈与双栈快速切换 ，如 ```warp s 4```,```warp s 6```,```warp s d``` |
   | e | 安装 iptables + dnsmasq + ipset 分流流媒体方案 |
+  | y | WireProxy 开关 | 
   | 其他或空值| 菜单界面 |
 
 举例：想为 IPv4 的甲骨文添加 Warp 双栈，首次运行
