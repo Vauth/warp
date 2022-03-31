@@ -1120,7 +1120,7 @@ install(){
 	rm -rf /usr/local/bin/wgcf /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
 	
 	# 如安装 WireProxy 方案，自定义 Port
-	input_port
+	[[ $OCTEEP = 1 ]] && input_port
 	
 	# 询问是否有 WARP+ 或 Teams 账户
 	[[ -z $LICENSETYPE ]] && yellow " ${T[${L}132]}" && reading " ${T[${L}50]} " LICENSETYPE
