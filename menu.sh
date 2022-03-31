@@ -602,10 +602,7 @@ change_ip(){
 		}
 
 	change_wireproxy(){
-		wireproxy_restart(){
-			red " $(eval echo "${T[${L}126]}") " && kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1; sleep 1; nohup wireproxy /etc/wireguard/proxy.conf >/dev/null 2>&1 &
-			sleep $j
-			}
+		wireproxy_restart(){ red " $(eval echo "${T[${L}126]}") " && systemctl restart wireproxy; sleep $j; }
 
 		PROXYPORT="$(ss -nltp | grep 'wireproxy' | grep -oP '127.0*\S+' | cut -d: -f2)"
 		[[ -z "$EXPECT" ]] && input_region
@@ -707,10 +704,10 @@ uninstall(){
 	
 	# 卸载 WirePorxy
  	uninstall_wireproxy(){
-	kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1
+	systemctl disable --now wireproxy
 	[[ $SYSTEM != "Arch" ]] && ${PACKAGE_UNINSTALL[int]} wireguard-dkms resolvconf 2>/dev/null
 	${PACKAGE_UNINSTALL[int]} openresolv 2>/dev/null
-	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy
+	rm -rf /usr/local/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy /usr/lib/systemd/system/wireproxy.service
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	[[ -e /usr/bin/tun.sh ]] && rm -f /usr/bin/tun.sh && sed -i '/tun.sh/d' /etc/crontab
 	}
@@ -801,7 +798,7 @@ wireproxy_onoff(){
 		kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1
 		green " ${T[${L}158]} "
 
-	else nohup wireproxy /etc/wireguard/proxy.conf >/dev/null 2>&1 &
+	else systemctl restart wireproxy
 		sleep 1 && proxy_info
 		green " ${T[${L}99]}\n $(eval echo "${T[${L}162]}") "
 	fi
@@ -986,9 +983,8 @@ change_port(){
 	socks5_port(){ input_port; warp-cli --accept-tos set-proxy-port "$PORT"; }
 	wireproxy_port(){
 		input_port
-		kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1
 		sed -i "s/BindAddress.*/BindAddress = 127.0.0.1:$PORT/g" /etc/wireguard/proxy.conf
-		nohup wireproxy /etc/wireguard/proxy.conf >/dev/null 2>&1 &
+		systemctl restart wireproxy
 		}
 
 	INSTALL_CHECK=("$CLIENT" "$WIREPROXY")
@@ -1118,10 +1114,13 @@ EOF
 	systemctl enable dnsmasq --now >/dev/null 2>&1 && sleep 2
 	}
 
-# WGCF 安装
+# WGCF 或 WireProxy 安装
 install(){
 	# 先删除之前安装，可能导致失败的文件
 	rm -rf /usr/local/bin/wgcf /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
+	
+	# 如安装 WireProxy 方案，自定义 Port
+	input_port
 	
 	# 询问是否有 WARP+ 或 Teams 账户
 	[[ -z $LICENSETYPE ]] && yellow " ${T[${L}132]}" && reading " ${T[${L}50]} " LICENSETYPE
@@ -1282,7 +1281,11 @@ install(){
 	sh -c "$(eval echo "\$MODIFY$CONF")"
 
 	if [[ $OCTEEP = 1 ]]; then
-	PEERENDPOINT='162.159.193.10' && [[ $m = 0 ]] && PEERENDPOINT='[2606:4700:d0::a29f:c001]'
+	# 默认 Endpoint 和 DNS 默认 IPv4 和 双栈的，如是 IPv6 修改默认值
+	PEERENDPOINT='162.159.193.10' && DNS='1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844'
+	[[ $m = 0 ]] && PEERENDPOINT='[2606:4700:d0::a29f:c001]' && DNS='2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4'
+	
+	# 创建 WirePorxy 配置文件
 	cat > /etc/wireguard/proxy.conf << EOF
 # SelfSecretKey is the secret key of your wireguard peer
 SelfSecretKey = ${PRIVATEKEY:-"$(grep PrivateKey wgcf-profile.conf | sed "s/PrivateKey = //g")"}
@@ -1294,7 +1297,7 @@ PeerPublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
 PeerEndpoint = $PEERENDPOINT:2408
 # DNS is the nameservers that will be used by wireproxy.
 # Multple nameservers can be specified as such: DNS = 1.1.1.1, 1.0.0.1
-DNS = 1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844
+DNS = $DNS
 # KeepAlive is the persistent keep alive interval of the wireguard device
 # usually not needed
 # KeepAlive = 25
@@ -1327,11 +1330,27 @@ BindAddress = 127.0.0.1:40000
 #Password = ...
 EOF
 	
+	# 创建 WireProxy systemd 进程守护
+	cat > /usr/lib/systemd/system/wireproxy.service << EOF
+[Unit]
+Description=WireProxy for WARP
+After=network.target
+Documentation=https://github.com/fscarmen/warp
+Documentation=https://github.com/octeep/wireproxy
+
+[Service]
+ExecStart=/usr/bin/wireproxy /etc/wireguard/proxy.conf
+RemainAfterExit=yes
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 	# 安装并运行 wireproxy
 	wget -N https://github.com/fscarmen/warp/releases/download/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
 	tar -xzf wireproxy_linux_$ARCHITECTURE.tar.gz -C /usr/bin/; rm -f wireproxy_linux*
-	nohup wireproxy /etc/wireguard/proxy.conf >/dev/null 2>&1 &
-	sleep 1
+	systemctl enable --now wireproxy; sleep 1
 
 	# 保存好配置文件, 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf, 如有 Teams，改为 Teams 账户信息	
 	mv -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
@@ -1554,16 +1573,14 @@ update(){
 	(wgcf generate >/dev/null 2>&1
 	sed -i "2s#.*#$(sed -ne 2p wgcf-profile.conf)#;3s#.*#$(sed -ne 3p wgcf-profile.conf)#;4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
 	sed -i "s#SelfSecretKey.*#SelfSecretKey = $(grep "PrivateKey.*" /etc/wireguard/wgcf.conf | sed "s#PrivateKey = ##g")#g" proxy.conf
-	kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1
-	nohup wireproxy /etc/wireguard/proxy.conf >/dev/null 2>&1 &
+	systemctl restart wireproxy
 	[[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] &&
 	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
 
 	2 ) input_url
 	[[ $CONFIRM = [Yy] ]] && (echo "$TEAMS" > /etc/wireguard/info.log 2>&1
 	sed -i "s#SelfSecretKey.*#SelfSecretKey = $PRIVATEKEY#g" /etc/wireguard/proxy.conf
-	kill -9 $(pgrep -f wireproxy) >/dev/null 2>&1
-	nohup wireproxy /etc/wireguard/proxy.conf >/dev/null 2>&1 &
+	systemctl restart wireproxy
 	[[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && green " ${T[${L}128]} ");;
 
 	* ) red " ${T[${L}51]} [1-2] "; sleep 1; update
