@@ -9,7 +9,7 @@
 - [WARP好处](README.md#WARP好处)
 - [运行脚本](README.md#运行脚本)
 - [刷 Netflix 解锁 WARP IP 的方法](README.md#刷-Netflix-解锁-WARP-IP-的方法)
-- [Netflix 分流到 WARP Client Proxy 的方法](README.md#Netflix-分流到-WARP-Client-Proxy-的方法)
+- [Netflix 分流到 WARP Client Proxy、WireProxy 的方法](README.md#Netflix-分流到-WARP-Client-ProxyWireProxy-的方法)
 - [WARP+ License 及 ID 获取](README.md#warp-license-及-id-获取)
 - [WARP Teams 获取并用于 Linux 的方法](README.md#WARP-Teams-获取并用于-Linux-的方法)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
@@ -19,9 +19,6 @@
 * * *
 
 ## 更新信息
-TODO: Better integration with WirePorxy. Better user experience. 更深度的集成 WireProxy. 更好的 UE.
-
-
 2022.3.27  2.36 1. First publication on a global scale. By WireProxy, Wireguard client that exposes itself as a socks5 proxy; Ths Fangliding for the information:[#113](https://github.com/fscarmen/warp/issues/113); 2. WARP+ and Teams can be used in WireProxy; 3. Systemd and change Netflix IP for WireProxy. 1. 全网首发: 通过 wireproxy，让 WARP 在本地建议一个 socks5 代理。感谢风扇滑翔翼 提供的资讯:[#113](https://github.com/fscarmen/warp/issues/113); 2. WARP+ 和 Teams 账户可用于 WireProxy 安装或者升级; 3. WireProxy systemd 进程守护，同时支持更换 Netflix IP
 
 2022.3.23  2.35 1.Support WARP on Debian9; 1.支持 Debian 9 上安装 WARP
@@ -229,7 +226,7 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 
 * 如果长时间仍然未刷出解锁IP，可以查查 CloudFlare 当地是否在维护调路由：https://www.cloudflarestatus.com/
     
-## Netflix 分流到 WARP Client Proxy 的方法
+## Netflix 分流到 WARP Client Proxy、WireProxy 的方法
 
 感谢 vpsxb admin 原创教程: [继续解锁奈飞（七）-WARP socks5 client分流](https://vpsxb.net/1069/)
 
@@ -351,7 +348,7 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 * Luminous: https://luotianyi.vc/5252.html
 * Hiram: https://hiram.wang/cloudflare-wrap-vps
 * Cloudflare: https://developers.cloudflare.com/warp-client/setting-up/linux  
-https://blog.cloudflare.com/announcing-warp-for-linux-and-proxy-mode/
+https://blog.cloudflare.com/announcing-warp-for-linux-and-proxy-mode/   
 https://blog.cloudflare.com/argo-v2/
 * WireGuard: https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
 * Parker C. Stephens: https://parkercs.tech/cloudflare-for-teams-wireguard-config/
