@@ -29,6 +29,9 @@ Over 1,000 users star. Thank you for your support. 项目 star 破千，感谢�
 
 2022.3.11  2.33: 1.First publication on a global scale. WARP Client support Ubuntu 18.04 and CentOS 7; 2. Open TUN for OVZ. You needn't setting it in the control panel. Thx @Q_lilll; 1. 全网首发， WARP Client 支持 Ubuntu 18.04 and CentOS 7; 2. 感谢 @Q_lilll 提供方案，为 OVZ VPS 在线打开 TUN,不需要到面板处理
 
+<details>
+    <summary>点击即可展开或收起查看 docker 命令</summary>
+    
 2022.2.25  2.32: 1.Change the WARP endpoint; 2. Sync the Netflix title with lmc999; 1.更换 WARP 的 endpoint; 2. 同步 lmc999 的 Netflix 检测 title
 
 2022.2.15 Happy Lantern Festival. Bring you a new experience of docker unlock, another way to unlock Netflix. Project based on alpine, content wgcf and unblocking Netflix scripts. Change unlock warp ip automatically. 元宵节快乐。为大家带来个 docker 解锁的全新体验，换个姿势解锁 Netflix。项目以 alpine 为基础系统，内含 wgcf 和解锁 Netflix 脚本，自动切换解锁 WARP IP    
@@ -44,9 +47,6 @@ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unl
 ```
 
 2022.1.21  2.30: 1.All support WARP single-stack and dual-stack solutions. Switch to each other easily and quickly. Such as [warp s 4],[warp s 6],[warp s d]; 2.Brush Netflix Unlock IP with the expect area. Such as [warp i hk]. You can use it with crontab,screen,nohup & etc. [Detail](README.md#刷-Netflix-解锁-WARP-IP-的方法); 3.Fixed stuck when brushing Netflix IP 1.全面支持WARP单栈与双栈方案，简单并快速切换，如[warp s 4],[warp s 6],[warp s d]; 2.在刷解锁 Netflix WARP IP 时可以带上期望的地区,如 [warp i hk]。你可以结合 crontab,screen,nohup & 等方式使用,[详细方法](README.md#刷-Netflix-解锁-WARP-IP-的方法); 3.修正刷 Netflix IP 时可能发生的卡死不动的bug
-
-<details>
-    <summary>点击即可展开或收起查看 docker 命令</summary>
 
  ~To be updated: huanx and malikshi [#63](https://github.com/fscarmen/warp/issues/63) needs, hope like [P3terx](https://github.com/P3TERX/warp.sh/blob/main/warp.sh) scripts, all support WARP single-stack and dual-stack solutions. Plan to rebuild menu modules and pass parameters with arrays.(DONE)~
 
