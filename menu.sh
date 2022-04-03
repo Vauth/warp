@@ -707,7 +707,7 @@ uninstall(){
 	systemctl disable --now wireproxy
 	[[ $SYSTEM != "Arch" ]] && ${PACKAGE_UNINSTALL[int]} wireguard-dkms resolvconf 2>/dev/null
 	${PACKAGE_UNINSTALL[int]} openresolv 2>/dev/null
-	rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy /usr/lib/systemd/system/wireproxy.service
+	rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy /lib/systemd/system/wireproxy.service
 	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
 	[[ -e /usr/bin/tun.sh ]] && rm -f /usr/bin/tun.sh && sed -i '/tun.sh/d' /etc/crontab
 	}
@@ -1343,7 +1343,7 @@ BindAddress = 127.0.0.1:$PORT
 EOF
 	
 	# 创建 WireProxy systemd 进程守护
-	cat > /usr/lib/systemd/system/wireproxy.service << EOF
+	cat > /lib/systemd/system/wireproxy.service << EOF
 [Unit]
 Description=WireProxy for WARP
 After=network.target
