@@ -68,7 +68,7 @@ Over 1,000 users star. Thank you for your support. 项目 star 破千，感谢�
 >docker exec -it wgcf sh #部分系统在容器外 docker exec -it wgcf wg-quick up wgcf 不行，一定要分开执行的。进入容器
 >
 >wg-quick up wgcf; exit #运行 WGCF 并退出容器。
-
+>
 >```
 >    
 >![image](https://user-images.githubusercontent.com/62703343/148343358-67d0089a-591e-4af2-915c-e725422a5b0e.png)
