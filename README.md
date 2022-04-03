@@ -175,6 +175,7 @@ warp [option] [lisence]
   | i | 更换 WARP IP |
   | s | 单栈与双栈快速切换 ，如 ```warp s 4```,```warp s 6```,```warp s d``` |
   | e | 安装 iptables + dnsmasq + ipset 分流流媒体方案 |
+  | w | 安装 WireProxy 解决方案 |
   | y | WireProxy 开关 | 
   | 其他或空值| 菜单界面 |
 
