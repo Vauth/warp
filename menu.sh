@@ -1159,11 +1159,6 @@ install(){
 	wget --no-check-certificate -T1 -t1 $CDN -O /usr/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE ||
 	wget --no-check-certificate $CDN -O /usr/bin/wgcf https://github.com/fscarmen/warp/raw/main/wgcf/wgcf_"$latest"_linux_$ARCHITECTURE
 	chmod +x /usr/bin/wgcf
-	
-	# 如是 LXC，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
-	[[ $LXC = 1 ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
-	wget --no-check-certificate $CDN -N https://github.com/fscarmen/warp/raw/main/wireguard-go/wireguard-go_linux_$ARCHITECTURE.tar.gz &&
-	tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
 
 	# 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
 	if [[ $OCTEEP = 1 ]]; then
@@ -1402,12 +1397,17 @@ EOF
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf, 如有 Teams，改为 Teams 账户信息
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
-	
+
 	[[ $CONFIRM = [Yy] ]] && teams_change && echo "$TEAMS" > /etc/wireguard/info.log 2>&1
 
 	# 设置开机启动
 	${SYSTEMCTL_ENABLE[int]}>/dev/null 2>&1
 	type -P dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
+
+	# 如是 LXC，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
+	[[ $LXC = 1 ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
+	wget --no-check-certificate $CDN -N https://github.com/fscarmen/warp/raw/main/wireguard-go/wireguard-go_linux_$ARCHITECTURE.tar.gz &&
+	tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
 
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
@@ -1416,13 +1416,13 @@ EOF
 	chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp && green " ${T[${L}38]} "
 	echo "$L" >/etc/wireguard/language
-	
+
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地，IPv4 / IPv6 优先级别
 	green " ${T[${L}39]} "
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
 	[[ $COMPANY = amazon ]] && red " $(eval echo "${T[${L}40]}") " && reboot || net
 	[[ $(curl -ksm8 https://ip.gs) = "$WAN6" ]] && PRIORITY=${T[${L}106]} || PRIORITY=${T[${L}107]}
-	
+
 	# 部分 LXC 内核已经包含 WireGuard 模块则会优先使用，此场景下删除 WireGuard-go
 	[[ -e /usr/bin/wireguard-go ]] && ! pgrep -laf "wireguard-go" >/dev/null 2>&1 && rm -f /usr/bin/wireguard-go
 
