@@ -14,7 +14,7 @@
 - [WARP Teams 获取并用于 Linux 的方法](README.md#WARP-Teams-获取并用于-Linux-的方法)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
 - [WARP原理](README.md#WARP原理)
-- [鸣谢](README.md#鸣谢下列作者的文章和项目)
+- [鸣谢 WARP 贡献者和 CloudFlare WARP 全球站点服务状态列表](README.md#鸣谢下列作者的文章和项目)
 
 * * *
 
@@ -349,7 +349,7 @@ https://blog.cloudflare.com/argo-v2/
 https://github.com/acacia233/Project-WARP-Unlock
 * wangying202: https://blog.csdn.net/wangying202/article/details/113178159
     
-服务提供（排名不分先后）：
+服务提供（排名不分先后）:
 * CloudFlare Warp(+): https://1.1.1.1/
 * WGCF 项目原作者: https://github.com/ViRb3/wgcf/
 * WireGuard-GO 官方: https://git.zx2c4.com/wireguard-go/
@@ -361,3 +361,6 @@ https://github.com/acacia233/Project-WARP-Unlock
 * WireProxy 作者: https://github.com/octeep/wireproxy
 * 获取公网 IP 及归属地查询: https://ip.gs/
 * 统计PV网:https://hits.seeyoufarm.com/
+
+CloudFlare WARP 全球站点和服务状态:
+* Operational = 正常。Re-routed = 检修状态: https://www.cloudflarestatus.com/
