@@ -1,0 +1,51 @@
+name: WireGuard-go version
+
+on:
+  workflow_dispatch:
+
+jobs:
+  WireGuard-go:
+
+    name: Cross compile WireGuard-go
+
+    runs-on: ubuntu-20.04
+
+    env:
+      workdir: ./wireguard-go-source
+      version: 0.0.20201118
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+        with:
+          fetch-depth: 0
+
+      - name: Git clone WireGuard-go
+        run: |
+          mkdir -p ${{ env.workdir }}
+          wget https://git.zx2c4.com/wireguard-go/snapshot/wireguard-go-${{ env.version }}.tar.xz
+          tar -xvf wireguard-go-${{ env.version }}.tar.xz
+          cp -r ./wireguard-go-${{ env.version }}/* ${{ env.workdir }}/
+          cp ./.github/wireguard-go-releaser.yml ${{ env.workdir }}/.goreleaser.yml
+          ls ${{ env.workdir }}
+
+      - name: Set up GoReleaser
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.18"
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          distribution: goreleaser
+          workdir: ${{ env.workdir }}
+          version: latest
+          args: release --rm-dist
+          
+      - name: Release binaries 
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: WireGuard-go_v${{ env.version }}
+          files: ${{ env.workdir }}/dist/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
