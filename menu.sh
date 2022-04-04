@@ -177,8 +177,8 @@ T[E83]="Step 1/2: Installing WARP Client..."
 T[C83]="进度 1/2： 安装 Client……"
 T[E84]="Step 2/2: Setting to Proxy Mode"
 T[C84]="进度 2/2： 设置代理模式"
-T[E85]="Client was installed.\n connect/disconnect by [warp r].\n uninstalled by [warp u]"
-T[C85]="Linux Client 已安装\n 连接/断开 用 warp r\n 卸载用 warp u"
+T[E85]="Client was installed.\n connect/disconnect by [warp r].\n uninstall by [warp u]"
+T[C85]="Linux Client 已安装\n 连接/断开: warp r\n 卸载: warp u"
 T[E86]="Client is working. Socks5 proxy listening on: \$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')"
 T[C86]="Linux Client 正常运行中。 Socks5 代理监听:\$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')"
 T[E87]="Fail to establish Socks5 proxy. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -191,8 +191,8 @@ T[E90]="Client is connected"
 T[C90]="Client 已连接"
 T[E91]="Client is disconnected. It could be connect again by [warp r]"
 T[C91]="已断开 Client，再次连接可以用 warp r"
-T[E92]=""
-T[C92]=""
+T[E92]="(!!! Already installed, do not select.)"
+T[C92]="(!!! 已安装，请勿选择)"
 T[E93]="Client is not installed. It could be installed by [warp c]"
 T[C93]="Client 未安装，如需安装，可以用 warp c"
 T[E94]="Congratulations! WARP\$AC Linux Client is working. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
@@ -304,7 +304,7 @@ T[C146]="不能切换为当前一样的形态"
 T[E147]="Not available for IPv6 only VPS"
 T[C147]="IPv6 only VPS 不能使用此方案"
 T[E148]="Install wireproxy. Wireguard client that exposes itself as a socks5 proxy or tunnels"
-T[C148]="安装 wireproxy，让 WARP 在本地建议一个 socks5 代理"
+T[C148]="安装 wireproxy，让 WARP 在本地创建一个 socks5 代理"
 T[E149]="Congratulations! WirePorxy is working. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
 T[C149]="恭喜！WirePorxy 工作中, 总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数：\$TOTAL"
 T[E150]="\n WGCF WARP, WARP Linux Client, WireProxy hasn't been installed yet. The script is aborted.\n"
@@ -340,7 +340,9 @@ T[C164]="断开 WirePorxy"
 T[E165]="WireProxy Solution. A wireguard client that exposes itself as a socks5 proxy or tunnels. Adapted from the mature works of [octeep],[https://github.com/octeep/wireproxy]"
 T[C165]="WireProxy，让 WARP 在本地建议一个 socks5 代理。改编自 [octeep] 的成熟作品，地址[https://github.com/octeep/wireproxy]，请熟知"
 T[E166]="WireProxy was installed.\n connect/disconnect by [warp y]\n uninstall by [warp u]"
-T[C166]="WireProxy 已安装\n 连接/断开 WireProxy 用 warp y\n 卸载用 warp u"
+T[C166]="WireProxy 已安装\n 连接/断开: warp y\n 卸载: warp u"
+T[E167]="WARP iptable was installed.\n connect/disconnect by [warp o]\n uninstall by [warp u]"
+T[C167]="WARP iptable 已安装\n 连接/断开: warp o\n 卸载: warp u"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -904,7 +906,7 @@ EOF
 	CLIENT=0
 	if type -P warp-cli >/dev/null 2>&1; then
 		CLIENT=1
-		[[ $CLIENT = 1 ]] && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
+		[[ $CLIENT = 1 ]] && CLIENT_INSTALLED="${T[${L}92]}" && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
 		[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3 && proxy_info
 	fi
 
@@ -912,7 +914,7 @@ EOF
 	WIREPROXY=0
 	if type -P wireproxy >/dev/null 2>&1; then
 		WIREPROXY=1
-		[[ $WIREPROXY = 1 ]] && [[ $(ss -nltp) =~ 'wireproxy' ]] && WIREPROXY=3 && proxy_info || WIREPROXY=2
+		[[ $WIREPROXY = 1 ]] && WIREPROXY_INSTALLED="${T[${L}92]}" && [[ $(ss -nltp) =~ 'wireproxy' ]] && WIREPROXY=3 && proxy_info || WIREPROXY=2
 	fi
 
 	# 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
@@ -1125,8 +1127,9 @@ install(){
 	if [[ $OCTEEP = 1 ]]; then
 		ss -nltp | grep -q wireproxy && red " ${T[${L}166]} " && exit 1 || input_port
 	
-	# iptables 方案不适用于 IPv6 only VPS
+	# iptables 禁止重复安装，不适用于 IPv6 only VPS
 	elif [[ $ANEMONE = 1 ]]; then
+		[[ -e /etc/dnsmasq.d/warp.conf ]] && red " ${T[${L}167]} " && exit 1
 		[[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1 || CONF=${CONF1[m]}
 	fi
 
@@ -1675,9 +1678,11 @@ menu_setting(){
 		ACTION1(){ stack_switch; }; ACTION2(){ stack_switch; }; ACTION3(){ update; }; ACTION4(){ onoff; };;
 	esac
 	fi
-
-	OPTION5="${T[${L}82]}"; OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}";
-	OPTION11="${T[${L}80]}"; OPTION12="${T[${L}138]}"; OPTION13="${T[${L}148]}"; OPTION0="${T[${L}76]}"
+	
+	[[ -e /etc/dnsmasq.d/warp.conf ]] && IPTABLE_INSTALLED="${T[${L}92]}"
+	
+	OPTION5="$CLIENT_INSTALLED${T[${L}82]}"; OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}";
+	OPTION11="${T[${L}80]}"; OPTION12="$IPTABLE_INSTALLED${T[${L}138]}"; OPTION13="$WIREPROXY_INSTALLED${T[${L}148]}"; OPTION0="${T[${L}76]}"
 
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
 	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
@@ -1706,7 +1711,7 @@ menu(){
 	[[ $WIREPROXY = 2 ]] && green "	${T[${L}161]} "
 	[[ $WIREPROXY = 3 ]] && green "	WARP$AC2 ${T[${L}159]}	$(eval echo "${T[${L}162]}") "	
  	red "\n======================================================================================================================\n"
-	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11 \n 12. $OPTION12\n 13. $OPTION13\n 0. $OPTION0\n "
+	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11\n 12. $OPTION12\n 13. $OPTION13\n 0. $OPTION0\n "
 	reading " ${T[${L}50]} " CHOOSE1
 		case "$CHOOSE1" in
 		1 ) ACTION1;; 2 ) ACTION2;; 3 ) ACTION3;; 4 ) ACTION4;; 5 ) ACTION5;;
