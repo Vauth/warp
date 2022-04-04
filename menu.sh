@@ -177,8 +177,8 @@ T[E83]="Step 1/2: Installing WARP Client..."
 T[C83]="进度 1/2： 安装 Client……"
 T[E84]="Step 2/2: Setting to Proxy Mode"
 T[C84]="进度 2/2： 设置代理模式"
-T[E85]="Client was installed. You can connect/disconnect by [warp r]"
-T[C85]="Linux Client 已安装，连接/断开 Client 可以用 warp r"
+T[E85]="Client was installed.\n connect/disconnect by [warp r].\n uninstalled by [warp u]"
+T[C85]="Linux Client 已安装\n 连接/断开 用 warp r\n 卸载用 warp u"
 T[E86]="Client is working. Socks5 proxy listening on: \$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')"
 T[C86]="Linux Client 正常运行中。 Socks5 代理监听:\$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')"
 T[E87]="Fail to establish Socks5 proxy. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -191,8 +191,8 @@ T[E90]="Client is connected"
 T[C90]="Client 已连接"
 T[E91]="Client is disconnected. It could be connect again by [warp r]"
 T[C91]="已断开 Client，再次连接可以用 warp r"
-T[E92]="Client is installed already. It could be uninstalled by [warp u]"
-T[C92]="Client 已安装，如要卸载，可以用 warp u"
+T[E92]=""
+T[C92]=""
 T[E93]="Client is not installed. It could be installed by [warp c]"
 T[C93]="Client 未安装，如需安装，可以用 warp c"
 T[E94]="Congratulations! WARP\$AC Linux Client is working. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
@@ -339,6 +339,8 @@ T[E164]="Disconnect the WirePorxy"
 T[C164]="断开 WirePorxy"
 T[E165]="WireProxy Solution. A wireguard client that exposes itself as a socks5 proxy or tunnels. Adapted from the mature works of [octeep],[https://github.com/octeep/wireproxy]"
 T[C165]="WireProxy，让 WARP 在本地建议一个 socks5 代理。改编自 [octeep] 的成熟作品，地址[https://github.com/octeep/wireproxy]，请熟知"
+T[E166]="WireProxy was installed.\n connect/disconnect by [warp y]\n uninstall by [warp u]"
+T[C166]="WireProxy 已安装\n 连接/断开 WireProxy 用 warp y\n 卸载用 warp u"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -1119,11 +1121,17 @@ EOF
 
 # WGCF 或 WireProxy 安装
 install(){
+	# WireProxy 禁止重复安装，自定义 Port
+	if [[ $OCTEEP = 1 ]]; then
+		ss -nltp | grep -q wireproxy && red " ${T[${L}166]} " && exit 1 || input_port
+	
+	# iptables 方案不适用于 IPv6 only VPS
+	elif [[ $ANEMONE = 1 ]]; then
+		[[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1 || CONF=${CONF1[m]}
+	fi
+
 	# 先删除之前安装，可能导致失败的文件
 	rm -rf /usr/bin/wgcf /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
-	
-	# 如安装 WireProxy 方案，自定义 Port
-	[[ $OCTEEP = 1 ]] && input_port
 	
 	# 询问是否有 WARP+ 或 Teams 账户
 	[[ -z $LICENSETYPE ]] && yellow " ${T[${L}132]}" && reading " ${T[${L}50]} " LICENSETYPE
@@ -1447,7 +1455,9 @@ proxy(){
 		sleep 2 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " ${T[${L}87]} " && exit 1 || green " $(eval echo "${T[${L}86]}") "
 		}
 	
-	[[ $ARCHITECTURE = arm64 ]] && red " ${T[${L}101]} " && exit 1
+	# 禁止安装的情况。重复安装，非 AMD64 CPU 架构，IPv4 是 WARP
+	[[ $CLIENT -ge 2 ]] && red " ${T[${L}85]} " && exit 1
+	[[ $ARCHITECTURE != amd64 ]] && red " ${T[${L}101]} " && exit 1
 	[[ $TRACE4 != off ]] && red " ${T[${L}95]} " && exit 1
 
  	# 安装 WARP Linux Client
@@ -1509,8 +1519,10 @@ proxy(){
 	yellow " ${T[${L}43]}\n " && help
 	}
 
-# iptables+dnsmasq+ipset 方案
-stream(){
+# iptables+dnsmasq+ipset 方案，IPv6 only 不适用
+stream_solution(){
+	[[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1
+
 	red "\n=============================================================="
 	yellow " ${T[${L}139]}\n "
 	green " 1.${T[${L}48]} "
@@ -1520,12 +1532,14 @@ stream(){
 	case "$IPTABLES" in
 		1 ) CONF=${CONF1[m]}; ANEMONE=1; install;;
 		2 ) [[ $OPTION != e ]] && menu || exit;;
-		* ) red " ${T[${L}51]} [1-2]"; sleep 1; stream;;
+		* ) red " ${T[${L}51]} [1-2]"; sleep 1; stream_solution;;
 	esac
 	}
 
 # wireproxy 方案
 wireproxy_solution(){
+	ss -nltp | grep -q wireproxy && red " ${T[${L}166]} " && exit 1
+	
 	red "\n=============================================================="
 	yellow " ${T[${L}165]}\n "
 	green " 1.${T[${L}48]} "
@@ -1667,7 +1681,7 @@ menu_setting(){
 
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
 	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
-	ACTION12(){ [[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1; CONF=${CONF1[m]}; ANEMONE=1 ;install; }; 
+	ACTION12(){ ANEMONE=1 ;install; }; 
 	ACTION13(){ OCTEEP=1; install; };
 	ACTION0(){ exit; }
 	}
@@ -1765,9 +1779,9 @@ case "$OPTION" in
 		esac
 		install
 	fi;;
-c )	[[ $CLIENT -ge 2 ]] && red " ${T[${L}92]} " && exit 1 || proxy;;
+c )	proxy;;
 a )	update;;
-e )	[[ $m = 0 ]] && red " ${T[${L}147]} " && exit 1 || stream;;
+e )	stream_solution;;
 w )	wireproxy_solution;;
 * )	menu;;
 esac
