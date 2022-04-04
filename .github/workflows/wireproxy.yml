@@ -1,17 +1,19 @@
-name: Cross compile WirePorxy
+name: Cross compile WireProxy
 
 on:
-  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
 
 jobs:
-  WirePorxy:
+  WireProxy:
 
-    name: Cross compile WirePorxy
+    name: Cross compile WireProxy
 
     runs-on: ubuntu-20.04
 
     env:
-      workdir: ./WirePorxy
+      workdir: ./WireProxy
 
     steps:
       - name: Checkout code
@@ -19,7 +21,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Git clone WirePorxy
+      - name: Git clone WireProxy
         run: |
           git clone https://github.com/octeep/wireproxy.git ${{ env.workdir }}
           cp ./.github/wireproxy-releaser.yml ${{ env.workdir }}/.goreleaser.yml
@@ -40,7 +42,6 @@ jobs:
       - name: Release binaries 
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: wireproxy
           files: ${{ env.workdir }}/dist/*.tar.gz
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
