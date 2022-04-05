@@ -1163,7 +1163,7 @@ install(){
 	# 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
 	if [[ $OCTEEP = 1 ]]; then
 		wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
-		wireproxy_latest=${wireproxy_latest:-'1.0.1'}
+		wireproxy_latest=${wireproxy_latest:-'1.0.3'}
 		wget --no-check-certificate -T1 -t1 $CDN -N https://github.com/octeep/wireproxy/releases/download/v"$wireproxy_latest"/wireproxy_linux_$ARCHITECTURE.tar.gz ||
 		wget --no-check-certificate $CDN -N https://github.com/fscarmen/warp/raw/main/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
 		tar xzf wireproxy_linux_$ARCHITECTURE.tar.gz -C /usr/bin/; rm -f wireproxy_linux*
