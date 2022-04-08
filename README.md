@@ -10,7 +10,7 @@
 - [运行脚本](README.md#运行脚本)
 - [刷 Netflix 解锁 WARP IP 的方法](README.md#刷-Netflix-解锁-WARP-IP-的方法)
 - [Netflix 分流到 WARP Client Proxy、WireProxy 的方法](README.md#Netflix-分流到-WARP-Client-ProxyWireProxy-的方法)
-- [Netflix,Google 分流到 Client WARP 的方法](README.md#Netflix-分流到-WARP-Client-ProxyWireProxy-的方法)
+- [Netflix,Google 分流到 Client WARP 网络接口的方法](README.md#README.md#netflixgoogle-分流到-client-warp-网络接口的方法)
 - [WARP+ License 及 ID 获取](README.md#warp-license-及-id-获取)
 - [WARP Teams 获取并用于 Linux 的方法](README.md#WARP-Teams-获取并用于-Linux-的方法)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
@@ -266,7 +266,7 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 }
 ```
 
-## Netflix,Google 分流到 Client WARP 的方法
+## Netflix,Google 分流到 Client WARP 网络接口的方法
 
 感谢 LUDAN 老师提供的网络接口分流配置模板，注意：172.16.0.2 为 CloudFlareWARP 网络接口的 IP
 
