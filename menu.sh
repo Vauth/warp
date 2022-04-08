@@ -10,7 +10,7 @@ declare -A T
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
 T[E1]="1. First publication on a global scale: After WirePorxy, another major technological breakthrough -- WARP-Cli's WARP mode solution. Thanks to the original creator -- Teacher LUBAN. It solves two major pain points: 1) The instability of the traditional proxy model; 2) Currently HK does not have a WARP service; "
-T[C1]="1. 全网首发: 继 WirePorxy 之后，又一重大技术突破，WARP-Cli 的 WARP 模式方案，感谢原创者 LUBAN 老师，引用大神的思路，解决两大通点: 1) 传统 proxy 模式的断流和慢; 2) 解决 HK 没有 WARP 服务;"
+T[C1]="1. 全网首发: 继 WirePorxy 之后，又一重大技术突破，WARP-Cli 的 WARP 模式方案，感谢原创者 LUBAN 老师，引用大神的思路，解决两大痛点: 1) 传统 proxy 模式的断流和慢; 2) 解决 HK 没有 WARP 服务;"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -544,8 +544,9 @@ stack_priority(){
 
 # 更换 Netflix IP 时确认期望区域
 input_region(){
-	[[ -n $NF ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')) ||
-	REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+	[[ -n "$NF" ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')) ||
+	[[ -n "$PROXYPORT" ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+	[[ -n "$INTERFACE" ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-'US'}
 	reading " $(eval echo "${T[${L}56]}") " EXPECT
 	until [[ -z $EXPECT || $EXPECT = [Yy] || $EXPECT =~ ^[A-Za-z]{2}$ ]]; do
@@ -585,28 +586,65 @@ change_ip(){
 		done
 		}
 
-	change_socks5(){
-		socks5_restart(){
-			red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
-			[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1 && sleep 2
-			}
+	change_client(){
+		if [[ -e /etc/wireguard/luban ]]; then
+			interface_restart(){
+				red " $(eval echo "${T[${L}126]}") " &&	warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
+				[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1 && sleep 2
+				warp-cli --accept-tos disconnect >/dev/null 2>&1
+				warp-cli --accept-tos disable-always-on >/dev/null 2>&1
+				ip -4 rule delete from 172.16.0.2 lookup 51820
+				ip -4 rule delete table main suppress_prefixlength 0
+				sleep 2
+				warp-cli --accept-tos connect >/dev/null 2>&1
+				warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+				sleep 5
+				ip -4 rule add from 172.16.0.2 lookup 51820
+				ip -4 route add default dev CloudflareWARP table 51820
+				ip -4 rule add table main suppress_prefixlength 0
+				}
+			
+			INTERFACE='--interface CloudflareWARP'
+			[[ -z "$EXPECT" ]] && input_region
+			i=0; [[ -e /etc/wireguard/license ]] && j=13 || j=15
+			while true
+			do (( i++ )) || true
+			ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
+			ip4_info
+			WAN=$WAN4 && ASNORG=$ASNORG4
+			[[ $L = C ]] && COUNTRY=$(translate "$COUNTRY4") || COUNTRY=$COUNTRY4
+			RESULT=$(curl --user-agent "${UA_Browser}" $INTERFACE -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
+			if [[ $RESULT = 200 ]]; then
+				REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+				REGION=${REGION:-'US'}
+				echo "$REGION" | grep -qi "$EXPECT" && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h || interface_restart
+			else interface_restart
+			fi
+			done
 
-		PROXYPORT="$(ss -nltp | grep 'warp' | grep -oP '127.0*\S+' | cut -d: -f2)"
-		[[ -z "$EXPECT" ]] && input_region
-		i=0; [[ -e /etc/wireguard/license ]] && j=13 || j=15
-		while true
-		do (( i++ )) || true
-		ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
-		proxy_info
-		WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
-		RESULT=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
-		if [[ $RESULT = 200 ]]; then
-			REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
-			REGION=${REGION:-'US'}
-			echo "$REGION" | grep -qi "$EXPECT" && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h || socks5_restart
-		else socks5_restart
+		else
+			socks5_restart(){
+				red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 && sleep $j &&
+				[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1 && sleep 2
+				}
+
+			PROXYPORT="$(ss -nltp | grep 'warp' | grep -oP '127.0*\S+' | cut -d: -f2)"
+			[[ -z "$EXPECT" ]] && input_region
+			i=0; [[ -e /etc/wireguard/license ]] && j=13 || j=15
+			while true
+			do (( i++ )) || true
+			ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
+			proxy_info
+			WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
+			RESULT=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
+			if [[ $RESULT = 200 ]]; then
+				REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+				REGION=${REGION:-'US'}
+				echo "$REGION" | grep -qi "$EXPECT" && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h || socks5_restart
+			else socks5_restart
+			fi
+			done
 		fi
-		done
 		}
 
 	change_wireproxy(){
@@ -645,8 +683,8 @@ change_ip(){
 	INSTALL_CHECK=("wg-quick" "warp-cli" "wireproxy")
 	CASE_RESAULT=("0 0 0"		"0 0 1"			"0 1 0"			"0 1 1"			"1 0 0"			"1 0 1"			"1 1 0"			"1 1 1")
 	SHOW_CHOOSE=("${T[${L}150]}"	""			""			"${T[${L}151]}"		""			"${T[${L}152]}"		"${T[${L}153]}"		"${T[${L}154]}")
-	CHANGE_IP1=(""			"change_wireproxy"	"change_socks5"		"change_socks5"		"change_wgcf"		"change_wgcf"		"change_wgcf"		"change_wgcf")
-	CHANGE_IP2=(""			"" 			"" 			"change_wireproxy" 	""			"change_wireproxy" 	"change_socks5" 	"change_socks5")
+	CHANGE_IP1=(""			"change_wireproxy"	"change_client"		"change_client"		"change_wgcf"		"change_wgcf"		"change_wgcf"		"change_wgcf")
+	CHANGE_IP2=(""			"" 			"" 			"change_wireproxy" 	""			"change_wireproxy" 	"change_client" 	"change_client")
 	CHANGE_IP3=(""			"" 			""			""			""			""			""			"change_wireproxy")
 
 	for ((a=0; a<${#INSTALL_CHECK[@]}; a++)); do
@@ -794,15 +832,14 @@ proxy_onoff(){
 		if [[ $(ip a) =~ 'CloudflareWARP' ]]; then
 		warp-cli --accept-tos disconnect >/dev/null 2>&1
 		warp-cli --accept-tos disable-always-on >/dev/null 2>&1
-		sleep 5
-		[[ $SYSTEM = CentOS ]] && ip -4 rule delete from 172.16.0.2 lookup 51820
+		ip -4 rule delete from 172.16.0.2 lookup 51820
 		ip -4 rule delete table main suppress_prefixlength 0
 		green " ${T[${L}91]} " && exit 0
 		else
 		warp-cli --accept-tos connect >/dev/null 2>&1
 		warp-cli --accept-tos enable-always-on >/dev/null 2>&1
 		sleep 5
-		[[ $SYSTEM = CentOS ]] && ip -4 rule add from 172.16.0.2 lookup 51820
+		ip -4 rule add from 172.16.0.2 lookup 51820
 		ip -4 route add default dev CloudflareWARP table 51820
 		ip -4 rule add table main suppress_prefixlength 0
 		INTERFACE='--interface CloudflareWARP'
@@ -1197,7 +1234,7 @@ install(){
 
 	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
 	wget --no-check-certificate -T1 -t1 $CDN -O /usr/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE ||
-	wget --no-check-certificate $CDN -O /usr/bin/wgcf https://github.com/fscarmen/warp/raw/main/wgcf/wgcf_"$latest"_linux_$ARCHITECTURE
+	wget --no-check-certificate $CDN -O /usr/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf/wgcf_"$latest"_linux_$ARCHITECTURE
 	chmod +x /usr/bin/wgcf
 
 	# 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
@@ -1205,7 +1242,7 @@ install(){
 		wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 		wireproxy_latest=${wireproxy_latest:-'1.0.3'}
 		wget --no-check-certificate -T1 -t1 $CDN -N https://github.com/octeep/wireproxy/releases/download/v"$wireproxy_latest"/wireproxy_linux_$ARCHITECTURE.tar.gz ||
-		wget --no-check-certificate $CDN -N https://github.com/fscarmen/warp/raw/main/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
+		wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
 		tar xzf wireproxy_linux_$ARCHITECTURE.tar.gz -C /usr/bin/; rm -f wireproxy_linux*
 	fi
 	
@@ -1446,7 +1483,7 @@ EOF
 
 	# 如是 LXC，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
 	[[ $LXC = 1 ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
-	wget --no-check-certificate $CDN -N https://github.com/fscarmen/warp/raw/main/wireguard-go/wireguard-go_linux_$ARCHITECTURE.tar.gz &&
+	wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go/wireguard-go_linux_$ARCHITECTURE.tar.gz &&
 	tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
 
 	# 保存好配置文件
@@ -1502,6 +1539,31 @@ proxy(){
 			ip -4 rule add from 172.16.0.2 lookup 51820
 			ip -4 route add default dev CloudflareWARP table 51820
 			ip -4 rule add table main suppress_prefixlength 0
+			i=1; j=5; INTERFACE='--interface CloudflareWARP'
+			ip4_info
+			until [[ -n $IP4 ]]
+			do	(( i++ )) || true
+				yellow " $(eval echo "${T[${L}12]}") "
+				warp-cli --accept-tos disconnect >/dev/null 2>&1
+				warp-cli --accept-tos disable-always-on >/dev/null 2>&1
+				ip -4 rule delete from 172.16.0.2 lookup 51820
+				ip -4 rule delete table main suppress_prefixlength 0
+				sleep 2
+				warp-cli --accept-tos connect >/dev/null 2>&1
+				warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+				sleep 5
+				ip -4 rule add from 172.16.0.2 lookup 51820
+				ip -4 route add default dev CloudflareWARP table 51820
+				ip -4 rule add table main suppress_prefixlength 0
+				ip4_info
+				if [[ $i = "$j" ]]; then
+					warp-cli --accept-tos disconnect >/dev/null 2>&1
+					warp-cli --accept-tos disable-always-on >/dev/null 2>&1
+					ip -4 rule delete from 172.16.0.2 lookup 51820
+					ip -4 rule delete table main suppress_prefixlength 0
+					red " $(eval echo "${T[${L}13]}") " && exit 1
+				fi
+			done
 		else
 			warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
 			warp-cli --accept-tos set-proxy-port "$PORT" >/dev/null 2>&1
@@ -1582,8 +1644,7 @@ proxy(){
 	fi
 
 	if [[ $LUBAN = 1 ]]; then
-		INTERFACE='--interface CloudflareWARP'
-		ip4_info
+		[[ $L = C ]] && COUNTRY4=$(translate "$COUNTRY4")
 		end=$(date +%s)
 		red "\n==============================================================\n"
 		green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}169]}") "
@@ -1758,7 +1819,7 @@ menu_setting(){
 	[[ -e /etc/dnsmasq.d/warp.conf ]] && IPTABLE_INSTALLED="${T[${L}92]}"
 	
 	OPTION5="$CLIENT_INSTALLED${T[${L}82]}"; OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}";
-	OPTION11="${T[${L}80]}"; OPTION12="$IPTABLE_INSTALLED${T[${L}138]}"; OPTION13="$WIREPROXY_INSTALLED${T[${L}148]}"; OPTION14="${T[${L}168]}"; OPTION0="${T[${L}76]}"
+	OPTION11="${T[${L}80]}"; OPTION12="$IPTABLE_INSTALLED${T[${L}138]}"; OPTION13="$WIREPROXY_INSTALLED${T[${L}148]}"; OPTION14="$CLIENT_INSTALLED${T[${L}168]}"; OPTION0="${T[${L}76]}"
 
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
 	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
