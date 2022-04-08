@@ -3,14 +3,14 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/b
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=2.36
+VERSION=2.37
 
 declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1. First publication on a global scale. Wireguard client that exposes itself as a socks5 proxy; 2. WARP+ and Teams can be used in WireProxy"
-T[C1]="1. 全网首发: 通过 WireProxy，让 WARP 在本地建议一个 socks5 代理; 2. WARP+ 和 Teams 账户可用于 WireProxy 安装或者升级"
+T[E1]="1. First publication on a global scale: After WirePorxy, another major technological breakthrough -- WARP-Cli's WARP mode solution. Thanks to the original creator -- Teacher LUBAN. It solves two major pain points: 1) The instability of the traditional proxy model; 2) Currently HK does not have a WARP service; "
+T[C1]="1. 全网首发: 继 WirePorxy 之后，又一重大技术突破，WARP-Cli 的 WARP 模式方案，感谢原创者 LUBAN 老师，引用大神的思路，解决两大通点: 1) 传统 proxy 模式的断流和慢; 2) 解决 HK 没有 WARP 服务;"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -19,8 +19,8 @@ T[E4]="The WARP server cannot be connected. It may be a China Mainland VPS. You 
 T[C4]="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.193.10 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E5]="The script supports Debian, Ubuntu, CentOS or Alpine systems only. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C5]="本脚本只支持 Debian、Ubuntu、CentOS 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-T[E6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Upgrade to WARP+ account)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client)\n warp i (Change the WARP IP to support Netflix)\n warp s (WARP single and dual stacks switch echo other. Such as [warp s 4],[warp s 6],[warp s d])\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n"
-T[C6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (免费 WARP 账户升级 WARP+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp i (更换支持 Netflix 的IP)\n warp s [OPTION](WARP 单双栈相互切换，如 [warp s 4]、[warp s 6]、[warp s d])\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n"
+T[E6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Upgrade to WARP+ account)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp s (WARP single and dual stacks switch echo other. Such as [warp s 4],[warp s 6],[warp s d])\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n"
+T[C6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (免费 WARP 账户升级 WARP+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp s [OPTION](WARP 单双栈相互切换，如 [warp s 4]、[warp s 6]、[warp s d])\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n"
 T[E7]="Installing curl..."
 T[C7]="安装curl中……"
 T[E8]="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..."
@@ -55,8 +55,8 @@ T[E22]="Architecture"
 T[C22]="处理器架构"
 T[E23]="Virtualization"
 T[C23]="虚拟化"
-T[E24]="Socks5 Client is on"
-T[C24]="Socks5 Client 已开启"
+T[E24]="Client is on"
+T[C24]="Client 已开启"
 T[E25]="Device name"
 T[C25]="设备名"
 T[E26]="Curren operating system is \$SYS.\\\n The system lower than \$SYSTEM \${MAJOR[int]} is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -175,8 +175,8 @@ T[E82]="Install WARP Client for Linux and Proxy Mode"
 T[C82]="安装 WARP 的 Linux Client 和代理模式"
 T[E83]="Step 1/2: Installing WARP Client..."
 T[C83]="进度 1/2： 安装 Client……"
-T[E84]="Step 2/2: Setting to Proxy Mode"
-T[C84]="进度 2/2： 设置代理模式"
+T[E84]="Step 2/2: Setting Client Mode"
+T[C84]="进度 2/2： 设置 Client 模式"
 T[E85]="Client was installed.\n connect/disconnect by [warp r].\n uninstall by [warp u]"
 T[C85]="Linux Client 已安装\n 连接/断开: warp r\n 卸载: warp u"
 T[E86]="Client is working. Socks5 proxy listening on: \$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')"
@@ -343,6 +343,10 @@ T[E166]="WireProxy was installed.\n connect/disconnect by [warp y]\n uninstall b
 T[C166]="WireProxy 已安装\n 连接/断开: warp y\n 卸载: warp u"
 T[E167]="WARP iptable was installed.\n connect/disconnect by [warp o]\n uninstall by [warp u]"
 T[C167]="WARP iptable 已安装\n 连接/断开: warp o\n 卸载: warp u"
+T[E168]="Install WARP-Cli and set the mode to WARP"
+T[C168]="安装 WARP-Cli 的 WARP 模式方案"
+T[E169]="WARP\$AC IPv4：\$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
+T[C169]="WARP\$AC IPv4：\$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -361,7 +365,7 @@ TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '
 select_language(){
 	case $(cat /etc/wireguard/language 2>&1) in
 	E ) L=E;;	C ) L=C;;
-	* ) L=E && [[ -z $OPTION || $OPTION = [acehdpbvisw46] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
+	* ) L=E && [[ -z $OPTION || $OPTION = [aclehdpbvisw46] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
 	[[ $LANGUAGE = 2 ]] && L=C;;
 	esac
 	}
@@ -427,7 +431,7 @@ check_dependencies(){
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
 	unset IP4 LAN4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
-	IP4=$(curl -ks4m8 https://ip.gs/json)
+	IP4=$(curl -ks4m8 https://ip.gs/json $INTERFACE)
 	LAN4=$(ip route get 162.159.193.10 2>/dev/null | grep -oP 'src \K\S+')
 	WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]*\).*')
 	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
@@ -701,6 +705,8 @@ uninstall(){
 	warp-cli --accept-tos disconnect >/dev/null 2>&1
 	warp-cli --accept-tos disable-always-on >/dev/null 2>&1
 	warp-cli --accept-tos delete >/dev/null 2>&1
+	ip -4 rule delete from 172.16.0.2/32 lookup 51820 >/dev/nulll 2>&1
+	ip -4 rule delete table main suppress_prefixlength 0 >/dev/nulll 2>&1
 	${PACKAGE_UNINSTALL[int]} cloudflare-warp 2>/dev/null
 	systemctl disable --now warp-svc >/dev/null 2>&1
 	rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp
@@ -784,6 +790,35 @@ onoff(){
 # Proxy 开关，先检查是否已安装，再根据当前状态转向相反状态
 proxy_onoff(){
 	! type -P warp-cli >/dev/null 2>&1 && red " ${T[${L}156]} " && exit 1
+	if [[ -e /etc/wireguard/luban ]]; then
+		if [[ $(ip a) =~ 'CloudflareWARP' ]]; then
+		warp-cli --accept-tos disconnect >/dev/null 2>&1
+		warp-cli --accept-tos disable-always-on >/dev/null 2>&1
+		sleep 5
+		[[ $SYSTEM = CentOS ]] && ip -4 rule delete from 172.16.0.2 lookup 51820
+		ip -4 rule delete table main suppress_prefixlength 0
+		green " ${T[${L}91]} " && exit 0
+		else
+		warp-cli --accept-tos connect >/dev/null 2>&1
+		warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+		sleep 5
+		[[ $SYSTEM = CentOS ]] && ip -4 rule add from 172.16.0.2 lookup 51820
+		ip -4 route add default dev CloudflareWARP table 51820
+		ip -4 rule add table main suppress_prefixlength 0
+		INTERFACE='--interface CloudflareWARP'
+		ip4_info; [[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
+		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+		if [[ $ACCOUNT =~ 'Limited' ]]; then
+			QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
+			[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TiB" ||  QUOTA="$((QUOTA/1000000000)) GiB"
+			AC='+'
+		fi
+		[[ $(ip a) =~ 'CloudflareWARP' ]] && green " ${T[${L}90]} $(eval echo "${T[${L}169]}") "
+		[[ $ACCOUNT =~ 'Limited' ]] && green " ${T[${L}63]}：$QUOTA "
+		exit 0
+		fi
+
+	else
 	PROXY=$(warp-cli --accept-tos status 2>/dev/null)
 	case "$PROXY" in
 	*Connecting* ) red " ${T[${L}96]} " && exit 1;;
@@ -796,6 +831,7 @@ proxy_onoff(){
 		fi;;
 	* ) red " ${T[${L}93]} " && exit 1;;
 	esac
+	fi
 	}
 
 # WireProxy 开关，先检查是否已安装，再根据当前状态转向相反状态
@@ -839,7 +875,7 @@ stack_switch(){
 	SWITCH114='sed -i "s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
 	SWITCH116='sed -i "s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
 	
-	[[ $CLIENT = 3 && $SWITCHCHOOSE = [4D] ]] && red " ${T[${L}109]} " && exit 1
+	[[ $CLIENT = [35] && $SWITCHCHOOSE = [4D] ]] && red " ${T[${L}109]} " && exit 1
 	check_stack
 	if [[ $CHOOSE1 = [12] ]]; then TO=$(eval echo \${TO$CHOOSE1[m]})
 	elif [[ $SWITCHCHOOSE = [46D] ]]; then
@@ -902,12 +938,16 @@ EOF
 	# 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义：1=单栈  2=双栈  3=WARP已开启
 	[[ $TRACE4$TRACE6 =~ on|plus ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
 
-	# 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义：0=未安装  1=已安装未激活  2=状态激活  3=Clinet 已开启
+	# 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义：0=未安装  1=已安装未激活  2=状态激活  3=Clinet proxy 已开启  5=Clinet warp 已开启
 	CLIENT=0
 	if type -P warp-cli >/dev/null 2>&1; then
-		CLIENT=1
-		[[ $CLIENT = 1 ]] && CLIENT_INSTALLED="${T[${L}92]}" && [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
-		[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3 && proxy_info
+		CLIENT=1 && CLIENT_INSTALLED="${T[${L}92]}"
+		[[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
+		if [[ -e /etc/wireguard/luban ]]; then
+			[[ $CLIENT = 2 ]] && [[ $(ip a) =~ 'CloudflareWARP' ]] && CLIENT=5 && INTERFACE='--interface CloudflareWARP' && ip4_info
+		else
+			[[ $CLIENT = 2 ]] && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3 && proxy_info
+		fi
 	fi
 
 	# 判断当前 WireProxy 状态，决定变量 WIREPROXY，变量 WIREPROXY 含义：0=未安装  1=已安装未激活  2=状态激活  3=Clinet 已开启
@@ -1446,16 +1486,34 @@ proxy(){
 		# 设置为代理模式，如有 WARP+ 账户，修改 license 并升级
 		green " ${T[${L}84]} "
 		warp-cli --accept-tos register >/dev/null 2>&1
-		warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
-		warp-cli --accept-tos set-proxy-port "$PORT" >/dev/null 2>&1
-		warp-cli --accept-tos connect >/dev/null 2>&1
-		warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-		[[ -n $LICENSE ]] && ( yellow " ${T[${L}35]} " && 
+		[[ -n $LICENSE ]] && ( yellow " ${T[${L}35]} " &&
 		warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1 && sleep 1 &&
 		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
 		[[ $ACCOUNT =~ Limited ]] && echo "$LICENSE" >/etc/wireguard/license && green " ${T[${L}62]} " ||
 		red " ${T[${L}36]} " )
-		sleep 2 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " ${T[${L}87]} " && exit 1 || green " $(eval echo "${T[${L}86]}") "
+		if [[ $LUBAN = 1 ]]; then
+			warp-cli --accept-tos add-excluded-route 0.0.0.0/0 >/dev/null 2>&1
+			warp-cli --accept-tos add-excluded-route ::0/0 >/dev/null 2>&1
+			warp-cli --accept-tos set-mode warp >/dev/null 2>&1
+			warp-cli --accept-tos connect >/dev/null 2>&1
+			warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+			echo '' > /etc/wireguard/luban
+			sleep 5
+			ip -4 rule add from 172.16.0.2 lookup 51820
+			ip -4 route add default dev CloudflareWARP table 51820
+			ip -4 rule add table main suppress_prefixlength 0
+		else
+			warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
+			warp-cli --accept-tos set-proxy-port "$PORT" >/dev/null 2>&1
+			warp-cli --accept-tos connect >/dev/null 2>&1
+			warp-cli --accept-tos enable-always-on >/dev/null 2>&1
+			[[ -n $LICENSE ]] && ( yellow " ${T[${L}35]} " && 
+			warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1 && sleep 1 &&
+			ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
+			[[ $ACCOUNT =~ Limited ]] && echo "$LICENSE" >/etc/wireguard/license && green " ${T[${L}62]} " ||
+			red " ${T[${L}36]} " )
+			sleep 2 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " ${T[${L}87]} " && exit 1 || green " $(eval echo "${T[${L}86]}") "
+		fi
 		}
 	
 	# 禁止安装的情况。重复安装，非 AMD64 CPU 架构，IPv4 是 WARP
@@ -1465,7 +1523,7 @@ proxy(){
 
  	# 安装 WARP Linux Client
 	input_license
-	input_port
+	[[ $LUBAN != 1 ]] && input_port
 	start=$(date +%s)
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	if [[ $CLIENT = 0 ]]; then green " ${T[${L}83]} "
@@ -1486,7 +1544,9 @@ proxy(){
 				../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin
 				make install
 				cd ..; cd ..; rm -rf glibc-2.28*
+			else	${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} cloudflare-warp
 			fi
+
 		else 	${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} lsb-release
 			[[ $SYSTEM = Debian && ! $(type -P gpg 2>/dev/null) ]] && ${PACKAGE_INSTALL[int]} gnupg
 			[[ $SYSTEM = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && ${PACKAGE_INSTALL[int]} apt-transport-https
@@ -1514,10 +1574,26 @@ proxy(){
 	echo "$L" >/etc/wireguard/language
 
 	# 结果提示，脚本运行时间，次数统计
-	proxy_info
-	end=$(date +%s)
-	[[ $ACCOUNT =~ Free ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}27]}") "
-	[[ $ACCOUNT =~ Limited ]] && green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}27]}")\n ${T[${L}63]}：$QUOTA "
+	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+	if [[ $ACCOUNT =~ 'Limited' ]]; then
+		QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
+		[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TiB" ||  QUOTA="$((QUOTA/1000000000)) GiB"
+		AC='+'
+	fi
+
+	if [[ $LUBAN = 1 ]]; then
+		INTERFACE='--interface CloudflareWARP'
+		ip4_info
+		end=$(date +%s)
+		red "\n==============================================================\n"
+		green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}169]}") "
+
+	else	proxy_info
+		end=$(date +%s)
+		red "\n==============================================================\n"
+		green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}27]}") "
+	fi
+	[[ $ACCOUNT =~ 'Limited' ]] && green " ${T[${L}63]}：$QUOTA "
 	red "\n==============================================================\n"
 	yellow " ${T[${L}43]}\n " && help
 	}
@@ -1682,12 +1758,13 @@ menu_setting(){
 	[[ -e /etc/dnsmasq.d/warp.conf ]] && IPTABLE_INSTALLED="${T[${L}92]}"
 	
 	OPTION5="$CLIENT_INSTALLED${T[${L}82]}"; OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}";
-	OPTION11="${T[${L}80]}"; OPTION12="$IPTABLE_INSTALLED${T[${L}138]}"; OPTION13="$WIREPROXY_INSTALLED${T[${L}148]}"; OPTION0="${T[${L}76]}"
+	OPTION11="${T[${L}80]}"; OPTION12="$IPTABLE_INSTALLED${T[${L}138]}"; OPTION13="$WIREPROXY_INSTALLED${T[${L}148]}"; OPTION14="${T[${L}168]}"; OPTION0="${T[${L}76]}"
 
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
 	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
 	ACTION12(){ ANEMONE=1 ;install; }; 
 	ACTION13(){ OCTEEP=1; install; };
+	ACTION14(){ LUBAN=1; proxy; };
 	ACTION0(){ exit; }
 	}
 
@@ -1707,16 +1784,18 @@ menu(){
 	[[ $CLIENT = 0 ]] && green "	${T[${L}112]} "
 	[[ $CLIENT = 2 ]] && green "	${T[${L}113]} "
 	[[ $CLIENT = 3 ]] && green "	WARP$AC ${T[${L}24]}	$(eval echo "${T[${L}27]}") "
+	[[ $CLIENT = 5 ]] && green "	WARP$AC ${T[${L}24]}	$(eval echo "${T[${L}169]}") "
 	[[ $WIREPROXY = 0 ]] && green "	${T[${L}160]} "
 	[[ $WIREPROXY = 2 ]] && green "	${T[${L}161]} "
 	[[ $WIREPROXY = 3 ]] && green "	WARP$AC2 ${T[${L}159]}	$(eval echo "${T[${L}162]}") "	
  	red "\n======================================================================================================================\n"
-	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11\n 12. $OPTION12\n 13. $OPTION13\n 0. $OPTION0\n "
+	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11\n 12. $OPTION12\n 13. $OPTION13\n 14. $OPTION14\n 0. $OPTION0\n "
 	reading " ${T[${L}50]} " CHOOSE1
 		case "$CHOOSE1" in
 		1 ) ACTION1;; 2 ) ACTION2;; 3 ) ACTION3;; 4 ) ACTION4;; 5 ) ACTION5;;
 		6 ) ACTION6;; 7 ) ACTION7;; 8 ) ACTION8;; 9 ) ACTION9;; 10 ) ACTION10;;
-		11 ) ACTION11;; 12 ) ACTION12;; 13 ) ACTION13;; 0 ) ACTION0;; * ) red " ${T[${L}51]} [0-10] "; sleep 1; menu;;
+		11 ) ACTION11;; 12 ) ACTION12;; 13 ) ACTION13;; 14 ) ACTION14;;
+		0 ) ACTION0;; * ) red " ${T[${L}51]} [0-10] "; sleep 1; menu;;
 		esac
 	}
 
@@ -1776,15 +1855,16 @@ case "$OPTION" in
 	yellow " ${T[${L}79]} " && stack_switch
 	else
 		case "$OPTION" in
-		4 ) [[ $CLIENT = 3 ]] && red " ${T[${L}110]} " && exit 1
+		4 ) [[ $CLIENT = [35] ]] && red " ${T[${L}110]} " && exit 1
 		    CONF=${CONF1[m]};; 
 		6 ) CONF=${CONF2[m]};;
-		d ) [[ $CLIENT = 3 ]] && red " ${T[${L}110]} " && exit 1
+		d ) [[ $CLIENT = [35] ]] && red " ${T[${L}110]} " && exit 1
 		    CONF=${CONF3[m]};;
 		esac
 		install
 	fi;;
 c )	proxy;;
+l )	LUBAN=1 && proxy;;
 a )	update;;
 e )	stream_solution;;
 w )	wireproxy_solution;;
