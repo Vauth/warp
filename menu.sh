@@ -171,8 +171,8 @@ T[E80]="Professional one-click script for WARP to unblock streaming media (Suppo
 T[C80]="WARP 解锁 Netflix 等流媒体专业一键(支持多平台、多方式和 TG 通知)"
 T[E81]="Step 3/3: Searching for the best MTU value is ready."
 T[C81]="进度 3/3：寻找 MTU 最优值已完成"
-T[E82]="Install WARP Client for Linux and Proxy Mode"
-T[C82]="安装 WARP 的 Linux Client 和代理模式"
+T[E82]="Install CloudFlare Client and set mode to Proxy"
+T[C82]="安装 CloudFlare Client 并设置为 Proxy 模式"
 T[E83]="Step 1/2: Installing WARP Client..."
 T[C83]="进度 1/2： 安装 Client……"
 T[E84]="Step 2/2: Setting Client Mode"
@@ -343,8 +343,8 @@ T[E166]="WireProxy was installed.\n connect/disconnect by [warp y]\n uninstall b
 T[C166]="WireProxy 已安装\n 连接/断开: warp y\n 卸载: warp u"
 T[E167]="WARP iptable was installed.\n connect/disconnect by [warp o]\n uninstall by [warp u]"
 T[C167]="WARP iptable 已安装\n 连接/断开: warp o\n 卸载: warp u"
-T[E168]="Install WARP-Cli and set the mode to WARP"
-T[C168]="安装 WARP-Cli 的 WARP 模式方案"
+T[E168]="Install CloudFlare Client and set mode to WARP"
+T[C168]="安装 CloudFlare Client 并设置为 WARP 模式"
 T[E169]="WARP\$AC IPv4：\$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
 T[C169]="WARP\$AC IPv4：\$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
 
@@ -1529,6 +1529,8 @@ proxy(){
 		[[ $ACCOUNT =~ Limited ]] && echo "$LICENSE" >/etc/wireguard/license && green " ${T[${L}62]} " ||
 		red " ${T[${L}36]} " )
 		if [[ $LUBAN = 1 ]]; then
+			i=1; j=5; INTERFACE='--interface CloudflareWARP'
+			yellow " $(eval echo "${T[${L}11]}")\n $(eval echo "${T[${L}12]}") "
 			warp-cli --accept-tos add-excluded-route 0.0.0.0/0 >/dev/null 2>&1
 			warp-cli --accept-tos add-excluded-route ::0/0 >/dev/null 2>&1
 			warp-cli --accept-tos set-mode warp >/dev/null 2>&1
@@ -1539,7 +1541,6 @@ proxy(){
 			ip -4 rule add from 172.16.0.2 lookup 51820
 			ip -4 route add default dev CloudflareWARP table 51820
 			ip -4 rule add table main suppress_prefixlength 0
-			i=1; j=5; INTERFACE='--interface CloudflareWARP'
 			ip4_info
 			until [[ -n $IP4 ]]
 			do	(( i++ )) || true
@@ -1564,6 +1565,7 @@ proxy(){
 					red " $(eval echo "${T[${L}13]}") " && exit 1
 				fi
 			done
+			green " ${T[${L}14]} "
 		else
 			warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
 			warp-cli --accept-tos set-proxy-port "$PORT" >/dev/null 2>&1
