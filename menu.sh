@@ -1569,11 +1569,6 @@ proxy(){
 			warp-cli --accept-tos set-proxy-port "$PORT" >/dev/null 2>&1
 			warp-cli --accept-tos connect >/dev/null 2>&1
 			warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-			[[ -n $LICENSE ]] && ( yellow " ${T[${L}35]} " && 
-			warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1 && sleep 1 &&
-			ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
-			[[ $ACCOUNT =~ Limited ]] && echo "$LICENSE" >/etc/wireguard/license && green " ${T[${L}62]} " ||
-			red " ${T[${L}36]} " )
 			sleep 2 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && red " ${T[${L}87]} " && exit 1 || green " $(eval echo "${T[${L}86]}") "
 		fi
 		}
