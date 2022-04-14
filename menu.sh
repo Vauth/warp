@@ -588,9 +588,13 @@ change_ip(){
 
 	change_client(){
 		client_restart(){
-			red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1 && warp-cli --accept-tos register >/dev/null 2>&1 &&
+			[[ $(warp-cli --accept-tos settings) =~ WarpProxy ]] && CLIENT_PROXY=1
+			red " $(eval echo "${T[${L}126]}") " && warp-cli --accept-tos delete >/dev/null 2>&1
+			[[ $CLIENT_PROXY != 1 ]] && ( ip -4 rule delete from 172.16.0.2/32 lookup 51820; ip -4 rule delete table main suppress_prefixlength 0 )
+			warp-cli --accept-tos register >/dev/null 2>&1 &&
 			[[ -e /etc/wireguard/license ]] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1
 			sleep $j
+			[[ $CLIENT_PROXY != 1 ]] && ( ip -4 rule add from 172.16.0.2 lookup 51820; ip -4 route add default dev CloudflareWARP table 51820; ip -4 rule add table main suppress_prefixlength 0 )
 			}
 
 		if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
