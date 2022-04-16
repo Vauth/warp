@@ -818,6 +818,7 @@ onoff(){
 proxy_onoff(){
 	! type -P warp-cli >/dev/null 2>&1 && red " ${T[${L}93]} " && exit 1
 	if systemctl is-active warp-svc >/dev/null 2>&1; then
+		[[ ! $(warp-cli --accept-tos settings) =~ WarpProxy ]] && ( ip -4 rule delete from 172.16.0.2/32 lookup 51820; ip -4 rule delete table main suppress_prefixlength 0 )
 		systemctl stop warp-svc
 		green " ${T[${L}91]} " && exit 0
 
@@ -834,7 +835,9 @@ proxy_onoff(){
 			[[ -n "$QUOTA" ]] && green " ${T[${L}63]}：$QUOTA "
 		exit 0
 
-		else INTERFACE='--interface CloudflareWARP' && ip4_info
+		else INTERFACE='--interface CloudflareWARP'
+			ip -4 rule add from 172.16.0.2 lookup 51820; ip -4 route add default dev CloudflareWARP table 51820; ip -4 rule add table main suppress_prefixlength 0
+			ip4_info
 			[[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
 			ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 			if [[ $ACCOUNT =~ 'Limited' ]]; then
