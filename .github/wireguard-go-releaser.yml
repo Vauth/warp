@@ -9,8 +9,8 @@ builds:
       - -s -w -X main.version={{.Version}} -X main.arch={{.Arch}}
     goos:
       - linux
-#      - windows
-#      - darwin
+      - windows
+      - darwin
     goarch:
       - arm
       - arm64
