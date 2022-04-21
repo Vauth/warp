@@ -1,5 +1,4 @@
-#!/bin/bash
-export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/sbin:/bin
+#!/usr/bin/env bash
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
@@ -115,8 +114,8 @@ T[E52]="Please input WARP+ ID:"
 T[C52]="请输入 WARP+ ID:"
 T[E53]="WARP+ ID should be 36 characters, please re-enter \(\$i times remaining\):"
 T[C53]="WARP+ ID 应为36位字符，请重新输入 \(剩余\$i次\):"
-T[E54]="Getting the WARP+ quota by the following 2 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n	* [SoftCreatR]，[https://github.com/SoftCreatR/warp-up]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen."
-T[C54]="刷 WARP+ 流量用可选择以下两位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n	* [SoftCreatR]，地址[https://github.com/SoftCreatR/warp-up]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
+T[E54]="Getting the WARP+ quota by the following 3 authors:\n	* [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n	* [SoftCreatR]，[https://github.com/SoftCreatR/warp-up]\n * Open the 1.1.1.1 app\n * Click on the hamburger menu button on the top-right corner\n * Navigate to: Account > Key\n Important：Refresh WARP+ quota： 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen."
+T[C54]="刷 WARP+ 流量用可选择以下三位作者的成熟作品，请熟知:\n	* [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	* [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n	* [SoftCreatR]，地址[https://github.com/SoftCreatR/warp-up]\n 下载地址：https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法：App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要：刷脚本后流量没有增加处理：右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
 T[E55]="1.Run [ALIILAPRO] script\n 2.Run [mixool] script\n 3.Run [SoftCreatR] script"
 T[C55]="1.运行 [ALIILAPRO] 脚本\n 2.运行 [mixool] 脚本\n 3.运行 [SoftCreatR] 脚本"
 T[E56]="The current Netflix region is \$REGION. Confirm press [y] . If you want another regions, please enter the two-digit region abbreviation. \(such as hk,sg. Default is \$REGION\):"
@@ -522,11 +521,11 @@ plus(){
 		2 ) input
 		    reading " ${T[${L}57]} " MISSION
 		    MISSION=${MISSION//[^0-9]/}
-		    bash <(wget --no-check-certificate -qO- -T8 https://cdn.jsdelivr.net/gh/fscarmen/tools/warp_plus.sh) $MISSION $ID;;
+		    bash <(wget --no-check-certificate -qO- -T8 https://raw.githubusercontents.com/fscarmen/tools/main/warp_plus.sh) $MISSION $ID;;
 		3 ) input
 		    reading " ${T[${L}57]} " MISSION
 		    MISSION=${MISSION//[^0-9]/}
-		    bash <(wget --no-check-certificate -qO- -T8 https://cdn.jsdelivr.net/gh/SoftCreatR/warp-up/warp-up.sh) --disclaimer --id $ID --iterations $MISSION;;
+		    bash <(wget --no-check-certificate -qO- -T8 https://raw.githubusercontents.com/SoftCreatR/warp-up/main/warp-up.sh) --disclaimer --id $ID --iterations $MISSION;;
 		4 ) [[ $OPTION != p ]] && menu || exit;;
 		* ) red " ${T[${L}51]} [1-4] "; sleep 1; plus;;
 	esac
@@ -768,7 +767,7 @@ uninstall(){
 	
 # 同步脚本至最新版本
 ver(){
-	wget -N -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || wget -N -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh
+	wget -N -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || wget -N -P /etc/wireguard https://raw.githubusercontents.com/fscarmen/warp/main/menu.sh
 	chmod +x /etc/wireguard/menu.sh
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp
 	green " ${T[${L}64]}:$(grep ^VERSION /etc/wireguard/menu.sh | sed "s/.*=//g")  ${T[${L}18]}：$(grep "T\[${L}1]" /etc/wireguard/menu.sh | cut -d \" -f2) " || red " ${T[${L}65]} "
@@ -1208,22 +1207,22 @@ install(){
 	start=$(date +%s)
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.12
+	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.13
 	{	
 	latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
-	latest=${latest:-'2.2.12'}
+	latest=${latest:-'2.2.13'}
 
-	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
+	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
 	wget --no-check-certificate -T1 -t1 $CDN -O /usr/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE ||
-	wget --no-check-certificate $CDN -O /usr/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf/wgcf_"$latest"_linux_$ARCHITECTURE
+	wget --no-check-certificate $CDN -O /usr/bin/wgcf https://raw.githubusercontents.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_linux_$ARCHITECTURE
 	chmod +x /usr/bin/wgcf
 
-	# 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 jsDelivr 的 CDN，以更好的支持双栈。并添加执行权限
+	# 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
 	if [[ $OCTEEP = 1 ]]; then
 		wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 		wireproxy_latest=${wireproxy_latest:-'1.0.3'}
 		wget --no-check-certificate -T1 -t1 $CDN -N https://github.com/octeep/wireproxy/releases/download/v"$wireproxy_latest"/wireproxy_linux_$ARCHITECTURE.tar.gz ||
-		wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
+		wget --no-check-certificate $CDN -N https://raw.githubusercontents.com/fscarmen/warp/main/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
 		tar xzf wireproxy_linux_$ARCHITECTURE.tar.gz -C /usr/bin/; rm -f wireproxy_linux*
 	fi
 	
@@ -1464,7 +1463,7 @@ EOF
 
 	# 如是 LXC，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
 	[[ $LXC = 1 ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
-	wget --no-check-certificate $CDN -N https://cdn.jsdelivr.net/gh/fscarmen/warp/wireguard-go/wireguard-go_linux_$ARCHITECTURE.tar.gz &&
+	wget --no-check-certificate $CDN -N https://raw.githubusercontents.com/fscarmen/warp/main/wireguard-go/wireguard-go_linux_"$ARCHITECTURE".tar.gz &&
 	tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
 
 	# 保存好配置文件
