@@ -168,7 +168,7 @@ ver(){
 	sudo wget -N -P /etc/wireguard https://raw.githubusercontents.com/fscarmen/warp/main/pc/mac.sh
 	chmod +x /etc/wireguard/mac.sh
 	sudo ln -sf /etc/wireguard/mac.sh /usr/local/bin/warp
-	green " ${T[${L}28]}:$(grep ^VERSION /etc/wireguard/mac.sh | sed "s/.*=//g")  ${T[${L}29]}：$(grep "T\[${L}1]" /etc/wireguard/menu.sh | cut -d \" -f2) " || red " ${T[${L}30]} "
+	green " ${T[${L}28]}:$(grep ^VERSION /etc/wireguard/mac.sh | sed "s/.*=//g")  ${T[${L}29]}：$(grep "T\[${L}1]" /etc/wireguard/mac.sh | cut -d \" -f2) " || red " ${T[${L}30]} "
 	exit
 }
 
@@ -204,12 +204,12 @@ install(){
 	start=$(date +%s)
 
 	# 安装 brew 和 wireguard-tools
-	green " \n${T[${L}10]}\n "
+	green "\n ${T[${L}10]}\n "
 	! type -p brew >/dev/null 2>&1 && /bin/zsh -c "$(curl -fsSL https://gitee.com/cunkai/HomebrewCN/raw/master/Homebrew.sh)"
 	! type -p wg >/dev/null 2>&1 && brew install wireguard-tools
 
 	# 判断 wgcf 的最新版本并安装
-	green " \n${T[${L}11]}\n "
+	green "\n ${T[${L}11]}\n "
 	latest=$(curl -fsSL "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 	latest=${latest:-'2.2.13'}
 	curl -m8 -o /usr/local/bin/wgcf https://raw.githubusercontents.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_darwin_amd64
@@ -245,7 +245,7 @@ install(){
 	echo "$L" 2>&1 | sudo tee /etc/wireguard/language
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
-	green " \n${T[${L}12]}\n "
+	green "\n ${T[${L}12]}\n "
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
 	net
 
