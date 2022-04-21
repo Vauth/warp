@@ -3,7 +3,8 @@ mac 的 WARP 一键脚本，使用 WireGuard 隧道， WARP 服务
 
 <img width="760" alt="image" src="https://user-images.githubusercontent.com/62703343/164387239-e9a271a3-681d-45fd-a97c-16db4b6c5974.png">
 
-<img width="1276" alt="image" src="https://user-images.githubusercontent.com/62703343/164387867-560de6eb-ac63-4648-a330-8ebe0f05c1b0.png">
+<img width="1274" alt="image" src="https://user-images.githubusercontent.com/62703343/164391655-60338df6-501c-4d44-82c7-6fffe453c092.png">
+
 
 中文安装
 ```
