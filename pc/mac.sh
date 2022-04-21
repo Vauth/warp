@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ##### 为 macOS 添加 WGCF，IPv4走 warp #####
 # 当前脚本版本号和新增功能
