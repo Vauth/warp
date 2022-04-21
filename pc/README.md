@@ -1,0 +1,20 @@
+电信 100兆家庭宽带下的效果:
+
+<img width="760" alt="image" src="https://user-images.githubusercontent.com/62703343/164387239-e9a271a3-681d-45fd-a97c-16db4b6c5974.png">
+
+<img width="1276" alt="image" src="https://user-images.githubusercontent.com/62703343/164387867-560de6eb-ac63-4648-a330-8ebe0f05c1b0.png">
+
+中文安装
+```
+curl -o /usr/local/bin/mac.sh https://raw.githubusercontents.com/fscarmen/warp/main/pc/mac.sh && bash mac.sh c
+```
+
+英文安装
+```
+curl -o /usr/local/bin/mac.sh https://raw.githubusercontents.com/fscarmen/warp/main/pc/mac.sh && bash mac.sh e
+```
+
+卸载
+```
+warp u
+```
