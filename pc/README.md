@@ -8,15 +8,26 @@ mac 的 WARP 一键脚本，使用 WireGuard 隧道， WARP 服务
 
 中文安装
 ```
-curl -o /usr/local/bin/mac.sh https://raw.githubusercontents.com/fscarmen/warp/main/pc/mac.sh && bash mac.sh c
+sudo curl -o /usr/local/bin/mac.sh https://raw.githubusercontents.com/fscarmen/warp/main/pc/mac.sh && bash mac.sh c
 ```
 
 英文安装
 ```
-curl -o /usr/local/bin/mac.sh https://raw.githubusercontents.com/fscarmen/warp/main/pc/mac.sh && bash mac.sh e
+sudo curl -o /usr/local/bin/mac.sh https://raw.githubusercontents.com/fscarmen/warp/main/pc/mac.sh && bash mac.sh e
 ```
 
 卸载
 ```
 warp u
 ```
+ 
+  | [option] | 具体动作说明 |
+  | ----------------- | --------------- |
+  | c | 指定中文安装 |
+  | e | 指定英文安装 |
+  | o | WARP 开关，脚本主动判断当前状态，自动开或关 |
+  | u | 卸载 WARP |
+  | n | 断网时，用于刷WARP网络 |
+  | a | 免费 WARP 账户升级 WARP+ 或 Teams |
+  | v | 同步脚本至最新版本 |
+  | h 或空值| 帮助 |
