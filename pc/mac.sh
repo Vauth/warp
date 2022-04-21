@@ -104,6 +104,12 @@ T[E47]="\\\n Please confirm\\\n Private key\\\t: \$PRIVATEKEY \$MATCH1\\\n Publi
 T[C47]="\\\n 请确认Teams 信息\\\n Private key\\\t: \$PRIVATEKEY \$MATCH1\\\n Public key\\\t: \$PUBLICKEY \$MATCH2\\\n Address IPv4\\\t: \$ADDRESS4/32 \$MATCH3\\\n Address IPv6\\\t: \$ADDRESS6/128 \$MATCH4\\\n"
 T[E48]="comfirm please enter [y] , and other keys to use free account:"
 T[C48]="确认请按 y ，其他按键则使用免费账户:"
+T[E49]="\n Is there a WARP+ or Teams account?\n 1. WARP+\n 2. Teams\n 3. use free account (default)\n"
+T[C49]="\n 如有 WARP+ 或 Teams 账户请选择\n 1. WARP+\n 2. Teams\n 3. 使用免费账户 (默认)\n"
+T[E50]="If there is a WARP+ License, please enter it, otherwise press Enter to continue:"
+T[C50]="如有 WARP+ License 请输入，没有可回车继续:"
+T[E51]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\):"
+T[C51]="License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\$i次\):"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -132,12 +138,13 @@ help(){	yellow " ${T[${L}20]} "; }
 
 check_operating_system(){
 	sw_vesrs 2>/dev/null | grep -qvi macos && red " ${T[${L}5]} " && exit 1
+	ARCHITECTURE=$(uname -m | sed s/x86_64/amd64/)
 }
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
 	unset IP4 LAN4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
-	IP4=$(curl -ks4m8 https://ip.gs/json)
+	IP4=$(curl -ks4m10 https://ip.gs/json)
 	WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]*\).*')
 	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
 	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
@@ -150,7 +157,7 @@ ip4_info(){
 
 ip6_info(){
 	unset IP6 LAN6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
-	IP6=$(curl -ks6m8 https://ip.gs/json)
+	IP6=$(curl -ks6m10 https://ip.gs/json)
 	WAN6=$(expr "$IP6" : '.*ip\":\"\([^"]*\).*')
 	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
 	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
@@ -224,13 +231,12 @@ install(){
 	sudo rm -rf wgcf wireguard-go wgcf-account.toml wgcf-profile.conf /etc/wireguard
 	sudo mkdir -p /etc/wireguard/ >/dev/null 2>&1
 
-	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
-	[[ -z $LICENSE ]] && reading " ${T[${L}6]} " LICENSE
-	i=5
-	until [[ -z $LICENSE || $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
-		do	(( i-- )) || true
-			[[ $i = 0 ]] && red " ${T[${L}7]} " && exit 1 || reading " $(eval echo "${T[${L}8]}") " LICENSE
-	done
+	# 询问是否有 WARP+ 或 Teams 账户
+	[[ -z $LICENSETYPE ]] && yellow " ${T[${L}49]}" && reading " ${T[${L}3]} " LICENSETYPE
+	case $LICENSETYPE in
+	1 ) input_license;;	
+	2 ) input_url;;
+	esac
 
 	[[ -n $LICENSE && -z $NAME ]] && reading " ${T[${L}9]} " NAME
 	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
@@ -247,11 +253,11 @@ install(){
 	green "\n ${T[${L}11]}\n "
 	latest=$(curl -fsSL "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 	latest=${latest:-'2.2.13'}
-	[[ ! -e /usr/local/bin/wgcf ]] && curl -m8 -o /usr/local/bin/wgcf https://raw.githubusercontents.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_darwin_amd64
+	[[ ! -e /usr/local/bin/wgcf ]] && curl -o /usr/local/bin/wgcf https://raw.githubusercontents.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_darwin_"$ARCHITECTURE"
 
 	# 安装 wireguard-go
-	[[ ! -e /usr/local/bin/wireguard-go ]] && curl -o /usr/local/bin/wireguard-go_darwin_amd64.tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/wireguard-go/wireguard-go_darwin_amd64.tar.gz &&
-	tar xzf /usr/local/bin/wireguard-go_darwin_amd64.tar.gz -C /usr/local/bin/ && rm -f /usr/local/bin/wireguard-go_darwin_amd64.tar.gz
+	[[ ! -e /usr/local/bin/wireguard-go ]] && curl -o /usr/local/bin/wireguard-go_darwin_"$ARCHITECTURE".tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/wireguard-go/wireguard-go_darwin_"$ARCHITECTURE".tar.gz &&
+	tar xzf /usr/local/bin/wireguard-go_darwin_"$ARCHITECTURE".tar.gz -C /usr/local/bin/ && rm -f /usr/local/bin/wireguard-go_darwin_"$ARCHITECTURE".tar.gz
 
 	# 添加执行权限
 	sudo chmod +x /usr/local/bin/wireguard-go /usr/local/bin/wgcf
@@ -262,23 +268,26 @@ install(){
 		wgcf register --accept-tos >/dev/null 2>&1 && break
 	done
 
-	# 如有 Warp+ 账户，修改 license 并升级
+	# 如有 WARP+ 账户，修改 license 并升级
 	[[ -n $LICENSE ]] && yellow " \n${T[${L}13]}\n " && sudo sed -i '' "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update --name "$NAME" | sudo tee /etc/wireguard/info.log 2>&1 || red " \n${T[${L}14]}\n " )
+	( wgcf update --name "$NAME" | sudo tee /etc/wireguard/info.log >/dev/null 2>&1 || red " \n${T[${L}14]}\n " )
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
+
+	# 如有 Teams，改为 Teams 账户信息
+	[[ $CONFIRM = [Yy] ]] && echo "$TEAMS" | sudo tee /etc/wireguard/info.log >/dev/null 2>&1
+	sudo sed -i '' "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" wgcf-profile.conf
   
 	# 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 WireGuard 接管
 	sudo sed -i '' 's/engage.cloudflareclient.com/162.159.193.10/g' wgcf-profile.conf
-
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	sudo cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
 	sudo mv -f wgcf-account.toml wgcf-profile.conf mac.sh /etc/wireguard >/dev/null 2>&1
 	ln -sf /etc/wireguard/mac.sh /usr/local/bin/warp && green " ${T[${L}27]} "
 	sudo chmod +x /usr/local/bin/warp
-	echo "$L" 2>&1 | sudo tee /etc/wireguard/language
+	echo "$L" | sudo tee /etc/wireguard/language >/dev/null 2>&1
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
 	green "\n ${T[${L}12]}\n "
@@ -301,6 +310,18 @@ install(){
 	rm -f mac.sh wgcf-account.toml wgcf-profile.conf
 }
 
+# 输入 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
+input_license(){
+	[[ -z $LICENSE ]] && reading " ${T[${L}50]} " LICENSE
+	i=5
+	until [[ -z $LICENSE || $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
+		do	(( i-- )) || true
+			[[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "${T[${L}51]}") " LICENSE
+	done
+	[[ -n $LICENSE && -z $NAME ]] && reading " ${T[${L}43]} " NAME
+	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
+}
+
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
 update_license(){
 	[[ -z $LICENSE ]] && reading " ${T[${L}41]} " LICENSE
@@ -309,7 +330,7 @@ update_license(){
 		do	(( i-- )) || true
 			[[ $i = 0 ]] && red " ${T[${L}7]} " && exit 1 || reading " $(eval echo "${T[${L}42]}") " LICENSE
 	done
-	[[ -z $NAME ]] && reading " ${T[${L}43]} " NAME
+	[[ -n $LICENSE && -z $NAME ]] && reading " ${T[${L}43]} " NAME
 	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
 }
 
@@ -343,7 +364,7 @@ update(){
 	1 ) update_license
 	cd /etc/wireguard || exit
 	sudo sed -i '' "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
-	wgcf update --name "$NAME" 2>&1 | sudo tee /etc/wireguard/info.log &&
+	wgcf update --name "$NAME" | sudo tee /etc/wireguard/info.log >/dev/null 2>&1 &&
 	(wgcf generate >/dev/null 2>&1
 	sudo sed -i '' "2s#.*#$(sed -ne 2p wgcf-profile.conf)#;3s#.*#$(sed -ne 3p wgcf-profile.conf)#;4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
 	wg-quick down wgcf >/dev/null 2>&1
@@ -352,7 +373,7 @@ update(){
 	green " ${T[${L}35]}\n ${T[${L}36]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}37]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}38]} ";;
 
 	2 ) input_url
-	[[ $CONFIRM = [Yy] ]] && (echo "$TEAMS" 2>&1 | sudo tee /etc/wireguard/info.log
+	[[ $CONFIRM = [Yy] ]] && (echo "$TEAMS" | sudo tee /etc/wireguard/info.log >/dev/null 2>&1
 	sudo sed -i '' "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" /etc/wireguard/wgcf.conf
 	wg-quick down wgcf >/dev/null 2>&1; net
 	[[ $(curl -ks4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -ks6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] && green " ${T[${L}39]} ");;
