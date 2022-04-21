@@ -1,3 +1,4 @@
+mac 的 WARP 一键脚本，使用 WireGuard 隧道， WARP 服务
 电信 100兆家庭宽带下的效果:
 
 <img width="760" alt="image" src="https://user-images.githubusercontent.com/62703343/164387239-e9a271a3-681d-45fd-a97c-16db4b6c5974.png">
