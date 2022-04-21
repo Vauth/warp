@@ -14,8 +14,8 @@ T[E2]="The script must be run as root, you can enter sudo -i and then download a
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="Choose:"
 T[C3]="请选择:"
-T[E4]="WARP interface, Linux Client and WirePorxy have been completely deleted!"
-T[C4]="WARP 网络接口、 Linux Client 和 WirePorxy 已彻底删除!"
+T[E4]="WARP have been completely deleted!"
+T[C4]="WARP 已彻底删除!"
 T[E5]="The script supports macOS only. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C5]="本脚本只支持 macOS, 问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E6]="If there is a WARP+ License, please enter it, otherwise press Enter to continue:"
@@ -46,8 +46,8 @@ T[E18]="Run again with warp [option] [lisence], such as"
 T[C18]="再次运行用 warp [option] [lisence]，如"
 T[E19]="WARP installation failed. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C19]="WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-T[E20]="warp h (help)\n warp o (WARP on-off)\n warp u (Turn off and uninstall WARP interface)\n warp a (Upgrade to WARP+ account)\n warp e (Install WARP in English)\n warp c (Install WARP in Chinese)\n warp v (Sync the latest version)"
-T[C20]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP )\n warp a (免费 WARP 账户升级 WARP+)\n warp e (英文安装 WARP )\n bash warp c (中文安装 WARP )\n warp v (同步脚本至最新版本)"
+T[E20]="warp h (help)\n warp o (WARP on-off)\n warp u (Turn off and uninstall WARP interface)\n warp a (Upgrade to WARP+ or Teams account)\n warp e (Install WARP in English)\n warp c (Install WARP in Chinese)\n warp v (Sync the latest version)"
+T[C20]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP )\n warp a (免费 WARP 账户升级 WARP+ 或 Teams)\n warp e (英文安装 WARP )\n warp c (中文安装 WARP )\n warp v (同步脚本至最新版本)"
 T[E21]="WGCF WARP has not been installed yet."
 T[C21]="WGCF WARP 还未安装"
 T[E22]="WARP is turned off. It could be turned on again by [warp o]"
@@ -68,7 +68,42 @@ T[E29]="New features"
 T[C29]="功能新增"
 T[E30]="Upgrade failed. Feedback:[https://github.com/fscarmen/warp/issues]"
 T[C30]="升级失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-
+T[E31]="WARP+ or Teams account is working now. No need to upgrade."
+T[C31]="已经是 WARP+ 或者 Teams 账户，不需要升级"
+T[E32]="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License"
+T[C32]="找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
+T[E33]="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License"
+T[C33]="找不到配置文件： /etc/wireguard/wgcf.conf，可以卸载后重装，输入 WARP+ Licens"
+T[E34]="\n 1.Update with WARP+ license\n 2.Update with Teams (You need upload the Teams file to a private storage space before. For example: gist.github.com)\n"
+T[C34]="\n 1.使用 WARP+ license 升级\n 2.使用 Teams 升级 (你须事前把 Teams 文件上传到私密存储空间，比如：gist.github.com )\n"
+T[E35]="Successfully upgraded to a WARP+ account"
+T[C35]="已升级为 WARP+ 账户"
+T[E36]="Device name"
+T[C36]="设备名"
+T[E37]="WARP+ quota"
+T[C37]="剩余流量"
+T[E38]="The upgrade failed, WARP+ account error or more than 5 devices have been activated. Free WARP account to continu."
+T[C38]="升级失败，WARP+ 账户错误或者已激活超过5台设备，自动更换免费 WARP 账户继续"
+T[E39]="Successfully upgraded to a WARP Teams account"
+T[C39]="已升级为 WARP Teams 账户"
+T[E40]="Please enter the correct number"
+T[C40]="请输入正确数字"
+T[E41]="Please Input WARP+ license:"
+T[C41]="请输入WARP+ License:"
+T[E42]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\${i} times remaining\): "
+T[C42]="License 应为26位字符,请重新输入 WARP+ License \(剩余\${i}次\): "
+T[E43]="Please customize the WARP+ device name (Default is [WARP] if left blank):"
+T[C43]="请自定义 WARP+ 设备名 (如果不输入，默认为 [WARP]):"
+T[E44]="Please input Teams file URL (To use the one provided by the script if left blank):" 
+T[C44]="请输入 Teams 文件 URL (如果留空，则使用脚本提供的):"
+T[E45]="( match √ )"
+T[C45]="( 符合 √ )"
+T[E46]="( mismatch X )"
+T[C46]="( 不符合 X )"
+T[E47]="\\\n Please confirm\\\n Private key\\\t: \$PRIVATEKEY \$MATCH1\\\n Public key\\\t: \$PUBLICKEY \$MATCH2\\\n Address IPv4\\\t: \$ADDRESS4/32 \$MATCH3\\\n Address IPv6\\\t: \$ADDRESS6/128 \$MATCH4\\\n"
+T[C47]="\\\n 请确认Teams 信息\\\n Private key\\\t: \$PRIVATEKEY \$MATCH1\\\n Public key\\\t: \$PUBLICKEY \$MATCH2\\\n Address IPv4\\\t: \$ADDRESS4/32 \$MATCH3\\\n Address IPv6\\\t: \$ADDRESS6/128 \$MATCH4\\\n"
+T[E48]="comfirm please enter [y] , and other keys to use free account:"
+T[C48]="确认请按 y ，其他按键则使用免费账户:"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -91,7 +126,6 @@ select_language(){
 	[[ $LANGUAGE = 2 ]] && L=C;;
 	esac
 }
-
 
 # 帮助说明
 help(){	yellow " ${T[${L}20]} "; }
@@ -159,14 +193,14 @@ net(){
 
 # WARP 开关，先检查是否已安装，再根据当前状态转向相反状态
 onoff(){ 
-	! type -P wg-quick >/dev/null 2>&1 && red " ${T[${L}21]} " && exit 1
+	! type -p wg-quick >/dev/null 2>&1 && red " ${T[${L}21]} " && exit 1
 	[[ -n $(sudo wg 2>/dev/null) ]] && (wg-quick down wgcf >/dev/null 2>&1; green " ${T[${L}22]} ") || net
 }
 
 # 同步脚本至最新版本
 ver(){
 	sudo wget -N -P /etc/wireguard https://raw.githubusercontents.com/fscarmen/warp/main/pc/mac.sh
-	chmod +x /etc/wireguard/mac.sh
+	sudo chmod +x /etc/wireguard/mac.sh
 	sudo ln -sf /etc/wireguard/mac.sh /usr/local/bin/warp
 	green " ${T[${L}28]}:$(grep ^VERSION /etc/wireguard/mac.sh | sed "s/.*=//g")  ${T[${L}29]}：$(grep "T\[${L}1]" /etc/wireguard/mac.sh | cut -d \" -f2) " || red " ${T[${L}30]} "
 	exit
@@ -185,8 +219,9 @@ uninstall(){
 }
 
 install(){
-	# 进入工作目录
-	cd /usr/local/bin
+	# 进入工作目录，先删除之前安装，可能导致失败的文件
+	cd /usr/local/bin || exit
+	sudo rm -rf wgcf wireguard-go wgcf-account.toml wgcf-profile.conf /etc/wireguard
 	sudo mkdir -p /etc/wireguard/ >/dev/null 2>&1
 
 	# 输入 Warp+ 账户（如有），限制位数为空或者26位以防输入错误
@@ -212,14 +247,14 @@ install(){
 	green "\n ${T[${L}11]}\n "
 	latest=$(curl -fsSL "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 	latest=${latest:-'2.2.13'}
-	curl -m8 -o /usr/local/bin/wgcf https://raw.githubusercontents.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_darwin_amd64
+	[[ ! -e /usr/local/bin/wgcf ]] && curl -m8 -o /usr/local/bin/wgcf https://raw.githubusercontents.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_darwin_amd64
 
 	# 安装 wireguard-go
-	curl -o /usr/local/bin/wireguard-go_darwin_amd64.tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/wireguard-go/wireguard-go_darwin_amd64.tar.gz &&
+	[[ ! -e /usr/local/bin/wireguard-go ]] && curl -o /usr/local/bin/wireguard-go_darwin_amd64.tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/wireguard-go/wireguard-go_darwin_amd64.tar.gz &&
 	tar xzf /usr/local/bin/wireguard-go_darwin_amd64.tar.gz -C /usr/local/bin/ && rm -f /usr/local/bin/wireguard-go_darwin_amd64.tar.gz
 
 	# 添加执行权限
-	chmod +x /usr/local/bin/wireguard-go /usr/local/bin/wgcf
+	sudo chmod +x /usr/local/bin/wireguard-go /usr/local/bin/wgcf
 
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息，为避免文件已存在导致出错，先尝试删掉原文件)
 	rm -f wgcf-account.toml
@@ -228,20 +263,21 @@ install(){
 	done
 
 	# 如有 Warp+ 账户，修改 license 并升级
-	[[ -n $LICENSE ]] && yellow " \n${T[${L}13]}\n " && sed -i '' "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
+	[[ -n $LICENSE ]] && yellow " \n${T[${L}13]}\n " && sudo sed -i '' "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
 	( wgcf update --name "$NAME" | sudo tee /etc/wireguard/info.log 2>&1 || red " \n${T[${L}14]}\n " )
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
 	wgcf generate >/dev/null 2>&1
   
 	# 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 WireGuard 接管
-	sed -i '' 's/engage.cloudflareclient.com/162.159.193.10/g' wgcf-profile.conf
+	sudo sed -i '' 's/engage.cloudflareclient.com/162.159.193.10/g' wgcf-profile.conf
 
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	sudo cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
-	sudo cp -f /usr/local/bin/t.sh /etc/wireguard/mac.sh
-	ln -sf /etc/wireguard/mac.sh /usr/local/bin/warp && green " ${T[${L}27]} " && chmod +x /usr/local/bin/warp
+	sudo mv -f wgcf-account.toml wgcf-profile.conf mac.sh /etc/wireguard >/dev/null 2>&1
+	ln -sf /etc/wireguard/mac.sh /usr/local/bin/warp && green " ${T[${L}27]} "
+	sudo chmod +x /usr/local/bin/warp
 	echo "$L" 2>&1 | sudo tee /etc/wireguard/language
 
 	# 自动刷直至成功（ warp bug，有时候获取不了ip地址）
@@ -265,6 +301,66 @@ install(){
 	rm -f mac.sh wgcf-account.toml wgcf-profile.conf
 }
 
+# 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
+update_license(){
+	[[ -z $LICENSE ]] && reading " ${T[${L}41]} " LICENSE
+	i=5
+	until [[ $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
+		do	(( i-- )) || true
+			[[ $i = 0 ]] && red " ${T[${L}7]} " && exit 1 || reading " $(eval echo "${T[${L}42]}") " LICENSE
+	done
+	[[ -z $NAME ]] && reading " ${T[${L}43]} " NAME
+	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
+}
+
+# 输入 Teams 账户 URL（如有）
+input_url(){
+	[[ -z $URL ]] && reading " ${T[${L}44]} " URL
+	URL=${URL:-'https://gist.githubusercontent.com/fscarmen/56aaf02d743551737c9973b8be7a3496/raw/61bf63e68e4e91152545679b8f11c72cac215128/2021.12.21'}
+	TEAMS=$(curl -sSL "$URL" | sed "s/\"/\&quot;/g")
+	PRIVATEKEY=$(expr "$TEAMS" : '.*private_key&quot;>\([^<]*\).*')
+	PUBLICKEY=$(expr "$TEAMS" : '.*public_key&quot;:&quot;\([^&]*\).*')
+	ADDRESS4=$(expr "$TEAMS" : '.*v4&quot;:&quot;\(172[^&]*\).*')
+	ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*')
+	[[ $PRIVATEKEY =~ ^[A-Z0-9a-z/+]{43}=$ ]] && MATCH1=${T[${L}45]} || MATCH1=${T[${L}46]}
+	[[ $PUBLICKEY =~ ^[A-Z0-9a-z/+]{43}=$ ]] && MATCH2=${T[${L}45]} || MATCH2=${T[${L}46]}
+	[[ $ADDRESS4 =~ ^172.16.[01].[0-9]{1,3}$ ]] && MATCH3=${T[${L}45]} || MATCH3=${T[${L}46]}
+	[[ $ADDRESS6 =~ ^fd01(:[0-9a-f]{0,4}){7}$ ]] && MATCH4=${T[${L}45]} || MATCH4=${T[${L}46]}
+	yellow " $(eval echo "${T[${L}47]}") " && reading " ${T[${L}48]} " CONFIRM
+}
+
+update(){
+	# 不符合条件的脚本退出
+	! type -p wg-quick >/dev/null 2>&1 && red " ${T[${L}21]} " && exit 1
+	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " ${T[${L}32]} " && exit 1
+	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}33]} " && exit 1
+	ip4_info; [[ $TRACE4 =~ plus ]] && red " ${T[${L}31]} " && exit 1
+	ip6_info; [[ $TRACE6 =~ plus ]] && red " ${T[${L}31]} " && exit 1
+
+	# 选择账户升级的类型
+	[[ -z $LICENSETYPE ]] && yellow " ${T[${L}34]}" && reading " ${T[${L}3]} " LICENSETYPE
+	case $LICENSETYPE in
+	1 ) update_license
+	cd /etc/wireguard || exit
+	sudo sed -i '' "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
+	wgcf update --name "$NAME" 2>&1 | sudo tee /etc/wireguard/info.log &&
+	(wgcf generate >/dev/null 2>&1
+	sudo sed -i '' "2s#.*#$(sed -ne 2p wgcf-profile.conf)#;3s#.*#$(sed -ne 3p wgcf-profile.conf)#;4s#.*#$(sed -ne 4p wgcf-profile.conf)#" wgcf.conf
+	wg-quick down wgcf >/dev/null 2>&1
+	net
+	[[ $(curl -ks4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -ks6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] &&
+	green " ${T[${L}35]}\n ${T[${L}36]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}37]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}38]} ";;
+
+	2 ) input_url
+	[[ $CONFIRM = [Yy] ]] && (echo "$TEAMS" 2>&1 | sudo tee /etc/wireguard/info.log
+	sudo sed -i '' "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" /etc/wireguard/wgcf.conf
+	wg-quick down wgcf >/dev/null 2>&1; net
+	[[ $(curl -ks4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -ks6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] && green " ${T[${L}39]} ");;
+
+	* ) red " ${T[${L}40]} [1-2] "; sleep 1; update
+	esac
+}
+
 # 传参选项 OPTION
 [[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")
 
@@ -276,6 +372,7 @@ e ) L=E; check_operating_system; install;;
 c ) L=C; check_operating_system; install;;
 u ) uninstall;;
 v ) ver;;
+a ) update;;
 n ) net;;
 o ) onoff;;
 * ) help;;
