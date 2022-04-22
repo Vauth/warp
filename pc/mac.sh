@@ -22,8 +22,8 @@ T[E6]="If there is a WARP+ License, please enter it, otherwise press Enter to co
 T[C6]="如有 WARP+ License 请输入，没有可回车继续:"
 T[E7]="Input errors up to 5 times.The script is aborted."
 T[C7]="输入错误达5次，脚本退出"
-T[E8]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\):"
-T[C8]="License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\$i次\):"
+T[E8]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\${i} times remaining\):"
+T[C8]="License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\${i}次\):"
 T[E9]="Please customize the WARP+ device name (Default is [WARP] if left blank):"
 T[C9]="请自定义 WARP+ 设备名 (如果不输入，默认为 [WARP]):"
 T[E10]="Step 1/3: Install brew and wireguard-tools"
@@ -54,9 +54,9 @@ T[E22]="WARP is turned off. It could be turned on again by [warp o]"
 T[C22]="已暂停 WARP，再次开启可以用 warp o"
 T[E23]="WireGuard tools are not installed or the configuration file wgcf.conf cannot be found, please reinstall."
 T[C23]="没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装。"
-T[E24]="Maximum \$j attempts to get WARP IP..."
+T[E24]="Maximum \${j} attempts to get WARP IP..."
 T[C24]="后台获取 WARP IP 中,最大尝试\${j}次……"
-T[E25]="Try \$i"
+T[E25]="Try \${i}"
 T[C25]="第\${i}次尝试"
 T[E26]="Got the WARP IP successfully."
 T[C26]="已成功获取 WARP 网络"
@@ -108,15 +108,15 @@ T[E49]="\n Is there a WARP+ or Teams account?\n 1. WARP+\n 2. Teams\n 3. use fre
 T[C49]="\n 如有 WARP+ 或 Teams 账户请选择\n 1. WARP+\n 2. Teams\n 3. 使用免费账户 (默认)\n"
 T[E50]="If there is a WARP+ License, please enter it, otherwise press Enter to continue:"
 T[C50]="如有 WARP+ License 请输入，没有可回车继续:"
-T[E51]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\$i times remaining\):"
-T[C51]="License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\$i次\):"
+T[E51]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\${i} times remaining\):"
+T[C51]="License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\${i}次\):"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
 green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
 yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
-translate(){ [[ -n "$1" ]] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
+translate(){ [[ -n "$1" ]] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times(){
