@@ -110,6 +110,8 @@ T[E50]="If there is a WARP+ License, please enter it, otherwise press Enter to c
 T[C50]="如有 WARP+ License 请输入，没有可回车继续:"
 T[E51]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\${i} times remaining\):"
 T[C51]="License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\${i}次\):"
+T[E52]="There have been more than \${j} failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
+T[C52]="失败已超过\${j}次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -188,7 +190,7 @@ net(){
 				cp -f /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf
 				else
 				wg-quick down wgcf >/dev/null 2>&1
-				red " $(eval echo "${T[${L}13]}") " && exit 1
+				red " $(eval echo "${T[${L}52]}") " && exit 1
 				fi
 			fi
         	done
@@ -279,8 +281,8 @@ install(){
 	[[ $CONFIRM = [Yy] ]] && echo "$TEAMS" | sudo tee /etc/wireguard/info.log >/dev/null 2>&1
 	sudo sed -i '' "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" wgcf-profile.conf
   
-	# 修改配置文件 wgcf-profile.conf 的内容,使得 IPv4 的流量均被 WireGuard 接管
-	sudo sed -i '' 's/engage.cloudflareclient.com/162.159.193.10/g' wgcf-profile.conf
+	# 修改配置文件 wgcf-profile.conf 的内容, 更换 Endpoint 和 DNS
+	sudo sed -i '' 's/engage.cloudflareclient.com/162.159.193.10/g;s/1.1.1.1/8.8.8.8,&/g' wgcf-profile.conf
 
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf
 	sudo cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf
