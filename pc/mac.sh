@@ -278,7 +278,7 @@ install(){
 	wgcf generate >/dev/null 2>&1
 
 	# 如有 Teams，改为 Teams 账户信息
-	[[ $CONFIRM = [Yy] ]] && echo "$TEAMS" | sudo tee /etc/wireguard/info.log >/dev/null 2>&1
+	[[ $CONFIRM = [Yy] ]] && echo "$TEAMS" | sudo tee /etc/wireguard/info.log >/dev/null 2>&1 &&
 	sudo sed -i '' "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" wgcf-profile.conf
   
 	# 修改配置文件 wgcf-profile.conf 的内容, 更换 Endpoint 和 DNS
