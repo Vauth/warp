@@ -401,7 +401,7 @@ https://blog.cloudflare.com/argo-v2/
 * Anemone: https://cutenico.best/posts/blogs/cloudflare-warp-fixed-youtube-location/    
 https://github.com/acacia233/Project-WARP-Unlock
 * wangying202: https://blog.csdn.net/wangying202/article/details/113178159
-* LUBAN: https://hxhgts.github.io/
+* LUBAN: https://github.com/HXHGTS/Cloudflare_WARP_Connect
 
 服务提供（排名不分先后）:
 * CloudFlare Warp(+): https://1.1.1.1/
