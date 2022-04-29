@@ -261,13 +261,13 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
             {
                 "type": "field",
                 "domain": [
-                    "geosite:netflix"
+                    "geosite:netflix",
+                    "domain:ip.gs"
                 ],
                 "outboundTag": "media-unlock"
             }
         ]
     }
-
 }
 ```
 
@@ -301,7 +301,8 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
                 "outboundTag":"CLI_OUT",
                 "domain":[
                     "geosite:google",
-                    "geosite:netflix"
+                    "geosite:netflix",
+                    "domain:ip.gs"
                 ]
             },
             {
