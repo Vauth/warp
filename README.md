@@ -410,7 +410,7 @@ https://github.com/acacia233/Project-WARP-Unlock
 * WireGuard-GO 官方: https://git.zx2c4.com/wireguard-go/
 * ylx2016 的成熟作品: https://github.com/ylx2016/Linux-NetSpeed
 * ALIILAPRO 的成熟作品: https://github.com/ALIILAPRO/warp-plus-cloudflare
-* mixool 的成熟作品: https://github.com/mixool/across/tree/master/wireguard
+* mixool 的成熟作品: https://github.com/azples/across/tree/main/wireguard
 * luoxue-bot 的成熟作品:https://github.com/luoxue-bot/warp_auto_change_ip
 * lmc999 的成熟作品: https://github.com/lmc999/RegionRestrictionCheck
 * WireProxy 作者: https://github.com/octeep/wireproxy
