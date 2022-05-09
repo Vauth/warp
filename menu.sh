@@ -274,8 +274,8 @@ T[E132]="\n Is there a WARP+ or Teams account?\n 1. WARP+\n 2. Teams\n 3. use fr
 T[C132]="\n 如有 WARP+ 或 Teams 账户请选择\n 1. WARP+\n 2. Teams\n 3. 使用免费账户 (默认)\n"
 T[E133]="Device name：\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n Quota：\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
 T[C133]="设备名:\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量:\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
-T[E134]="Curren architecture \$(arch) is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
-T[C134]="当前架构 \$(arch) 暂不支持,问题反馈:[https://github.com/fscarmen/warp/issues]"
+T[E134]="Curren architecture \$(uname -m) is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
+T[C134]="当前架构 \$(uname -m) 暂不支持,问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E135]="( match √ )"
 T[C135]="( 符合 √ )"
 T[E136]="( mismatch X )"
@@ -918,7 +918,7 @@ check_system_info(){
 	TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
  	if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
 	cat >/usr/bin/tun.sh << EOF
-#!/bin/bash
+#!/usr/bin/env bash
 mkdir -p /dev/net
 mknod /dev/net/tun c 10 200
 chmod 0666 /dev/net/tun
@@ -1083,7 +1083,7 @@ iptables_solution(){
 
 	# 创建 dnsmasq 规则文件
 	cat >/etc/dnsmasq.d/warp.conf << EOF
-#!/bin/bash
+#!/usr/bin/env bash
 server=1.1.1.1
 server=8.8.8.8
 # ----- WARP ----- #
@@ -1139,7 +1139,7 @@ EOF
 		
 	# 创建 PostUp 和 PreDown
 	cat >/etc/wireguard/up << EOF
-#!/bin/bash
+#!/usr/bin/env bash
 
 ipset create warp hash:ip
 iptables -t mangle -N fwmark
@@ -1153,7 +1153,7 @@ iptables -t mangle -A POSTROUTING -o wgcf -p tcp -m tcp --tcp-flags SYN,RST SYN 
 EOF
 
 	cat >/etc/wireguard/down << EOF
-#!/bin/bash
+#!/usr/bin/env bash
 
 iptables -t mangle -D PREROUTING -j fwmark
 iptables -t mangle -D OUTPUT -j fwmark
