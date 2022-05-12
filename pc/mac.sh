@@ -254,7 +254,7 @@ install(){
 	# 判断 wgcf 的最新版本并安装
 	green "\n ${T[${L}11]}\n "
 	latest=$(curl -fsSL "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
-	latest=${latest:-'2.2.13'}
+	latest=${latest:-'2.2.14'}
 	[[ ! -e /usr/local/bin/wgcf ]] && curl -o /usr/local/bin/wgcf https://raw.githubusercontents.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_darwin_"$ARCHITECTURE"
 
 	# 安装 wireguard-go
