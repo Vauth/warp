@@ -20,7 +20,7 @@
 * * *
 
 ## 更新信息
-2022.5.18 2.38 1. Fully support Ubuntu 22.04 LTS; 2. Optimize Debian to speed up installation; 1. 全面支持 Ubuntu 22.04 LTS; 2. 优化 Debian 以提升安装速度
+2022.5.18 2.38 1. Fully support Ubuntu 22.04 and CentOS Streams 9 LTS; 2. Optimize Debian to speed up installation; 1. 全面支持 Ubuntu 22.04 和 CentOS Streams 9 LTS; 2. 优化 Debian 以提升安装速度
 
 2022.4.21 WARP one-click script on macOS. A VPN that fast,modern,secure by WireGuard tunnel and WARP service  全网首发: macOS 一键脚本， 一个为免费、快速、安全的基于 WireGuard 隧道，WARP 服务的 VPN。你可以理解为白嫖 CloudFlare 的科学服务了，也不需要服务器。
 
