@@ -8,8 +8,8 @@ declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1. Fully support Ubuntu 22.04 LTS; 2. Optimize Debian to speed up installation."
-T[C1]="1. 全面支持 Ubuntu 22.04 LTS; 2. 优化 Debian 以提升安装速度"
+T[E1]="1. Fully support Ubuntu 22.04 and CentOS Stream 9 LTS; 2. Optimize Debian to speed up installation."
+T[C1]="1. 全面支持 Ubuntu 22.04 和 CentOS Stream 9 LTS; 2. 优化 Debian 以提升安装速度"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -38,7 +38,7 @@ T[E14]="Got the WARP IP successfully."
 T[C14]="已成功获取 WARP 网络"
 T[E15]="WARP is turned off. It could be turned on again by [warp o]"
 T[C15]="已暂停 WARP，再次开启可以用 warp o"
-T[E16]="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support WARP+ account. Third-party scripts are use to increase WARP+ quota or upgrade kernel.\n	* Not only menus, but commands with option.\n	* Intelligent analysis of operating system：Ubuntu 16.04、18.04、20.04、22.04，Debian 9、10、11，CentOS 7、8, Alpine, Arch Linux 3. Be sure to choose the LTS system. And architecture：AMD or ARM\n	* Automatically select four WireGuard solutions. Performance: Kernel with WireGuard integration＞Install kernel module＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Suppert WARP Linux client.\n	* Output WARP status, IP region and asn\n"
+T[E16]="The script specifically adds WARP network interface for VPS, detailed:[https://github.com/fscarmen/warp]\n Features:\n	* Support WARP+ account. Third-party scripts are use to increase WARP+ quota or upgrade kernel.\n	* Not only menus, but commands with option.\n	* Intelligent analysis of operating system：Ubuntu 16.04、18.04、20.04、22.04，Debian 9、10、11，CentOS 7、8、9, Alpine, Arch Linux 3. Be sure to choose the LTS system. And architecture：AMD or ARM\n	* Automatically select four WireGuard solutions. Performance: Kernel with WireGuard integration＞Install kernel module＞wireguard-go\n	* Intelligent analysis of the latest version of the WGCF\n	* Suppert WARP Linux client.\n	* Output WARP status, IP region and asn\n"
 T[C16]="本项目专为 VPS 添加 wgcf 网络接口，详细说明：[https://github.com/fscarmen/warp]\n脚本特点:\n	* 支持 WARP+ 账户，附带第三方刷 WARP+ 流量和升级内核 BBR 脚本\n	* 普通用户友好的菜单，进阶者通过后缀选项快速搭建\n	* 智能判断操作系统：Ubuntu 、Debian 、CentOS、 Alpine 和 Arch Linux，请务必选择 LTS 系统；硬件结构类型：AMD 或者 ARM\n	* 结合 Linux 版本和虚拟化方式，自动优选4个 WireGuard 方案。网络性能方面：内核集成 WireGuard＞安装内核模块＞wireguard-go\n	* 智能判断 WGCF 作者 github库的最新版本 （Latest release）\n	* 支持 WARP Linux Socks5 Client\n	* 输出执行结果，提示是否使用 WARP IP ，IP 归属地和线路提供商\n"
 T[E17]="Version"
 T[C17]="脚本版本"
@@ -1325,6 +1325,10 @@ install(){
 		
 		# s390x wireguard-tools 安装
 		[[ $ARCHITECTURE = s390x ]] && ! type -P wg >/etc/null 2>&1 && rpm -i https://mirrors.cloud.tencent.com/epel/8/Everything/s390x/Packages/w/wireguard-tools-1.0.20210914-1.el8.s390x.rpm
+		
+		# CentOS Stream 9 需要安装 resolvconf
+		[[ $SYSTEM = CentOS && "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" = 9 ]] && ! type -P resolvconf >/dev/null 2>&1 && 
+		wget $CDN -P /usr/sbin https://github.com/fscarmen/warp/releases/download/resolvconf/resolvconf && chmod +x /usr/sbin/resolvconf
 		}
 
 	Alpine(){
@@ -1562,9 +1566,9 @@ proxy(){
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	if [[ $CLIENT = 0 ]]; then green " ${T[${L}83]} "
 		if [[ $SYSTEM = CentOS ]]; then
-			rpm -ivh http://pkg.cloudflareclient.com/cloudflare-release-el8.rpm >/dev/null 2>&1
-			#  CentOS 7，需要用 Cloudflare CentOS 8 的库以安装 Client，并在线编译升级 C 运行库 Glibc 2.28
-			if	[[ $(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*') = 7 && ! $(strings /lib64/libc.so.6 ) =~ GLIBC_2.28 ]]; then
+			case "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" in
+			7 )	rpm -ivh https://pkg.cloudflareclient.com/cloudflare-release-el8.rpm >/dev/null 2>&1
+				#  CentOS 7，需要用 Cloudflare CentOS 8 的库以安装 Client，并在线编译升级 C 运行库 Glibc 2.28
 				{ wget -O /usr/bin/make https://github.com/fscarmen/warp/releases/download/Glibc/make
 				wget https://github.com/fscarmen/warp/releases/download/Glibc/glibc-2.28.tar.gz
 				tar -xzvf glibc-2.28.tar.gz; }&
@@ -1577,9 +1581,20 @@ proxy(){
 				cd ./glibc-2.28/build
 				../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin
 				make install
-				cd ../..; rm -rf glibc-2.28*
-			else	${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} cloudflare-warp
-			fi
+				cd ../..
+				rm -rf glibc-2.28*;;
+
+			8 )	rpm -ivh https://pkg.cloudflareclient.com/cloudflare-release-el8.rpm >/dev/null 2>&1
+				${PACKAGE_UPDATE[int]}
+				${PACKAGE_INSTALL[int]} cloudflare-warp;;
+
+			9 )	# CentOS stream 9，截止到 2022年5月20日，官方库仍未支持。在 CloudFlare 官网下载 rpm 文件本地安装
+				yum -y install desktop-file-utils
+				CLOUDFLARE_WARP_RPM='cloudflare_warp_2022_4_235_1_x86_64_aa859896da.rpm'
+				wget https://pkg.cloudflareclient.com/uploads/$CLOUDFLARE_WARP_RPM
+				rpm -ivh $CLOUDFLARE_WARP_RPM
+				rm -f $CLOUDFLARE_WARP_RPM;;
+			esac
 		else
 			[[ $SYSTEM = Debian && ! $(type -P gpg 2>/dev/null) ]] && ${PACKAGE_INSTALL[int]} gnupg
 			[[ $SYSTEM = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https) =~ installed ]] && ${PACKAGE_INSTALL[int]} apt-transport-https
