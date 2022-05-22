@@ -606,7 +606,7 @@ install(){
 	}&
 	
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取
+	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.14
 	{	
 	latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 	latest=${latest:-'2.2.14'}
