@@ -1,0 +1,42 @@
+name: Sync wireproxy latest version
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '13 2 * * *'
+
+jobs:
+  build:
+    name: Sync wireproxy latest version
+    runs-on: ubuntu-latest
+    env:
+      USERNAME: ${{ secrets.GH_USERNAME }}
+      EMAIL: ${{ secrets.GH_EMAIL }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update wireproxy to latest version
+        run: |
+          NOW=$(wget -qO- "https://api.github.com/repos/${{ env.USERNAME }}/warp/releases" | grep "tag_name" | grep -i "wireproxy" | head -n 1 | cut -d _ -f3 | sed 's/[ \"v,]//g')
+          LATEST=$(wget -qO- "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
+          NOW1=$(echo $NOW | cut -d \. -f1)
+          NOW2=$(echo $NOW | cut -d \. -f2)
+          NOW3=$(echo $NOW | cut -d \. -f3)
+          LATEST1=$(echo $LATEST | cut -d \. -f1)
+          LATEST2=$(echo $LATEST | cut -d \. -f2)
+          LATEST3=$(echo $LATEST | cut -d \. -f3)
+          NOW_VERSION=$(( NOW1*1000000 + NOW2*1000 + NOW3 ))
+          LATEST_VERSION=$(( LATEST1*1000000 + LATEST2*1000 + LATEST3 ))
+          
+          if [ $LATEST_VERSION -gt $NOW_VERSION ]; then
+            PLATFORM=( "linux_amd64" "linux_arm64" "linux_s390x" )
+            for i in "${PLATFORM[@]}"; do
+              wget -O ${GITHUB_WORKSPACE}/wireproxy/wireproxy_"$i".tar.gz https://github.com/octeep/wireproxy/releases/download/v"$LATEST"/wireproxy_"$i".tar.gz
+            done
+            
+            git config --global user.email "${{ env.EMAIL }}"
+            git config --global user.name "${{ env.USERNAME }}"
+            git add .
+            git commit -m "Sync wireproxy to V$LATEST by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
+            git push
+          fi
