@@ -1,0 +1,77 @@
+name: Sync WireGuard-go
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '18 2 * * *'
+
+jobs:
+  WireGuard-go:
+
+    name: Sync WireGuard-go to the latest
+
+    runs-on: ubuntu-20.04
+
+    env:
+      WORKDIR: ./wireguard-go-source
+      USERNAME: ${{ secrets.GH_USERNAME }}
+      EMAIL: ${{ secrets.GH_EMAIL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+        with:
+          fetch-depth: 0
+
+      - name: Check the official latest version of WireGuard-go
+        run: |
+          NOW=$(wget -qO- "https://api.github.com/repos/${{ env.USERNAME }}/warp/releases" | grep "tag_name" | grep -i "wireguard-go" | head -n 1 | sed "s/.*_v\(.*\)\".*/\1/g")
+          LATEST=$(wget -qO- https://git.zx2c4.com/wireguard-go/ | grep '/wireguard-go/tag' | head -n 1 | sed "s/.*>\([0-9.]\{1,\}\)<.*/\1/g")
+          NOW1=$(echo $NOW | cut -d \. -f1)
+          NOW2=$(echo $NOW | cut -d \. -f2)
+          NOW3=$(echo $NOW | cut -d \. -f3)
+          LATEST1=$(echo $LATEST | cut -d \. -f1)
+          LATEST2=$(echo $LATEST | cut -d \. -f2)
+          LATEST3=$(echo $LATEST | cut -d \. -f3)
+          NOW_VERSION=$(( NOW1*1000000 + NOW2*1000 + NOW3 ))
+          LATEST_VERSION=$(( LATEST1*1000000 + LATEST2*1000 + LATEST3 ))
+          
+          if [ $LATEST_VERSION -gt $NOW_VERSION ]; then
+            git clone https://git.zx2c4.com/wireguard-go ${{ env.WORKDIR }}
+            cp ./.github/wireguard-go-releaser.yml ${{ env.WORKDIR }}/.goreleaser.yml
+            echo "VERSION=$LATEST" >> $GITHUB_ENV
+          fi
+            
+      - name: Set up GoReleaser
+        uses: actions/setup-go@v2
+        if: ${{ env.VERSION != '' }}
+        with:
+          go-version: "1.18"
+
+      - name: Cross compile WireGuard-go
+        uses: goreleaser/goreleaser-action@v2
+        if: ${{ env.VERSION != '' }}
+        with:
+          distribution: goreleaser
+          workdir: ${{ env.WORKDIR }}
+          version: latest
+          args: release --rm-dist
+  
+      - name: Release binaries 
+        uses: softprops/action-gh-release@v1
+        if: ${{ env.VERSION != '' }}
+        with:
+          tag_name: WireGuard-go_v${{ env.VERSION }}
+          files: ${{ env.WORKDIR }}/dist/*.tar.gz
+          
+      - name: Upload to REPO
+        if: ${{ env.VERSION != '' }}
+        run: |
+          cp -f ${{ env.WORKDIR }}/dist/*.tar.gz ${GITHUB_WORKSPACE}/wireguard-go/
+          wget -O ${GITHUB_WORKSPACE}/wireguard-go/wireguard-go_linux_amd64.tar.gz https://github.com/fscarmen/warp/releases/download/WireGuard-go_v0.0.20201118/wireguard-go_linux_amd64.tar.gz
+          rm -rf ${{ env.WORKDIR }}
+          git config --global user.email "${{ env.EMAIL }}"
+          git config --global user.name "${{ env.USERNAME }}"
+          git add .
+          git commit -m "AMD64 V0.0.20201118 and others V${{ env.VERSION }}, $(date "+%Y/%m/%d")"
+          git push
