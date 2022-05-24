@@ -1,0 +1,67 @@
+name: Sync CloudFlare Client
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '18 2 * * *'
+
+jobs:
+  WireGuard-go:
+
+    name: Sync Client to the latest
+
+    runs-on: ubuntu-20.04
+
+    env:
+      USERNAME: ${{ secrets.GH_USERNAME }}
+      EMAIL: ${{ secrets.GH_EMAIL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+        with:
+          fetch-depth: 0
+
+      - name: Check the official latest version of Client
+        run: |
+          NOW=$(wget -qO- "https://api.github.com/repos/${{ env.USERNAME }}/warp/releases" | grep "tag_name" | grep "CloudFlare" | head -n 1 | sed "s/.*_v\(.\{1,\}\)\".*/\1/g")
+          LATEST=$(wget -qO- "https://pkg.cloudflareclient.com/packages/cloudflare-warp" | grep "release-row" | awk -F '</td><td>' {'print $1'} | awk -F '<td>' {'print $2'})
+          NOW1=$(echo $NOW | cut -d \. -f1)
+          NOW2=$(echo $NOW | cut -d \. -f2)
+          NOW3=$(echo $NOW | cut -d \. -f3)
+          LATEST1=$(echo $LATEST | cut -d \. -f1)
+          LATEST2=$(echo $LATEST | cut -d \. -f2)
+          LATEST3=$(echo $LATEST | cut -d \. -f3)
+          NOW_VERSION=$(( NOW1*10000000 + NOW2*10000 + NOW3 ))
+          LATEST_VERSION=$(( LATEST1*10000000 + LATEST2*10000 + LATEST3 ))
+          
+          Operating_System=("CentOS 8" "Debian Bullseye" "Debian Buster" "Debian Stretch" "Ubuntu Focal" "Ubuntu Bionic" "Ubuntu Xenial")
+          System_Rename=("CentOS_8.rpm" "Debian_11.deb" "Debian_10.deb" "Debian_9.deb" "Ubuntu_22.04.deb" "Ubuntu_18.04.deb" "Ubuntu_16.04.deb")
+          
+          if [ $LATEST_VERSION -gt $NOW_VERSION ]; then
+            for ((i=0; i<${#Operating_System[@]}; i++)); do
+              File_Path=$(wget -qO- https://pkg.cloudflareclient.com/packages/cloudflare-warp | grep 'release-row' | awk -F "</td><td>${Operating_System[i]}" {'print $2'} | awk -F 'Download' {'print $1'} | awk -F \" {'print $2'})
+              Download_URL="https://pkg.cloudflareclient.com$File_Path"
+              wget -O ${GITHUB_WORKSPACE}/Client/Client_${System_Rename[i]} $Download_URL
+            done
+            
+            echo "VERSION=$LATEST" >> $GITHUB_ENV
+            echo "DIST=${GITHUB_WORKSPACE}/Client" >> $GITHUB_ENV
+          fi
+  
+      - name: Upload to REPO
+        if: ${{ env.VERSION != '' }}
+        run: |
+          git config --global user.email "${{ env.EMAIL }}"
+          git config --global user.name "${{ env.USERNAME }}"
+          git add .
+          git commit -m "Sync Client to V${{ env.VERSION }} by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
+          git push
+          rm -f ${{ env.DIST }}/README.md
+          
+      - name: Release binaries 
+        uses: softprops/action-gh-release@v1
+        if: ${{ env.VERSION != '' }}
+        with:
+          tag_name: CloudFlare_Client_v${{ env.VERSION }}
+          files: ${{ env.DIST }}/*
