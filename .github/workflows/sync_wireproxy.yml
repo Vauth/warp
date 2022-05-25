@@ -34,9 +34,14 @@ jobs:
               wget -O ${GITHUB_WORKSPACE}/wireproxy/wireproxy_"$i".tar.gz https://github.com/octeep/wireproxy/releases/download/v"$LATEST"/wireproxy_"$i".tar.gz
             done
             
+            echo "VERSION=$LATEST" >> $GITHUB_ENV
+          fi
+          
+      - name: Upload to REPO
+        if: ${{ env.VERSION != '' }}
+        run: |
             git config --global user.email "${{ env.EMAIL }}"
             git config --global user.name "${{ env.USERNAME }}"
             git add .
             git commit -m "Sync wireproxy to V$LATEST by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
             git push
-          fi
