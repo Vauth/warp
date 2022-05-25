@@ -55,9 +55,15 @@ jobs:
               sed -i "s/$NOW/$LATEST/g" ${GITHUB_WORKSPACE}/$j
             done
             
-            git config --global user.email "${{ env.EMAIL }}"
-            git config --global user.name "${{ env.USERNAME }}"
-            git add .
-            git commit -m "Sync WGCF to V$LATEST by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
-            git push
+            echo "VERSION=$LATEST" >> $GITHUB_ENV
           fi
+          
+      - name: Upload to REPO
+        if: ${{ env.VERSION != '' }}
+        run: |
+          git config --global user.email "${{ env.EMAIL }}"
+          git config --global user.name "${{ env.USERNAME }}"
+          git add .
+          git commit -m "Sync WGCF to V$LATEST by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
+          git push
+
