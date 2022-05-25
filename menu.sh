@@ -2,14 +2,14 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=2.38
+VERSION=2.39
 
 declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1. Fully support Ubuntu 22.04 and CentOS Stream 9 LTS; 2. Optimize Debian to speed up installation."
-T[C1]="1. 全面支持 Ubuntu 22.04 和 CentOS Stream 9 LTS; 2. 优化 Debian 以提升安装速度"
+T[E1]="1.Automatically sync the latest official versions of wgcf, CloudFlare client, wireguard-go and wireproxy every day, allowing users to have the best performance with every installation; 2.Change the installation method of CloudFlare client, from APT/YUM repository to Package repository repository."
+T[C1]="1.每天自动同步官方版本最新版本的 wgcf、 CloudFlare client、wireguard-go 和 wireproxy，让用户每次安装都能获得最佳性能; 2.更换 CloudFlare client 的安装方式，从 APT/YUM库 改到 Package 库"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -1516,7 +1516,7 @@ proxy(){
 			warp-cli --accept-tos set-mode warp >/dev/null 2>&1
 			warp-cli --accept-tos connect >/dev/null 2>&1
 			warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-			sleep 5
+			sleep 8
 			ip -4 rule add from 172.16.0.2 lookup 51820
 			ip -4 route add default dev CloudflareWARP table 51820
 			ip -4 rule add table main suppress_prefixlength 0
@@ -1531,7 +1531,7 @@ proxy(){
 				sleep 2
 				warp-cli --accept-tos connect >/dev/null 2>&1
 				warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-				sleep 5
+				sleep 8
 				ip -4 rule add from 172.16.0.2 lookup 51820
 				ip -4 route add default dev CloudflareWARP table 51820
 				ip -4 rule add table main suppress_prefixlength 0
@@ -1563,17 +1563,18 @@ proxy(){
 	input_license
 	[[ $LUBAN != 1 ]] && input_port
 	start=$(date +%s)
+	VERSION_ID=$(grep -i VERSION_ID /etc/os-release | cut -d \" -f2 | sed "s/22.04/20.04/g")
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	if [[ $CLIENT = 0 ]]; then green " ${T[${L}83]} "
 		if [[ $SYSTEM = CentOS ]]; then
+			{ wget https://github.com/fscarmen/warp/raw/main/Client/Client_CentOS_8.rpm; } &
+			! type -p desktop-file-install >/dev/null 2>&1 && ${PACKAGE_INSTALL[int]} desktop-file-utils
 			case "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" in
-			7 )	rpm -ivh https://pkg.cloudflareclient.com/cloudflare-release-el8.rpm >/dev/null 2>&1
-				#  CentOS 7，需要用 Cloudflare CentOS 8 的库以安装 Client，并在线编译升级 C 运行库 Glibc 2.28
+			7 )	#  CentOS 7，需要用 Cloudflare CentOS 8 的库以安装 Client，并在线编译升级 C 运行库 Glibc 2.28
 				{ wget -O /usr/bin/make https://github.com/fscarmen/warp/releases/download/Glibc/make
 				wget https://github.com/fscarmen/warp/releases/download/Glibc/glibc-2.28.tar.gz
 				tar -xzvf glibc-2.28.tar.gz; }&
-				sed -i "s/\$releasever/8/g" /etc/yum.repos.d/cloudflare.repo
-				${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} cloudflare-warp
+				rpm -ivh Client_CentOS_8.rpm
 				${PACKAGE_INSTALL[int]} gcc bison make centos-release-scl
 				${PACKAGE_INSTALL[int]} devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-binutils
 				source /opt/rh/devtoolset-8/enable
@@ -1584,25 +1585,18 @@ proxy(){
 				cd ../..
 				rm -rf glibc-2.28*;;
 
-			8 )	rpm -ivh https://pkg.cloudflareclient.com/cloudflare-release-el8.rpm >/dev/null 2>&1
-				${PACKAGE_UPDATE[int]}
-				${PACKAGE_INSTALL[int]} cloudflare-warp;;
-
-			9 )	# CentOS stream 9，截止到 2022年5月20日，官方库仍未支持。在 CloudFlare 官网下载 rpm 文件本地安装
-				yum -y install desktop-file-utils
-				CLOUDFLARE_WARP_RPM='cloudflare_warp_2022_4_235_1_x86_64_aa859896da.rpm'
-				wget https://pkg.cloudflareclient.com/uploads/$CLOUDFLARE_WARP_RPM
-				rpm -ivh $CLOUDFLARE_WARP_RPM
-				rm -f $CLOUDFLARE_WARP_RPM;;
+			8|9 )	rpm -ivh Client_CentOS_8.rpm;;
 			esac
+			rm -f Client_CentOS_8.rpm
 		else
-			[[ $SYSTEM = Debian && ! $(type -P gpg 2>/dev/null) ]] && ${PACKAGE_INSTALL[int]} gnupg
+			{ wget --no-check-certificate $CDN https://github.com/fscarmen/warp/raw/main/Client/Client_${SYSTEM}_${VERSION_ID}.deb; }&
 			[[ $SYSTEM = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https) =~ installed ]] && ${PACKAGE_INSTALL[int]} apt-transport-https
 			# 如为 Ubuntu 22.04(jammy) 由于官方库暂未支持，故欺骗为20.04(focal)
-			CODENAME=$(cat /etc/os-release | grep -i VERSION_CODENAME | sed s/.*=//g | sed "s/jammy/focal/")
-			curl https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
-			echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $CODENAME main" | tee /etc/apt/sources.list.d/cloudflare-client.list
-			${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} cloudflare-warp
+			wait
+			dpkg -i Client_${SYSTEM}_${VERSION_ID}.deb >/dev/null 2>&1
+			${PACKAGE_INSTALL[int]} -f
+			dpkg -i Client_${SYSTEM}_${VERSION_ID}.deb
+			rm -f Client_${SYSTEM}_${VERSION_ID}.deb
 		fi
 		[[ $(systemctl is-active warp-svc) != active ]] && ( systemctl start warp-svc; sleep 2 )
 		settings
