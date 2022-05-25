@@ -1516,7 +1516,7 @@ proxy(){
 			warp-cli --accept-tos set-mode warp >/dev/null 2>&1
 			warp-cli --accept-tos connect >/dev/null 2>&1
 			warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-			sleep 8
+			sleep 5
 			ip -4 rule add from 172.16.0.2 lookup 51820
 			ip -4 route add default dev CloudflareWARP table 51820
 			ip -4 rule add table main suppress_prefixlength 0
@@ -1531,7 +1531,7 @@ proxy(){
 				sleep 2
 				warp-cli --accept-tos connect >/dev/null 2>&1
 				warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-				sleep 8
+				sleep 5
 				ip -4 rule add from 172.16.0.2 lookup 51820
 				ip -4 route add default dev CloudflareWARP table 51820
 				ip -4 rule add table main suppress_prefixlength 0
@@ -1597,6 +1597,7 @@ proxy(){
 			${PACKAGE_INSTALL[int]} -f
 			dpkg -i Client_${SYSTEM}_${VERSION_ID}.deb
 			rm -f Client_${SYSTEM}_${VERSION_ID}.deb
+			sleep 1
 		fi
 		[[ $(systemctl is-active warp-svc) != active ]] && ( systemctl start warp-svc; sleep 2 )
 		settings
