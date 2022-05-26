@@ -1,9 +1,10 @@
 name: Cross compile WireProxy
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
+#  push:
+#    tags:
+#      - "v*"
 
 jobs:
   WireProxy:
@@ -14,6 +15,7 @@ jobs:
 
     env:
       workdir: ./WireProxy
+      VERSION: 1.0.3
 
     steps:
       - name: Checkout code
@@ -25,7 +27,6 @@ jobs:
         run: |
           git clone https://github.com/octeep/wireproxy.git ${{ env.workdir }}
           cp ./.github/wireproxy-releaser.yml ${{ env.workdir }}/.goreleaser.yml
-
       - name: Set up GoReleaser
         uses: actions/setup-go@v2
         with:
@@ -39,9 +40,8 @@ jobs:
           version: latest
           args: release --rm-dist
           
-      - name: Release binaries 
+      - name: Release binaries
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: WireProxy_v${{ env.VERSION }}
           files: ${{ env.workdir }}/dist/*.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
