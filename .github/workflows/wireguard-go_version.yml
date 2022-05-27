@@ -47,5 +47,3 @@ jobs:
         with:
           tag_name: WireGuard-go_v${{ env.version }}
           files: ${{ env.workdir }}/dist/*.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
