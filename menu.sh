@@ -1571,19 +1571,23 @@ proxy(){
 			! type -p desktop-file-install >/dev/null 2>&1 && ${PACKAGE_INSTALL[int]} desktop-file-utils
 			case "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" in
 			7 )	#  CentOS 7，需要用 Cloudflare CentOS 8 的库以安装 Client，并在线编译升级 C 运行库 Glibc 2.28
-				{ wget -O /usr/bin/make https://github.com/fscarmen/warp/releases/download/Glibc/make
-				wget https://github.com/fscarmen/warp/releases/download/Glibc/glibc-2.28.tar.gz
-				tar -xzvf glibc-2.28.tar.gz; }&
+				${PACKAGE_INSTALL[int]} nftables
 				rpm -ivh Client_CentOS_8.rpm
-				${PACKAGE_INSTALL[int]} gcc bison make centos-release-scl
-				${PACKAGE_INSTALL[int]} devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-binutils
-				source /opt/rh/devtoolset-8/enable
-				wait
-				cd ./glibc-2.28/build
-				../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin
-				make install
-				cd ../..
-				rm -rf glibc-2.28*;;
+				if [[ ! $(strings /lib64/libc.so.6) =~ 'GLIBC_2.28' ]]; then
+					GLIBC=1
+					wget -O /usr/bin/make https://github.com/fscarmen/warp/releases/download/Glibc/make
+					wget https://github.com/fscarmen/warp/releases/download/Glibc/glibc-2.28.tar.gz
+					tar -xzvf glibc-2.28.tar.gz
+					${PACKAGE_INSTALL[int]} gcc bison make centos-release-scl
+					${PACKAGE_INSTALL[int]} devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-binutils
+					source /opt/rh/devtoolset-8/enable
+					wait
+					cd ./glibc-2.28/build
+					../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin
+					make install
+					cd ../..
+					rm -rf glibc-2.28*
+				fi;;
 
 			8|9 )	rpm -ivh Client_CentOS_8.rpm;;
 			esac
@@ -1605,6 +1609,13 @@ proxy(){
 	elif [[ $CLIENT = 2 && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing' ]]; then settings
 
 	else red " ${T[${L}85]} " 
+	fi
+
+	# 此处为处理 CentOS 7 安装 Glibc 2.28 之后 Running transaction test 不动的问题
+	if [ $GLIBC = 1 ]; then
+		rm -rf /var/lib/rpm/__db*
+		yum clean all
+		rpm -v rebuilddb
 	fi
 
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
