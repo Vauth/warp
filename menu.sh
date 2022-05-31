@@ -208,8 +208,8 @@ T[E99]="WireProxy is connected"
 T[C99]="WireProxy 已连接"
 T[E100]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\${i} times remaining\): "
 T[C100]="License 应为26位字符,请重新输入 WARP+ License \(剩余\${i}次\): "
-T[E101]="Client doesn't support architecture ARM64. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-T[C101]="Client 不支持 ARM64，问题反馈:[https://github.com/fscarmen/warp/issues]"
+T[E101]="Client support amd64 only. Curren architecture \$ARCHITECTURE. Official Support List: [https://pkg.cloudflareclient.com/packages/cloudflare-warp]. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
+T[C101]="Client 只支持 amd64 架构，当前架构 \$ARCHITECTURE，官方支持列表: [https://pkg.cloudflareclient.com/packages/cloudflare-warp]。问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E102]="Please customize the WARP+ device name (Default is [WARP] if left blank):"
 T[C102]="请自定义 WARP+ 设备名 (如果不输入，默认为 [WARP]):"
 T[E103]="Port 40000 is in use. Please input another Port\(\${i} times remaining\):"
@@ -318,8 +318,8 @@ T[E154]="\n 1. WGCF WARP account\n 2. WARP Linux Client account\n 3. WireProxy a
 T[C154]="\n 1. WGCF WARP 账户\n 2. WARP Linux Client 账户\n 3. WireProxy 账户\n"
 T[E155]="WGCF WARP has not been installed yet."
 T[C155]="WGCF WARP 还未安装"
-T[E156]=""
-T[C156]=""
+T[E156]="(!!! AMD64 only, do not select.)"
+T[C156]="(!!! 只支持 AMD64，请勿选择)"
 T[E157]="WireProxy has not been installed yet."
 T[C157]="WireProxy 还未安装"
 T[E158]="WireProxy is disconnected. It could be connect again by [warp y]"
@@ -348,9 +348,9 @@ T[E169]="WARP\$AC IPv4：\$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
 T[C169]="WARP\$AC IPv4：\$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
 
 # 自定义字体彩色，read 函数，友道翻译函数
-red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
-green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
-yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
+red(){ echo -e "\033[31m\033[01m$@\033[0m"; }
+green(){ echo -e "\033[32m\033[01m$@\033[0m"; }
+yellow(){ echo -e "\033[33m\033[01m$@\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
 translate(){ [[ -n "$1" ]] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
 
@@ -943,7 +943,10 @@ EOF
 
 	# 判断处理器架构
 	case $(uname -m) in
-	aarch64 ) ARCHITECTURE=arm64;;	x86_64 ) ARCHITECTURE=amd64;;	s390x ) ARCHITECTURE=s390x;;	* ) red " $(eval echo "${T[${L}134]}") " && exit 1;;
+	aarch64 ) ARCHITECTURE=arm64; AMD64_ONLY="${T[${L}156]}";;
+	x86_64 ) ARCHITECTURE=amd64;;
+	s390x ) ARCHITECTURE=s390x; AMD64_ONLY="${T[${L}156]}";;
+	* ) red " $(eval echo "${T[${L}134]}") " && exit 1;;
 	esac
 
 	# 判断当前 IPv4 与 IPv6 ，IP归属 及 WARP 方案, Linux Client 是否开启
@@ -1556,7 +1559,7 @@ proxy(){
 	
 	# 禁止安装的情况。重复安装，非 AMD64 CPU 架构，IPv4 是 WARP
 	[[ $CLIENT -ge 2 ]] && red " ${T[${L}85]} " && exit 1
-	[[ $ARCHITECTURE != amd64 ]] && red " ${T[${L}101]} " && exit 1
+	[[ $ARCHITECTURE != amd64 ]] && red " $(eval echo "${T[${L}101]}") " && exit 1
 	[[ $TRACE4 != off ]] && red " ${T[${L}95]} " && exit 1
 
  	# 安装 WARP Linux Client
@@ -1807,8 +1810,8 @@ menu_setting(){
 	
 	[[ -e /etc/dnsmasq.d/warp.conf ]] && IPTABLE_INSTALLED="${T[${L}92]}"
 	
-	OPTION5="$CLIENT_INSTALLED${T[${L}82]}"; OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}";
-	OPTION11="${T[${L}80]}"; OPTION12="$IPTABLE_INSTALLED${T[${L}138]}"; OPTION13="$WIREPROXY_INSTALLED${T[${L}148]}"; OPTION14="$CLIENT_INSTALLED${T[${L}168]}"; OPTION0="${T[${L}76]}"
+	OPTION5="$CLIENT_INSTALLED$AMD64_ONLY${T[${L}82]}"; OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}";
+	OPTION11="${T[${L}80]}"; OPTION12="$IPTABLE_INSTALLED${T[${L}138]}"; OPTION13="$WIREPROXY_INSTALLED${T[${L}148]}"; OPTION14="$CLIENT_INSTALLED$AMD64_ONLY${T[${L}168]}"; OPTION0="${T[${L}76]}"
 
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
 	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
