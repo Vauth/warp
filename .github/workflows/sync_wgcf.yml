@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Update wgcf to latest version
         run: |
-          NOW='2.0.0'
+          NOW=$(wget -qO- https://raw.githubusercontent.com/${{ env.USERNAME }}/warp/main/menu.sh | grep 'latest=${latest' | cut -d \' -f2)
           LATEST=$(wget -qO- "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
           NOW1=$(echo $NOW | cut -d \. -f1)
           NOW2=$(echo $NOW | cut -d \. -f2)
