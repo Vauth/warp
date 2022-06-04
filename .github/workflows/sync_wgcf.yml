@@ -64,6 +64,6 @@ jobs:
           git config --global user.email "${{ env.EMAIL }}"
           git config --global user.name "${{ env.USERNAME }}"
           git add .
-          git commit -m "Sync WGCF to V$LATEST by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
+          git commit -m "Sync WGCF to V${{ env.LATEST }} by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
           git push
 
