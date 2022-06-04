@@ -1615,7 +1615,7 @@ proxy(){
 	fi
 
 	# 此处为处理 CentOS 7 安装 Glibc 2.28 之后 Running transaction test 不动的问题
-	if [ $GLIBC = 1 ]; then
+	if [[ $GLIBC = 1 ]]; then
 		rm -rf /var/lib/rpm/__db*
 		yum clean all
 		rpm -v rebuilddb
