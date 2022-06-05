@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Update wireproxy to latest version
         run: |
-          NOW=$(wget -qO- "https://api.github.com/repos/${{ env.USERNAME }}/warp/commits" | grep 'Sync wireproxy to V' | head -n 1 | sed "s/.*V\(.*\) by.*/\1/g")
+          NOW=$(wget -qO- https://raw.githubusercontent.com/${{ env.USERNAME }}/warp/main/wireproxy/version | head -n 1 | sed "s/.*v\(.*\)/\1/g")
           LATEST=$(wget -qO- "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
           NOW1=$(echo $NOW | cut -d \. -f1)
           NOW2=$(echo $NOW | cut -d \. -f2)
@@ -34,7 +34,9 @@ jobs:
               wget -O ${GITHUB_WORKSPACE}/wireproxy/wireproxy_"$i".tar.gz https://github.com/octeep/wireproxy/releases/download/v"$LATEST"/wireproxy_"$i".tar.gz
             done
             
-            echo "VERSION=$LATEST" >> $GITHUB_ENV
+          sed -i "1i$(date "+%Y/%m/%d") v$LATEST" ${GITHUB_WORKSPACE}/wireproxy/version_history
+          
+          echo "VERSION=$LATEST" >> $GITHUB_ENV
           fi
           
       - name: Upload to REPO
@@ -43,5 +45,5 @@ jobs:
             git config --global user.email "${{ env.EMAIL }}"
             git config --global user.name "${{ env.USERNAME }}"
             git add .
-            git commit -m "Sync wireproxy to V$LATEST by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
+            git commit -m "Sync wireproxy to V${{ env.VERSION }} by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
             git push
