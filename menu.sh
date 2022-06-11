@@ -2,14 +2,14 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=2.39
+VERSION=2.40
 
 declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1.Automatically sync the latest official versions of wgcf, CloudFlare client, wireguard-go and wireproxy every day, allowing users to have the best performance with every installation; 2.Change the installation method of CloudFlare client, from APT/YUM repository to Package repository repository."
-T[C1]="1.每天自动同步官方版本最新版本的 wgcf、 CloudFlare client、wireguard-go 和 wireproxy，让用户每次安装都能获得最佳性能; 2.更换 CloudFlare client 的安装方式，从 APT/YUM库 改到 Package 库"
+T[E1]="1.Support VPS-free LXC VPS."
+T[C1]="1.支持 VPS-free LXC VPS"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -913,21 +913,26 @@ stack_switch(){
 # 检测系统信息
 check_system_info(){
 	green " ${T[${L}37]} "
+	
+	# 判断 LXC、 KVM 的 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
+	[[ $(($(uname -r | cut -d . -f1) * 100 +  $(uname -r | cut -d . -f2))) -lt 506 ]] && WG=1
 
 	# 必须加载 TUN 模块，先尝试在线打开 TUN。尝试成功放到启动项，失败作提示并退出脚本
-	TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
- 	if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
-	cat >/usr/bin/tun.sh << EOF
+	if [[ $WG = 1 ]]; then
+		TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
+ 		if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
+		cat >/usr/bin/tun.sh << EOF
 #!/usr/bin/env bash
 mkdir -p /dev/net
 mknod /dev/net/tun c 10 200
 chmod 0666 /dev/net/tun
 EOF
-	bash /usr/bin/tun.sh
-	TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
-		if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
-			rm -f /usr/bin//tun.sh && red " ${T[${L}3]} " && exit 1
-		else echo "@reboot root bash /usr/bin/tun.sh" >> /etc/crontab
+		bash /usr/bin/tun.sh
+		TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
+			if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
+				rm -f /usr/bin//tun.sh && red " ${T[${L}3]} " && exit 1
+			else echo "@reboot root bash /usr/bin/tun.sh" >> /etc/crontab
+			fi
 		fi
 	fi
 
@@ -976,9 +981,6 @@ EOF
 		WIREPROXY=1
 		[[ $WIREPROXY = 1 ]] && WIREPROXY_INSTALLED="${T[${L}92]}" && [[ $(ss -nltp) =~ 'wireproxy' ]] && WIREPROXY=3 && proxy_info || WIREPROXY=2
 	fi
-
-	# 在KVM的前提下，判断 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
-	[[ $LXC != 1 && $(($(uname -r | cut -d . -f1) * 100 +  $(uname -r | cut -d . -f2))) -lt 506 ]] && WG=1
 	}
 
 # 替换为 Teams 账户信息
@@ -1465,7 +1467,7 @@ EOF
 	type -P dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
 
 	# 如是 LXC，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
-	[[ $LXC = 1 ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
+	[[ $LXC = 1 && ! $(lsmod) =~ 'wireguard' ]] || ([[ $WG = 1 ]] && [[ $(systemctl is-active wg-quick@wgcf) != active || $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
 	wget --no-check-certificate $CDN -N https://raw.githubusercontents.com/fscarmen/warp/main/wireguard-go/wireguard-go_linux_"$ARCHITECTURE".tar.gz &&
 	tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
 
