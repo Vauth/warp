@@ -35,8 +35,8 @@ jobs:
           NOW_VERSION=$(( NOW1*10000000 + NOW2*10000 + NOW3 ))
           LATEST_VERSION=$(( LATEST1*10000000 + LATEST2*10000 + LATEST3 ))
           
-          Operating_System=("CentOS 8" "Debian Bullseye" "Debian Buster" "Debian Stretch" "Ubuntu Focal" "Ubuntu Bionic" "Ubuntu Xenial")
-          System_Rename=("CentOS_8.rpm" "Debian_11.deb" "Debian_10.deb" "Debian_9.deb" "Ubuntu_20.04.deb" "Ubuntu_18.04.deb" "Ubuntu_16.04.deb")
+          Operating_System=("CentOS 8" "Debian Bullseye" "Debian Buster" "Debian Stretch" "Ubuntu Jammy" "Ubuntu Focal" "Ubuntu Bionic" "Ubuntu Xenial")
+          System_Rename=("CentOS_8.rpm" "Debian_11.deb" "Debian_10.deb" "Debian_9.deb" "Ubuntu_22.04.deb" "Ubuntu_20.04.deb" "Ubuntu_18.04.deb" "Ubuntu_16.04.deb")
           
           if [ $LATEST_VERSION -gt $NOW_VERSION ]; then
             for ((i=0; i<${#Operating_System[@]}; i++)); do
