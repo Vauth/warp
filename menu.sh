@@ -1599,10 +1599,12 @@ proxy(){
 			rm -f Client_CentOS_8.rpm
 		else
 			{ wget --no-check-certificate $CDN https://github.com/fscarmen/warp/raw/main/Client/Client_${SYSTEM}_${VERSION_ID}.deb; }&
+			${PACKAGE_UPDATE[int]}
 			[[ $SYSTEM = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https) =~ installed ]] && ${PACKAGE_INSTALL[int]} apt-transport-https
 			wait
 			dpkg -i Client_${SYSTEM}_${VERSION_ID}.deb >/dev/null 2>&1
 			${PACKAGE_INSTALL[int]} -f
+			${PACKAGE_INSTALL[int]} gnupg2 desktop-file-utils
 			dpkg -i Client_${SYSTEM}_${VERSION_ID}.deb
 			rm -f Client_${SYSTEM}_${VERSION_ID}.deb
 			sleep 1
