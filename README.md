@@ -20,6 +20,8 @@
 * * *
 
 ## 更新信息
+2022.6.27 香港 IPv6 only 安装 Client 的方式，转自 LOC jhsyue 的技术贴:[wiki-hk-61.8 开启warp教程](https://hostloc.com/thread-1036792-1-1.html)
+
 2022.6.11 2.40 1.Support VPS-free LXC VPS; 1.支持 VPS-free LXC VPS
 
 2022.5.25 2.39  1.Automatically sync the latest official versions of wgcf, CloudFlare client, wireguard-go and wireproxy every day, allowing users to have the best performance with every installation; 2.Change the installation method of CloudFlare client, from APT/YUM repository to Package repository repository; 1.每天自动同步官方版本最新版本的 wgcf、 CloudFlare client、wireguard-go 和 wireproxy，让用户每次安装都能获得最佳性能; 2.更换 CloudFlare client 的安装方式，从 APT/YUM库 改到 Package 库
@@ -30,23 +32,22 @@
 
 项目地址: https://github.com/fscarmen/warp/tree/main/pc
 
-
-2022.4.8  2.37 1. First publication on a global scale: After WirePorxy, another major technological breakthrough -- WARP-Cli's WARP mode solution. Thanks to the original creator -- Teacher LUBAN. It solves two major pain points: 1) The instability of the traditional proxy model; 2) Currently HK does not have a WARP service; 1. 全网首发: 继 WirePorxy 之后，又一重大技术突破，WARP-Cli 的 WARP 模式方案，感谢原创者 LUBAN 老师，引用大神的思路，解决两大通点: 1) 传统 proxy 模式的断流和慢; 2) 解决 HK 没有 WARP 服务
-
-2022.3.27  2.36 1. First publication on a global scale. By WireProxy, Wireguard client that exposes itself as a socks5 proxy; Ths Fangliding for the information:[#113](https://github.com/fscarmen/warp/issues/113); 2. WARP+ and Teams can be used in WireProxy; 3. Systemd and change Netflix IP for WireProxy. 1. 全网首发: 通过 wireproxy，让 WARP 在本地建议一个 socks5 代理。感谢风扇滑翔翼 提供的资讯:[#113](https://github.com/fscarmen/warp/issues/113); 2. WARP+ 和 Teams 账户可用于 WireProxy 安装或者升级; 3. WireProxy systemd 进程守护，同时支持更换 Netflix IP
-
-2022.3.23  2.35 1.Support WARP on Debian9; 1.支持 Debian 9 上安装 WARP
-
-Over 1,000 users star. Thank you for your support. 项目 star 破千，感谢各用户的大力支持。
-
-2022.3.19  2.34: 1.Support Arch Linux. Ths @SE_dong; 1.应呜呜冬 @SE_dong 的要求，新增 Arch Linux 的支持.
-
-2022.3.11  2.33: 1.First publication on a global scale. WARP Client support Ubuntu 18.04 and CentOS 7; 2. Open TUN for OVZ. You needn't setting it in the control panel. Thx @Q_lilll; 1. 全网首发， WARP Client 支持 Ubuntu 18.04 and CentOS 7; 2. 感谢 @Q_lilll 提供方案，为 OVZ VPS 在线打开 TUN,不需要到面板处理
-
 <details>
     <summary>历史更新 history（点击即可展开或收起）</summary>
 <br>
     
+>2022.4.8  2.37 1. First publication on a global scale: After WirePorxy, another major technological breakthrough -- WARP-Cli's WARP mode solution. Thanks >to the original creator -- Teacher LUBAN. It solves two major pain points: 1) The instability of the traditional proxy model; 2) Currently HK does not >have a WARP service; 1. 全网首发: 继 WirePorxy 之后，又一重大技术突破，WARP-Cli 的 WARP 模式方案，感谢原创者 LUBAN 老师，引用大神的思路，解决两大通点: 1) 传统 proxy 模式的>断流和慢; 2) 解决 HK 没有 WARP 服务
+>
+>2022.3.27  2.36 1. First publication on a global scale. By WireProxy, Wireguard client that exposes itself as a socks5 proxy; Ths Fangliding for the >information:[#113](https://github.com/fscarmen/warp/issues/113); 2. WARP+ and Teams can be used in WireProxy; 3. Systemd and change Netflix IP for >WireProxy. 1. 全网首发: 通过 wireproxy，让 WARP 在本地建议一个 socks5 代理。感谢风扇滑翔翼 提供的资讯:[#113](https://github.com/fscarmen/warp/issues/113); 2. WARP+ >和 Teams 账户可用于 WireProxy 安装或者升级; 3. WireProxy systemd 进程守护，同时支持更换 Netflix IP
+>
+>2022.3.23  2.35 1.Support WARP on Debian9; 1.支持 Debian 9 上安装 WARP
+>
+>Over 1,000 users star. Thank you for your support. 项目 star 破千，感谢各用户的大力支持。
+>
+>2022.3.19  2.34: 1.Support Arch Linux. Ths @SE_dong; 1.应呜呜冬 @SE_dong 的要求，新增 Arch Linux 的支持.
+>
+>2022.3.11  2.33: 1.First publication on a global scale. WARP Client support Ubuntu 18.04 and CentOS 7; 2. Open TUN for OVZ. You needn't setting it in the >control panel. Thx @Q_lilll; 1. 全网首发， WARP Client 支持 Ubuntu 18.04 and CentOS 7; 2. 感谢 @Q_lilll 提供方案，为 OVZ VPS 在线打开 TUN,不需要到面板处理
+>
 >2022.2.25  2.32: 1.Change the WARP endpoint; 2. Sync the Netflix title with lmc999; 1.更换 WARP 的 endpoint; 2. 同步 lmc999 的 Netflix 检测 title
 >
 >2022.2.15 Happy Lantern Festival. Bring you a new experience of docker unlock, another way to unlock Netflix. Project based on alpine, content wgcf and >unblocking Netflix scripts. Change unlock warp ip automatically. 元宵节快乐。为大家带来个 docker 解锁的全新体验，换个姿势解锁 Netflix。项目以 alpine 为基础系统，内含 >wgcf 和解锁 Netflix 脚本，自动切换解锁 WARP IP    
