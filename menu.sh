@@ -521,11 +521,11 @@ plus(){
 		2 ) input
 		    reading " ${T[${L}57]} " MISSION
 		    MISSION=${MISSION//[^0-9]/}
-		    bash <(wget --no-check-certificate -qO- -T8 https://raw.githubusercontents.com/fscarmen/tools/main/warp_plus.sh) $MISSION $ID;;
+		    bash <(wget --no-check-certificate -qO- -T8 https://raw.githubusercontent.com/fscarmen/tools/main/warp_plus.sh) $MISSION $ID;;
 		3 ) input
 		    reading " ${T[${L}57]} " MISSION
 		    MISSION=${MISSION//[^0-9]/}
-		    bash <(wget --no-check-certificate -qO- -T8 https://raw.githubusercontents.com/SoftCreatR/warp-up/main/warp-up.sh) --disclaimer --id $ID --iterations $MISSION;;
+		    bash <(wget --no-check-certificate -qO- -T8 https://raw.githubusercontent.com/SoftCreatR/warp-up/main/warp-up.sh) --disclaimer --id $ID --iterations $MISSION;;
 		4 ) [[ $OPTION != p ]] && menu || exit;;
 		* ) red " ${T[${L}51]} [1-4] "; sleep 1; plus;;
 	esac
@@ -767,7 +767,7 @@ uninstall(){
 	
 # 同步脚本至最新版本
 ver(){
-	wget -N -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || wget -N -P /etc/wireguard https://raw.githubusercontents.com/fscarmen/warp/main/menu.sh
+	wget -N -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || wget -N -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh
 	chmod +x /etc/wireguard/menu.sh
 	ln -sf /etc/wireguard/menu.sh /usr/bin/warp
 	green " ${T[${L}64]}:$(grep ^VERSION /etc/wireguard/menu.sh | sed "s/.*=//g")  ${T[${L}18]}：$(grep "T\[${L}1]" /etc/wireguard/menu.sh | cut -d \" -f2) " || red " ${T[${L}65]} "
@@ -1219,7 +1219,7 @@ install(){
 
 	# 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
 	wget --no-check-certificate -T1 -t1 $CDN -O /usr/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE ||
-	wget --no-check-certificate $CDN -O /usr/bin/wgcf https://raw.githubusercontents.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_linux_$ARCHITECTURE
+	wget --no-check-certificate $CDN -O /usr/bin/wgcf https://raw.githubusercontent.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_linux_$ARCHITECTURE
 	chmod +x /usr/bin/wgcf
 
 	# 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
@@ -1227,7 +1227,7 @@ install(){
 		wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 		wireproxy_latest=${wireproxy_latest:-'1.0.3'}
 		wget --no-check-certificate -T1 -t1 $CDN -N https://github.com/octeep/wireproxy/releases/download/v"$wireproxy_latest"/wireproxy_linux_$ARCHITECTURE.tar.gz ||
-		wget --no-check-certificate $CDN -N https://raw.githubusercontents.com/fscarmen/warp/main/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
+		wget --no-check-certificate $CDN -N https://raw.githubusercontent.com/fscarmen/warp/main/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
 		tar xzf wireproxy_linux_$ARCHITECTURE.tar.gz -C /usr/bin/; rm -f wireproxy_linux*
 	fi
 	
@@ -1468,7 +1468,7 @@ EOF
 
 	# Linux 内核低于5.6的，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
 	([[ $WG = 1 ]] || [[ $(systemctl is-active wg-quick@wgcf) != active ]] || [[ $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
-	wget --no-check-certificate $CDN -N https://raw.githubusercontents.com/fscarmen/warp/main/wireguard-go/wireguard-go_linux_"$ARCHITECTURE".tar.gz &&
+	wget --no-check-certificate $CDN -N https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go_linux_"$ARCHITECTURE".tar.gz &&
 	tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
 
 	# 保存好配置文件
