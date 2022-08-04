@@ -1338,7 +1338,7 @@ install(){
 
 	Alpine(){
 		# 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具：wg、wg-quick)
-		${PACKAGE_INSTALL[int]} net-tools iproute2 openresolv openrc iptables
+		${PACKAGE_INSTALL[int]} net-tools iproute2 openresolv openrc iptables ip6tables
 		[[ $OCTEEP != 1 ]] && ${PACKAGE_INSTALL[int]} wireguard-tools
 		}
 
