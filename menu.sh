@@ -2,14 +2,14 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=2.40
+VERSION=2.41
 
 declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1.Support VPS-free LXC VPS."
-T[C1]="1.支持 VPS-free LXC VPS"
+T[E1]="1.Get the traffic quota of WARP+ via API."
+T[C1]="1.通过 API 获取 WARP+ 剩余流量"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -122,8 +122,8 @@ T[E56]="The current Netflix region is \$REGION. Confirm press [y] . If you want 
 T[C56]="当前 Netflix 地区是:\$REGION，需要解锁当前地区请按 y , 如需其他地址请输入两位地区简写 \(如 hk ,sg，默认:\$REGION\):"
 T[E57]="The target quota you want to get. The unit is GB, the default value is 10:"
 T[C57]="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
-T[E58]="WARP+ or Teams account is working now. No need to upgrade."
-T[C58]="已经是 WARP+ 或者 Teams 账户，不需要升级"
+T[E58]="WARP+ or Teams account is working now. Quota: \$QUOTA. No need to upgrade."
+T[C58]="已经是 WARP+ 或者 Teams 账户，剩余流量: \$QUOTA，不需要升级"
 T[E59]="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License"
 T[C59]="找不到账户文件：/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
 T[E60]="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License"
@@ -200,8 +200,8 @@ T[E95]="Client works with non-WARP IPv4. The script is aborted. Feedback: [https
 T[C95]="Client 在非 WARP IPv4 下才能工作正常，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E96]="Client connecting failure. It may be a CloudFlare IPv4."
 T[C96]="Client 连接失败，可能是 CloudFlare IPv4."
-T[E97]="It is a WARP+ account already. Update is aborted."
-T[C97]="已经是 WARP+ 账户，不需要升级"
+T[E97]="It is a WARP+ account already. Quota: \${QUOTA}. Update is aborted."
+T[C97]="已经是 WARP+ 账户，剩余流量: \${QUOTA}，不需要升级"
 T[E98]="Uninstall WirePorxy was complete."
 T[C98]="WirePorxy 卸载成功"
 T[E99]="WireProxy is connected"
@@ -272,8 +272,8 @@ T[E131]="comfirm please enter [y] , and other keys to use free account:"
 T[C131]="确认请按 y ，其他按键则使用免费账户:"
 T[E132]="\n Is there a WARP+ or Teams account?\n 1. WARP+\n 2. Teams\n 3. use free account (default)\n"
 T[C132]="\n 如有 WARP+ 或 Teams 账户请选择\n 1. WARP+\n 2. Teams\n 3. 使用免费账户 (默认)\n"
-T[E133]="Device name：\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n Quota：\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
-T[C133]="设备名:\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量:\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
+T[E133]="Device name: \$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n Quota: \$QUOTA"
+T[C133]="设备名: \$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量: \$QUOTA"
 T[E134]="Curren architecture \$(uname -m) is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C134]="当前架构 \$(uname -m) 暂不支持,问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E135]="( match √ )"
@@ -469,11 +469,7 @@ proxy_info(){
 	[[ $L = C ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
 	PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-		if [[ $ACCOUNT =~ 'Limited' ]]; then
-			QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
-			[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TiB" ||  QUOTA="$((QUOTA/1000000000)) GiB"
-			AC='+'
-		fi
+	[[ $ACCOUNT =~ 'Limited' ]] && AC='+' && check_quota
 	fi
 
 	if type -P wireproxy >/dev/null 2>&1; then
@@ -486,7 +482,7 @@ proxy_info(){
 	PROXYASNORG2=$(expr "$PROXYJASON2" : '.*asn_org\":\"\([^"]*\).*')
 	TRACE42=$(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)")
 		if [[ $TRACE42 =~ plus ]]; then
-			grep -sq 'Device name' /etc/wireguard/info.log && AC2='+' || AC2=' Teams'
+			grep -sq 'Device name' /etc/wireguard/info.log && AC2='+' && check_quota || AC2=' Teams'
 		fi
 	fi
 	}
@@ -825,13 +821,9 @@ proxy_onoff(){
 		if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
 			proxy_info
 			ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-			if [[ $ACCOUNT =~ 'Limited' ]]; then
-				QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
-				[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TiB" ||  QUOTA="$((QUOTA/1000000000)) GiB"
-				AC='+'
-			fi
+			[[ $ACCOUNT =~ 'Limited' ]] && AC='+' && CHECK_TYPE=1 && check_quota
 			[[ $(ss -nltp) =~ 'warp-svc' ]] && green " ${T[${L}90]}\n $(eval echo "${T[${L}27]}") "
-			[[ -n "$QUOTA" ]] && green " ${T[${L}63]}：$QUOTA "
+			[[ -n "$QUOTA" ]] && green " ${T[${L}63]}: $QUOTA "
 		exit 0
 
 		else INTERFACE='--interface CloudflareWARP'
@@ -839,13 +831,9 @@ proxy_onoff(){
 			ip4_info
 			[[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
 			ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-			if [[ $ACCOUNT =~ 'Limited' ]]; then
-				QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
-				[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TiB" ||  QUOTA="$((QUOTA/1000000000)) GiB"
-				AC='+'
-			fi
+			[[ $ACCOUNT =~ 'Limited' ]] && AC='+' && CHECK_TYPE=1 && check_quota
 			[[ $(ip a) =~ 'CloudflareWARP' ]] && green " ${T[${L}90]}\n $(eval echo "${T[${L}169]}") "
-			[[ -n "$QUOTA" ]] && green " ${T[${L}63]}：$QUOTA "
+			[[ -n "$QUOTA" ]] && green " ${T[${L}63]}: $QUOTA "
 		exit 0
 		fi
 	fi
@@ -859,8 +847,9 @@ wireproxy_onoff(){
 		[[ ! $(ss -nltp) =~ 'wireproxy' ]] && green " ${T[${L}158]} "
 
 	else systemctl start wireproxy
-		sleep 1 && proxy_info 
+		sleep 1 && proxy_info
 		[[ $(ss -nltp) =~ 'wireproxy' ]] && green " ${T[${L}99]}\n $(eval echo "${T[${L}162]}") "
+		[[ -n "$QUOTA" ]] && green " ${T[${L}63]}: $QUOTA "
 	fi
 	}
 
@@ -966,6 +955,8 @@ EOF
 	# 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义：0=未安装  1=已安装未激活  2=状态激活  3=Clinet proxy 已开启  5=Clinet warp 已开启
 	CLIENT=0
 	if type -P warp-cli >/dev/null 2>&1; then
+		ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+		[[ $ACCOUNT =~ 'Limited' ]] && CHECK_TYPE=1 && AC='+' && check_quota
 		CLIENT=1 && CLIENT_INSTALLED="${T[${L}92]}"
 		[[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
 		if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
@@ -1449,6 +1440,7 @@ EOF
 	proxy_info
 	end=$(date +%s)
 	green " $(eval echo "${T[${L}149]}")\n $(eval echo "${T[${L}162]}") "
+	[[ -n "$QUOTA" ]] && green " ${T[${L}63]}: $QUOTA "
 	red "\n==============================================================\n"
 	yellow " ${T[${L}43]}\n " && help
 
@@ -1494,7 +1486,7 @@ EOF
 	green " IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
 	green " IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
 	grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && TYPE='+' || TYPE=' Teams'
-	[[ $TRACE4$TRACE6 =~ plus ]] && green " $(eval echo "${T[${L}41]}") " && grep -sq 'Device name' /etc/wireguard/info.log && green " $(eval echo "${T[${L}133]}") "
+	[[ $TRACE4$TRACE6 =~ plus ]] && green " $(eval echo "${T[${L}41]}") " && check_quota && green " $(eval echo "${T[${L}133]}") "
 	[[ $TRACE4$TRACE6 =~ on ]] && green " $(eval echo "${T[${L}42]}") "
 	green " $PRIORITY "
 	red "\n==============================================================\n"
@@ -1633,11 +1625,7 @@ proxy(){
 
 	# 结果提示，脚本运行时间，次数统计
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-	if [[ $ACCOUNT =~ 'Limited' ]]; then
-		QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
-		[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TiB" ||  QUOTA="$((QUOTA/1000000000)) GiB"
-		AC='+'
-	fi
+	[[ $ACCOUNT =~ 'Limited' ]] && CHECK_TYPE=1 && AC='+' && check_quota
 
 	if [[ $LUBAN = 1 ]]; then
 		[[ $L = C ]] && COUNTRY4=$(translate "$COUNTRY4")
@@ -1650,7 +1638,7 @@ proxy(){
 		red "\n==============================================================\n"
 		green " $(eval echo "${T[${L}94]}")\n $(eval echo "${T[${L}27]}") "
 	fi
-	[[ $ACCOUNT =~ 'Limited' ]] && green " ${T[${L}63]}：$QUOTA "
+	[[ $ACCOUNT =~ 'Limited' ]] && green " ${T[${L}63]}: $QUOTA "
 	red "\n==============================================================\n"
 	yellow " ${T[${L}43]}\n " && help
 	}
@@ -1689,10 +1677,23 @@ wireproxy_solution(){
 	esac
 	}
 
+# 查 WARP+ 余额流量接口
+check_quota(){
+	if [ "$CHECK_TYPE" = 1 ]; then
+		QUOTA=$(grep -oP 'Quota: \K\d+' <<< $ACCOUNT)
+	else
+		ACCESS_TOKEN=$(grep 'access_token' /etc/wireguard/wgcf-account.toml | cut -d \' -f2)
+		DEVICE_ID=$(grep 'device_id' /etc/wireguard/wgcf-account.toml | cut -d \' -f2)
+		API=$(curl -s "https://api.cloudflareclient.com/v0a884/reg/$DEVICE_ID" -H "User-Agent: okhttp/3.12.1" -H "Authorization: Bearer $ACCESS_TOKEN")
+		QUOTA=$(grep -oP '"quota":\K\d+' <<< $API)
+	fi
+	[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TB" ||  QUOTA="$((QUOTA/1000000000)) GB"
+	}
+
 # 免费 WARP 账户升级 WARP+ 账户
 update(){
 	wgcf_account(){
-	[[ $TRACE4$TRACE6 =~ plus ]] && red " ${T[${L}58]} " && exit 1
+	[[ $TRACE4$TRACE6 =~ plus ]] && check_quota && red " $(eval echo ${T[${L}58]}) " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " ${T[${L}59]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
 
@@ -1707,7 +1708,8 @@ update(){
 	wg-quick down wgcf >/dev/null 2>&1
 	net
 	[[ $(curl -ks4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -ks6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] &&
-	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
+	check_quota &&
+	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}: $QUOTA " ) || red " ${T[${L}36]} ";;
 
 	2 ) input_url
 	[[ $CONFIRM = [Yy] ]] && (echo "$TEAMS" > /etc/wireguard/info.log 2>&1
@@ -1721,22 +1723,22 @@ update(){
 
 	client_account(){
 	[[ $ARCHITECTURE = arm64 ]] && red " ${T[${L}101]} " && exit 1
-	[[ $(warp-cli --accept-tos account) =~ Limited ]] && red " ${T[${L}97]} " && exit 1
+	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+	[[ $ACCOUNT =~ Limited ]] && CHECK_TYPE=1 && check_quota && red " $(eval echo ${T[${L}97]}) " && exit 1
 	update_license
 	warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1; sleep 1
 	ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
 	if [[ $ACCOUNT =~ 'Limited' ]]; then
 	echo "$LICENSE" >/etc/wireguard/license
-	QUOTA=$(expr "$ACCOUNT" : '.*Quota:\s\([0-9]\{1,\}\)\s.*')
-	[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TB" ||  QUOTA="$((QUOTA/1000000000)) GB"
-	green " ${T[${L}62]}\n ${T[${L}63]}：$QUOTA "
+	CHECK_TYPE=1 && check_quota
+	green " ${T[${L}62]}\n ${T[${L}63]}: $QUOTA "
 
 	else red " ${T[${L}36]} "
 	fi
 	}
 	
 	wireproxy_account(){
-	[[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && red " ${T[${L}58]} " && exit 1
+	[[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && check_quota
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " ${T[${L}59]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
 
@@ -1751,7 +1753,8 @@ update(){
 	sed -i "s#PrivateKey.*#PrivateKey = $(grep "PrivateKey.*" /etc/wireguard/wgcf.conf | sed "s#PrivateKey = ##g")#g" proxy.conf
 	systemctl restart wireproxy
 	[[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] &&
-	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" ) || red " ${T[${L}36]} ";;
+	check_quota &&
+	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}: $QUOTA " ) || red " ${T[${L}36]} ";;
 
 	2 ) input_url
 	[[ $CONFIRM = [Yy] ]] && (echo "$TEAMS" > /etc/wireguard/info.log 2>&1
@@ -1829,7 +1832,7 @@ menu_setting(){
 
 # 显示菜单
 menu(){
-	grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && TYPE='+' && PLUSINFO="${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')" || TYPE=' Teams'
+	grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && check_quota && TYPE='+' && PLUSINFO="${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')\t ${T[${L}63]}: $QUOTA" || TYPE=' Teams'
 	
 	clear
 	yellow " ${T[${L}16]} "
@@ -1838,7 +1841,7 @@ menu(){
 	green "	IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
 	green "	IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
 	[[ $TRACE4$TRACE6 =~ plus ]] && green "	$(eval echo "${T[${L}114]}")	$PLUSINFO "
-	[[ $TRACE4$TRACE6 =~ on ]] && green "	${T[${L}115]} " 	
+	[[ $TRACE4$TRACE6 =~ on ]] && green "	${T[${L}115]} "
 	[[ $PLAN != 3 ]] && green "	${T[${L}116]} "
 	[[ $CLIENT = 0 ]] && green "	${T[${L}112]} "
 	[[ $CLIENT = 2 ]] && green "	$(eval echo "${T[${L}113]}") "
@@ -1846,7 +1849,8 @@ menu(){
 	[[ $CLIENT = 5 ]] && green "	WARP$AC ${T[${L}24]}	$(eval echo "${T[${L}169]}") "
 	[[ $WIREPROXY = 0 ]] && green "	${T[${L}160]} "
 	[[ $WIREPROXY = 2 ]] && green "	${T[${L}161]} "
-	[[ $WIREPROXY = 3 ]] && green "	WARP$AC2 ${T[${L}159]}	$(eval echo "${T[${L}162]}") "	
+	[[ $WIREPROXY = 3 ]] && green "	WARP$AC2 ${T[${L}159]}	$(eval echo "${T[${L}162]}") "
+	grep -q '+' <<< $AC$AC2 && green "	${T[${L}63]}: $QUOTA "
  	red "\n======================================================================================================================\n"
 	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11\n 12. $OPTION12\n 13. $OPTION13\n 14. $OPTION14\n 0. $OPTION0\n "
 	reading " ${T[${L}50]} " CHOOSE1
