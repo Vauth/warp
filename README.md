@@ -20,7 +20,7 @@
 * * *
 
 ## 更新信息
-2022.8.5 2.41 1.Get the traffic quota of WARP+ via API; 1.通过 API 获取 WARP+ 剩余流量
+2022.8.5 2.41 1.Get the traffic quota of WARP+ via API. Thanks to Oreo for technical support; 1.通过 API 获取 WARP+ 剩余流量, 感谢猫佬的技术支持。
 
 2022.6.27 香港 IPv6 only 安装 Client 的方式，转自 LOC jhsyue 的技术贴:[wiki-hk-61.8 开启warp教程](https://hostloc.com/thread-1036792-1-1.html)
 
