@@ -20,6 +20,8 @@
 * * *
 
 ## 更新信息
+2022.8.5 2.41 1.Get the traffic quota of WARP+ via API; 1.通过 API 获取 WARP+ 剩余流量
+
 2022.6.27 香港 IPv6 only 安装 Client 的方式，转自 LOC jhsyue 的技术贴:[wiki-hk-61.8 开启warp教程](https://hostloc.com/thread-1036792-1-1.html)
 
 2022.6.11 2.40 1.Support VPS-free LXC VPS; 1.支持 VPS-free LXC VPS
