@@ -19,14 +19,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@master
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Check the official latest version of WireGuard-go
         run: |
           NOW=$(wget -qO- "https://api.github.com/repos/${{ env.USERNAME }}/warp/releases" | grep "tag_name" | grep -i "wireguard-go" | head -n 1 | sed "s/.*_v\(.*\)\".*/\1/g")
-          LATEST=$(wget -qO- https://git.zx2c4.com/wireguard-go/ | grep '/wireguard-go/tag' | head -n 1 | sed "s/.*>\([0-9.]\{1,\}\)<.*/\1/g")
+          LATEST=$(wget -qO- https://git.zx2c4.com/wireguard-go/ | grep '/wireguard-go/tag' | sed -n 1p | sed "s/.*>\([0-9.]\{1,\}\)<.*/\1/g")
           NOW1=$(echo $NOW | cut -d \. -f1)
           NOW2=$(echo $NOW | cut -d \. -f2)
           NOW3=$(echo $NOW | cut -d \. -f3)
