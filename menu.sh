@@ -200,8 +200,8 @@ T[E95]="Client works with non-WARP IPv4. The script is aborted. Feedback: [https
 T[C95]="Client 在非 WARP IPv4 下才能工作正常，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E96]="Client connecting failure. It may be a CloudFlare IPv4."
 T[C96]="Client 连接失败，可能是 CloudFlare IPv4."
-T[E97]="It is a WARP+ account already. Quota: \${QUOTA}. Update is aborted."
-T[C97]="已经是 WARP+ 账户，剩余流量: \${QUOTA}，不需要升级"
+T[E97]="It is a WARP+ account already. Quota: \$QUOTA. Update is aborted."
+T[C97]="已经是 WARP+ 账户，剩余流量: \$QUOTA，不需要升级"
 T[E98]="Uninstall WirePorxy was complete."
 T[C98]="WirePorxy 卸载成功"
 T[E99]="WireProxy is connected"
@@ -1738,7 +1738,7 @@ update(){
 	}
 	
 	wireproxy_account(){
-	[[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && check_quota
+	[[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && check_quota && red " $(eval echo ${T[${L}58]}) " && exit 1
 	[[ ! -e /etc/wireguard/wgcf-account.toml ]] && red " ${T[${L}59]} " && exit 1
 	[[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
 
