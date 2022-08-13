@@ -16,8 +16,8 @@ T[E3]="The TUN module is not loaded. You should turn it on in the control panel.
 T[C3]="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E4]="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.193.10 or ping6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C4]="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.193.10 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
-T[E5]="The script supports Debian, Ubuntu, CentOS or Alpine systems only. Feedback: [https://github.com/fscarmen/warp/issues]"
-T[C5]="本脚本只支持 Debian、Ubuntu、CentOS 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
+T[E5]="The script supports Debian, Ubuntu, CentOS, Arch or Alpine systems only. Feedback: [https://github.com/fscarmen/warp/issues]"
+T[C5]="本脚本只支持 Debian、Ubuntu、CentOS、Arch 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Upgrade to WARP+ account)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp s (WARP single and dual stacks switch echo other. Such as [warp s 4],[warp s 6],[warp s d])\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n"
 T[C6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (免费 WARP 账户升级 WARP+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp s [OPTION](WARP 单双栈相互切换，如 [warp s 4]、[warp s 6]、[warp s d])\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n"
 T[E7]="Installing curl..."
@@ -71,9 +71,9 @@ T[C30]="License 应为26位字符，请重新输入 WARP+ License，没有可回
 T[E31]="\n 1.Update with WARP+ license\n 2.Update with Teams (You need upload the Teams file to a private storage space before. For example: gist.github.com)\n"
 T[C31]="\n 1.使用 WARP+ license 升级\n 2.使用 Teams 升级 (你须事前把 Teams 文件上传到私密存储空间，比如：gist.github.com )\n"
 T[E32]="Step 1/3: Install dependencies..."
-T[C32]="进度 1/3：安装系统依赖……"
+T[C32]="进度 1/3: 安装系统依赖……"
 T[E33]="Step 2/3: WGCF is ready"
-T[C33]="进度 2/3：已安装 WGCF"
+T[C33]="进度 2/3: 已安装 WGCF"
 T[E34]="Failed to change port. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C34]="更换端口不成功，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E35]="Update WARP+ account..."
@@ -344,8 +344,8 @@ T[E167]="WARP iptable was installed.\n connect/disconnect by [warp o]\n uninstal
 T[C167]="WARP iptable 已安装\n 连接/断开: warp o\n 卸载: warp u"
 T[E168]="Install CloudFlare Client and set mode to WARP"
 T[C168]="安装 CloudFlare Client 并设置为 WARP 模式"
-T[E169]="WARP\$AC IPv4：\$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
-T[C169]="WARP\$AC IPv4：\$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
+T[E169]="WARP\$AC IPv4: \$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
+T[C169]="WARP\$AC IPv4: \$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$@\033[0m"; }
@@ -423,7 +423,7 @@ check_operating_system(){
 # 安装 curl
 check_dependencies(){
 	type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${PACKAGE_INSTALL[int]} curl) || (yellow " ${T[${L}8]} " && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl)
-	! type -P curl >/dev/null 2>&1 && yellow " ${T[${L}9]} " && exit 1
+	! type -P curl >/dev/null 2>&1 && red " ${T[${L}9]} " && exit 1
 	[[ $SYSTEM = Alpine ]] && ! type -P curl >/dev/null 2>&1 && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl wget grep
 	}
 
@@ -758,7 +758,7 @@ uninstall(){
 	# 显示卸载结果
 	ip4_info; [[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
 	ip6_info; [[ $L = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
-	green " ${T[${L}45]}\n IPv4：$WAN4 $COUNTRY4 $ASNORG4\n IPv6：$WAN6 $COUNTRY6 $ASNORG6 "
+	green " ${T[${L}45]}\n IPv4: $WAN4 $COUNTRY4 $ASNORG4\n IPv6: $WAN6 $COUNTRY6 $ASNORG6 "
 	}
 	
 # 同步脚本至最新版本
@@ -781,22 +781,22 @@ net(){
 	wg-quick up wgcf >/dev/null 2>&1
 	ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
 	ip4_info; ip6_info
-	until [[ $TRACE4$TRACE6 =~ on|plus ]]
-		do	(( i++ )) || true
-			yellow " $(eval echo "${T[${L}12]}") "
-			${SYSTEMCTL_RESTART[int]} >/dev/null 2>&1
-			ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
-			ip4_info; ip6_info
-			if [[ $i = "$j" ]]; then
-				if [[ $LICENSETYPE = 2 ]]; then 
-				unset LICENSETYPE && i=0 && green " ${T[${L}129]} " &&
-				cp -f /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf
-				else
-				wg-quick down wgcf >/dev/null 2>&1
-				red " $(eval echo "${T[${L}13]}") " && exit 1
-				fi
+	until [[ $TRACE4$TRACE6 =~ on|plus ]]; do
+		(( i++ )) || true
+		yellow " $(eval echo "${T[${L}12]}") "
+		${SYSTEMCTL_RESTART[int]} >/dev/null 2>&1
+		ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
+		ip4_info; ip6_info
+		if [[ $i = "$j" ]]; then
+			if [[ $LICENSETYPE = 2 ]]; then 
+			unset LICENSETYPE && i=0 && green " ${T[${L}129]} " &&
+			cp -f /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf
+			else
+			wg-quick down wgcf >/dev/null 2>&1
+			red " $(eval echo "${T[${L}13]}") " && exit 1
 			fi
-        	done
+		fi
+        done
 	green " ${T[${L}14]} "
 	[[ $L = C ]] && COUNTRY4=$(translate "$COUNTRY4")
 	[[ $L = C ]] && COUNTRY6=$(translate "$COUNTRY6")
@@ -1023,7 +1023,7 @@ update_license(){
 	done
 	[[ $UPDATE_LICENSE = 1 && -n $LICENSE && -z $NAME ]] && reading " ${T[${L}102]} " NAME
 	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'WARP'}
-}
+	}
 
 # 输入 Linux Client 端口,先检查默认的40000是否被占用,限制4-5位数字,准确匹配空闲端口
 input_port(){
@@ -1192,7 +1192,7 @@ install(){
 	# 询问是否有 WARP+ 或 Teams 账户
 	[[ -z $LICENSETYPE ]] && yellow " ${T[${L}132]}" && reading " ${T[${L}50]} " LICENSETYPE
 	case $LICENSETYPE in
-	1 ) INPUT_LICENSE=1 && input_license;;	
+	1 ) INPUT_LICENSE=1 && input_license;;
 	2 ) input_url;;
 	esac
 
@@ -1483,8 +1483,8 @@ EOF
 	# 结果提示，脚本运行时间，次数统计
 	end=$(date +%s)
 	red "\n==============================================================\n"
-	green " IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
-	green " IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
+	green " IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
+	green " IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
 	grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && TYPE='+' || TYPE=' Teams'
 	[[ $TRACE4$TRACE6 =~ plus ]] && green " $(eval echo "${T[${L}41]}") " && check_quota && green " $(eval echo "${T[${L}133]}") "
 	[[ $TRACE4$TRACE6 =~ on ]] && green " $(eval echo "${T[${L}42]}") "
