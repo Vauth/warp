@@ -288,7 +288,7 @@ install(){
     sleep 1
   done
   green "\n 进度 2/3: 已安装 warp-go\n "
-  echo "$LICENSE" >/opt/warp-go/license
+  [[ -n "$LICENSE" ]] && echo "$LICENSE" > /opt/warp-go/license
   }&
 
   # 对于 IPv4 only VPS 开启 IPv6 支持
@@ -450,7 +450,7 @@ case "$OPTION" in
   if [[ -e /opt/warp-go/warp-go.sh ]]; then
     help
   else
-    reading " 请选择安装类型:\n 1. WARP IPv4 only\n 2. WARP IPv6 only\n 3. WARP 双栈\n 0. 退出 " WARP_STACK
+    yellow " 安装类型:\n 1. WARP IPv4 only\n 2. WARP IPv6 only\n 3. WARP 双栈\n 0. 退出\n " && reading " 请选择: " WARP_STACK
     case "$WARP_STACK" in
 	    1 ) CONF=${CONF1[m]};; 
 	    2 ) CONF=${CONF2[m]};;
