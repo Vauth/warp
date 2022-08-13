@@ -7,7 +7,8 @@
 - [更新信息](README.md#更新信息)
 - [脚本特点](README.md#脚本特点)
 - [WARP好处](README.md#WARP好处)
-- [运行脚本](README.md#运行脚本)
+- [warp 运行脚本](README.md#warp-运行脚本)
+- [warp-go 运行脚本](README.md#warp-go-运行脚本)
 - [刷 Netflix 解锁 WARP IP 的方法](README.md#刷-Netflix-解锁-WARP-IP-的方法)
 - [Netflix 分流到 WARP Client Proxy、WireProxy 的方法](README.md#Netflix-分流到-WARP-Client-ProxyWireProxy-的方法)
 - [Netflix,Google 分流到 Client WARP 网络接口的方法](README.md#netflixgoogle-分流到-client-warp-网络接口的方法)
@@ -20,6 +21,14 @@
 * * *
 
 ## 更新信息
+2022.8.13 First on the whole web, proudly presents @CoiaPrant's warp-go one-click script. Using various interfaces of CloudFlare-WARP and integrating wireguard-go, it can completely replace WGCF. Save Hong Kong, Toronto, etc., and let VPS without official WARP also get WARP IP. Thanks @CoiaPrant and his team again. Project official address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/
+
+全网首发，隆重推出 @CoiaPrant 的 warp-go 一键脚本。使用 CloudFlare-WARP 的各类接口，集成 wireguard-go，可以完全替代 WGCF。 救活了香港、多伦多等，让没有官方 WARP 的 VPS 也可以获取 WARP IP。再次感谢 @CoiaPrant 及其团队。项目地址: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/
+
+```
+wget -N https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh && bash warp-go.sh [option] [lisence]
+```
+
 2022.8.5 2.41 1.Get the traffic quota of WARP+ via API. Thanks to Oreo for technical support; 1.通过 API 获取 WARP+ 剩余流量, 感谢猫佬的技术支持。
 
 2022.6.27 香港 IPv6 only 安装 Client 的方式，转自 LOC jhsyue 的技术贴:[wiki-hk-61.8 开启warp教程](https://hostloc.com/thread-1036792-1-1.html)
@@ -153,7 +162,7 @@
 
 <img src="https://user-images.githubusercontent.com/62703343/144635014-4c027645-0e09-4b84-8b78-88b41f950627.png" width="80%" />
 
-## 运行脚本
+## warp 运行脚本
 
 首次运行
 ```
@@ -191,7 +200,7 @@ warp [option] [lisence]
 
 举例：想为 IPv4 的甲骨文添加 Warp 双栈，首次运行
 ```bash
-wget -N https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh && bash menu.sh d
+wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && bash menu.sh d
 ```
 刷日本 Netflix  运行
 ```bash
@@ -328,8 +337,33 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
         ]
     }
 }
+
 ```
-    
+
+## warp-go 运行脚本
+首次运行
+```
+wget -N https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh && bash warp-go.sh [option] [lisence]
+```
+再次运行
+```bash
+warp-go [option] [lisence]
+```
+  | [option] 变量1 变量2 | 具体动作说明 |
+  | ----------------- | --------------- |
+  | h | 帮助 |
+  | 4 | 原无论任何状态 -> WARP IPv4 |
+  | 4 lisence name | 把 WARP+ Lisence 和设备名添加进去，如 ```bash wire-go 4 N5670ljg-sS9jD334-6o6g4M9F Goodluck``` |
+  | 6 | 原无论任何状态 -> WARP IPv6 |
+  | d | 原无论任何状态 -> WARP 双栈 |
+  | o | warp-go 开关，脚本主动判断当前状态，自动开或关 |
+  | u | 卸载 warp-go |
+  | a | 免费 WARP 账户升级 WARP+ |
+  | a lisence | 在上面基础上把 WARP+ Lisence 添加进去，如 ```bash menu.sh a N5670ljg-sS9jD334-6o6g4M9F``` |
+  | v | 同步脚本至最新版本 |
+  | s | 单栈与双栈快速切换 ，如 ```warp s 4```,```warp s 6```,```warp s d``` |
+  | 其他或空值| 菜单界面 |
+
 ## WARP+ License 及 ID 获取
 
 以下是使用WARP和Team后 Argo 2.0 的官方介绍:[Argo 2.0: Smart Routing Learns New Tricks](https://blog.cloudflare.com/argo-v2/)
