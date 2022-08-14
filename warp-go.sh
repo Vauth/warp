@@ -270,14 +270,14 @@ install(){
   start=$(date +%s)
 
   # 注册 WARP 账户 (将生成 warp 文件保存账户信息)
-  # 判断 wgcf 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.1
+  # 判断 wgcf 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.2
   {	
   latest=$(wget -qO- https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | grep -oP '"tag_name":"v\K[^\"]+' | head -n 1)
-  latest=${latest:-'1.0.1'}
+  latest=${latest:-'1.0.2'}
 
   # 安装 warp-go，尽量下载官方的最新版本，如官方 warp-go 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
   mkdir -p /opt/warp-go/ >/dev/null 2>&1
-  wget --no-check-certificate -T1 -t1 $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://gitlab.com/ProjectWARP/warp-go/-/releases/v1.0.1/downloads/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
+  wget --no-check-certificate -T1 -t1 $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$latest"/downloads/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
   tar xzf /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz -C /opt/warp-go/ warp-go 
   chmod +x /opt/warp-go/warp-go
   rm -f /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
