@@ -7,7 +7,7 @@
 - [更新信息](README.md#更新信息)
 - [脚本特点](README.md#脚本特点)
 - [WARP好处](README.md#WARP好处)
-- [warp 运行脚本](README.md#warp-运行脚本)
+- [warp 运行脚本](README.md#warp-%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC)
 - [warp-go 运行脚本](README.md#warp-go-%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC)
 - [刷 Netflix 解锁 WARP IP 的方法](README.md#刷-Netflix-解锁-WARP-IP-的方法)
 - [Netflix 分流到 WARP Client Proxy、WireProxy 的方法](README.md#Netflix-分流到-WARP-Client-ProxyWireProxy-的方法)
