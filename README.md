@@ -8,7 +8,7 @@
 - [脚本特点](README.md#脚本特点)
 - [WARP好处](README.md#WARP好处)
 - [warp 运行脚本](README.md#warp-运行脚本)
-- [warp-go 运行脚本](README.md#warp-go-运行脚本)
+- [warp-go 运行脚本](README.md#warp-go-%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC)
 - [刷 Netflix 解锁 WARP IP 的方法](README.md#刷-Netflix-解锁-WARP-IP-的方法)
 - [Netflix 分流到 WARP Client Proxy、WireProxy 的方法](README.md#Netflix-分流到-WARP-Client-ProxyWireProxy-的方法)
 - [Netflix,Google 分流到 Client WARP 网络接口的方法](README.md#netflixgoogle-分流到-client-warp-网络接口的方法)
@@ -169,7 +169,7 @@ wget -N https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh && bash 
 wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && bash menu.sh [option] [lisence]
 ```
 再次运行
-```bash
+```
 warp [option] [lisence]
 ```
   | [option] 变量1 变量2 | 具体动作说明 |
@@ -199,11 +199,11 @@ warp [option] [lisence]
   | 其他或空值| 菜单界面 |
 
 举例：想为 IPv4 的甲骨文添加 Warp 双栈，首次运行
-```bash
+```
 wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && bash menu.sh d
 ```
 刷日本 Netflix  运行
-```bash
+```
 warp i jp
 ```
 
@@ -359,7 +359,7 @@ warp-go [option] [lisence]
   | o | warp-go 开关，脚本主动判断当前状态，自动开或关 |
   | u | 卸载 warp-go |
   | a | 免费 WARP 账户升级 WARP+ |
-  | a lisence | 在上面基础上把 WARP+ Lisence 添加进去，如 ```bash menu.sh a N5670ljg-sS9jD334-6o6g4M9F``` |
+  | a lisence name| 在上面基础上把 WARP+ Lisence 和设备名添加进去，如 ```bash menu.sh a N5670ljg-sS9jD334-6o6g4M9F Goodluck``` |
   | v | 同步脚本至最新版本 |
   | s | 单栈与双栈快速切换 ，如 ```warp s 4```,```warp s 6```,```warp s d``` |
   | 其他或空值| 菜单界面 |
@@ -450,6 +450,7 @@ https://github.com/acacia233/Project-WARP-Unlock
 服务提供（排名不分先后）:
 * CloudFlare Warp(+): https://1.1.1.1/
 * WGCF 项目原作者: https://github.com/ViRb3/wgcf/
+* Coia 和 warp-go 团队: https://gitlab.com/ProjectWARP/warp-go
 * WireGuard-GO 官方: https://git.zx2c4.com/wireguard-go/
 * ylx2016 的成熟作品: https://github.com/ylx2016/Linux-NetSpeed
 * ALIILAPRO 的成熟作品: https://github.com/ALIILAPRO/warp-plus-cloudflare
