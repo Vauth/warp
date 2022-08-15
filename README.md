@@ -21,6 +21,8 @@
 * * *
 
 ## 更新信息
+2022.8.13 warp-go v1.0.1 1.New feat: Support WARP+ (warp-go a <license>). You can easily get the token through https://warp-team-api.herokuapp.com/ ; 2.Support Teams (warp-go a token); 3.Brush unlock Netflix IP (warp-go i); 1.新增 WARP+ 升级功能(warp-go a <license>),通过 https://warp-team-api.herokuapp.com/ 你能轻松获取 token; 2.新增 Teams 升级功能(warp-go a token); 3.新增刷解锁奈飞IP功能(warp-go i)
+
 2022.8.13 First on the whole web, proudly presents @CoiaPrant's warp-go one-click script. Using various interfaces of CloudFlare-WARP and integrating wireguard-go, it can completely replace WGCF. Save Hong Kong, Toronto, etc., and let VPS without official WARP also get WARP IP. Thanks @CoiaPrant and his team again. Project official address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/
 
 全网首发，隆重推出 @CoiaPrant 的 warp-go 一键脚本。使用 CloudFlare-WARP 的各类接口，集成 wireguard-go，可以完全替代 WGCF。 救活了香港、多伦多等，让没有官方 WARP 的 VPS 也可以获取 WARP IP。再次感谢 @CoiaPrant 及其团队。项目地址: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/
@@ -460,6 +462,7 @@ https://github.com/acacia233/Project-WARP-Unlock
 * WireProxy 作者: https://github.com/octeep/wireproxy
 * 获取公网 IP 及归属地查询: https://ip.gs/
 * 统计PV网:https://hits.seeyoufarm.com/
+* Coia 的网页版提出 Teams Token: https://warp-team-api.herokuapp.com/
 
 CloudFlare WARP 全球站点和服务状态:
 * Operational = 正常。Re-routed = 检修状态: https://www.cloudflarestatus.com/
