@@ -2,7 +2,8 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=1.00
+VERSION=1.01
+CONTENT="1.新增 WARP+ 升级功能(warp-go a <license>); 2.新增 Teams 升级功能(warp-go a token); 3.新增刷解锁奈飞IP功能(warp-go i)"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$@\033[0m"; }
@@ -25,11 +26,11 @@ check_root_virt(){
 # 多方式判断操作系统，试到有值为止。只支持 Debian 9/10/11、Ubuntu 18.04/20.04/22.04 或 CentOS 7/8 ,如非上述操作系统，退出脚本
 check_operating_system(){
   CMD=(	"$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
-		"$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
-		"$(lsb_release -sd 2>/dev/null)"
-		"$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)"
-		"$(grep . /etc/redhat-release 2>/dev/null)"
-		"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
+	"$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
+	"$(lsb_release -sd 2>/dev/null)"
+	"$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)"
+	"$(grep . /etc/redhat-release 2>/dev/null)"
+	"$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
 	)
 
   for i in "${CMD[@]}"; do
@@ -37,7 +38,7 @@ check_operating_system(){
   done
 
   # 自定义 Alpine 系统若干函数
-  alpine_wgcf_restart(){ kill -15 $(pgrep warp-go); /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf; }
+  alpine_warp_restart(){ kill -15 $(pgrep warp-go); /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf; }
   alpine_wgcf_enable(){ echo 'nohup /opt/warp-go/warp-go --config=/opt/warp-go/warp-go/warp.conf &' > /etc/local.d/warp-go.start; chmod +x /etc/local.d/warp-go.start; rc-update add local; }
 
   REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky|amazon linux" "alpine" "arch linux")
@@ -49,7 +50,7 @@ check_operating_system(){
   PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "apk del -f" "pacman -Rcnsu --noconfirm")
   SYSTEMCTL_START=("systemctl start warp-go" "systemctl start warp-go" "systemctl start warp-go" "/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf" "systemctl start warp-go")
   SYSTEMCTL_STOP=("systemctl stop warp-go" "systemctl stop warp-go" "systemctl stop warp-go" "kill -15 \$(pgrep warp-go)" "systemctl stop warp-go")
-  SYSTEMCTL_RESTART=("systemctl restart warp-go" "systemctl restart warp-go" "systemctl restart warp-go" "alpine_wgcf_restart" "systemctl restart wg-quick@wgcf")
+  SYSTEMCTL_RESTART=("systemctl restart warp-go" "systemctl restart warp-go" "systemctl restart warp-go" "alpine_warp_restart" "systemctl restart wg-quick@wgcf")
   SYSTEMCTL_ENABLE=("systemctl enable --now warp-go" "systemctl enable --now warp-go" "systemctl enable --now warp-go" "alpine_wgcf_enable" "systemctl enable --now warp-go")
 
   for ((int=0; int<${#REGEX[@]}; int++)); do
@@ -91,7 +92,71 @@ ip6_info(){
   }
 
 # 帮助说明
-help(){	yellow " warp-go h (帮助菜单）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go s [OPTION](WARP 单双栈相互切换，如 [warp s 4]、[warp s 6]、[warp s d])\n "; }
+help(){	yellow " warp-go h (帮助菜单）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go s [OPTION](WARP 单双栈相互切换，如 [warp s 4]、[warp s 6]、[warp s d])\n "; }
+
+# IPv4 / IPv6 优先
+stack_priority(){
+	[[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
+	case "$PRIORITY" in
+		2 )	echo "label 2002::/16   2" >> /etc/gai.conf;;
+		3 )	;;
+		* )	echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
+	esac
+	}
+
+# 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
+change_ip(){
+  warp_restart(){ red " $(eval echo "\$(date +'%F %T') 尝试第\${i}次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG，\${j}秒后重新测试，刷 IP 运行时长: \$DAY 天 \$HOUR 时 \$MIN 分 \$SEC 秒") " && ${SYSTEMCTL_RESTART[int]}; sleep $j; }
+
+  # 设置时区，让时间戳时间准确，显示脚本运行时长，中文为 GMT+8，英文为 UTC; 设置 UA
+  ip_start=$(date +%s)
+  [[ $SYSTEM != Alpine ]] && ( [[ $L = C ]] && timedatectl set-timezone Asia/Shanghai || timedatectl set-timezone UTC )
+  UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
+	
+  # 根据 lmc999 脚本检测 Netflix Title，如获取不到，使用兜底默认值
+  LMC999=$(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh)
+  RESULT_TITLE=$(echo "$LMC999" | grep "result.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
+  REGION_TITLE=$(echo "$LMC999" | grep "region.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
+  RESULT_TITLE=${RESULT_TITLE:-'81215567'}; REGION_TITLE=${REGION_TITLE:-'80018499'}
+
+  # 检测 WARP 单双栈服务
+  unset T4 T6
+  grep -q "0\.\0\/0" /opt/warp-go/warp.conf && T4=1 || T4=0
+  grep -q "\:\:\/0" /opt/warp-go/warp.conf && T6=1 || T6=0
+  case "$T4$T6" in
+    01 ) NF='6';;	10 ) NF='4';;
+    11 ) yellow "\n 1. 刷 WARP IPv4 (默认)\n 2. 刷 WARP IPv6\n " && reading " 请选择: " NETFLIX
+        NF='4' && [[ $NETFLIX = 2 ]] && NF='6';;
+  esac
+
+  # 输入解锁区域
+	if [[ -z "$EXPECT" ]]; then
+    [[ -n "$NF" ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+    REGION=${REGION:-'US'}
+    reading " $(eval echo "当前 Netflix 地区是:\$REGION，需要解锁当前地区请按 y , 如需其他地址请输入两位地区简写 \(如 hk ,sg，默认:\$REGION\):") " EXPECT
+    until [[ -z $EXPECT || $EXPECT = [Yy] || $EXPECT =~ ^[A-Za-z]{2}$ ]]; do
+      reading " $(eval echo "${T[${L}56]}") " EXPECT
+    done
+    [[ -z $EXPECT || $EXPECT = [Yy] ]] && EXPECT="$REGION"
+  fi
+
+  # 解锁检测程序
+  i=0; j=5
+  while true; do
+    (( i++ )) || true
+    ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
+    ip${NF}_info
+    WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
+    COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
+    RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
+    if [[ $RESULT = 200 ]]; then
+      REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -"$NF" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+      REGION=${REGION:-'US'}
+      echo "$REGION" | grep -qi "$EXPECT" && green " $(eval echo "\$(date +'%F %T') 区域 \$REGION 解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG，1 小时后重新测试，刷 IP 运行时长: \$DAY 天 \$HOUR 时 \$MIN 分 \$SEC 秒") " && i=0 && sleep 1h || warp_restart
+    else warp_restart
+    fi
+  done
+  }
 
 # 关闭 WARP 网络接口，并删除 warp-go
 uninstall(){
@@ -99,6 +164,7 @@ uninstall(){
   # 卸载
   systemctl disable --now warp-go >/dev/null 2>&1
   kill -15 $(pgrep warp-go) >/dev/null 2>&1
+  /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --remove >/dev/null 2>&1
   rm -rf /opt/warp-go /lib/systemd/system/warp-go.service /usr/bin/warp-go
   [[ -e /opt/warp-go/tun.sh ]] && rm -f /opt/warp-go/tun.sh && sed -i '/tun.sh/d' /etc/crontab
 
@@ -113,31 +179,43 @@ ver(){
 	wget -N -P /opt/warp-go/ https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh
 	chmod +x /opt/warp-go/warp-go.sh
 	ln -sf /opt/warp-go/warp-go.sh /usr/bin/warp-go
-	green " 成功！已同步最新脚本，版本号:$(grep ^VERSION /opt/warp-go/warp-go.sh | sed "s/.*=//g")  功能新增: " || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
+	green " 成功！已同步最新脚本，版本号:$(grep ^VERSION /opt/warp-go/warp-go.sh | sed "s/.*=//g")  功能新增: $(grep "CONTENT" /opt/warp-go/warp-go.sh | cut -d \" -f2)" || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
 	exit
   }
 
-# 由于warp bug，有时候获取不了ip地址，加入刷网络脚本手动运行，并在定时任务加设置 VPS 重启后自动运行,i=当前尝试次数，j=要尝试的次数
+# i=当前尝试次数，j=要尝试的次数
 net(){
   unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 WARPSTATUS4 WARPSTATUS6
   i=1;j=5
   yellow " $(eval echo "后台获取 WARP IP 中,最大尝试\${j}次……")\n $(eval echo "第\${i}次尝试") "
-  ${SYSTEMCTL_START[int]}
+  ${SYSTEMCTL_RESTART[int]}
   sleep 5
   ip4_info; ip6_info
   until [[ $TRACE4$TRACE6 =~ on|plus ]]; do
-      (( i++ )) || true
-      yellow " $(eval echo "第\${i}次尝试") "
-      ${SYSTEMCTL_RESTART[int]}
-      sleep 5
-	  ip4_info; ip6_info
-      [[ $i = "$j" ]] && red " $(eval echo "失败已超过\${j}次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]") " && exit 1
+    (( i++ )) || true
+    yellow " $(eval echo "第\${i}次尝试") "
+    ${SYSTEMCTL_RESTART[int]}
+    sleep 5
+    ip4_info; ip6_info
+    	if [[ $i = "$j" ]]; then
+		if [[ -e /opt/warp-go/warp.conf.tmp1 ]]; then 
+			i=0 && green " 当前 Teams 账户不可用，自动切换回免费账户 " &&
+			mv -f /opt/warp-go/warp.conf.tmp1 /opt/warp-go/warp.conf
+		else
+			${SYSTEMCTL_STOP[int]} >/dev/null 2>&1
+			red " $(eval echo "失败已超过\${j}次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]") " && exit 1
+		fi
+	fi
   done
-  [[ -e /opt/warp-go/license ]] && AC='+' && check_quota
-	green " 已成功获取 WARP$AC 网络 "
-	COUNTRY4=$(translate "$COUNTRY4")
-	COUNTRY6=$(translate "$COUNTRY6")
-	[[ $OPTION = [on] ]] && green " IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4 $ASNORG4\n IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6 $ASNORG6 "
+
+  ACCOUNT_TYPE=$(grep "Type" /opt/warp-go/warp.conf | cut -d= -f2 | sed "s# ##g")
+  [[ $ACCOUNT_TYPE = 'plus' ]] && check_quota
+
+  green " 已成功获取 WARP $ACCOUNT_TYPE 网络 "
+  COUNTRY4=$(translate "$COUNTRY4")
+  COUNTRY6=$(translate "$COUNTRY6")
+  [[ $OPTION = o ]] && green " IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4 $ASNORG4\n IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6 $ASNORG6 "
+  [[ -n "$QUOTA" ]] && green " 剩余流量: $QUOTA "
   }
 
 # WARP 开关，先检查是否已安装，再根据当前状态转向相反状态
@@ -190,7 +268,7 @@ stack_switch(){
   fi
   sh -c "$(eval echo "\$SWITCH$TO")"
   ${SYSTEMCTL_RESTART[int]}
-  OPTION=n && net
+  OPTION=o && net
   }
 
 # 检测系统信息
@@ -200,7 +278,7 @@ check_system_info(){
   # 必须加载 TUN 模块，先尝试在线打开 TUN。尝试成功放到启动项，失败作提示并退出脚本
   TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
   if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
-	cat >/opt/warp-go/tun.sh << EOF
+	  cat >/opt/warp-go/tun.sh << EOF
 #!/usr/bin/env bash
 mkdir -p /dev/net
 mknod /dev/net/tun c 10 200
@@ -218,7 +296,7 @@ EOF
   ping6 -c2 -w8 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
   ping -c2 -W8 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
 	if [[ $IPV4$IPV6 = 00 && $(ip a) =~ ": WARP:" ]]; then
-        ${SYSTEMCTL_STOP[int]}
+    		${SYSTEMCTL_STOP[int]}
 		ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
 		ping -c2 -W10 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4
 	fi
@@ -244,18 +322,78 @@ input_license(){
   i=5
   until [[ -z $LICENSE || $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; do
 	  (( i-- )) || true
-	  [[ $i = 0 ]] && red " ${T[${L}29]} " && exit 1 || reading " $(eval echo "License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\${i}次\):") " LICENSE
+	  [[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit 1 || reading " $(eval echo "License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\${i}次\):") " LICENSE
   done
+  [[ -n $LICENSE && -z $NAME ]] && reading " 请自定义 WARP+ 设备名 (如果不输入，默认为 [warp-go]): " NAME
+	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'warp-go'}
   }
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
 update_license(){
 	[[ -z $LICENSE ]] && reading " 请输入WARP+ License: " LICENSE
 	i=5
-	until [[ $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]
-		do	(( i-- )) || true
-			[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit 1 || reading " $(eval echo "License 应为26位字符,请重新输入 WARP+ License \(剩余\${i}次\):") " LICENSE
+	until [[ $LICENSE =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; do
+  		(( i-- )) || true
+   		[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit 1 || reading " $(eval echo "License 应为26位字符,请重新输入 WARP+ License \(剩余\${i}次\):") " LICENSE
 	done
+  	[[ -n $LICENSE && -z $NAME ]] && reading " 请自定义 WARP+ 设备名 (如果不输入，默认为 [warp-go]): " NAME
+	[[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'warp-go'}
+  }
+
+# 输入 Teams 账户 token（如有）,如果 TOKEN 以 com.cloudflare.warp 开头，将自动删除多余部分
+input_token(){
+	[[ -z $TOKEN ]] && reading " 请输入 Teams Token (可通过 https://warp-team-api.herokuapp.com/ 轻松获取，如果留空，则使用脚本提供的): " TOKEN
+  	i=5
+  	until [[ ${#TOKEN} = 1836 ]]; do
+    		(( i-- )) || true
+    		[[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit 1 || reading " $(eval echo "License 应为1836位字符,请重新输入 Teams token \(剩余\${i}次\):") " TOKEN
+    		[[ ${#TOKEN} -gt 1836 ]] && TOKEN=$(echo $TOKEN | sed "s#[:=]# #g" | grep -ioP "token[ ]+\K\S+")
+  	done
+	}
+
+# 免费 WARP 账户升级 WARP+ 或 Teams 账户
+update(){
+	[[ $(grep "Type" /opt/warp-go/warp.conf) =~ plus ]] && check_quota && red " $(eval echo "已经是 WARP+ 账户，剩余流量: \$QUOTA，不需要升级") " && exit 1
+	[[ $(grep "Type" /opt/warp-go/warp.conf) =~ team ]] && red " $(eval echo "已经是 Teams 账户，不需要升级") " && exit 1
+	[[ ! -e /opt/warp-go/warp.conf ]] && red " 找不到账户文件：/opt/warp-go/warp.conf，可以卸载后重装 " && exit 1
+	
+ 	[[ -z $LICENSETYPE ]] && yellow " \n 1.使用 WARP+ license 升级\n 2.使用 Teams token 升级\n " && reading " 请选择: " LICENSETYPE
+	case $LICENSETYPE in
+		1 ) update_license
+		if [[ -n $LICENSE ]]; then
+      		cp -f /opt/warp-go/warp.conf{,.tmp1}
+      		/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --remove >/dev/null 2>&1
+      		until [[ -e /opt/warp-go/warp.conf ]]; do
+        		/opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --license=$LICENSE  --device-name=$NAME >/dev/null 2>&1
+        		sleep 1
+      		done
+      		head -n +6 /opt/warp-go/warp.conf > /opt/warp-go/warp.conf.tmp2
+      		tail -n +7 /opt/warp-go/warp.conf.tmp1 >> /opt/warp-go/warp.conf.tmp2
+      		mv -f /opt/warp-go/warp.conf.tmp2 /opt/warp-go/warp.conf
+      		check_quota
+      		OPTION=o && net
+    		fi;;
+
+		2 ) input_token
+    		if [[ -n $TOKEN ]]; then
+      		i=0
+      		until [[ -e /opt/warp-go/warp.conf.tmp ]]; do
+      		  ((i++)) || true
+      		  [[ $i = 11 ]] && red " 注册 teams 账户失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
+      		  /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf.tmp --team-config "$TOKEN" >/dev/null 2>&1
+      		  sleep 3
+      		done
+      		for a in {2..5}; do sed -i "${a}s#.*#$(sed -ne ${a}p /opt/warp-go/warp.conf.tmp)#" /opt/warp-go/warp.conf; done
+      		rm -f warp.conf.tmp
+      		OPTION=o && net
+
+    		else
+     		 sed -i "s#.*Device.*#Device = FSCARMEN-WARP-SHARE-TEAM#g; s#.*PrivateKey.*#PrivateKey = SHVqHEGI7k2+OQ/oWMmWY2EQObbRQjRBdDPimh0h1WY=#g; s#.*Token.*#Token = SB-KKKYG-YGKKK-SB#g; s#.*Type.*#Type = team#g" /opt/warp-go/warp.conf  
+    		  OPTION=o && net
+    		fi;;
+
+ 	 	 * ) red " 请输入正确数字 [1-2] "; sleep 1; update;;
+ 	 esac
   }
 
 # warp-go 安装
@@ -263,32 +401,76 @@ install(){
   # 先删除之前安装，可能导致失败的文件
   rm -rf /opt/warp-go/warp-go /opt/warp-go/warp.conf
 	
-  # 询问是否有 WARP+
-  input_license
+	# 询问是否有 WARP+ 或 Teams 账户
+	[[ -z $LICENSETYPE ]] && yellow " \n 如有 WARP+ 或 Teams 账户请选择\n 1. WARP+\n 2. Teams\n 3. 使用免费账户 (默认)\n " && reading " 请选择: " LICENSETYPE
+	case $LICENSETYPE in
+	  1 ) input_license;;
+	  2 ) input_token;;
+	esac
 
-  # 脚本开始时间
-  start=$(date +%s)
+	# 选择优先使用 IPv4 /IPv6 网络
+	yellow " \n 请选择优先级别:\n  1.IPv4 (默认)\n  2.IPv6\n  3.使用 VPS 初始设置\n " && reading " 请选择: " PRIORITY
 
-  # 注册 WARP 账户 (将生成 warp 文件保存账户信息)
-  # 判断 wgcf 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.2
-  {	
-  latest=$(wget -qO- https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | grep -oP '"tag_name":"v\K[^\"]+' | head -n 1)
-  latest=${latest:-'1.0.2'}
+  	# 脚本开始时间
+  	start=$(date +%s)
 
-  # 安装 warp-go，尽量下载官方的最新版本，如官方 warp-go 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
-  mkdir -p /opt/warp-go/ >/dev/null 2>&1
-  wget --no-check-certificate -T1 -t1 $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$latest"/downloads/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
-  tar xzf /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz -C /opt/warp-go/ warp-go 
-  chmod +x /opt/warp-go/warp-go
-  rm -f /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
-	
-  # 注册 WARP 账户
-  until [[ -e /opt/warp-go/warp.conf ]]; do
-    /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --license=$LICENSE >/dev/null 2>&1
-    sleep 1
-  done
-  green "\n 进度 2/3: 已安装 warp-go\n "
-  [[ -n "$LICENSE" ]] && echo "$LICENSE" > /opt/warp-go/license
+  	# 注册 WARP 账户 (将生成 warp 文件保存账户信息)
+  	# 判断 wgcf 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.3
+  	{	
+  	latest=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | grep -oP '"tag_name":"v\K[^\"]+' | head -n 1)
+  	latest=${latest:-'1.0.3'}
+
+  	# 安装 warp-go，尽量下载官方的最新版本，如官方 warp-go 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
+  	mkdir -p /opt/warp-go/ >/dev/null 2>&1
+  	wget --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$latest"/downloads/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
+  	[[ ! -e /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz ]] && red " 下载 warp-go 压缩文件不成功，脚本退出，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
+  	tar xzf /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz -C /opt/warp-go/ warp-go
+  	[[ ! -e /opt/warp-go/warp-go ]] && red " warp-go 文件不存在，脚本退出，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1 || chmod +x /opt/warp-go/warp-go
+  	rm -f /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
+
+  	# 注册用户自定义 token 的 Teams 账户
+  	if [[ $LICENSETYPE = 2 ]]; then
+  	  if [[ -n $TOKEN ]]; then
+  	    i=0
+   	   until [[ -e /opt/warp-go/warp.conf ]]; do
+  	      ((i++)) || true
+  	      [[ $i = 11 ]] && red " 注册 teams 账户失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
+  	      /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config "$TOKEN" >/dev/null 2>&1
+  	      sleep 3
+  	    done
+
+	# 注册公用 token 的 Teams 账户
+  	  else
+      		cat > /opt/warp-go/warp.conf << EOF
+[Account]
+Device = FSCARMEN-WARP-SHARE-TEAM
+PrivateKey = SHVqHEGI7k2+OQ/oWMmWY2EQObbRQjRBdDPimh0h1WY=
+Token = SB-KKKYG-YGKKK-SB
+Type = team
+
+[Peer]
+PublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
+Endpoint = 162.159.193.10:1701
+KeepAlive = 30
+#AllowedIPs = 0.0.0.0/0, ::/0
+
+[Script]
+#PostUp = 
+#PostDown =
+EOF
+    		fi
+
+	# 注册免费和 Plus 账户
+ 	 else
+  	  i=0
+   	 until [[ -e /opt/warp-go/warp.conf ]]; do
+   	   ((i++)) || true
+   	   [[ $i = 11 ]] && red " 注册 warp 账户失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
+  	    /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --license=$LICENSE --device-name=$NAME >/dev/null 2>&1
+  	    sleep 3
+   	 done
+  	fi
+  	green "\n 进度 2/3: 已安装 warp-go\n "
   }&
 
   # 对于 IPv4 only VPS 开启 IPv6 支持
@@ -299,45 +481,48 @@ install(){
   sysctl -w net.ipv6.conf.all.disable_ipv6=0)
   }&
 	
+  # 优先使用 IPv4 /IPv6 网络
+	{ stack_priority; }&
+
   # 根据系统选择需要安装的依赖, 安装一些必要的网络工具包
   green "\n 进度 1/3: 安装系统依赖……\n "
 
   Debian(){
-	${PACKAGE_UPDATE[int]}
-	${PACKAGE_INSTALL[int]} --no-install-recommends net-tools iproute2
+	  ${PACKAGE_UPDATE[int]}
+	  ${PACKAGE_INSTALL[int]} --no-install-recommends iproute2
 	}
 
   Ubuntu(){
-	${PACKAGE_UPDATE[int]}
-	${PACKAGE_INSTALL[int]} --no-install-recommends net-tools iproute2
+	  ${PACKAGE_UPDATE[int]}
+	  ${PACKAGE_INSTALL[int]} --no-install-recommends iproute2
 	}
 		
   CentOS(){
-    ${PACKAGE_INSTALL[int]} net-tools
+    :
 	}
 
   Alpine(){
-	${PACKAGE_INSTALL[int]} net-tools iproute2 openrc
+	  ${PACKAGE_INSTALL[int]} iproute2 openrc
 	}
 
   Arch(){
-	${PACKAGE_INSTALL[int]} openresolv
+	  ${PACKAGE_INSTALL[int]} openresolv
 	}
 
   $SYSTEM
 
   wait
 
-  # WGCF 配置修改，其中用到的 162.159.193.10 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的 IP
-  MODIFY014='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs   = 0.0.0.0/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY016='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs   = ::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY01D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs   = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY104='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.192.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs   = 0.0.0.0/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY106='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.192.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs   = ::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY10D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.192.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs   = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY114='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.192.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs   = 0.0.0.0/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY116='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.192.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs   = ::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY11D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.192.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs   = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  # warp-go 配置修改，其中用到的 162.159.193.10 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的 IP
+  MODIFY014='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY016='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY01D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY104='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY106='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY10D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY114='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY116='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY11D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
 
   sh -c "$(eval echo "\$MODIFY$CONF")"
 
@@ -371,10 +556,13 @@ EOF
 
   # 结果提示，脚本运行时间，次数统计
   end=$(date +%s)
+  ACCOUNT_TYPE=$(grep "Type" /opt/warp-go/warp.conf | cut -d= -f2 | sed "s# ##g")
+  [[ $ACCOUNT_TYPE = 'plus' ]] && check_quota
+  
   red "\n==============================================================\n"
   green " IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
   green " IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
-  [[ $TRACE4$TRACE6 =~ on|plus ]] && green " $(eval echo "恭喜！WARP\$AC 已开启，总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数：\$TOTAL") "
+  green " $(eval echo "恭喜！WARP \$ACCOUNT_TYPE 已开启，总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数：\$TOTAL") "
   [[ -n "$QUOTA" ]] && green " 剩余流量: $QUOTA "
   red "\n==============================================================\n"
   yellow " 再次运行用 warp-go [option] [lisence]，如\n " && help
@@ -390,20 +578,25 @@ check_quota(){
 	
 	if type -p bc >/dev/null 2>&1; then
 		[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$(echo "scale=2; $QUOTA/1000000000000" | bc) TB" ||  QUOTA="$(echo "scale=2; $QUOTA/1000000000" | bc) GB"
-	else 	[[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TB" ||  QUOTA="$((QUOTA/1000000000)) GB"
+	else
+    [[ $QUOTA -gt 10000000000000 ]] && QUOTA="$((QUOTA/1000000000000)) TB" ||  QUOTA="$((QUOTA/1000000000)) GB"
 	fi
-	}
+  }
 
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP
 [[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")
 
 # 参数选项 URL 或 License 或转换 WARP 单双栈
 if [[ $2 != '[lisence]' ]]; then
-	if [[ $2 = [46Dd] ]]; then SWITCHCHOOSE=$(tr '[:lower:]' '[:upper:]' <<< "$2")
-	elif [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then LICENSE=$2
-	elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
-	fi
+  if [[ $2 = [46Dd] ]]; then SWITCHCHOOSE=$(tr '[:lower:]' '[:upper:]' <<< "$2")
+  elif [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then LICENSETYPE=1 && LICENSE=$2
+  elif [[ $2 =~ [A-Z0-9a-z]{1000,} ]]; then LICENSETYPE=2 && TOKEN=$2
+  elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
+  fi
 fi
+
+# 自定义 WARP+ 设备名
+NAME=$3
 
 # 主程序运行 1/3
 statistics_of_run-times
@@ -412,6 +605,7 @@ check_operating_system
 # 设置部分后缀 1/3
 case "$OPTION" in
 h ) help; exit 0;;
+i ) change_ip; exit 0;;
 esac
 
 # 主程序运行 2/3
@@ -439,15 +633,19 @@ case "$OPTION" in
     yellow " warp-go 已经运行，将改为单双栈相互切换模式 " && stack_switch
   else
 
-	  case "$OPTION" in
+	case "$OPTION" in
 	    4 ) CONF=${CONF1[m]};; 
 	    6 ) CONF=${CONF2[m]};;
 	    d ) CONF=${CONF3[m]};;
 	  esac
     install
   fi;;
+
+a ) update;;
+
 * )
   if [[ -e /opt/warp-go/warp-go.sh ]]; then
+    green " 已经安装了 warp-go ！ "
     help
   else
     yellow " 安装类型:\n 1. WARP IPv4 only\n 2. WARP IPv6 only\n 3. WARP 双栈\n 0. 退出\n " && reading " 请选择: " WARP_STACK
