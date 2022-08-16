@@ -332,7 +332,7 @@ input_license(){
     (( i-- )) || true
     [[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit 1 || reading " $(eval echo "License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\${i}次\):") " LICENSE
   done
-  [[ -n $LICENSE && -z $NAME ]] && reading " 请自定义 WARP+ 设备名 (如果不输入，默认为 [warp-go]): " NAME
+  [[ -n $LICENSE && -z $NAME ]] && reading " 请自定义 WARP+ 设备名 \(如果不输入，默认为 [warp-go]\): " NAME
   [[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'warp-go'}
   }
 
@@ -344,13 +344,13 @@ update_license(){
   (( i-- )) || true
     [[ $i = 0 ]] && red " 输入错误达5次，脚本退出 " && exit 1 || reading " $(eval echo "License 应为26位字符,请重新输入 WARP+ License \(剩余\${i}次\):") " LICENSE
   done
-  [[ -n $LICENSE && -z $NAME ]] && reading " 请自定义 WARP+ 设备名 (如果不输入，默认为 [warp-go]): " NAME
+  [[ -n $LICENSE && -z $NAME ]] && reading " 请自定义 WARP+ 设备名 \(如果不输入，默认为 [warp-go]\): " NAME
   [[ -n $NAME ]] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-'warp-go'}
   }
 
 # 输入 Teams 账户 token（如有）,如果 TOKEN 以 com.cloudflare.warp 开头，将自动删除多余部分
 input_token(){
-  [[ -z $TOKEN ]] && reading " 请输入 Teams Token (可通过 https://warp-team-api.herokuapp.com/ 轻松获取，如果留空，则使用脚本提供的): " TOKEN
+  [[ -z $TOKEN ]] && reading " 请输入 Teams Token \(可通过 https://warp-team-api.herokuapp.com/ 轻松获取，如果留空，则使用脚本提供的\): " TOKEN
   i=5
   until [[ -z $TOKEN || ${#TOKEN} -gt 1200 ]]; do
     (( i-- )) || true
@@ -409,14 +409,14 @@ install(){
   rm -rf /opt/warp-go/warp-go /opt/warp-go/warp.conf
 
   # 询问是否有 WARP+ 或 Teams 账户
-  [[ -z $LICENSETYPE ]] && yellow " \n 如有 WARP+ 或 Teams 账户请选择\n 1. WARP+\n 2. Teams\n 3. 使用免费账户 (默认)\n " && reading " 请选择: " LICENSETYPE
+  [[ -z $LICENSETYPE ]] && yellow " \n 如有 WARP+ 或 Teams 账户请选择\n 1. WARP+\n 2. Teams\n 3. 使用免费账户 \(默认\)\n " && reading " 请选择: " LICENSETYPE
   case $LICENSETYPE in
     1 ) input_license;;
     2 ) input_token;;
   esac
 
   # 选择优先使用 IPv4 /IPv6 网络
-  yellow " \n 请选择优先级别:\n  1.IPv4 (默认)\n  2.IPv6\n  3.使用 VPS 初始设置\n " && reading " 请选择: " PRIORITY
+  yellow " \n 请选择优先级别:\n  1.IPv4 \(默认\)\n  2.IPv6\n  3.使用 VPS 初始设置\n " && reading " 请选择: " PRIORITY
 
   # 脚本开始时间
   start=$(date +%s)
@@ -647,7 +647,7 @@ case "$OPTION" in
         1 ) CONF=${CONF1[m]};; 
         2 ) CONF=${CONF2[m]};;
         3 ) CONF=${CONF3[m]};;
-        * ) exit 0
+        * ) exit 0;;
       esac
       install
     fi;;
