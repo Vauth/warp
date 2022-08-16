@@ -284,12 +284,12 @@ mkdir -p /dev/net
 mknod /dev/net/tun c 10 200
 chmod 0666 /dev/net/tun
 EOF
-    bash /usr/bin/tun.sh
+    bash /opt/warp-go/tun.sh
     TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
     if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
-      rm -f /usr/bin//tun.sh && red " 没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
+      rm -f /opt/warp-go/tun.sh && red " 没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues] " && exit 1
     else 
-      echo "@reboot root bash /usr/bin/tun.sh" >> /etc/crontab
+      echo "@reboot root bash /opt/warp-go/tun.sh" >> /etc/crontab
     fi
   fi
 
