@@ -21,7 +21,9 @@
 * * *
 
 ## 更新信息
-2022.8.13 warp-go v1.0.1 1.New feat: Support WARP+ (warp-go a <license>). You can easily get the token through https://warp-team-api.herokuapp.com/ ; 2.Support Teams (warp-go a token); 3.Brush unlock Netflix IP (warp-go i); 4.Support AMD v2 v3 v4  instruction set; 1.新增 WARP+ 升级功能(warp-go a <license>),通过 https://warp-team-api.herokuapp.com/ 你能轻松获取 token; 2.新增 Teams 升级功能(warp-go a token); 3.新增刷解锁奈飞IP功能(warp-go i); 4.支持 GOAMD64v4 等指令集，提升功能
+2022.8.17 warp-go v1.0.2 1. Add WARP IPv4 non-global and global switch echo other. configure v2ray/xray configuration file to triage; 2. Output wgcf configuration file (warp-go e); 1.在原来全局的基础上，新增 WARP IPv4 非全局方案，配置 v2ray/xray 配置文件来分流，参数项目主页的 Client WARP 模式的模版; 2.输出 wgcf 配置文件(warp-go e)
+
+2022.8.13 warp-go v1.0.1 1.New feat: Support WARP+ (warp-go a <license>); 2.Support Teams (warp-go a token). You can easily get the token through https://warp-team-api.herokuapp.com/ ; 3.Brush unlock Netflix IP (warp-go i); 4.Support AMD v2 v3 v4  instruction set; 1.新增 WARP+ 升级功能(warp-go a <license>); 2.新增 Teams 升级功能(warp-go a token),通过 https://warp-team-api.herokuapp.com/ 你能轻松获取 token; 3.新增刷解锁奈飞IP功能(warp-go i); 4.支持 GOAMD64v4 等指令集，提升功能
 
 2022.8.13 First on the whole web, proudly presents @CoiaPrant's warp-go one-click script. Using various interfaces of CloudFlare-WARP and integrating wireguard-go, it can completely replace WGCF. Save Hong Kong, Toronto, etc., and let VPS without official WARP also get WARP IP. Thanks @CoiaPrant and his team again. Project official address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/
 
