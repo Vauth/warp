@@ -3,7 +3,7 @@ export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
 VERSION=1.02
-CONTENT="1.在原来全局的基础上，新增 WARP IPv4 非全局方案，配置 v2ray/xray 配置文件来分流，参数项目主页的 Client WARP 模式的模版; 2.输出 wgcf 配置文件(warp-go e)"
+CONTENT="1.在原来全局的基础上，新增 WARP IPv4 非全局方案(bash warp-go.sh n)，配置 v2ray/xray 配置文件来分流，参数项目主页的 Client WARP 模式的模版; 2.输出 wgcf 配置文件(warp-go e)"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$@\033[0m"; }
@@ -92,7 +92,7 @@ ip6_info(){
   }
 
 # 帮助说明
-help(){	yellow " warp-go h (帮助菜单）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go s [OPTION](WARP 单双栈相互切换，如 [warp s 4]、[warp s 6]、[warp s d])\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 配置文件) "; }
+help(){	yellow " warp-go h (帮助菜单）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go s [OPTION](WARP 单双栈相互切换，如 [warp s 4]、[warp s 6]、[warp s d])\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 配置文件) "; }
 
 # IPv4 / IPv6 优先
 stack_priority(){
@@ -164,6 +164,7 @@ uninstall(){
   # 卸载
   systemctl disable --now warp-go >/dev/null 2>&1
   kill -15 $(pgrep warp-go) >/dev/null 2>&1
+  rule_del >/dev/null 2>&1
   /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --remove >/dev/null 2>&1
   rm -rf /opt/warp-go /lib/systemd/system/warp-go.service /usr/bin/warp-go
   [[ -e /opt/warp-go/tun.sh ]] && rm -f /opt/warp-go/tun.sh && sed -i '/tun.sh/d' /etc/crontab
@@ -179,7 +180,7 @@ ver(){
   wget -N -P /opt/warp-go/ https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh
   chmod +x /opt/warp-go/warp-go.sh
   ln -sf /opt/warp-go/warp-go.sh /usr/bin/warp-go
-  green " 成功！已同步最新脚本，版本号:$(grep ^VERSION /opt/warp-go/warp-go.sh | sed "s/.*=//g")  功能新增: $(grep "CONTENT" /opt/warp-go/warp-go.sh | cut -d \" -f2)" || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
+  green " 成功！已同步最新脚本，版本号:$(grep ^VERSION /opt/warp-go/warp-go.sh | sed "s/.*=//g")  功能新增: $(grep -m1 "CONTENT" /opt/warp-go/warp-go.sh | cut -d \" -f2)" || red " 升级失败，问题反馈:[https://github.com/fscarmen/warp/issues] "
   exit
   }
 
@@ -292,16 +293,35 @@ stack_switch(){
   OPTION=o && net
   }
 
+rule_add(){
+  IP_ROUTE=$(ip -4 rule 2>/dev/null)
+  [[ ! $(echo $IP_ROUTE) =~ 'from 172.16.0.2 lookup 60000' ]] && ip -4 rule add from 172.16.0.2 lookup 60000
+  [[ ! $(echo $IP_ROUTE) =~ 'from all lookup main suppress_prefixlength 0' ]] && ip -4 rule add table main suppress_prefixlength 0
+  sleep 1
+  }
+
+rule_del(){
+  IP_ROUTE=$(ip -4 rule 2>/dev/null)
+  [[ $(echo $IP_ROUTE) =~ 'from 172.16.0.2 lookup 60000' ]] && ip -4 rule delete from 172.16.0.2 lookup 60000
+  [[ $(echo $IP_ROUTE) =~ 'from all lookup main suppress_prefixlength 0' ]] && ip -4 rule delete table main suppress_prefixlength 0
+  }
+
+route_add(){
+  [[ $(ip -4 route list table 60000 2>/dev/null) =~ 'default dev WARP scope link' ]] || ip -4 route add default dev WARP table 60000
+  }
+
 # 全局 / 非全局在线互换
 global_switch(){
-  ${SYSTEMCTL_STOP[int]}
   if grep -q "^Allowed" /opt/warp-go/warp.conf; then
-    sed -i "s/^#//g; s/^AllowedIPs.*/#&/g" /opt/warp-go/warp.conf
+    sed -i "s/^AllowedIPs.*/#&/g" /opt/warp-go/warp.conf
+    rule_add
   else
-    sed -i "s/^#//g; s/.*172.16.0.2/#&/g" /opt/warp-go/warp.conf
+    sed -i "s/#AllowedIPs/AllowedIPs/g" /opt/warp-go/warp.conf
+    rule_del
   fi
-  ${SYSTEMCTL_START[int]}
+
   [[ $TO_GLOBAL != [Yy] ]] && OPTION=o && net
+  grep -q "#Allowed" /opt/warp-go/warp.conf && route_add
   }
 
 # 检测系统信息
@@ -568,20 +588,20 @@ EOF
   wait
 
   # warp-go 配置修改，其中用到的 162.159.193.10 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的 IP
-  MODIFY014='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = ip -4 rule add from 172.16.0.2 lookup 60000; ip -4 route add default dev WARP table 60000; ip -4 rule add table main suppress_prefixlength 0\n\#PostDown = ip -4 rule delete from 172.16.0.2 lookup 60000; ip -4 rule delete table main suppress_prefixlength 0#g" /opt/warp-go/warp.conf'
-  MODIFY016='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = ip -4 rule add from 172.16.0.2 lookup 60000; ip -4 route add default dev WARP table 60000; ip -4 rule add table main suppress_prefixlength 0\n\#PostDown = ip -4 rule delete from 172.16.0.2 lookup 60000; ip -4 rule delete table main suppress_prefixlength 0#g" /opt/warp-go/warp.conf'
-  MODIFY01D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = ip -4 rule add from 172.16.0.2 lookup 60000; ip -4 route add default dev WARP table 60000; ip -4 rule add table main suppress_prefixlength 0\n\#PostDown = ip -4 rule delete from 172.16.0.2 lookup 60000; ip -4 rule delete table main suppress_prefixlength 0#g" /opt/warp-go/warp.conf'
-  MODIFY104='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main\n\#PostUp = ip -4 rule add from 172.16.0.2 lookup 60000; ip -4 route add default dev WARP table 60000; ip -4 rule add table main suppress_prefixlength 0\n\#PostDown = ip -4 rule delete from 172.16.0.2 lookup 60000; ip -4 rule delete table main suppress_prefixlength 0#g" /opt/warp-go/warp.conf'
-  MODIFY106='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main\n\#PostUp = ip -4 rule add from 172.16.0.2 lookup 60000; ip -4 route add default dev WARP table 60000; ip -4 rule add table main suppress_prefixlength 0\n\#PostDown = ip -4 rule delete from 172.16.0.2 lookup 60000; ip -4 rule delete table main suppress_prefixlength 0#g" /opt/warp-go/warp.conf'
-  MODIFY10D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main\n\#PostUp = ip -4 rule add from 172.16.0.2 lookup 60000; ip -4 route add default dev WARP table 60000; ip -4 rule add table main suppress_prefixlength 0\n\#PostDown = ip -4 rule delete from 172.16.0.2 lookup 60000; ip -4 rule delete table main suppress_prefixlength 0#g" /opt/warp-go/warp.conf'
-  MODIFY114='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = ip -4 rule add from 172.16.0.2 lookup 60000; ip -4 route add default dev WARP table 60000; ip -4 rule add table main suppress_prefixlength 0\n\#PostDown = ip -4 rule delete from 172.16.0.2 lookup 60000; ip -4 rule delete table main suppress_prefixlength 0#g" /opt/warp-go/warp.conf'
-  MODIFY116='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = ip -4 rule add from 172.16.0.2 lookup 60000; ip -4 route add default dev WARP table 60000; ip -4 rule add table main suppress_prefixlength 0\n\#PostDown = ip -4 rule delete from 172.16.0.2 lookup 60000; ip -4 rule delete table main suppress_prefixlength 0#g" /opt/warp-go/warp.conf'
-  MODIFY11D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp   = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = ip -4 rule add from 172.16.0.2 lookup 60000; ip -4 route add default dev WARP table 60000; ip -4 rule add table main suppress_prefixlength 0\n\#PostDown = ip -4 rule delete from 172.16.0.2 lookup 60000; ip -4 rule delete table main suppress_prefixlength 0#g" /opt/warp-go/warp.conf'
+  MODIFY014='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY016='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY01D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY104='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY106='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY10D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY114='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY116='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY11D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
 
   sh -c "$(eval echo "\$MODIFY$CONF")"
 
-  # 如为 WARP IPv4 非全局，修改配置文件
-  [[ $WARP_STACK = 4 ]] && sed -i "s/^#//g; s/^AllowedIPs.*/#&/g" /opt/warp-go/warp.conf
+  # 如为 WARP IPv4 非全局，修改配置文件，在路由表插入规则
+  [[ $WARP_STACK = 4 || $OPTION = n ]] && sed -i "s/^#//g; s/^AllowedIPs.*/#&/g" /opt/warp-go/warp.conf && rule_add
 
   # 创建 warp-go systemd 进程守护
   cat > /lib/systemd/system/warp-go.service << EOF
@@ -604,6 +624,9 @@ EOF
 
   # 运行 warp-go
   net
+
+  # 如为 WARP IPv4 非全局，把 WARP 网络接口添加到路由表
+  [[ $WARP_STACK = 4 || $OPTION = n ]] && route_add
 
   # 设置开机启动
   ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
@@ -688,7 +711,7 @@ check_global
 
 # 设置部分后缀 3/3
 case "$OPTION" in
-  [46d] )	
+  [46dn] )	
     if [[ $(ip a) =~ ": WARP:" ]]; then
       SWITCHCHOOSE="$(tr '[:lower:]' '[:upper:]' <<< "$OPTION")"; OPTION='s'
       yellow " warp-go 已经运行，将改为单双栈相互切换模式 " && stack_switch
@@ -696,7 +719,7 @@ case "$OPTION" in
       case "$OPTION" in
         4 ) CONF=${CONF1[m]};; 
         6 ) CONF=${CONF2[m]};;
-        d ) CONF=${CONF3[m]};;
+        d|n ) CONF=${CONF3[m]};;
       esac
       install
     fi;;
