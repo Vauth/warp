@@ -121,17 +121,22 @@ change_ip(){
 
   # 检测 WARP 单双栈服务
   unset T4 T6
-  grep -q "0\.\0\/0" /opt/warp-go/warp.conf && T4=1 || T4=0
-  grep -q "\:\:\/0" /opt/warp-go/warp.conf && T6=1 || T6=0
+  if grep -q "#AllowedIPs" /opt/warp-go/warp.conf; then
+    T4=1; T6=0
+  else
+    grep -q "0\.\0\/0" /opt/warp-go/warp.conf && T4=1 || T4=0
+    grep -q "\:\:\/0" /opt/warp-go/warp.conf && T6=1 || T6=0
+  fi
   case "$T4$T6" in
-    01 ) NF='6';;	10 ) NF='4';;
+    01 ) NF='6';;
+    10 ) NF='4';;
     11 ) yellow "\n 1. 刷 WARP IPv4 (默认)\n 2. 刷 WARP IPv6\n " && reading " 请选择: " NETFLIX
-      NF='4' && [[ $NETFLIX = 2 ]] && NF='6';;
+         NF='4' && [[ $NETFLIX = 2 ]] && NF='6';;
   esac
 
   # 输入解锁区域
   if [[ -z "$EXPECT" ]]; then
-    [[ -n "$NF" ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+    [[ -n "$NF" ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" --interface WARP -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
     REGION=${REGION:-'US'}
     reading " $(eval echo "当前 Netflix 地区是:\$REGION，需要解锁当前地区请按 y , 如需其他地址请输入两位地区简写 \(如 hk ,sg，默认:\$REGION\):") " EXPECT
     until [[ -z $EXPECT || $EXPECT = [Yy] || $EXPECT =~ ^[A-Za-z]{2}$ ]]; do
@@ -148,9 +153,9 @@ change_ip(){
     ip${NF}_info
     WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
     COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
-    RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
+    RESULT=$(curl --user-agent "${UA_Browser}" --interface WARP -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE" 2>&1)
     if [[ $RESULT = 200 ]]; then
-      REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -"$NF" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+      REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" --interface WARP -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
       REGION=${REGION:-'US'}
       echo "$REGION" | grep -qi "$EXPECT" && green " $(eval echo "\$(date +'%F %T') 区域 \$REGION 解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG，1 小时后重新测试，刷 IP 运行时长: \$DAY 天 \$HOUR 时 \$MIN 分 \$SEC 秒") " && i=0 && sleep 1h || warp_restart
     else warp_restart
