@@ -122,7 +122,7 @@ change_ip(){
   # 检测 WARP 单双栈服务
   unset T4 T6
   if grep -q "#AllowedIPs" /opt/warp-go/warp.conf; then
-    T4=1; T6=0
+    T4=1; T6=0; INTERFACE='--interface WARP'
   else
     grep -q "0\.\0\/0" /opt/warp-go/warp.conf && T4=1 || T4=0
     grep -q "\:\:\/0" /opt/warp-go/warp.conf && T6=1 || T6=0
