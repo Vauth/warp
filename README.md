@@ -21,7 +21,7 @@
 * * *
 
 ## 更新信息
-2022.8.20 warp-go V1.0.4 Chinese and English language support; 中英双语支持
+2022.8.20 warp-go V1.0.4 Chinese and English language support. Hello World; 中英双语支持，与世界接轨
 
 2022.8.20 warp-go V1.0.3 New feat: Menu + shortcuts for various usage scenarios; 菜单 + 快捷 方式，适合各种使用场景
 
