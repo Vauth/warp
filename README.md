@@ -21,6 +21,8 @@
 * * *
 
 ## 更新信息
+2022.8.20 warp-go V1.0.3 New feat: Menu + shortcuts for various usage scenarios; 菜单 + 快捷 方式，适合各种使用场景
+
 2022.8.17 warp-go v1.0.2 1. Add WARP IPv4 non-global and global switch echo other. configure v2ray/xray configuration file to triage; 2. Output wgcf configuration file (warp-go e); 1.在原来全局的基础上，新增 WARP IPv4 非全局方案，配置 v2ray/xray 配置文件来分流，参数项目主页的 Client WARP 模式的模版; 2.输出 wgcf 配置文件(warp-go e)
 
 2022.8.13 warp-go v1.0.1 1.New feat: Support WARP+ (warp-go a <license>); 2.Support Teams (warp-go a token). You can easily get the token through https://warp-team-api.herokuapp.com/ ; 3.Brush unlock Netflix IP (warp-go i); 4.Support AMD v2 v3 v4  instruction set; 1.新增 WARP+ 升级功能(warp-go a <license>); 2.新增 Teams 升级功能(warp-go a token),通过 https://warp-team-api.herokuapp.com/ 你能轻松获取 token; 3.新增刷解锁奈飞IP功能(warp-go i); 4.支持 GOAMD64v4 等指令集，提升功能
@@ -398,8 +400,6 @@ WireGuard 网络接口数据，查看 ```wg```
     1、 Android Studio: [MAC](https://redirector.gvt1.com/edgedl/android/studio/install/2020.3.1.26/android-studio-2020.3.1.26-mac.dmg)     [WIN](https://redirector.gvt1.com/edgedl/android/studio/install/2020.3.1.26/android-studio-2020.3.1.26-windows.exe)    
     2、 Android platform-tools: [MAC](https://dl.google.com/android/repository/platform-tools-latest-darwin.zip)     [WIN](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)    
     3、 1.1.1.1: Faster & Safer Internet V6.10: [Android](https://apkpure.com/cn/1-1-1-1-faster-safer-internet/com.cloudflare.onedotonedotonedotone/download/2158-APK-d58edfa7c40ff1891244c556b872f18d?from=versions%2Fversion)
-
-* 感谢 Misaka 演示: [1.视频教程](https://www.bilibili.com/video/BV1gU4y1K7of/)&emsp;[2.图文教程](https://owo.misaka.rest/cf-teams/)
 
 ## WARP原理
 
