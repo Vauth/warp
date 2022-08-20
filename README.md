@@ -21,6 +21,8 @@
 * * *
 
 ## 更新信息
+2022.8.20 warp-go V1.0.4 Chinese and English language support; 中英双语支持
+
 2022.8.20 warp-go V1.0.3 New feat: Menu + shortcuts for various usage scenarios; 菜单 + 快捷 方式，适合各种使用场景
 
 2022.8.17 warp-go v1.0.2 1. Add WARP IPv4 non-global and global switch echo other. configure v2ray/xray configuration file to triage; 2. Output wgcf configuration file (warp-go e); 1.在原来全局的基础上，新增 WARP IPv4 非全局方案，配置 v2ray/xray 配置文件来分流，参数项目主页的 Client WARP 模式的模版; 2.输出 wgcf 配置文件(warp-go e)
