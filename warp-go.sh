@@ -3,7 +3,7 @@ export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
 VERSION=1.0.3
-CONTENT="菜单 + 快捷 方式，适合各种使用场景"
+CONTENT="1. 菜单 + 快捷 方式，适合各种使用场景; 2. 去掉快捷方式 s，需要切换 WARP 单双栈直接 warp-go [4,6,d]"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$@\033[0m"; }
@@ -105,7 +105,7 @@ ip6_info(){
   }
 
 # 帮助说明
-help(){	yellow " warp-go h (帮助菜单）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go s [OPTION](WARP 单双栈相互切换，如 [warp s 4]、[warp s 6]、[warp s d])\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 配置文件) "; }
+help(){	yellow " warp-go h (帮助菜单）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 配置文件) "; }
 
 # IPv4 / IPv6 优先
 stack_priority(){
@@ -272,6 +272,8 @@ check_stack(){
   WARP_AFTER2=("" "" "" "WARP 双栈" "WARP 双栈" "WARP 双栈" "WARP 双栈" "WARP IPv6")
   TO1=("" "" "" "014" "014" "106" "106" "114")
   TO2=("" "" "" "01D" "01D" "10D" "10D" "116")
+  SHORTCUT1=("" "" "" "(warp-go 4)" "(warp-go 4)" "(warp-go 6)" "(warp-go 6)" "(warp-go 4)")
+  SHORTCUT2=("" "" "" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go 6)") 
   CONF1=("014" "104" "114")
   CONF2=("016" "106" "116")
   CONF3=("01D" "10D" "11D")
@@ -306,6 +308,7 @@ stack_switch(){
   elif [[ $SWITCHCHOOSE = [46D] ]]; then
     if [[ $TO_GLOBAL = [Yy] ]]; then
       if [[ "$T4@$T6@$SWITCHCHOOSE" =~ '1@0@4'|'0@1@6'|'1@1@D' ]]; then
+        grep -q "^AllowedIPs.*0\.\0\/0" /opt/warp-go/warp.conf || unset INTERFACE
         OPTION=o && net
         exit 0
       else
@@ -325,6 +328,7 @@ stack_switch(){
 
   sh -c "$(eval echo "\$SWITCH$TO")"
   ${SYSTEMCTL_RESTART[int]}
+  grep -q "^AllowedIPs.*0\.\0\/0" /opt/warp-go/warp.conf || unset INTERFACE
   OPTION=o && net
   }
 
@@ -710,14 +714,14 @@ check_quota(){
 # 判断当前 WARP 网络接口及 Client 的运行状态，并对应的给菜单和动作赋值
 menu_setting(){
   if [[ $STATUS = 0 ]]; then
-    OPTION1="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv4 全局 网络接口，IPv4 优先")"
-    OPTION2="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv4 全局 网络接口，IPv6 优先")"
-    OPTION3="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv6 全局 网络接口，IPv4 优先")"
-    OPTION4="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv6 全局 网络接口，IPv6 优先")"
-    OPTION5="$(eval echo "为 \${NATIVE[m]} 添加 WARP 双栈 全局 网络接口，IPv4 优先")"
-    OPTION6="$(eval echo "为 \${NATIVE[m]} 添加 WARP 双栈 全局 网络接口，IPv6 优先")"
-    OPTION7="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv4 非全局 网络接口，IPv4 优先")"
-    OPTION8="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv4 非全局 网络接口，IPv6 优先")"
+    OPTION1="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv4 全局 网络接口，IPv4 优先") (bash warp-go.sh 4)"
+    OPTION2="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv4 全局 网络接口，IPv6 优先") (bash warp-go.sh 4)"
+    OPTION3="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv6 全局 网络接口，IPv4 优先") (bash warp-go.sh 6)"
+    OPTION4="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv6 全局 网络接口，IPv6 优先") (bash warp-go.sh 6)"
+    OPTION5="$(eval echo "为 \${NATIVE[m]} 添加 WARP 双栈 全局 网络接口，IPv4 优先") (bash warp-go.sh d)"
+    OPTION6="$(eval echo "为 \${NATIVE[m]} 添加 WARP 双栈 全局 网络接口，IPv6 优先") (bash warp-go.sh d)"
+    OPTION7="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv4 非全局 网络接口，IPv4 优先") (bash warp-go.sh n)"
+    OPTION8="$(eval echo "为 \${NATIVE[m]} 添加 WARP IPv4 非全局 网络接口，IPv6 优先") (bash warp-go.sh n)"
     ACTION1(){ CONF=${CONF1[m]}; PRIORITY=1; install; }
     ACTION2(){ CONF=${CONF1[m]}; PRIORITY=2; install; }
     ACTION3(){ CONF=${CONF2[m]}; PRIORITY=1; install; }
@@ -729,14 +733,14 @@ menu_setting(){
   else
     [[ $NON_GLOBAL = 1 ]] || GLOBAL_AFTER='非'
     [[ $STATUS = 2 ]] && ON_OFF='关闭' || ON_OFF='打开'
-    OPTION1="$(eval echo "\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]}")"
-    OPTION2="$(eval echo "\${WARP_BEFORE[m]} 转为 \${WARP_AFTER2[m]}")"
-    OPTION3="$(eval echo "转为 WARP \${GLOBAL_AFTER}全局 网络接口")"
-    OPTION4="$(eval echo "\$ON_OFF warp-go")"
-    OPTION5="$(eval echo "升级为 WARP+ 或 Teams 账户")"   
-    OPTION6="更换支持 Netflix 的 IP"
-    OPTION7="输出 wgcf 配置文件"
-    OPTION8="卸载 WARP 网络接口和 warp-go"
+    OPTION1="$(eval echo "\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]}") ${SHORTCUT1[m]}"
+    OPTION2="$(eval echo "\${WARP_BEFORE[m]} 转为 \${WARP_AFTER2[m]}") ${SHORTCUT2[m]}"
+    OPTION3="$(eval echo "转为 WARP \${GLOBAL_AFTER}全局 网络接口") (warp-go g)"
+    OPTION4="$(eval echo "\$ON_OFF warp-go") (warp-go o)"
+    OPTION5="$(eval echo "升级为 WARP+ 或 Teams 账户") (warp-go a)"   
+    OPTION6="更换支持 Netflix 的 IP (warp-go i)"
+    OPTION7="输出 wgcf 配置文件 (warp-go e)"
+    OPTION8="卸载 WARP 网络接口和 warp-go (warp-go u)"
     ACTION1(){ stack_switch; }
     ACTION2(){ stack_switch; }
     ACTION3(){ global_switch; }
@@ -748,7 +752,7 @@ menu_setting(){
   fi
 
   OPTION0="退出脚本"
-  OPTION9="同步最新版本"
+  OPTION9="同步最新版本 (warp-go v)"
   ACTION0(){ exit; }
   ACTION9(){ ver; }
 
@@ -775,7 +779,13 @@ menu(){
  	red "\n======================================================================================================================\n"
 	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 0.  $OPTION0\n "
 	reading " 请选择: " CHOOSE
-	[[ "$CHOOSE" -gt 9 ]] && red " 请输入正确数字 [0-9] " && sleep 1 && menu || ACTION$CHOOSE
+
+  # 输入必须是数字且少于等于最大可选项
+  if grep -wqP "\d+" <<< $CHOOSE && [ $CHOOSE -le 9 ]; then
+    ACTION$CHOOSE
+  else
+    red " 请输入正确数字 [0-9] " && sleep 1 && menu
+  fi
 	}
 
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP
@@ -783,8 +793,8 @@ menu(){
 
 # 参数选项 URL 或 License 或转换 WARP 单双栈
 if [[ $2 != '[lisence]' ]]; then
-  if [[ $2 = [46Dd] ]]; then SWITCHCHOOSE=$(tr '[:lower:]' '[:upper:]' <<< "$2")
-  elif [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then LICENSETYPE=1 && LICENSE=$2
+  if [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then
+    LICENSETYPE=1 && LICENSE=$2
   elif [[ $2 =~ [A-Z0-9a-z]{1200,} ]]; then LICENSETYPE=2 && TOKEN=$2
   elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
   fi
@@ -813,7 +823,6 @@ case "$OPTION" in
   u ) uninstall; exit 0;;
   v ) ver; exit 0;;
   o ) onoff; exit 0;;
-  s ) stack_switch; exit 0;;
   g ) global_switch; exit 0;;
 esac
 
@@ -827,9 +836,9 @@ menu_setting
 # 设置部分后缀 3/3
 case "$OPTION" in
   [46dn] )	
-    if [[ $STATUS = 2 ]]; then
-      SWITCHCHOOSE="$(tr '[:lower:]' '[:upper:]' <<< "$OPTION")"; OPTION='s'
-      yellow " warp-go 已经运行，将改为单双栈相互切换模式 " && stack_switch
+    if [[ $STATUS != 0 ]]; then
+      SWITCHCHOOSE="$(tr '[:lower:]' '[:upper:]' <<< "$OPTION")"
+      stack_switch
     else
       case "$OPTION" in
         4 ) CONF=${CONF1[m]};; 
