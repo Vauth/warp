@@ -2,14 +2,14 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=2.41
+VERSION=2.42
 
 declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1.Get the traffic quota of WARP+ via API."
-T[C1]="1.通过 API 获取 WARP+ 剩余流量"
+T[E1]="1.Add shortcut hints in the menu; 2.Remove the shortcut of S. Single and dual stacks swithing can directly use [warp 4/6/d]"
+T[C1]="1.在菜单中增加快捷方式的提示; 2.移除快捷方式 s，单双栈相互切换可以直接 [warp 4/6/d]"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -18,8 +18,8 @@ T[E4]="The WARP server cannot be connected. It may be a China Mainland VPS. You 
 T[C4]="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.193.10 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E5]="The script supports Debian, Ubuntu, CentOS, Arch or Alpine systems only. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C5]="本脚本只支持 Debian、Ubuntu、CentOS、Arch 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-T[E6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Upgrade to WARP+ account)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp s (WARP single and dual stacks switch echo other. Such as [warp s 4],[warp s 6],[warp s d])\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n"
-T[C6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (免费 WARP 账户升级 WARP+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp s [OPTION](WARP 单双栈相互切换，如 [warp s 4]、[warp s 6]、[warp s d])\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n"
+T[E6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Upgrade to WARP+ account)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n"
+T[C6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (免费 WARP 账户升级 WARP+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n"
 T[E7]="Installing curl..."
 T[C7]="安装curl中……"
 T[E8]="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..."
@@ -138,40 +138,40 @@ T[E64]="Successfully synchronized the latest version"
 T[C64]="成功！已同步最新脚本，版本号"
 T[E65]="Upgrade failed. Feedback:[https://github.com/fscarmen/warp/issues]"
 T[C65]="升级失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-T[E66]="Add WARP IPv4 interface to \${NATIVE[m]} VPS"
-T[C66]="为 \${NATIVE[m]} 添加 WARP IPv4 网络接口"
-T[E67]="Add WARP IPv6 interface to \${NATIVE[m]} VPS"
-T[C67]="为 \${NATIVE[m]} 添加 WARP IPv6 网络接口"
-T[E68]="Add WARP dualstack interface to \${NATIVE[m]} VPS"
-T[C68]="为 \${NATIVE[m]} 添加 WARP 双栈网络接口"
+T[E66]="Add WARP IPv4 interface to \${NATIVE[m]} VPS \(bash menu.sh 4\)"
+T[C66]="为 \${NATIVE[m]} 添加 WARP IPv4 网络接口 \(bash menu.sh 4\)"
+T[E67]="Add WARP IPv6 interface to \${NATIVE[m]} VPS \(bash menu.sh 6\)"
+T[C67]="为 \${NATIVE[m]} 添加 WARP IPv6 网络接口 \(bash menu.sh 6\)"
+T[E68]="Add WARP dualstack interface to \${NATIVE[m]} VPS \(bash menu.sh d\)"
+T[C68]="为 \${NATIVE[m]} 添加 WARP 双栈网络接口 \(bash menu.sh d\)"
 T[E69]="Native dualstack"
 T[C69]="原生双栈"
 T[E70]="WARP dualstack"
 T[C70]="WARP 双栈"
-T[E71]="Turn on WARP"
-T[C71]="打开 WARP"
-T[E72]="Turn off, uninstall WARP interface, Linux Client and WireProxy"
-T[C72]="永久关闭 WARP 网络接口，并删除 WARP、 Linux Client 和 WireProxy"
-T[E73]="Upgrade kernel, turn on BBR, change Linux system"
-T[C73]="升级内核、安装BBR、DD脚本"
-T[E74]="Getting WARP+ quota by scripts"
-T[C74]="刷 WARP+ 流量"
-T[E75]="Sync the latest version"
-T[C75]="同步最新版本"
+T[E71]="Turn on WARP (warp o)"
+T[C71]="打开 WARP (warp o)"
+T[E72]="Turn off, uninstall WARP interface, Linux Client and WireProxy (warp u)"
+T[C72]="永久关闭 WARP 网络接口，并删除 WARP、 Linux Client 和 WireProxy (warp u)"
+T[E73]="Upgrade kernel, turn on BBR, change Linux system (warp b)"
+T[C73]="升级内核、安装BBR、DD脚本 (warp b)"
+T[E74]="Getting WARP+ quota by scripts (warp p)"
+T[C74]="刷 WARP+ 流量 (warp p)"
+T[E75]="Sync the latest version (warp v)"
+T[C75]="同步最新版本 (warp v)"
 T[E76]="Exit"
 T[C76]="退出脚本"
-T[E77]="Turn off WARP"
-T[C77]="暂时关闭 WARP"
-T[E78]="Upgrade to WARP+ or Teams account"
-T[C78]="升级为 WARP+ 或 Teams 账户"
-T[E79]="WARP is already running and will switch to single and dual stack mutual switching mode"
-T[C79]="WARP 已经运行，将改为单双栈相互切换模式"
+T[E77]="Turn off WARP (warp o)"
+T[C77]="暂时关闭 WARP (warp o)"
+T[E78]="Upgrade to WARP+ or Teams account (warp a)"
+T[C78]="升级为 WARP+ 或 Teams 账户 (warp a)"
+T[E79]=""
+T[C79]=""
 T[E80]="Professional one-click script for WARP to unblock streaming media (Supports multi-platform, multi-mode and TG push)"
 T[C80]="WARP 解锁 Netflix 等流媒体专业一键(支持多平台、多方式和 TG 通知)"
 T[E81]="Step 3/3: Searching for the best MTU value is ready."
 T[C81]="进度 3/3：寻找 MTU 最优值已完成"
-T[E82]="Install CloudFlare Client and set mode to Proxy"
-T[C82]="安装 CloudFlare Client 并设置为 Proxy 模式"
+T[E82]="Install CloudFlare Client and set mode to Proxy (bash menu.sh c)"
+T[C82]="安装 CloudFlare Client 并设置为 Proxy 模式 (bash menu.sh c)"
 T[E83]="Step 1/2: Installing WARP Client..."
 T[C83]="进度 1/2： 安装 Client……"
 T[E84]="Step 2/2: Setting Client Mode"
@@ -182,10 +182,10 @@ T[E86]="Client is working. Socks5 proxy listening on: \$(ss -nltp | grep -E 'war
 T[C86]="Linux Client 正常运行中。 Socks5 代理监听:\$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127.0*\S+')"
 T[E87]="Fail to establish Socks5 proxy. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C87]="创建 Socks5 代理失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-T[E88]="Connect the client"
-T[C88]="连接 Client"
-T[E89]="Disconnect the client"
-T[C89]="断开 Client"
+T[E88]="Connect the client (warp r)"
+T[C88]="连接 Client (warp r)"
+T[E89]="Disconnect the client (warp r)"
+T[C89]="断开 Client (warp r)"
 T[E90]="Client is connected"
 T[C90]="Client 已连接"
 T[E91]="Client is disconnected. It could be connect again by [warp r]"
@@ -252,10 +252,10 @@ T[E121]="Changing Netflix IP is adapted from other authors [luoxue-bot],[https:/
 T[C121]="更换支持 Netflix IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]，请熟知"
 T[E122]="Port change to \$PORT succeeded."
 T[C122]="端口成功更换至 \$PORT"
-T[E123]="Change the WARP IP to support Netflix"
-T[C123]="更换支持 Netflix 的 IP"
-T[E124]="It is IPv6 priority now, press [y] to change to IPv4 priority? And other keys for unchanging:"
-T[C124]="现在是 IPv6 优先，改为IPv4 优先的话请按 [y]，其他按键保持不变:"
+T[E123]="Change the WARP IP to support Netflix (warp i)"
+T[C123]="更换支持 Netflix 的 IP (warp i)"
+T[E124]="\n 1. Brush WARP IPv4 (default)\n 2. Brush WARP IPv6\n"
+T[C124]="\n 1. 刷 WARP IPv4 (默认)\n 2. 刷 WARP IPv6\n"
 T[E125]="\$(date +'%F %T') Region: \$REGION Done. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retest after 1 hour. Brush ip runing time:\$DAY days \$HOUR hours \$MIN minutes \$SEC seconds" 
 T[C125]="\$(date +'%F %T') 区域 \$REGION 解锁成功，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG，1 小时后重新测试，刷 IP 运行时长: \$DAY 天 \$HOUR 时 \$MIN 分 \$SEC 秒"
 T[E126]="\$(date +'%F %T') Try \${i}. Failed. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retry after \${j} seconds. Brush ip runing time:\$DAY days \$HOUR hours \$MIN minutes \$SEC seconds" 
@@ -270,8 +270,8 @@ T[E130]="\\\n Please confirm\\\n Private key\\\t: \$PRIVATEKEY \$MATCH1\\\n Publ
 T[C130]="\\\n 请确认Teams 信息\\\n Private key\\\t: \$PRIVATEKEY \$MATCH1\\\n Public key\\\t: \$PUBLICKEY \$MATCH2\\\n Address IPv4\\\t: \$ADDRESS4/32 \$MATCH3\\\n Address IPv6\\\t: \$ADDRESS6/128 \$MATCH4\\\n"
 T[E131]="comfirm please enter [y] , and other keys to use free account:"
 T[C131]="确认请按 y ，其他按键则使用免费账户:"
-T[E132]="\n Is there a WARP+ or Teams account?\n 1. WARP+\n 2. Teams\n 3. use free account (default)\n"
-T[C132]="\n 如有 WARP+ 或 Teams 账户请选择\n 1. WARP+\n 2. Teams\n 3. 使用免费账户 (默认)\n"
+T[E132]="\n Is there a WARP+ or Teams account?\n  1. WARP+\n  2. Teams\n  3. use free account (default)\n"
+T[C132]="\n 如有 WARP+ 或 Teams 账户请选择\n  1. WARP+\n  2. Teams\n  3. 使用免费账户 (默认)\n"
 T[E133]="Device name: \$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n Quota: \$QUOTA"
 T[C133]="设备名: \$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量: \$QUOTA"
 T[E134]="Curren architecture \$(uname -m) is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -282,16 +282,16 @@ T[E136]="( mismatch X )"
 T[C136]="( 不符合 X )"
 T[E137]="Cannot find the configuration file: /etc/wireguard/wgcf.conf. You should install WARP first"
 T[C137]="找不到配置文件 /etc/wireguard/wgcf.conf，请先安装 WARP"
-T[E138]="Install iptable + dnsmasq + ipset. Let WARP only take over the streaming media traffic (Not available for ipv6 only)"
-T[C138]="安装 iptable + dnsmasq + ipset，让 WARP IPv4 only 接管流媒体流量 (不适用于 IPv6 only VPS)"
+T[E138]="Install iptable + dnsmasq + ipset. Let WARP only take over the streaming media traffic (Not available for ipv6 only) (bash menu.sh e)"
+T[C138]="安装 iptable + dnsmasq + ipset，让 WARP IPv4 only 接管流媒体流量 (不适用于 IPv6 only VPS) (bash menu.sh e)"
 T[E139]="Through Iptable + dnsmasq + ipset, minimize the realization of media unblocking such as Netflix, WARP IPv4 only takes over the streaming media traffic,adapted from the mature works of [Anemone],[https://github.com/acacia233/Project-WARP-Unlock]"
 T[C139]="通过 Iptable + dnsmasq + ipset，最小化实现 Netflix 等媒体解锁，WARP IPv4 只接管流媒体流量，改编自 [Anemone] 的成熟作品，地址[https://github.com/acacia233/Project-WARP-Unlock]，请熟知"
 T[E140]="Socks5 Proxy Client on IPv4 VPS is working now. WARP IPv6 interface could not be installed. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C140]="IPv4 only VPS，并且 Socks5 代理正在运行中，不能安装 WARP IPv6 网络接口，问题反馈:[https://github.com/fscarmen/warp/issues]"
-T[E141]="Switch \${WARP_BEFORE[m]} to \${WARP_AFTER1[m]}"
-T[C141]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]}"
-T[E142]="Switch \${WARP_BEFORE[m]} to \${WARP_AFTER2[m]}"
-T[C142]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER2[m]}"
+T[E141]="Switch \${WARP_BEFORE[m]} to \${WARP_AFTER1[m]} \${SHORTCUT1[m]}"
+T[C141]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]} \${SHORTCUT1[m]}"
+T[E142]="Switch \${WARP_BEFORE[m]} to \${WARP_AFTER2[m]} \${SHORTCUT2[m]}"
+T[C142]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER2[m]} \${SHORTCUT2[m]}"
 T[E143]="Change Client or WireProxy port"
 T[C143]="更改 Client 或 WireProxy 端口"
 T[E144]="Install WARP IPv6 interface"
@@ -302,8 +302,8 @@ T[E146]="Cannot switch to the same form as the current one."
 T[C146]="不能切换为当前一样的形态"
 T[E147]="Not available for IPv6 only VPS"
 T[C147]="IPv6 only VPS 不能使用此方案"
-T[E148]="Install wireproxy. Wireguard client that exposes itself as a socks5 proxy or tunnels"
-T[C148]="安装 wireproxy，让 WARP 在本地创建一个 socks5 代理"
+T[E148]="Install wireproxy. Wireguard client that exposes itself as a socks5 proxy or tunnels (bash menu.sh w)"
+T[C148]="安装 wireproxy，让 WARP 在本地创建一个 socks5 代理 (bash menu.sh w)"
 T[E149]="Congratulations! WirePorxy is working. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
 T[C149]="恭喜！WirePorxy 工作中, 总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数：\$TOTAL"
 T[E150]="\n WGCF WARP, WARP Linux Client, WireProxy hasn't been installed yet. The script is aborted.\n"
@@ -332,18 +332,18 @@ T[E161]="WireProxy is installed and disconnected"
 T[C161]="WireProxy 已安装，状态为断开连接"
 T[E162]="Local Socks5:\$PROXYSOCKS52	WARP\$AC2 IPv4:\$PROXYIP2 \$PROXYCOUNTRY2	\$PROXYASNORG2"
 T[C162]="本地 Socks5:\$PROXYSOCKS52	WARP\$AC2 IPv4:\$PROXYIP2 \$PROXYCOUNTRY2	\$PROXYASNORG2"
-T[E163]="Connect the WirePorxy"
-T[C163]="连接 WirePorxy"
-T[E164]="Disconnect the WirePorxy"
-T[C164]="断开 WirePorxy"
+T[E163]="Connect the WirePorxy (warp y)"
+T[C163]="连接 WirePorxy (warp y)"
+T[E164]="Disconnect the WirePorxy (warp y)"
+T[C164]="断开 WirePorxy (warp y)"
 T[E165]="WireProxy Solution. A wireguard client that exposes itself as a socks5 proxy or tunnels. Adapted from the mature works of [octeep],[https://github.com/octeep/wireproxy]"
 T[C165]="WireProxy，让 WARP 在本地建议一个 socks5 代理。改编自 [octeep] 的成熟作品，地址[https://github.com/octeep/wireproxy]，请熟知"
 T[E166]="WireProxy was installed.\n connect/disconnect by [warp y]\n uninstall by [warp u]"
 T[C166]="WireProxy 已安装\n 连接/断开: warp y\n 卸载: warp u"
 T[E167]="WARP iptable was installed.\n connect/disconnect by [warp o]\n uninstall by [warp u]"
 T[C167]="WARP iptable 已安装\n 连接/断开: warp o\n 卸载: warp u"
-T[E168]="Install CloudFlare Client and set mode to WARP"
-T[C168]="安装 CloudFlare Client 并设置为 WARP 模式"
+T[E168]="Install CloudFlare Client and set mode to WARP (bash menu.sh l)"
+T[C168]="安装 CloudFlare Client 并设置为 WARP 模式 (bash menu.sh l)"
 T[E169]="WARP\$AC IPv4: \$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
 T[C169]="WARP\$AC IPv4: \$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
 
@@ -352,7 +352,7 @@ red(){ echo -e "\033[31m\033[01m$@\033[0m"; }
 green(){ echo -e "\033[32m\033[01m$@\033[0m"; }
 yellow(){ echo -e "\033[33m\033[01m$@\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
-translate(){ [[ -n "$1" ]] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
+translate(){ [[ -n "$1" ]] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times(){
@@ -364,7 +364,7 @@ TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '
 select_language(){
 	case $(cat /etc/wireguard/language 2>&1) in
 	E ) L=E;;	C ) L=C;;
-	* ) L=E && [[ -z $OPTION || $OPTION = [aclehdpbvisw46] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
+	* ) L=E && [[ -z $OPTION || $OPTION = [aclehdpbviw46] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
 	[[ $LANGUAGE = 2 ]] && L=C;;
 	esac
 	}
@@ -539,7 +539,7 @@ stack_priority(){
 
 # 更换 Netflix IP 时确认期望区域
 input_region(){
-	[[ -n "$NF" ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')) ||
+	[[ -n "$NF" ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
 	[[ -n "$PROXYPORT" ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
 	[[ -n "$INTERFACE" ]] && REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
 	REGION=${REGION:-'US'}
@@ -559,8 +559,8 @@ change_ip(){
 		grep -q "^#.*\:\:\/0" /etc/wireguard/wgcf.conf && T6=0 || T6=1
 		case "$T4$T6" in
 			01 ) NF='6';;	10 ) NF='4';;
-			11 ) [[ $(curl -ksm8 https://ip.gs) =~ ":" ]] && NF='6' && reading " ${T[${L}124]} " NETFLIX || NF='4'
-			[[ $NETFLIX = [Yy] ]] && NF='4' && PRIORITY=1 && stack_priority;;
+			11 ) yellow " ${T[${L}124]} " && reading " ${T[${L}50]} " NETFLIX
+			     NF='4' && [[ $NETFLIX = 2 ]] && NF='6';;
 		esac
 
 		[[ -z "$EXPECT" ]] && input_region
@@ -573,7 +573,8 @@ change_ip(){
 		[[ $L = C ]] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
 		RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
 		if [[ $RESULT = 200 ]]; then
-		REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -"$NF" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+		REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -"$NF" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$
+		_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
 		REGION=${REGION:-'US'}
 		echo "$REGION" | grep -qi "$EXPECT" && green " $(eval echo "${T[${L}125]}") " && i=0 && sleep 1h || wgcf_restart
 		else wgcf_restart
@@ -864,11 +865,17 @@ check_stack(){
 	fi
 	CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1")
 	for ((m=0;m<${#CASE[@]};m++)); do [[ $T4@$T6 = ${CASE[m]} ]] && break; done
+	NATIVE=("IPv6 only" "IPv4 only" "${T[${L}69]}")
+	CONF1=("014" "104" "114")
+	CONF2=("016" "106" "116")
+	CONF3=("01D" "10D" "11D")
 	WARP_BEFORE=("" "" "" "WARP IPv6 only" "WARP IPv6" "WARP IPv4 only" "WARP IPv4" "${T[${L}70]}")
 	WARP_AFTER1=("" "" "" "WARP IPv4" "WARP IPv4" "WARP IPv6" "WARP IPv6" "WARP IPv4")
 	WARP_AFTER2=("" "" "" "${T[${L}70]}" "${T[${L}70]}" "${T[${L}70]}" "${T[${L}70]}" "WARP IPv6")
 	TO1=("" "" "" "014" "014" "106" "106" "114")
 	TO2=("" "" "" "01D" "01D" "10D" "10D" "116")
+	SHORTCUT1=("" "" "" "(warp-go 4)" "(warp-go 4)" "(warp-go 6)" "(warp-go 6)" "(warp-go 4)")
+	SHORTCUT2=("" "" "" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go 6)") 
 	}
 
 # 单双栈在线互换。先看菜单是否有选择，再看传参数值，再没有显示2个可选项
@@ -1807,24 +1814,20 @@ menu_setting(){
 
 	else check_stack
 	case "$m" in
-	[0-2] ) NATIVE=("IPv6 only"	"IPv4 only"	"${T[${L}69]}")
-		CONF1=("014"		"104"		"114")
-		CONF2=("016"		"106"		"116")
-		CONF3=("01D"		"10D"		"11D")
-		OPTION1="$(eval echo "${T[${L}66]}")"; OPTION2="$(eval echo "${T[${L}67]}")"; OPTION3="$(eval echo "${T[${L}68]}")"
+	[0-2] ) OPTION1="$(eval echo "${T[${L}66]}")"; OPTION2="$(eval echo "${T[${L}67]}")"; OPTION3="$(eval echo "${T[${L}68]}")"
 		ACTION1(){ CONF=${CONF1[m]}; install; }; ACTION2(){ CONF=${CONF2[m]}; install; }; ACTION3(){ CONF=${CONF3[m]}; install; };;
 	
 	* )	OPTION1="$(eval echo "${T[${L}141]}")"; OPTION2="$(eval echo "${T[${L}142]}")"; OPTION3="${T[${L}78]}"
 		ACTION1(){ stack_switch; }; ACTION2(){ stack_switch; }; ACTION3(){ update; };;
 	esac
 	fi
-	
+
 	[[ -e /etc/dnsmasq.d/warp.conf ]] && IPTABLE_INSTALLED="${T[${L}92]}"
 	[[ -n $(wg 2>/dev/null) ]] && OPTION4="${T[${L}77]}" || OPTION4="${T[${L}71]}"
-	
+
 	OPTION5="$CLIENT_INSTALLED$AMD64_ONLY${T[${L}82]}"; OPTION6="${T[${L}123]}"; OPTION7="${T[${L}72]}"; OPTION8="${T[${L}74]}"; OPTION9="${T[${L}73]}"; OPTION10="${T[${L}75]}";
 	OPTION11="${T[${L}80]}"; OPTION12="$IPTABLE_INSTALLED${T[${L}138]}"; OPTION13="$WIREPROXY_INSTALLED${T[${L}148]}"; OPTION14="$CLIENT_INSTALLED$AMD64_ONLY${T[${L}168]}"; OPTION0="${T[${L}76]}"
-	
+
 	ACTION4(){ OPTION=o; onoff; }
 	ACTION5(){ proxy; }; ACTION6(){ change_ip; }; ACTION7(){ uninstall; }; ACTION8(){ plus; }; ACTION9(){ bbrInstall; }; ACTION10(){ ver; }; 
 	ACTION11(){ bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
@@ -1832,12 +1835,12 @@ menu_setting(){
 	ACTION13(){ OCTEEP=1; install; };
 	ACTION14(){ LUBAN=1; proxy; };
 	ACTION0(){ exit; }
+
+	grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && check_quota && TYPE='+' && PLUSINFO="${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')\t ${T[${L}63]}: $QUOTA" || TYPE=' Teams'
 	}
 
 # 显示菜单
 menu(){
-	grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && check_quota && TYPE='+' && PLUSINFO="${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')\t ${T[${L}63]}: $QUOTA" || TYPE=' Teams'
-	
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
@@ -1856,14 +1859,16 @@ menu(){
 	[[ $WIREPROXY = 3 ]] && green "	WARP$AC2 ${T[${L}159]}	$(eval echo "${T[${L}162]}") "
 	grep -q '+' <<< $AC$AC2 && green "	${T[${L}63]}: $QUOTA "
  	red "\n======================================================================================================================\n"
-	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11\n 12. $OPTION12\n 13. $OPTION13\n 14. $OPTION14\n 0. $OPTION0\n "
+	green " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11\n 12. $OPTION12\n 13. $OPTION13\n 14. $OPTION14\n 0.  $OPTION0\n "
 	reading " ${T[${L}50]} " CHOOSE1
-		case "$CHOOSE1" in
-		1 ) ACTION1;; 2 ) ACTION2;; 3 ) ACTION3;; 4 ) ACTION4;; 5 ) ACTION5;;
-		6 ) ACTION6;; 7 ) ACTION7;; 8 ) ACTION8;; 9 ) ACTION9;; 10 ) ACTION10;;
-		11 ) ACTION11;; 12 ) ACTION12;; 13 ) ACTION13;; 14 ) ACTION14;;
-		0 ) ACTION0;; * ) red " ${T[${L}51]} [0-10] "; sleep 1; menu;;
-		esac
+	
+	# 输入必须是数字且少于等于最大可选项
+	MAX_CHOOSE=14
+	if grep -wqP "\d+" <<< $CHOOSE1 && [ $CHOOSE1 -le $MAX_CHOOSE ]; then
+		ACTION$CHOOSE1
+	else
+		red " ${T[${L}51]} [0-$MAX_CHOOSE] " && sleep 1 && menu
+	fi
 	}
 
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关；p=刷 WARP+ 流量; 其他或空值=菜单界面
@@ -1905,7 +1910,6 @@ v ) ver; exit 0;;
 n ) net; exit 0;;
 o ) onoff; exit 0;;
 r ) proxy_onoff; exit 0;;
-s ) stack_switch; exit 0;;
 y ) wireproxy_onoff; exit 0;;
 esac
 
@@ -1917,16 +1921,16 @@ menu_setting
 # 设置部分后缀 3/3
 case "$OPTION" in
 # 在已运行 Linux Client 前提下，不能安装 WARP IPv4 或者双栈网络接口。如已经运行 WARP ，参数 4,6,d 从原来的安装改为切换
-[46d] )	if [[ -n $(wg 2>/dev/null) ]]; then
-	SWITCHCHOOSE="$(tr '[:lower:]' '[:upper:]' <<< "$OPTION")"; OPTION='s'
-	yellow " ${T[${L}79]} " && stack_switch
+[46d] )	if	[[ -e /etc/wireguard/wgcf.conf ]]; then
+		SWITCHCHOOSE="$(tr '[:lower:]' '[:upper:]' <<< "$OPTION")"
+		stack_switch
 	else
 		case "$OPTION" in
-		4 ) [[ $CLIENT = [35] ]] && red " ${T[${L}110]} " && exit 1
-		    CONF=${CONF1[m]};; 
-		6 ) CONF=${CONF2[m]};;
-		d ) [[ $CLIENT = [35] ]] && red " ${T[${L}110]} " && exit 1
-		    CONF=${CONF3[m]};;
+			4 ) [[ $CLIENT = [35] ]] && red " ${T[${L}110]} " && exit 1
+			    CONF=${CONF1[m]};; 
+			6 ) CONF=${CONF2[m]};;
+			d ) [[ $CLIENT = [35] ]] && red " ${T[${L}110]} " && exit 1
+			    CONF=${CONF3[m]};;
 		esac
 		install
 	fi;;
