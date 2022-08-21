@@ -32,7 +32,6 @@ jobs:
                         "darwin_arm64"
                         "linux_386"
                         "linux_amd64"
-                        "linux_amd64"
                         "linux_arm64"
                         "linux_386"
                         "linux_s390x"
@@ -51,7 +50,6 @@ jobs:
             done
             
             for j in "${SCRIPTS[@]}"; do
-              wget -O ${GITHUB_WORKSPACE}/$j https://raw.githubusercontent.com/${{ env.USERNAME }}/warp/main/"$j"
               sed -i "s/$NOW/$LATEST/g" ${GITHUB_WORKSPACE}/$j
             done
             
