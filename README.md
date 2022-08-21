@@ -21,6 +21,8 @@
 * * *
 
 ## 更新信息
+2022.8.21 menu V2.42 1.Add shortcut hints in the menu; 2.Remove the shortcut of S. Single and dual stacks swithing can directly use [warp 4/6/d]; 1.在菜单中增加快捷方式的提示; 2.移除快捷方式 s，单双栈相互切换可以直接 [warp 4/6/d]
+
 2022.8.20 warp-go V1.0.4 Chinese and English language support. Hello World; 中英双语支持，与世界接轨
 
 2022.8.20 warp-go V1.0.3 New feat: Menu + shortcuts for various usage scenarios; 菜单 + 快捷 方式，适合各种使用场景
