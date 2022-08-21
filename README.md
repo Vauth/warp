@@ -21,7 +21,7 @@
 * * *
 
 ## 更新信息
-2022.8.21 After testing, wgcf warp service is back to normal in Hong Kong and Toronto, etc. 经测试，香港和多伦多等地区 wgcf warp 服务恢复正常
+~2022.8.21 After testing, wgcf warp service is back to normal in Hong Kong and Toronto, etc. 经测试，香港和多伦多等地区 wgcf warp 服务恢复正常~
 
 2022.8.21 menu V2.42 1.Add shortcut hints in the menu; 2.Remove the shortcut of S. Single and dual stacks swithing can directly use [warp 4/6/d]; 1.在菜单中增加快捷方式的提示; 2.移除快捷方式 s，单双栈相互切换可以直接 [warp 4/6/d]
 
