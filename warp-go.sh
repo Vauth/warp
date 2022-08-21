@@ -3,7 +3,6 @@ export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
 VERSION=1.0.4
-CONTENT="1. 菜单 + 快捷 方式，适合各种使用场景; 2. 去掉快捷方式 s，需要切换 WARP 单双栈直接 warp-go [4,6,d]"
 declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
@@ -114,10 +113,10 @@ T[E52]="Path to wgcf.conf for this account: /opt/warp-go/wgcf.conf\n"
 T[C52]="该账户的 wgcf.conf 路径: /opt/warp-go/wgcf.conf\n"
 T[E53]="Warp-go installed. Script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C53]="warp-go 已安装，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
-T[E54]="\n Is there a WARP+ or Teams account?\n 1. WARP+\n 2. Teams\n 3. use free account (default)\n"
-T[C54]="\n 如有 WARP+ 或 Teams 账户请选择\n 1. WARP+\n 2. Teams\n 3. 使用免费账户 (默认)\n"
-T[E55]="\n Please choose the priority:\n  1.IPv4 (default)\n  2.IPv6\n  3.Use initial settings\n"
-T[C55]="\n 请选择优先级别:\n  1.IPv4 (默认)\n  2.IPv6\n  3.使用 VPS 初始设置\n"
+T[E54]="\n Is there a WARP+ or Teams account?\n  1. WARP+\n  2. Teams\n  3. use free account (default)\n"
+T[C54]="\n 如有 WARP+ 或 Teams 账户请选择\n  1. WARP+\n  2. Teams\n  3. 使用免费账户 (默认)\n"
+T[E55]="\n Please choose the priority:\n  1. IPv4 (default)\n  2. IPv6\n  3. Use initial settings\n"
+T[C55]="\n 请选择优先级别:\n  1. IPv4 (默认)\n  2. IPv6\n  3. 使用 VPS 初始设置\n"
 T[E56]="Download warp-go zip file unsuccessful. Script exits. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C56]="下载 warp-go 压缩文件不成功，脚本退出，问题反馈: [https://github.com/fscarmen/warp/issues]"
 T[E57]="Warp-go file does not exist, script exits. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -130,44 +129,44 @@ T[E60]="\n Step 1/3: Install dependencies..."
 T[C60]="\n 进度 2/3: 已安装 warp-go\n"
 T[E61]="\n Step 1/3: Install dependencies...\n"
 T[C61]="\n 进度 1/3: 安装系统依赖……\n"
-T[E62]="Congratulations! WARP \$ACCOUNT_TYPE has been turn on. Total time spent:\$(( end - start )) seconds. Number of script runs in the day:\$TODAY. Total number of runs:\$TOTAL."
-T[C62]="恭喜！WARP \$ACCOUNT_TYPE 已开启，总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数：\$TOTAL"
+T[E62]="Congratulations! WARP \$ACCOUNT_TYPE has been turn on. Total time spent:\$(( end - start )) seconds.\\\n Number of script runs in the day: \$TODAY. Total number of runs: \$TOTAL."
+T[C62]="恭喜！WARP \$ACCOUNT_TYPE 已开启，总耗时:\$(( end - start ))秒\\\n 脚本当天运行次数: \$TODAY，累计运行次数：\$TOTAL"
 T[E63]="Warp-go installation failed. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C63]="warp-go 安装失败，问题反馈: [https://github.com/fscarmen/warp/issues]"
-T[E64]="Add WARP IPv4 global network interface for \${NATIVE[m]}, IPv4 priority"
-T[C64]="为 \${NATIVE[m]} 添加 WARP IPv4 全局 网络接口，IPv4 优先"
-T[E65]="Add WARP IPv4 global network interface for \${NATIVE[m]}, IPv6 priority"
-T[C65]="为 \${NATIVE[m]} 添加 WARP IPv4 全局 网络接口，IPv6 优先"
-T[E66]="Add WARP IPv6 global network interface for \${NATIVE[m]}, IPv4 priority"
-T[C66]="为 \${NATIVE[m]} 添加 WARP IPv6 全局 网络接口，IPv4 优先"
-T[E67]="Add WARP IPv6 global network interface for \${NATIVE[m]}, IPv6 priority"
-T[C67]="为 \${NATIVE[m]} 添加 WARP IPv6 全局 网络接口，IPv6 优先"
-T[E68]="Add WARP dual-stacks global network interface for \${NATIVE[m]}, IPv4 priority"
-T[C68]="为 \${NATIVE[m]} 添加 WARP 双栈 全局 网络接口，IPv4 优先"
-T[E69]="Add WARP dual-stacks global network interface for \${NATIVE[m]}, IPv6 priority"
-T[C69]="为 \${NATIVE[m]} 添加 WARP 双栈 全局 网络接口，IPv6 优先"
-T[E70]="Add WARP IPv4 non-global network interface for \${NATIVE[m]}, IPv4 priority"
-T[C70]="为 \${NATIVE[m]} 添加 WARP IPv4 非全局 网络接口，IPv4 优先"
-T[E71]="Add WARP IPv4 non-global network interface for \${NATIVE[m]}, IPv6 priority"
-T[C71]="为 \${NATIVE[m]} 添加 WARP IPv4 非全局 网络接口，IPv6 优先"
-T[E72]="Turn off"
-T[C72]="关闭"
-T[E73]="Turn on"
-T[C73]="打开"
-T[E74]="\${WARP_BEFORE[m]} switch to \${WARP_AFTER1[m]}"
-T[C74]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]}"
-T[E75]="\${WARP_BEFORE[m]} switch to \${WARP_AFTER2[m]}"
-T[C75]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]}"
-T[E76]="Switch to WARP \${GLOBAL_AFTER}global network interface"
-T[C76]="转为 WARP \${GLOBAL_AFTER}全局 网络接口"
-T[E77]="Upgrade to WARP+ or Teams account"
-T[C77]="升级为 WARP+ 或 Teams 账户"
-T[E78]="Change the WARP IP to support Netflix"
-T[C78]="更换支持 Netflix 的 IP"
-T[E79]="Export wgcf configuration file"
-T[C79]="输出 wgcf 配置文件"
-T[E80]="Uninstall the WARP interface and warp-go"
-T[C80]="卸载 WARP 网络接口和 warp-go"
+T[E64]="Add WARP IPv4 global network interface for \${NATIVE[m]}, IPv4 priority \(bash warp-go.sh 4\)"
+T[C64]="为 \${NATIVE[m]} 添加 WARP IPv4 全局 网络接口，IPv4 优先 \(bash warp-go.sh 4\)"
+T[E65]="Add WARP IPv4 global network interface for \${NATIVE[m]}, IPv6 priority \(bash warp-go.sh 4\)"
+T[C65]="为 \${NATIVE[m]} 添加 WARP IPv4 全局 网络接口，IPv6 优先 \(bash warp-go.sh 4\)"
+T[E66]="Add WARP IPv6 global network interface for \${NATIVE[m]}, IPv4 priority \(bash warp-go.sh 6\)"
+T[C66]="为 \${NATIVE[m]} 添加 WARP IPv6 全局 网络接口，IPv4 优先 \(bash warp-go.sh 6\)"
+T[E67]="Add WARP IPv6 global network interface for \${NATIVE[m]}, IPv6 priority \(bash warp-go.sh 6\)"
+T[C67]="为 \${NATIVE[m]} 添加 WARP IPv6 全局 网络接口，IPv6 优先 \(bash warp-go.sh 6\)"
+T[E68]="Add WARP dual-stacks global network interface for \${NATIVE[m]}, IPv4 priority \(bash warp-go.sh d\)"
+T[C68]="为 \${NATIVE[m]} 添加 WARP 双栈 全局 网络接口，IPv4 优先 \(bash warp-go.sh d\)"
+T[E69]="Add WARP dual-stacks global network interface for \${NATIVE[m]}, IPv6 priority \(bash warp-go.sh d\)"
+T[C69]="为 \${NATIVE[m]} 添加 WARP 双栈 全局 网络接口，IPv6 优先 \(bash warp-go.sh d\)"
+T[E70]="Add WARP IPv4 non-global network interface for \${NATIVE[m]}, IPv4 priority \(bash warp-go.sh n\)"
+T[C70]="为 \${NATIVE[m]} 添加 WARP IPv4 非全局 网络接口，IPv4 优先 \(bash warp-go.sh n\)"
+T[E71]="Add WARP IPv4 non-global network interface for \${NATIVE[m]}, IPv6 priority \(bash warp-go.sh n\)"
+T[C71]="为 \${NATIVE[m]} 添加 WARP IPv4 非全局 网络接口，IPv6 优先 \(bash warp-go.sh n\)"
+T[E72]="Turn off warp-go (warp-go o)"
+T[C72]="关闭 warp-go (warp-go o)"
+T[E73]="Turn on warp-go (warp-go o)"
+T[C73]="打开 warp-go (warp-go o)"
+T[E74]="\${WARP_BEFORE[m]} switch to \${WARP_AFTER1[m]} \${SHORTCUT1[m]}"
+T[C74]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]} \${SHORTCUT1[m]}"
+T[E75]="\${WARP_BEFORE[m]} switch to \${WARP_AFTER2[m]} \${SHORTCUT2[m]}"
+T[C75]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]} \${SHORTCUT2[m]}"
+T[E76]="Switch to WARP \${GLOBAL_AFTER}global network interface  \(warp-go g\)"
+T[C76]="转为 WARP \${GLOBAL_AFTER}全局 网络接口  \(warp-go g\)"
+T[E77]="Upgrade to WARP+ or Teams account \(warp-go a\)"
+T[C77]="升级为 WARP+ 或 Teams 账户 \(warp-go a\)"
+T[E78]="Change the WARP IP to support Netflix (warp-go i)"
+T[C78]="更换支持 Netflix 的 IP (warp-go i)"
+T[E79]="Export wgcf configuration file (warp-go e)"
+T[C79]="输出 wgcf 配置文件 (warp-go e)"
+T[E80]="Uninstall the WARP interface and warp-go (warp-go u)"
+T[C80]="卸载 WARP 网络接口和 warp-go (warp-go u)"
 T[E81]="Exit"
 T[C81]="退出脚本"
 T[E82]="Sync the latest version"
@@ -206,7 +205,7 @@ red(){ echo -e "\033[31m\033[01m$@\033[0m"; }
 green(){ echo -e "\033[32m\033[01m$@\033[0m"; }
 yellow(){ echo -e "\033[33m\033[01m$@\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
-translate(){ [[ -n "$1" ]] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
+translate(){ [[ -n "$1" ]] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times(){
@@ -218,8 +217,8 @@ statistics_of_run-times(){
 select_language(){
   case $(cat /opt/warp-go/language 2>&1) in
     E ) L=E;;	C ) L=C;;
-    * ) L=E && [[ -z $OPTION || $OPTION = [aclehdpbvisw46] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}4]} " LANGUAGE
-    [[ $LANGUAGE = 2 ]] && L=C;;
+    * ) L=E && [[ -z $OPTION || $OPTION = [iv46dna] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}4]} " LANGUAGE
+        [[ $LANGUAGE = 2 ]] && L=C;;
   esac
 	}
 
@@ -410,7 +409,7 @@ ver(){
   wget -N -P /opt/warp-go/ https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh
   chmod +x /opt/warp-go/warp-go.sh
   ln -sf /opt/warp-go/warp-go.sh /usr/bin/warp-go
-  green " ${T[${L}18]}: $(grep ^VERSION /opt/warp-go/warp-go.sh | sed "s/.*=//g")  ${T[${L}19]}: $(grep "T\[${L}1]" opt/warp-go/warp-go.sh | cut -d \" -f2) "
+  green " ${T[${L}18]}: $(grep ^VERSION /opt/warp-go/warp-go.sh | sed "s/.*=//g")  ${T[${L}19]}: $(grep "T\[${L}1]" /opt/warp-go/warp-go.sh | cut -d \" -f2) "
   exit
   }
 
@@ -922,14 +921,14 @@ check_quota(){
 # 判断当前 WARP 网络接口及 Client 的运行状态，并对应的给菜单和动作赋值
 menu_setting(){
   if [[ $STATUS = 0 ]]; then
-    OPTION1="$(eval echo "${T[${L}64]}") (bash warp-go.sh 4)"
-    OPTION2="$(eval echo "${T[${L}65]}") (bash warp-go.sh 4)"
-    OPTION3="$(eval echo "${T[${L}66]}") (bash warp-go.sh 6)"
-    OPTION4="$(eval echo "${T[${L}67]}") (bash warp-go.sh 6)"
-    OPTION5="$(eval echo "${T[${L}68]}") (bash warp-go.sh d)"
-    OPTION6="$(eval echo "${T[${L}69]}") (bash warp-go.sh d)"
-    OPTION7="$(eval echo "${T[${L}70]}") (bash warp-go.sh n)"
-    OPTION8="$(eval echo "${T[${L}71]}") (bash warp-go.sh n)"
+    OPTION1="$(eval echo "${T[${L}64]}")"
+    OPTION2="$(eval echo "${T[${L}65]}")"
+    OPTION3="$(eval echo "${T[${L}66]}")"
+    OPTION4="$(eval echo "${T[${L}67]}")"
+    OPTION5="$(eval echo "${T[${L}68]}")"
+    OPTION6="$(eval echo "${T[${L}69]}")"
+    OPTION7="$(eval echo "${T[${L}70]}")"
+    OPTION8="$(eval echo "${T[${L}71]}")"
     ACTION1(){ CONF=${CONF1[m]}; PRIORITY=1; install; }
     ACTION2(){ CONF=${CONF1[m]}; PRIORITY=2; install; }
     ACTION3(){ CONF=${CONF2[m]}; PRIORITY=1; install; }
@@ -941,14 +940,15 @@ menu_setting(){
   else
     [[ $NON_GLOBAL = 1 ]] || GLOBAL_AFTER="${T[${L}24]}"
     [[ $STATUS = 2 ]] && ON_OFF="${T[${L}72]}" || ON_OFF="${T[${L}73]}"
-    OPTION1="$(eval echo "${T[${L}74]}") ${SHORTCUT1[m]}"
-    OPTION2="$(eval echo "${T[${L}75]}") ${SHORTCUT2[m]}"
-    OPTION3="$(eval echo "${T[${L}76]}") (warp-go g)"
-    OPTION4="$ON_OFF warp-go (warp-go o)"
-    OPTION5="$(eval echo "${T[${L}77]}") (warp-go a)"   
-    OPTION6="${T[${L}78]} (warp-go i)"
-    OPTION7="${T[${L}79]} (warp-go e)"
-    OPTION8="${T[${L}80]} (warp-go u)"
+    OPTION1="$(eval echo "${T[${L}74]}")"
+    OPTION2="$(eval echo "${T[${L}75]}")"
+    OPTION3="$(eval echo "${T[${L}76]}")"
+    OPTION4="$ON_OFF"
+    OPTION5="$(eval echo "${T[${L}77]}")"
+
+    OPTION6="${T[${L}78]}"
+    OPTION7="${T[${L}79]}"
+    OPTION8="${T[${L}80]}"
     ACTION1(){ stack_switch; }
     ACTION2(){ stack_switch; }
     ACTION3(){ global_switch; }
@@ -994,7 +994,7 @@ menu(){
   else
     red " ${T[${L}34]} [0-9] " && sleep 1 && menu
   fi
-	}
+  }
 
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP
 [[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")
