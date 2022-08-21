@@ -1,0 +1,71 @@
+name: Sync warp-go latest version
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '3 2 * * *'
+
+jobs:
+  build:
+    name: Sync warp-go latest version
+    runs-on: ubuntu-latest
+    env:
+      USERNAME: ${{ secrets.GH_USERNAME }}
+      EMAIL: ${{ secrets.GH_EMAIL }}
+      REPO: ${{ secrets.GH_REPO }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update warp-go to latest version
+        run: |
+          NOW=$(wget -qO- https://raw.githubusercontent.com/${{ env.USERNAME }}/${{ env.REPO }}/main/warp-go.sh | grep 'latest=${latest' | cut -d \' -f2)
+          LATEST=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | grep -oP '"tag_name":"v\K[^\"]+' | head -n 1)
+          NOW1=$(echo $NOW | cut -d \. -f1)
+          NOW2=$(echo $NOW | cut -d \. -f2)
+          NOW3=$(echo $NOW | cut -d \. -f3)
+          LATEST1=$(echo $LATEST | cut -d \. -f1)
+          LATEST2=$(echo $LATEST | cut -d \. -f2)
+          LATEST3=$(echo $LATEST | cut -d \. -f3)
+          NOW_VERSION=$(( NOW1*1000000 + NOW2*1000 + NOW3 ))
+          LATEST_VERSION=$(( LATEST1*1000000 + LATEST2*1000 + LATEST3 ))
+          if [ $LATEST_VERSION -gt $NOW_VERSION ]; then
+            PLATFORM=(  "linux_386"
+                        "linux_amd64"
+                        "linux_amd64v2"
+                        "linux_amd64v3"
+                        "linux_amd64v4"
+                        "linux_arm64"
+                        "linux_386"
+                        "linux_s390x"
+                      )
+                      
+            SCRIPTS=( "warp-go.sh"
+                    )
+            
+            for i in "${PLATFORM[@]}"; do
+              wget -NP ${GITHUB_WORKSPACE}/warp-go/ https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$LATEST"/downloads/warp-go_"$LATEST"_"$i".tar.gz
+              rm -f ${GITHUB_WORKSPACE}/warp-go/warp-go_"$NOW"_"$i".tar.gz
+            done
+            
+            for j in "${SCRIPTS[@]}"; do
+              sed -i "/判断 warp-go 的最新版本/s/$NOW/$LATEST/; /latest=\${/s/$NOW/$LATEST/" ${GITHUB_WORKSPACE}/$j
+            done
+            
+            echo "VERSION=$LATEST" >> $GITHUB_ENV
+            echo "DIST=${GITHUB_WORKSPACE}/warp-go" >> $GITHUB_ENV
+          fi
+          
+      - name: Upload to REPO
+        if: ${{ env.VERSION != '' }}
+        run: |
+          git config --global user.email "${{ env.EMAIL }}"
+          git config --global user.name "${{ env.USERNAME }}"
+          git add .
+          git commit -m "Sync warp-go to V${{ env.VERSION }} by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
+          git push
+          
+      - name: Release binaries
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: warp-go_v${{ env.VERSION }}
+          files: ${{ env.DIST }}/*
