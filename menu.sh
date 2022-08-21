@@ -874,8 +874,8 @@ check_stack(){
 	WARP_AFTER2=("" "" "" "${T[${L}70]}" "${T[${L}70]}" "${T[${L}70]}" "${T[${L}70]}" "WARP IPv6")
 	TO1=("" "" "" "014" "014" "106" "106" "114")
 	TO2=("" "" "" "01D" "01D" "10D" "10D" "116")
-	SHORTCUT1=("" "" "" "(warp-go 4)" "(warp-go 4)" "(warp-go 6)" "(warp-go 6)" "(warp-go 4)")
-	SHORTCUT2=("" "" "" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go 6)") 
+	SHORTCUT1=("" "" "" "(warp 4)" "(warp 4)" "(warp 6)" "(warp 6)" "(warp 4)")
+	SHORTCUT2=("" "" "" "(warp d)" "(warp d)" "(warp d)" "(warp d)" "(warp 6)") 
 	}
 
 # 单双栈在线互换。先看菜单是否有选择，再看传参数值，再没有显示2个可选项
