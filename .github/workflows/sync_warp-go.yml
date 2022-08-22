@@ -66,6 +66,7 @@ jobs:
           
       - name: Release binaries
         uses: softprops/action-gh-release@v1
+        if: ${{ env.VERSION != '' }}
         with:
           tag_name: warp-go_v${{ env.VERSION }}
           files: ${{ env.DIST }}/*
