@@ -2,13 +2,13 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=1.0.4
+VERSION=1.0.5
 declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1. Menu + shortcuts for various usage scenarios; 2. Chinese and English language support"
-T[C1]="1. 菜单 + 快捷 方式，适合各种使用场景; 2. 支持中英双语"
+T[E1]="1. Support NAT VPS. Such as Woiden"
+T[C1]="1. 支持 NAT 服务器，例如 Woiden"
 T[E2]="warp-go h (help menu)\n warp-go o (temporary warp-go switch)\n warp-go u (uninstall WARP web interface and warp-go)\n warp-go v (sync script to latest version)\n warp-go i (replace IP with Netflix support)\n warp-go 4/6 ( WARP IPv4/IPv6 single-stack)\n warp-go d (WARP dual-stack)\n warp-go n (WARP IPv4 non-global)\n warp-go g (WARP global/non-global switching)\n warp-go e (output wireguard configuration file)"
 T[C2]="warp-go h (帮助菜单）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 配置文件)"
 T[E3]="This project is designed to add WARP network interface for VPS, using warp-go core, using various interfaces of CloudFlare-WARP, integrated wireguard-go, can completely replace WGCF. Save Hong Kong, Toronto and other VPS, can also get WARP IP. Thanks again @CoiaPrant and his team. Project address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/"
@@ -133,22 +133,22 @@ T[E62]="Congratulations! WARP \$ACCOUNT_TYPE has been turn on. Total time spent:
 T[C62]="恭喜！WARP \$ACCOUNT_TYPE 已开启，总耗时:\$(( end - start ))秒\\\n 脚本当天运行次数: \$TODAY，累计运行次数：\$TOTAL"
 T[E63]="Warp-go installation failed. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C63]="warp-go 安装失败，问题反馈: [https://github.com/fscarmen/warp/issues]"
-T[E64]="Add WARP IPv4 global network interface for \${NATIVE[m]}, IPv4 priority \(bash warp-go.sh 4\)"
-T[C64]="为 \${NATIVE[m]} 添加 WARP IPv4 全局 网络接口，IPv4 优先 \(bash warp-go.sh 4\)"
-T[E65]="Add WARP IPv4 global network interface for \${NATIVE[m]}, IPv6 priority \(bash warp-go.sh 4\)"
-T[C65]="为 \${NATIVE[m]} 添加 WARP IPv4 全局 网络接口，IPv6 优先 \(bash warp-go.sh 4\)"
-T[E66]="Add WARP IPv6 global network interface for \${NATIVE[m]}, IPv4 priority \(bash warp-go.sh 6\)"
-T[C66]="为 \${NATIVE[m]} 添加 WARP IPv6 全局 网络接口，IPv4 优先 \(bash warp-go.sh 6\)"
-T[E67]="Add WARP IPv6 global network interface for \${NATIVE[m]}, IPv6 priority \(bash warp-go.sh 6\)"
-T[C67]="为 \${NATIVE[m]} 添加 WARP IPv6 全局 网络接口，IPv6 优先 \(bash warp-go.sh 6\)"
-T[E68]="Add WARP dual-stacks global network interface for \${NATIVE[m]}, IPv4 priority \(bash warp-go.sh d\)"
-T[C68]="为 \${NATIVE[m]} 添加 WARP 双栈 全局 网络接口，IPv4 优先 \(bash warp-go.sh d\)"
-T[E69]="Add WARP dual-stacks global network interface for \${NATIVE[m]}, IPv6 priority \(bash warp-go.sh d\)"
-T[C69]="为 \${NATIVE[m]} 添加 WARP 双栈 全局 网络接口，IPv6 优先 \(bash warp-go.sh d\)"
-T[E70]="Add WARP IPv4 non-global network interface for \${NATIVE[m]}, IPv4 priority \(bash warp-go.sh n\)"
-T[C70]="为 \${NATIVE[m]} 添加 WARP IPv4 非全局 网络接口，IPv4 优先 \(bash warp-go.sh n\)"
-T[E71]="Add WARP IPv4 non-global network interface for \${NATIVE[m]}, IPv6 priority \(bash warp-go.sh n\)"
-T[C71]="为 \${NATIVE[m]} 添加 WARP IPv4 非全局 网络接口，IPv6 优先 \(bash warp-go.sh n\)"
+T[E64]="Add WARP IPv4 global network interface for \${NATIVE[n]}, IPv4 priority \(bash warp-go.sh 4\)"
+T[C64]="为 \${NATIVE[n]} 添加 WARP IPv4 全局 网络接口，IPv4 优先 \(bash warp-go.sh 4\)"
+T[E65]="Add WARP IPv4 global network interface for \${NATIVE[n]}, IPv6 priority \(bash warp-go.sh 4\)"
+T[C65]="为 \${NATIVE[n]} 添加 WARP IPv4 全局 网络接口，IPv6 优先 \(bash warp-go.sh 4\)"
+T[E66]="Add WARP IPv6 global network interface for \${NATIVE[n]}, IPv4 priority \(bash warp-go.sh 6\)"
+T[C66]="为 \${NATIVE[n]} 添加 WARP IPv6 全局 网络接口，IPv4 优先 \(bash warp-go.sh 6\)"
+T[E67]="Add WARP IPv6 global network interface for \${NATIVE[n]}, IPv6 priority \(bash warp-go.sh 6\)"
+T[C67]="为 \${NATIVE[n]} 添加 WARP IPv6 全局 网络接口，IPv6 优先 \(bash warp-go.sh 6\)"
+T[E68]="Add WARP dual-stacks global network interface for \${NATIVE[n]}, IPv4 priority \(bash warp-go.sh d\)"
+T[C68]="为 \${NATIVE[n]} 添加 WARP 双栈 全局 网络接口，IPv4 优先 \(bash warp-go.sh d\)"
+T[E69]="Add WARP dual-stacks global network interface for \${NATIVE[n]}, IPv6 priority \(bash warp-go.sh d\)"
+T[C69]="为 \${NATIVE[n]} 添加 WARP 双栈 全局 网络接口，IPv6 优先 \(bash warp-go.sh d\)"
+T[E70]="Add WARP IPv4 non-global network interface for \${NATIVE[n]}, IPv4 priority \(bash warp-go.sh n\)"
+T[C70]="为 \${NATIVE[n]} 添加 WARP IPv4 非全局 网络接口，IPv4 优先 \(bash warp-go.sh n\)"
+T[E71]="Add WARP IPv4 non-global network interface for \${NATIVE[n]}, IPv6 priority \(bash warp-go.sh n\)"
+T[C71]="为 \${NATIVE[n]} 添加 WARP IPv4 非全局 网络接口，IPv6 优先 \(bash warp-go.sh n\)"
 T[E72]="Turn off warp-go (warp-go o)"
 T[C72]="关闭 warp-go (warp-go o)"
 T[E73]="Turn on warp-go (warp-go o)"
@@ -209,14 +209,16 @@ translate(){ [[ -n "$1" ]] && curl -ksm8 "http://fanyi.youdao.com/translate?&doc
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times(){
-  COUNT=$(curl -ksm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffscarmen%2Fwarp%2Fmain%2Fwarp-go.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" 2>&1) &&
+  COUNT=$(curl -4ksm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffscarmen%2Fwarp%2Fmain%2Fwarp-go.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" 2>&1 ||
+          curl -6ksm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffscarmen%2Fwarp%2Fmain%2Fwarp-go.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" 2>&1) &&
   TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
   }
 
 # 选择语言，先判断 /opt/warp-go/language 里的语言选择，没有的话再让用户选择，默认英语
 select_language(){
   case $(cat /opt/warp-go/language 2>&1) in
-    E ) L=E;;	C ) L=C;;
+    E ) L=E;;
+    C ) L=C;;
     * ) L=E && [[ -z $OPTION || $OPTION = [iv46dna] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}4]} " LANGUAGE
         [[ $LANGUAGE = 2 ]] && L=C;;
   esac
@@ -289,9 +291,8 @@ check_dependencies(){
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
-  unset IP4 LAN4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
+  unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
   IP4=$(curl -ks4m8 https://ip.gs/json $INTERFACE)
-  LAN4=$(ip route get 162.159.193.10 2>/dev/null | grep -oP 'src \K\S+')
   WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]*\).*')
   COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
   ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
@@ -299,9 +300,8 @@ ip4_info(){
   }
 
 ip6_info(){
-  unset IP6 LAN6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
+  unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
   IP6=$(curl -ks6m8 https://ip.gs/json)
-  LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
   WAN6=$(expr "$IP6" : '.*ip\":\"\([^"]*\).*')
   COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
   ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
@@ -470,7 +470,6 @@ check_stack(){
   fi
   CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1")
   for ((m=0;m<${#CASE[@]};m++)); do [[ $T4@$T6 = ${CASE[m]} ]] && break; done
-  NATIVE=("IPv6 only"	"IPv4 only"	"${T[${L}94]}")
   WARP_BEFORE=("" "" "" "WARP IPv6 only" "WARP IPv6" "WARP IPv4 only" "WARP IPv4" "${T[${L}94]}")
   WARP_AFTER1=("" "" "" "WARP IPv4" "WARP IPv4" "WARP IPv6" "WARP IPv6" "WARP IPv4")
   WARP_AFTER2=("" "" "" "${T[${L}96]}" "${T[${L}96]}" "${T[${L}96]}" "${T[${L}96]}" "WARP IPv6")
@@ -478,9 +477,16 @@ check_stack(){
   TO2=("" "" "" "01D" "01D" "10D" "10D" "116")
   SHORTCUT1=("" "" "" "(warp-go 4)" "(warp-go 4)" "(warp-go 6)" "(warp-go 6)" "(warp-go 4)")
   SHORTCUT2=("" "" "" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go 6)") 
-  CONF1=("014" "104" "114")
-  CONF2=("016" "106" "116")
-  CONF3=("01D" "10D" "11D")
+
+  # 判断用于检测 NAT VSP，以选择正确配置文件
+  if [ "$m" -le 3 ]; then
+    NAT=("0@1@" "1@0@1" "1@1@1" "@1@1")
+    for ((n=0;n<${#NAT[@]};n++)); do [ "$IPV4@$IPV6@$INET4" = "${NAT[n]}" ] && break; done
+    NATIVE=("IPv6 only" "IPv4 only" "${T[${L}94]}" "NAT IPv4")
+    CONF1=("014" "104" "114" "11N4")
+    CONF2=("016" "106" "116" "11N6")
+    CONF3=("01D" "10D" "11D" "11ND")
+  fi
   }
 
 # 检查全局状态
@@ -591,14 +597,21 @@ EOF
     fi
   fi
 
-  # 判断是否大陆 VPS。先尝试连接 CloudFlare WARP 服务的 Endpoint IP，如遇到 WARP 断网则先关闭、杀进程后重试一次，仍然不通则 WARP 项目不可用。
-  ping6 -c2 -w8 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 || IPV6=0
-  ping -c2 -W8 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 || IPV4=0
-  if [[ $IPV4$IPV6 = 00 && $(ip a) =~ ": WARP:" ]]; then
-    ${SYSTEMCTL_STOP[int]}
-    ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
-    ping -c2 -W10 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4
+  # 判断机器原生状态类型
+  LAN4=$(ip route get 192.168.193.10 2>/dev/null | grep -oP 'src \K\S+')
+  LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
+  if [[ "$LAN6" =~ ^[0-9a-z:]+$ ]]; then
+    INET6=1 && ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
+  else
+    IPV6=0
   fi
+  if [[ "$LAN4" =~ ^[0-9.]+$ ]]; then
+    INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip4_info
+  else
+    IPV4=0
+  fi
+  [[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
+  [[ $L = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
 
   # 判断处理器架构
   case $(uname -m) in
@@ -702,7 +715,7 @@ update(){
         fi
         OPTION=o && net;;
 
-    * ) red " ${T[${L}34]} [1-2] "; sleep 1; update;;
+    * ) red " ${T[${L}34]} [1-2] "; sleep 1; unset LICENSETYPE; update;;
   esac
   }
 
@@ -839,16 +852,18 @@ EOF
   wait
 
   # warp-go 配置修改，其中用到的 162.159.193.10 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的 IP
-  MODIFY014='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY016='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY01D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY104='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY106='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY10D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY114='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY116='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
-  MODIFY11D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:1701/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
-
+  MODIFY014='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:2408/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY016='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:2408/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY01D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:2408/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY104='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:2408/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY106='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:2408/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY10D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:2408/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY114='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:2408/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY116='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:2408/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY11D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/162.159.193.10:2408/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY11N4='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:2408/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY11N6='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:2408/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
+  MODIFY11ND='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:2408/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main#g" /opt/warp-go/warp.conf'
   sh -c "$(eval echo "\$MODIFY$CONF")"
 
   # 如为 WARP IPv4 非全局，修改配置文件，在路由表插入规则
@@ -929,14 +944,14 @@ menu_setting(){
     OPTION6="$(eval echo "${T[${L}69]}")"
     OPTION7="$(eval echo "${T[${L}70]}")"
     OPTION8="$(eval echo "${T[${L}71]}")"
-    ACTION1(){ CONF=${CONF1[m]}; PRIORITY=1; install; }
-    ACTION2(){ CONF=${CONF1[m]}; PRIORITY=2; install; }
-    ACTION3(){ CONF=${CONF2[m]}; PRIORITY=1; install; }
-    ACTION4(){ CONF=${CONF2[m]}; PRIORITY=2; install; }
-    ACTION5(){ CONF=${CONF3[m]}; PRIORITY=1; install; }
-    ACTION6(){ CONF=${CONF3[m]}; PRIORITY=2; install; }
-    ACTION7(){ CONF=${CONF3[m]}; PRIORITY=1; WARP_STACK=4; install; }
-    ACTION8(){ CONF=${CONF3[m]}; PRIORITY=2; WARP_STACK=4; install; }
+    ACTION1(){ CONF=${CONF1[n]}; PRIORITY=1; install; }
+    ACTION2(){ CONF=${CONF1[n]}; PRIORITY=2; install; }
+    ACTION3(){ CONF=${CONF2[n]}; PRIORITY=1; install; }
+    ACTION4(){ CONF=${CONF2[n]}; PRIORITY=2; install; }
+    ACTION5(){ CONF=${CONF3[n]}; PRIORITY=1; install; }
+    ACTION6(){ CONF=${CONF3[n]}; PRIORITY=2; install; }
+    ACTION7(){ CONF=${CONF3[n]}; PRIORITY=1; WARP_STACK=4; install; }
+    ACTION8(){ CONF=${CONF3[n]}; PRIORITY=2; WARP_STACK=4; install; }
   else
     [[ $NON_GLOBAL = 1 ]] || GLOBAL_AFTER="${T[${L}24]}"
     [[ $STATUS = 2 ]] && ON_OFF="${T[${L}72]}" || ON_OFF="${T[${L}73]}"
@@ -1050,9 +1065,9 @@ case "$OPTION" in
       stack_switch
     else
       case "$OPTION" in
-        4 ) CONF=${CONF1[m]};; 
-        6 ) CONF=${CONF2[m]};;
-        d|n ) CONF=${CONF3[m]};;
+        4 ) CONF=${CONF1[n]};; 
+        6 ) CONF=${CONF2[n]};;
+        d|n ) CONF=${CONF3[n]};;
       esac
       install
     fi;;
