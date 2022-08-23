@@ -868,7 +868,6 @@ check_stack(){
   fi
   CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1")
   for ((m=0;m<${#CASE[@]};m++)); do [[ $T4@$T6 = ${CASE[m]} ]] && break; done
-  NATIVE=("IPv6 only" "IPv4 only" "${T[${L}69]}")
   WARP_BEFORE=("" "" "" "WARP IPv6 only" "WARP IPv6" "WARP IPv4 only" "WARP IPv4" "${T[${L}70]}")
   WARP_AFTER1=("" "" "" "WARP IPv4" "WARP IPv4" "WARP IPv6" "WARP IPv6" "WARP IPv4")
   WARP_AFTER2=("" "" "" "${T[${L}70]}" "${T[${L}70]}" "${T[${L}70]}" "${T[${L}70]}" "WARP IPv6")
