@@ -1732,7 +1732,7 @@ update(){
     [[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
 
     [[ -z $LICENSETYPE ]] && yellow " ${T[${L}31]}" && reading " ${T[${L}50]} " LICENSETYPE
-    case $LICENSETYPE in
+    case "$LICENSETYPE" in
       1 ) UPDATE_LICENSE=1 && update_license
           cd /etc/wireguard || exit
           sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
@@ -1751,7 +1751,7 @@ update(){
           wg-quick down wgcf >/dev/null 2>&1; net
           [[ $(curl -ks4 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus || $(curl -ks6 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g") = plus ]] && green " ${T[${L}128]} ");;
 
-      * ) red " ${T[${L}51]} [1-2] "; sleep 1; update;;
+      * ) red " ${T[${L}51]} [1-2] "; sleep 1; unset LICENSETYPE; update;;
     esac
     }
 
@@ -1777,7 +1777,7 @@ update(){
     [[ ! -e /etc/wireguard/wgcf.conf ]] && red " ${T[${L}60]} " && exit 1
 
     [[ -z $LICENSETYPE ]] && yellow " ${T[${L}31]}" && reading " ${T[${L}50]} " LICENSETYPE
-    case $LICENSETYPE in
+    case "$LICENSETYPE" in
       1 ) UPDATE_LICENSE=1 && update_license
           cd /etc/wireguard || exit
           sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" wgcf-account.toml &&
@@ -1796,7 +1796,7 @@ update(){
             systemctl restart wireproxy
             [[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && green " ${T[${L}128]} ");;
 
-        * ) red " ${T[${L}51]} [1-2] "; sleep 1; update;;
+        * ) red " ${T[${L}51]} [1-2] "; sleep 1; unset LICENSETYPE; update;;
       esac
     }
 
