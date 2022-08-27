@@ -21,7 +21,9 @@
 * * *
 
 ## 更新信息
-2022.8.23 menu V2.43 / warp-go V1.0.5 Support NAT VPS. Such as Woiden; 支持 NAT 服务器，例如 Woiden.
+2022.8.27 menu V2.44 Refactoring the uninstallation logic. Dependency uninstallation requires confirmation; 重构卸载逻辑，依赖卸载需要确认
+
+2022.8.23 menu V2.43 warp-go V1.0.5 Support NAT VPS. Such as Woiden; 支持 NAT 服务器，例如 Woiden.
 
 ~2022.8.21 After testing, wgcf warp service is back to normal in Hong Kong and Toronto, etc. 经测试，香港和多伦多等地区 wgcf warp 服务恢复正常~
 
