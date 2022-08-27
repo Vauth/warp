@@ -2,14 +2,14 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=2.43
+VERSION=2.44
 
 declare -A T
 
 T[E0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 T[C0]="${T[E0]}"
-T[E1]="1. Support NAT VPS. Such as Woiden"
-T[C1]="1. 支持 NAT 服务器，例如 Woiden"
+T[E1]="To avoid uninstalled dependencies causing other programs to work improperly, there is a list to confirm before. The default is not to uninstall automatically."
+T[C1]="为了避免删除的依赖导致其他程序工作不正常，卸载依赖前有列表确认。默认不自动卸载。"
 T[E2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 T[C2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 T[E3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -164,8 +164,8 @@ T[E77]="Turn off WARP (warp o)"
 T[C77]="暂时关闭 WARP (warp o)"
 T[E78]="Upgrade to WARP+ or Teams account (warp a)"
 T[C78]="升级为 WARP+ 或 Teams 账户 (warp a)"
-T[E79]=""
-T[C79]=""
+T[E79]="Do you uninstall the following dependencies (if any)? Please note that this will potentially prevent other programs that are using the dependency from working properly.\\\n\\\n \$UNINSTALL_DEPENDENCIES_LIST"
+T[C79]="是否卸载以下依赖（如有）？请注意，这将有可能使其他正在使用该依赖的程序不能正常工作\\\n\\\n \$UNINSTALL_DEPENDENCIES_LIST"
 T[E80]="Professional one-click script for WARP to unblock streaming media (Supports multi-platform, multi-mode and TG push)"
 T[C80]="WARP 解锁 Netflix 等流媒体专业一键(支持多平台、多方式和 TG 通知)"
 T[E81]="Step 3/3: Searching for the best MTU value is ready."
@@ -345,6 +345,10 @@ T[E168]="Install CloudFlare Client and set mode to WARP (bash menu.sh l)"
 T[C168]="安装 CloudFlare Client 并设置为 WARP 模式 (bash menu.sh l)"
 T[E169]="WARP\$AC IPv4: \$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
 T[C169]="WARP\$AC IPv4: \$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
+T[E170]="Confirm all uninstallation please press [y], other keys do not uninstall by default:"
+T[C170]="确认全部卸载请按y，其他键默认不卸载:"
+T[E171]="Uninstall dependencies were complete."
+T[C171]="依赖卸载成功"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$@\033[0m"; }
@@ -715,8 +719,6 @@ uninstall(){
   uninstall_wgcf(){
     wg-quick down wgcf >/dev/null 2>&1
     systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
-    [[ $SYSTEM != "Arch" ]] && ${PACKAGE_UNINSTALL[int]} wireguard-dkms ipset dnsmasq resolvconf 2>/dev/null
-    ${PACKAGE_UNINSTALL[int]} wireguard-tools openresolv 2>/dev/null
     rpm -e wireguard-tools 2>/dev/null
     [[ $(systemctl is-active systemd-resolved) != active ]] && systemctl enable --now systemd-resolved >/dev/null 2>&1
     rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy
@@ -740,8 +742,6 @@ uninstall(){
   # 卸载 WirePorxy
   uninstall_wireproxy(){
     systemctl disable --now wireproxy
-    [[ $SYSTEM != "Arch" ]] && ${PACKAGE_UNINSTALL[int]} wireguard-dkms resolvconf 2>/dev/null
-    ${PACKAGE_UNINSTALL[int]} openresolv 2>/dev/null
     rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy /lib/systemd/system/wireproxy.service
     [[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
     [[ -e /usr/bin/tun.sh ]] && rm -f /usr/bin/tun.sh && sed -i '/tun.sh/d' /etc/crontab
@@ -751,12 +751,27 @@ uninstall(){
   [[ -e /etc/wireguard/warp_unlock.sh ]] && bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -U -$L
 
   # 根据已安装情况执行卸载任务并显示结果
-  UNINSTALL_CHECK=("wg-quick"		"warp-cli"		"wireproxy")
-  UNINSTALL_DO=("uninstall_wgcf"		"uninstall_proxy"	"uninstall_wireproxy")
-  UNINSTALL_RESULT=("${T[${L}117]}"	"${T[${L}119]}"		"${T[${L}98]}")
-  for ((i=0; i<${#UNINSTALL_CHECK}; i++)); do
-    type -p ${UNINSTALL_CHECK[i]} >/dev/null 2>&1 && (${UNINSTALL_DO[i]}; green " ${UNINSTALL_RESULT[i]} ")
+  UNINSTALL_CHECK=("wg-quick" "warp-cli" "wireproxy")
+  UNINSTALL_DO=("uninstall_wgcf" "uninstall_proxy" "uninstall_wireproxy")
+  UNINSTALL_DEPENDENCIES=("wireguard-tools openresolv " "" " openresolv ")
+  UNINSTALL_NOT_ARCH=("wireguard-dkms ipset dnsmasq resolvconf " "" "wireguard-dkms resolvconf ")
+  UNINSTALL_RESULT=("${T[${L}117]}" "${T[${L}119]}" "${T[${L}98]}")
+  for ((i=0; i<${#UNINSTALL_CHECK[@]}; i++)); do
+    type -p ${UNINSTALL_CHECK[i]} >/dev/null 2>&1 && UNINSTALL_DO_LIST[i]=1 && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_DEPENDENCIES[i]} && 
+    [[ $SYSTEM != "Arch" ]] && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_NOT_ARCH[i]}
   done
+
+  # 列出依赖，确认是手动还是自动卸载
+  UNINSTALL_DEPENDENCIES_LIST=$(echo $UNINSTALL_DEPENDENCIES_LIST | sed "s/ /\n/g" | sort -u | paste -d " " -s)
+  yellow "\n $(eval echo "${T[${L}79]}") \n" && reading " ${T[${L}170]} " CONFIRM_UNINSTALL
+
+  # 卸载核心程序
+  for ((i=0; i<${#UNINSTALL_DO_LIST[@]}; i++)); do
+    [ ${UNINSTALL_DO_LIST[i]} = 1 ] && (${UNINSTALL_DO[i]}; green " ${UNINSTALL_RESULT[i]} ")
+  done
+
+  # 选择自动卸载依赖执行以下
+  [[ $CONFIRM_UNINSTALL = [Yy] ]] && (${PACKAGE_UNINSTALL[int]} $UNINSTALL_DEPENDENCIES_LIST 2>/dev/null; green " ${T[${L}171]} \n")
 
   # 显示卸载结果
   ip4_info; [[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
