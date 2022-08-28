@@ -257,8 +257,8 @@ check_operating_system(){
   done
 
   # 自定义 Alpine 系统若干函数
-  alpine_warp_restart(){ kill -15 $(pgrep warp-go); /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf; }
-  alpine_wgcf_enable(){ echo 'nohup /opt/warp-go/warp-go --config=/opt/warp-go/warp-go/warp.conf &' > /etc/local.d/warp-go.start; chmod +x /etc/local.d/warp-go.start; rc-update add local; }
+  alpine_warp_restart(){ kill -15 $(pgrep warp-go) 2>/dev/null; /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf; }
+  alpine_wgcf_enable(){ echo -e "/opt/warp-go/tun.sh\nnohup /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf &" > /etc/local.d/warp-go.start; chmod +x /etc/local.d/warp-go.start; rc-update add local; }
 
   REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky|amazon linux" "alpine" "arch linux")
   RELEASE=("Debian" "Ubuntu" "CentOS" "Alpine" "Arch")
@@ -268,7 +268,7 @@ check_operating_system(){
   PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm")
   PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "apk del -f" "pacman -Rcnsu --noconfirm")
   SYSTEMCTL_START=("systemctl start warp-go" "systemctl start warp-go" "systemctl start warp-go" "/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf" "systemctl start warp-go")
-  SYSTEMCTL_STOP=("systemctl stop warp-go" "systemctl stop warp-go" "systemctl stop warp-go" "kill -15 \$(pgrep warp-go)" "systemctl stop warp-go")
+  SYSTEMCTL_STOP=("systemctl stop warp-go" "systemctl stop warp-go" "systemctl stop warp-go" "kill -15 $(pgrep warp-go)" "systemctl stop warp-go")
   SYSTEMCTL_RESTART=("systemctl restart warp-go" "systemctl restart warp-go" "systemctl restart warp-go" "alpine_warp_restart" "systemctl restart wg-quick@wgcf")
   SYSTEMCTL_ENABLE=("systemctl enable --now warp-go" "systemctl enable --now warp-go" "systemctl enable --now warp-go" "alpine_wgcf_enable" "systemctl enable --now warp-go")
 
@@ -284,9 +284,11 @@ check_operating_system(){
 
 # 安装 curl
 check_dependencies(){
-  type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}8]} " && ${PACKAGE_INSTALL[int]} curl) || (yellow " ${T[${L}9]} " && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl)
+  type -P curl >/dev/null 2>&1 || (yellow " ${T[${L}8]} " && ${PACKAGE_INSTALL[int]} curl 2>/dev/null) || (yellow " ${T[${L}9]} " && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl 2>/dev/null)
   ! type -P curl >/dev/null 2>&1 && red " ${T[${L}10]} " && exit 1
-  [[ $SYSTEM = Alpine ]] && ! type -P curl >/dev/null 2>&1 && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl wget grep
+
+  # 对于 alpine 系统，升级库并重新安装依赖
+  [[ $SYSTEM = Alpine && ! -e /opt/warp-go/warp-go ]] && (${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep)
   }
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
@@ -591,9 +593,10 @@ EOF
     bash /opt/warp-go/tun.sh
     TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
     if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
-      rm -f /usr/bin//tun.sh && red " ${T[${L}36]} " && exit 1
-    else 
-      echo "@reboot root bash //opt/warp-go/tun.sh" >> /etc/crontab
+      rm -f /usr/bin/tun.sh && red " ${T[${L}36]} " && exit 1
+    else
+      chmod +x /opt/warp-go/tun.sh
+      [ $SYSTEM != Alpine ] && echo "@reboot root bash /opt/warp-go/tun.sh" >> /etc/crontab
     fi
   fi
 
@@ -869,8 +872,9 @@ EOF
   # 如为 WARP IPv4 非全局，修改配置文件，在路由表插入规则
   [[ $WARP_STACK = 4 || $OPTION = n ]] && sed -i "s/^#//g; s/^AllowedIPs.*/#&/g" /opt/warp-go/warp.conf && rule_add
 
-  # 创建 warp-go systemd 进程守护
-  cat > /lib/systemd/system/warp-go.service << EOF
+  # 创建 warp-go systemd 进程守护(Alpine 系统除外)
+  if [[ $SYSTEM != Alpine ]]; then
+    cat > /lib/systemd/system/warp-go.service << EOF
 [Unit]
 Description=warp-go service
 After=network.target
@@ -887,6 +891,7 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
+  fi
 
   # 运行 warp-go
   net
