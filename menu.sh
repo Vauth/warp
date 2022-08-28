@@ -402,7 +402,7 @@ check_operating_system(){
 
   # 自定义 Alpine 系统若干函数
   alpine_wgcf_restart(){ wg-quick down wgcf >/dev/null 2>&1; wg-quick up wgcf >/dev/null 2>&1; }
-  alpine_wgcf_enable(){ echo 'nohup wg-quick up wgcf &' > /etc/local.d/wgcf.start; chmod +x /etc/local.d/wgcf.start; rc-update add local; }
+  alpine_wgcf_enable(){ echo -e "/usr/bin/tun.sh\nwg-quick up wgcf" > /etc/local.d/wgcf.start; chmod +x /etc/local.d/wgcf.start; rc-update add local; }
 
   REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "'amazon linux'" "alpine" "arch linux")
   RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS" "Alpine" "Arch")
@@ -430,7 +430,9 @@ check_operating_system(){
 check_dependencies(){
   type -p curl >/dev/null 2>&1 || (yellow " ${T[${L}7]} " && ${PACKAGE_INSTALL[int]} curl 2>/dev/null) || (yellow " ${T[${L}8]} " && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl 2>/dev/null)
   ! type -p curl >/dev/null 2>&1 && red " ${T[${L}9]} " && exit 1
-  [[ $SYSTEM = Alpine ]] && ! type -p curl >/dev/null 2>&1 && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl wget grep
+
+  # 对于 alpine 系统，升级库并重新安装依赖
+  [[ $SYSTEM = Alpine && ! -e /etc/wireguard/menu.sh ]] && (${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep)
   }
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
@@ -720,10 +722,11 @@ uninstall(){
     wg-quick down wgcf >/dev/null 2>&1
     systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
     rpm -e wireguard-tools 2>/dev/null
-    [[ $(systemctl is-active systemd-resolved) != active ]] && systemctl enable --now systemd-resolved >/dev/null 2>&1
-    rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy
+    [[ $(systemctl is-active systemd-resolved 2>/dev/null) != active ]] && systemctl enable --now systemd-resolved >/dev/null 2>&1
+    rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy /etc/local.d/wgcf.start
     [[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
-    [[ -e /usr/bin/tun.sh ]] && rm -f /usr/bin/tun.sh && sed -i '/tun.sh/d' /etc/crontab
+    [[ -e /usr/bin/tun.sh ]] && rm -f /usr/bin/tun.sh
+    [[ -e /etc/crontab ]] && sed -i '/tun.sh/d' /etc/crontab
     sed -i "/250   warp/d" /etc/iproute2/rt_tables
     }
 
@@ -953,9 +956,10 @@ EOF
       bash /usr/bin/tun.sh
       TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
       if [[ ! $TUN =~ 'in bad state' ]] && [[ ! $TUN =~ '处于错误状态' ]] && [[ ! $TUN =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
-        rm -f /usr/bin//tun.sh && red " ${T[${L}3]} " && exit 1
+        rm -f /usr/bin/tun.sh && red " ${T[${L}3]} " && exit 1
       else
-        echo "@reboot root bash /usr/bin/tun.sh" >> /etc/crontab
+        chmod +x /usr/bin/tun.sh
+        [ $SYSTEM != Alpine ] && echo "@reboot root bash /usr/bin/tun.sh" >> /etc/crontab
       fi
     fi
   fi
@@ -1445,7 +1449,8 @@ BindAddress = 127.0.0.1:$PORT
 EOF
 
     # 创建 WireProxy systemd 进程守护
-    cat > /lib/systemd/system/wireproxy.service << EOF
+    if [[ $SYSTEM != Alpine ]]; then
+      cat > /lib/systemd/system/wireproxy.service << EOF
 [Unit]
 Description=WireProxy for WARP
 After=network.target
@@ -1460,6 +1465,7 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
+    fi
 
     # 运行 wireproxy
     systemctl enable --now wireproxy; sleep 1
