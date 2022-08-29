@@ -21,6 +21,8 @@
 * * *
 
 ## 更新信息
+2022.8.29 warp-go V1.0.6 Solved the bug that routing rules failed after restart in non-global mode; 解决了非全局模式重启后，路由规则失效的bug
+
 2022.8.27 menu V2.44 Refactoring the uninstallation logic. Dependency uninstallation requires confirmation; 重构卸载逻辑，依赖卸载需要确认
 
 2022.8.23 menu V2.43 warp-go V1.0.5 Support NAT VPS. Such as Woiden; 支持 NAT 服务器，例如 Woiden.
