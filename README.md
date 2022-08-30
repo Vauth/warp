@@ -21,7 +21,7 @@
 * * *
 
 ## 更新信息
-2022.8.29 warp-go V1.0.6 Solved the bug that routing rules failed after restart in non-global mode; 解决了非全局模式重启后，路由规则失效的bug
+2022.8.29 warp-go V1.0.6 1.Fixed the bug that routing rules failed after restart in non-global mode; 2.Fixed the bug of not changing IP; 1.解决了非全局模式重启后，路由规则失效的bug; 2.解决了更换不了IP的bug
 
 2022.8.27 menu V2.44 Refactoring the uninstallation logic. Dependency uninstallation requires confirmation; 重构卸载逻辑，依赖卸载需要确认
 
