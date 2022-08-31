@@ -1,0 +1,67 @@
+name: Help wanted / 求助
+description: Please upgrade to the latest version before asking a question, and also check by searching to see if someone else has asked the same question. 在提出问题前请先升级到最新版本，同时也请通过搜索确认是否有人提出过相同问题。
+title: "[help wanted 求助]: "
+labels: ["help wanted"]
+body:
+  - type: dropdown
+    id: script
+    attributes:
+      label: "Script / 脚本"
+      description: "Describe which script you have problems 描述哪个脚本你在使用中遇到问题"
+      multiple: false
+      options:
+        - menu.sh
+        - warp-go.sh
+        - mac.sh
+        - docker.sh
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: "OS / 操作系统"
+      description: "Describe the operating system the script is running on 描述脚本运行的操作系统"
+      multiple: false
+      options:
+        - Ubuntu - Linux
+        - Debian - Linux
+        - CentOS - Linux
+        - Alpine - Linux
+        - Arch - Linux
+        - Mac AMD64
+        - Mac M1
+        - Windows
+        - Others
+    validations:
+      required: true
+  - type: textarea
+    id: "describe-the-bug"
+    attributes:
+      label: "Actual Situation / 实际情况"
+      description: "Describe what actually happened 描述实际发生了什么"
+    validations:
+      required: true
+  - type: textarea
+    id: "log"
+    attributes:
+      label: "Log / 日志信息"
+      description: "Enter the output error message, taking care to obscure important/private information 输出错误信息，注意隐去重要/隐私信息"
+      placeholder: Paste here 粘贴在此处
+    validations:
+      required: true
+  - type: checkboxes
+    id: "latest-version"
+    attributes:
+      label: "I confirm that I have updated to the latest version / 我确认已更新至最新版本"
+      description: "Otherwise, please update and try 否则请更新后尝试"
+      options:
+        - label: Yes / 是
+          required: true
+  - type: checkboxes
+    id: "issues"
+    attributes:
+      label: "I confirm that I have checked the history issues / 我确认已查询历史 issues"
+      description: "Otherwise, please raise the issue after check 否则请查询后提出"
+      options:
+        - label: Yes / 是
+          required: true
