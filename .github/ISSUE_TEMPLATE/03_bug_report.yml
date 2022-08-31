@@ -32,7 +32,7 @@ body:
       description: "Enter the console output error message, taking care to obscure important/private information 控制台输出错误信息，注意隐去重要/隐私信息"
       placeholder: Paste the following after the colon at the beginning and end of the log 在日志开始和结束位置粘贴冒号后的内容：```
     validations:
-      required: true
+      required: false
   - type: textarea
     id: "more"
     attributes:
