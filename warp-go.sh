@@ -156,7 +156,7 @@ T[C73]="打开 warp-go (warp-go o)"
 T[E74]="\${WARP_BEFORE[m]} switch to \${WARP_AFTER1[m]} \${SHORTCUT1[m]}"
 T[C74]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]} \${SHORTCUT1[m]}"
 T[E75]="\${WARP_BEFORE[m]} switch to \${WARP_AFTER2[m]} \${SHORTCUT2[m]}"
-T[C75]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]} \${SHORTCUT2[m]}"
+T[C75]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER2[m]} \${SHORTCUT2[m]}"
 T[E76]="Switch to WARP \${GLOBAL_AFTER}global network interface  \(warp-go g\)"
 T[C76]="转为 WARP \${GLOBAL_AFTER}全局 网络接口  \(warp-go g\)"
 T[E77]="Upgrade to WARP+ or Teams account \(warp-go a\)"
@@ -197,10 +197,14 @@ T[E94]="Native dualstack"
 T[C94]="原生双栈"
 T[E95]="Run again with warp-go [option] [lisence], such as"
 T[C95]="再次运行用 warp-go [option] [lisence]，如"
-T[E96]="WARP dualstack"
-T[C96]="WARP 双栈"
+T[E96]="WARP Global dualstack"
+T[C96]="WARP 全局 双栈"
 T[E97]="The account type is Teams and does not support changing IP\n  1. Change to free (default)\n  2. Change to plus\n  3. Quit"
 T[C97]="账户类型为 Teams，不支持更换 IP\n  1. 更换为 free (默认)\n  2. 更换为 plus\n  3. 退出"
+T[E98]="Non-global"
+T[C98]="非全局"
+T[E99]="global"
+T[C99]="全局"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$@\033[0m"; }
@@ -493,21 +497,25 @@ onoff(){
 # 检查系统 WARP 单双栈情况。为了速度，先检查 warp-go 配置文件里的情况，再判断 trace
 check_stack(){
   if [[ -e /opt/warp-go/warp.conf ]]; then
-    grep -q ".*0\.\0\/0" /opt/warp-go/warp.conf && T4=1 || T4=0 
-    grep -q ".*\:\:\/0" /opt/warp-go/warp.conf && T6=1 || T6=0
+    if grep -q "^#AllowedIPs" /opt/warp-go/warp.conf; then
+      T4=2
+    else
+      grep -q ".*0\.\0\/0" /opt/warp-go/warp.conf && T4=1 || T4=0 
+      grep -q ".*\:\:\/0" /opt/warp-go/warp.conf && T6=1 || T6=0
+    fi
   else
     case "$TRACE4" in off ) T4='0';; 'on'|'plus' ) T4='1';; esac
     case "$TRACE6" in off ) T6='0';; 'on'|'plus' ) T6='1';; esac
   fi
-  CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1")
+  CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1" "2@")
   for ((m=0;m<${#CASE[@]};m++)); do [[ $T4@$T6 = ${CASE[m]} ]] && break; done
-  WARP_BEFORE=("" "" "" "WARP IPv6 only" "WARP IPv6" "WARP IPv4 only" "WARP IPv4" "${T[${L}94]}")
-  WARP_AFTER1=("" "" "" "WARP IPv4" "WARP IPv4" "WARP IPv6" "WARP IPv6" "WARP IPv4")
-  WARP_AFTER2=("" "" "" "${T[${L}96]}" "${T[${L}96]}" "${T[${L}96]}" "${T[${L}96]}" "WARP IPv6")
-  TO1=("" "" "" "014" "014" "106" "106" "114")
-  TO2=("" "" "" "01D" "01D" "10D" "10D" "116")
-  SHORTCUT1=("" "" "" "(warp-go 4)" "(warp-go 4)" "(warp-go 6)" "(warp-go 6)" "(warp-go 4)")
-  SHORTCUT2=("" "" "" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go 6)") 
+  WARP_BEFORE=("" "" "" "WARP ${T[${L}99]} IPv6 only" "WARP ${T[${L}99]} IPv6" "WARP ${T[${L}99]} IPv4 only" "WARP ${T[${L}99]} IPv4" "${T[${L}96]}" "WARP ${T[${L}98]} IPv4")
+  WARP_AFTER1=("" "" "" "WARP ${T[${L}99]} IPv4" "WARP ${T[${L}99]} IPv4" "WARP ${T[${L}99]} IPv6" "WARP ${T[${L}99]} IPv6" "WARP ${T[${L}99]} IPv4" "WARP ${T[${L}99]} IPv4")
+  WARP_AFTER2=("" "" "" "${T[${L}96]}" "${T[${L}96]}" "${T[${L}96]}" "${T[${L}96]}" "WARP ${T[${L}99]} IPv6" "${T[${L}96]}")
+  TO1=("" "" "" "014" "014" "106" "106" "114" "014")
+  TO2=("" "" "" "01D" "01D" "10D" "10D" "116" "01D")
+  SHORTCUT1=("" "" "" "(warp-go 4)" "(warp-go 4)" "(warp-go 6)" "(warp-go 6)" "(warp-go 4)" "(warp-go 4)")
+  SHORTCUT2=("" "" "" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go 6)" "(warp-go d)") 
 
   # 判断用于检测 NAT VSP，以选择正确配置文件
   if [ "$m" -le 3 ]; then
@@ -530,8 +538,12 @@ stack_switch(){
   need_install
   check_global
   if [[ $NON_GLOBAL = 1 ]]; then
-    red " ${T[${L}28]} " && reading " ${T[${L}29]} " TO_GLOBAL
-    [[ $TO_GLOBAL != [Yy] ]] && exit 0 || global_switch
+    if [[ $CHOOSE != [12] ]]; then
+      red " ${T[${L}28]} " && reading " ${T[${L}29]} " TO_GLOBAL
+      [[ $TO_GLOBAL != [Yy] ]] && exit 0 || global_switch
+    else
+      global_switch
+    fi
   fi
 
   # WARP 单双栈切换选项
@@ -562,7 +574,9 @@ stack_switch(){
     OPTION1="$(eval echo "${T[${L}31]}")"; OPTION2="$(eval echo "${T[${L}32]}")"
     yellow "\n $(eval echo "${T[${L}33]}") \n" && reading " ${T[${L}4]} " SWITCHTO
     case "$SWITCHTO" in
-      1 ) TO=${TO1[m]};;	2 ) TO=${TO2[m]};;	0 ) exit;;
+      1 ) TO=${TO1[m]};;
+      2 ) TO=${TO2[m]};;
+      0 ) exit;;
       * ) red " ${T[${L}34]} [0-2] "; sleep 1; stack_switch;;
     esac
   fi
@@ -585,10 +599,11 @@ global_switch(){
     sed -i "s/^#//g; s/^AllowedIPs.*/#&/g" /opt/warp-go/warp.conf
   else
     sed -i "s/^#//g; s/.*NonGlobal/#&/g" /opt/warp-go/warp.conf
+    unset GLOBAL_TYPE
   fi
 
-  # 如状态不是安装中，则开始 systemd
-  if [ $STATUS != 3 ]; then
+  # 如状态不是安装中，不是非全局转换到全局时的快捷或菜单选择情况。则开始 systemd,
+  if [[ $STATUS != 3 && $TO_GLOBAL != [Yy] && $CHOOSE != [12] ]]; then
     ${SYSTEMCTL_START[int]}
     OPTION=o && net
   fi
@@ -621,16 +636,35 @@ EOF
   # 判断机器原生状态类型
   LAN4=$(ip route get 192.168.193.10 2>/dev/null | grep -oP 'src \K\S+')
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
-  if [[ "$LAN6" =~ ^[0-9a-z:]+$ ]]; then
-    INET6=1 && ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
+  [[ "$LAN4" =~ ^[0-9.]+$ ]] && INET4=1
+  [[ "$LAN6" =~ ^[0-9a-z:]+$ ]] && INET6=1
+
+  if [[ "$STATUS" != 2 ]]; then
+    if [[ "$INET6" = 1 ]]; then
+      INET6=1 && ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
+    else
+      IPV6=0
+    fi
+    if [[ "$INET4" = 1 ]]; then
+      INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip4_info
+    else
+      IPV4=0
+    fi
   else
-    IPV6=0
+    if grep -qE "^AllowedIPs.*\:\:\/0" /opt/warp-go/warp.conf || [[ "$INET6" = 1 ]]; then
+      IPV6=1 && CDN=-6 && ip6_info
+    else
+      IPV6=0
+    fi
+    if grep -qE "^AllowedIPs.*0\.\0\/0|^#AllowedIPs" /opt/warp-go/warp.conf; then
+      INTERFACE='--interface WARP' && IPV4=1 && CDN=-4 && ip4_info
+    elif [[ "$INET4" = 1 ]]; then
+      IPV4=1 && CDN=-4 && ip4_info
+    else
+      IPV4=0
+    fi
   fi
-  if [[ "$LAN4" =~ ^[0-9.]+$ ]]; then
-    INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip4_info
-  else
-    IPV4=0
-  fi
+
   [[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
   [[ $L = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
 
@@ -782,10 +816,10 @@ install(){
   start=$(date +%s)
 
   # 注册 WARP 账户 (将生成 warp 文件保存账户信息)
-  # 判断 warp-go 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.5
+  # 判断 warp-go 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.4
   {	
   latest=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | grep -oP '"tag_name":"v\K[^\"]+' | head -n 1)
-  latest=${latest:-'1.0.5'}
+  latest=${latest:-'1.0.4'}
 
   # 安装 warp-go，尽量下载官方的最新版本，如官方 warp-go 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
   mkdir -p /opt/warp-go/ >/dev/null 2>&1
@@ -1089,8 +1123,8 @@ esac
 # 主程序运行 3/3
 check_dependencies
 check_system_info
-check_stack
 check_global
+check_stack
 menu_setting
 
 # 设置部分后缀 3/3
