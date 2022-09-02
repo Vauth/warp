@@ -164,8 +164,8 @@ T[E77]="Turn off WARP (warp o)"
 T[C77]="暂时关闭 WARP (warp o)"
 T[E78]="Upgrade to WARP+ or Teams account (warp a)"
 T[C78]="升级为 WARP+ 或 Teams 账户 (warp a)"
-T[E79]="Do you uninstall the following dependencies (if any)? Please note that this will potentially prevent other programs that are using the dependency from working properly.\\\n\\\n \$UNINSTALL_DEPENDENCIES_LIST"
-T[C79]="是否卸载以下依赖（如有）？请注意，这将有可能使其他正在使用该依赖的程序不能正常工作\\\n\\\n \$UNINSTALL_DEPENDENCIES_LIST"
+T[E79]="Do you uninstall the following dependencies \(if any\)? Please note that this will potentially prevent other programs that are using the dependency from working properly.\\\n\\\n \$UNINSTALL_DEPENDENCIES_LIST"
+T[C79]="是否卸载以下依赖\(如有\)？请注意，这将有可能使其他正在使用该依赖的程序不能正常工作\\\n\\\n \$UNINSTALL_DEPENDENCIES_LIST"
 T[E80]="Professional one-click script for WARP to unblock streaming media (Supports multi-platform, multi-mode and TG push)"
 T[C80]="WARP 解锁 Netflix 等流媒体专业一键(支持多平台、多方式和 TG 通知)"
 T[E81]="Step 3/3: Searching for the best MTU value is ready."
@@ -766,15 +766,15 @@ uninstall(){
 
   # 列出依赖，确认是手动还是自动卸载
   UNINSTALL_DEPENDENCIES_LIST=$(echo $UNINSTALL_DEPENDENCIES_LIST | sed "s/ /\n/g" | sort -u | paste -d " " -s)
-  yellow "\n $(eval echo "${T[${L}79]}") \n" && reading " ${T[${L}170]} " CONFIRM_UNINSTALL
+  [[ $UNINSTALL_DEPENDENCIES_LIST != '' ]] && yellow "\n $(eval echo "${T[${L}79]}") \n" && reading " ${T[${L}170]} " CONFIRM_UNINSTALL
 
   # 卸载核心程序
-  for ((i=0; i<${#UNINSTALL_DO_LIST[@]}; i++)); do
-    [ ${UNINSTALL_DO_LIST[i]} = 1 ] && (${UNINSTALL_DO[i]}; green " ${UNINSTALL_RESULT[i]} ")
+  for ((i=0; i<${#UNINSTALL_CHECK[@]}; i++)); do
+    [[ ${UNINSTALL_DO_LIST[i]} = 1 ]] && (${UNINSTALL_DO[i]}; green " ${UNINSTALL_RESULT[i]} ")
   done
 
   # 选择自动卸载依赖执行以下
-  [[ $CONFIRM_UNINSTALL = [Yy] ]] && (${PACKAGE_UNINSTALL[int]} $UNINSTALL_DEPENDENCIES_LIST 2>/dev/null; green " ${T[${L}171]} \n")
+  [[ $UNINSTALL_DEPENDENCIES_LIST != '' && $CONFIRM_UNINSTALL = [Yy] ]] && (${PACKAGE_UNINSTALL[int]} $UNINSTALL_DEPENDENCIES_LIST 2>/dev/null; green " ${T[${L}171]} \n")
 
   # 显示卸载结果
   ip4_info; [[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
