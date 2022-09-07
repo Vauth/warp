@@ -47,24 +47,24 @@
 wget -N https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh && bash warp-go.sh [option] [lisence]
 ```
 
-2022.8.5 2.41 1.Get the traffic quota of WARP+ via API. Thanks to Oreo for technical support; 1.通过 API 获取 WARP+ 剩余流量, 感谢猫佬的技术支持。
-
-2022.6.27 香港 IPv6 only 安装 Client 的方式，转自 LOC jhsyue 的技术贴:[wiki-hk-61.8 开启warp教程](https://hostloc.com/thread-1036792-1-1.html)
-
-2022.6.11 2.40 1.Support VPS-free LXC VPS; 1.支持 VPS-free LXC VPS
-
-2022.5.25 2.39  1.Automatically sync the latest official versions of wgcf, CloudFlare client, wireguard-go and wireproxy every day, allowing users to have the best performance with every installation; 2.Change the installation method of CloudFlare client, from APT/YUM repository to Package repository repository; 1.每天自动同步官方版本最新版本的 wgcf、 CloudFlare client、wireguard-go 和 wireproxy，让用户每次安装都能获得最佳性能; 2.更换 CloudFlare client 的安装方式，从 APT/YUM库 改到 Package 库
-
-2022.5.18 2.38 1. Fully support Ubuntu 22.04 and CentOS Streams 9 LTS; 2. Optimize Debian to speed up installation; 1. 全面支持 Ubuntu 22.04 和 CentOS Streams 9 LTS; 2. 优化 Debian 以提升安装速度
-
-2022.4.21 WARP one-click script on macOS. A VPN that fast,modern,secure by WireGuard tunnel and WARP service  全网首发: macOS 一键脚本， 一个为免费、快速、安全的基于 WireGuard 隧道，WARP 服务的 VPN。你可以理解为白嫖 CloudFlare 的科学服务了，也不需要服务器。
-
-项目地址: https://github.com/fscarmen/warp/tree/main/pc
-
 <details>
     <summary>历史更新 history（点击即可展开或收起）</summary>
 <br>
-    
+
+>2022.8.5 2.41 1.Get the traffic quota of WARP+ via API. Thanks to Oreo for technical support; 1.通过 API 获取 WARP+ 剩余流量, 感谢猫佬的技术支持。
+>
+>2022.6.27 香港 IPv6 only 安装 Client 的方式，转自 LOC jhsyue 的技术贴:[wiki-hk-61.8 开启warp教程](https://hostloc.com/thread-1036792-1-1.html)
+>
+>2022.6.11 2.40 1.Support VPS-free LXC VPS; 1.支持 VPS-free LXC VPS
+>
+>2022.5.25 2.39  1.Automatically sync the latest official versions of wgcf, CloudFlare client, wireguard-go and wireproxy every day, allowing users to have >the best performance with every installation; 2.Change the installation method of CloudFlare client, from APT/YUM repository to Package repository >repository; 1.每天自动同步官方版本最新版本的 wgcf、 CloudFlare client、wireguard-go 和 wireproxy，让用户每次安装都能获得最佳性能; 2.更换 CloudFlare client 的安装方式，从 >APT/YUM库 改到 Package 库
+>
+>2022.5.18 2.38 1. Fully support Ubuntu 22.04 and CentOS Streams 9 LTS; 2. Optimize Debian to speed up installation; 1. 全面支持 Ubuntu 22.04 和 CentOS >Streams 9 LTS; 2. 优化 Debian 以提升安装速度
+>
+>2022.4.21 WARP one-click script on macOS. A VPN that fast,modern,secure by WireGuard tunnel and WARP service  全网首发: macOS 一键脚本， 一个为免费、快速、安全的>基于 WireGuard 隧道，WARP 服务的 VPN。你可以理解为白嫖 CloudFlare 的科学服务了，也不需要服务器。
+>
+>项目地址: https://github.com/fscarmen/warp/tree/main/pc
+>  
 >2022.4.8  2.37 1. First publication on a global scale: After WirePorxy, another major technological breakthrough -- WARP-Cli's WARP mode solution. Thanks >to the original creator -- Teacher LUBAN. It solves two major pain points: 1) The instability of the traditional proxy model; 2) Currently HK does not >have a WARP service; 1. 全网首发: 继 WirePorxy 之后，又一重大技术突破，WARP-Cli 的 WARP 模式方案，感谢原创者 LUBAN 老师，引用大神的思路，解决两大通点: 1) 传统 proxy 模式的>断流和慢; 2) 解决 HK 没有 WARP 服务
 >
 >2022.3.27  2.36 1. First publication on a global scale. By WireProxy, Wireguard client that exposes itself as a socks5 proxy; Ths Fangliding for the >information:[#113](https://github.com/fscarmen/warp/issues/113); 2. WARP+ and Teams can be used in WireProxy; 3. Systemd and change Netflix IP for >WireProxy. 1. 全网首发: 通过 wireproxy，让 WARP 在本地建议一个 socks5 代理。感谢风扇滑翔翼 提供的资讯:[#113](https://github.com/fscarmen/warp/issues/113); 2. WARP+ >和 Teams 账户可用于 WireProxy 安装或者升级; 3. WireProxy systemd 进程守护，同时支持更换 Netflix IP
@@ -144,7 +144,7 @@ wget -N https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh && bash 
 >
 >2021.11.01  2.08: 1.Serching the best MTU value for WARP interface automatically; 2.asn organisation for the VPS; 1.自动设置最优 MTU; 2.显示asn组织(线路提供商)
 >
->2021.10.29  2.07: 1.Support Chinese and English; 2.Optimize running speed; 3)fix startup at reboot bug;  1.支持中英文，用户可自行选择; 2.大幅优化速度; 3)修复重启后启动WARP的bug
+>2021.10.29  2.07: 1.Support Chinese and English; 2.Optimize running speed; 3.fix startup at reboot bug;  1.支持中英文，用户可自行选择; 2.大幅优化速度; 3.修复重启后启动WARP的bug
 >
 >2021.10.23  2.06: 1.添加自动检查是否开启 Tun 模块； 2.提高脚本适配性; 3.新增 hax、Amazon Linux 2 和 Oracle Linux 支持
 >
@@ -210,7 +210,6 @@ warp [option] [lisence]
   | r | WARP Linux Client 开关 |
   | v | 同步脚本至最新版本 |
   | i | 更换 WARP IP |
-  | s | 单栈与双栈快速切换 ，如 ```warp s 4```,```warp s 6```,```warp s d``` |
   | e | 安装 iptables + dnsmasq + ipset 分流流媒体方案 |
   | w | 安装 WireProxy 解决方案 |
   | y | WireProxy 开关 | 
@@ -379,7 +378,6 @@ warp-go [option] [lisence]
   | a | 免费 WARP 账户升级 WARP+ |
   | a lisence name| 在上面基础上把 WARP+ Lisence 和设备名添加进去，如 ```bash menu.sh a N5670ljg-sS9jD334-6o6g4M9F Goodluck``` |
   | v | 同步脚本至最新版本 |
-  | s | 单栈与双栈快速切换 ，如 ```warp s 4```,```warp s 6```,```warp s d``` |
   | 其他或空值| 菜单界面 |
 
 ## WARP+ License 及 ID 获取
