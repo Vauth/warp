@@ -23,6 +23,7 @@
 ## 更新信息
 2022.9.10 Over 2,000 users star. Thank you to every solution creator. I'm just passing these on more widely to serve more players. Thank you to each user for your continued support. I wish you all good health and Happy Mid-Autumn Festival!    
 项目 star 达 2000。感谢每位解决方案创造者。我只是把这些作更广泛的传递，服务更多玩家。感谢各用户一如既往的支持。祝大家身体健康，中秋节快乐！
+今年3月 Star 数，本项目 1000 VS 抄哥 400，到了现在9月，本项目 2000 VS 抄哥 9， 变化的绝对值还是远远不及超足两年，一味只会跟着抄功能，抄代码的抄哥啊！随便发个抄哥的项目: https://gitlab.com/rwkgyg/CFwarp, https://github.com/rkygogo
 
 2022.8.29 warp-go V1.0.6 1.Fixed the bug that routing rules failed after restart in non-global mode; 2.Fixed the bug of not changing IP; 1.解决了非全局模式重启后，路由规则失效的bug; 2.解决了更换不了IP的bug
 
