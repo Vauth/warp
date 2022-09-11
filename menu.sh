@@ -1070,6 +1070,7 @@ input_port() {
   i=5
   PORT=40000
   ss -nltp | grep -q ":$PORT"[[:space:]] && reading " $(text_eval 103) " PORT || reading " $(text 104) " PORT
+  PORT=${PORT:-'40000'}
   until grep -qE "^[1-9][0-9]{3,4}$" <<< $PORT && [[ "$PORT" -ge 1000 && "$PORT" -le 65535 ]] && [[ ! $(ss -nltp) =~ :"$PORT"[[:space:]] ]]; do
     (( i-- )) || true
     [[ $i = 0 ]] && error " $(text 29) "
@@ -1078,9 +1079,11 @@ input_port() {
         [[ $(ss -nltp) =~ :"$PORT"[[:space:]] ]] && reading " $(text_eval 103) " PORT
       else
         reading " $(text_eval 111) " PORT
+        PORT=${PORT:-'40000'}
       fi
     else
       reading " $(text_eval 111) " PORT
+      PORT=${PORT:-'40000'}
     fi    
   done
 }
