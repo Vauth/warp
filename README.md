@@ -7,8 +7,8 @@
 - [更新信息](README.md#更新信息)
 - [脚本特点](README.md#脚本特点)
 - [WARP好处](README.md#WARP好处)
-- [warp 运行脚本](README.md#warp-%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC)
-- [warp-go 运行脚本](README.md#warp-go-%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC)
+- [warp 运行脚本](README.md#warp-运行脚本)
+- [warp-go 运行脚本](README.md#warp-go-运行脚本)
 - [刷 Netflix 解锁 WARP IP 的方法](README.md#刷-Netflix-解锁-WARP-IP-的方法)
 - [Netflix 分流到 WARP Client Proxy、WireProxy 的方法](README.md#Netflix-分流到-WARP-Client-ProxyWireProxy-的方法)
 - [Netflix,Google 分流到 Client WARP 网络接口的方法](README.md#netflixgoogle-分流到-client-warp-网络接口的方法)
@@ -23,7 +23,7 @@
 ## 更新信息
 2022.9.10 Over 2,000 users star. Thank you to every solution creator. I'm just passing these on more widely to serve more players. Thank you to each user for your continued support. I wish you all good health and Happy Mid-Autumn Festival!    
 项目 star 达 2000。感谢每位解决方案创造者。我只是把这些作更广泛的传递，服务更多玩家。感谢各用户一如既往的支持。祝大家身体健康，中秋节快乐！
-今年3月 Star 数，本项目 1000 VS 抄哥 400，到了现在9月，本项目 2000 VS 抄哥 9， 变化的绝对值还是远远不及超足两年，一味只会跟着抄功能，抄代码的抄哥啊！随便发个抄哥的项目: https://gitlab.com/rwkgyg/CFwarp, https://github.com/rkygogo
+今年3月 Star 数，本项目 1000 VS 抄哥 400，到了现在9月，本项目 2000 VS 抄哥 9， 变化的绝对值还是远远不及超足两年，一味只会跟着抄功能，抄代码的抄哥啊！公示抄哥的项目: ~https://gitlab.com/rwkgyg/CFwarp, https://github.com/rkygogo/wwaprp, https://github.com/ai2i/CFwarp, https://github.com/2321387/warp, etc...~
 
 2022.8.29 warp-go V1.0.6 1.Fixed the bug that routing rules failed after restart in non-global mode; 2.Fixed the bug of not changing IP; 1.解决了非全局模式重启后，路由规则失效的bug; 2.解决了更换不了IP的bug
 
