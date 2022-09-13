@@ -2,9 +2,9 @@ name: 'GitHub Actions Mirror'
 
 on:
   workflow_dispatch:
-  push:
-    branches: 
-      - master
+#  push:
+#    branches: 
+#      - master
   schedule:
     - cron: '20 20 * * *'
 
