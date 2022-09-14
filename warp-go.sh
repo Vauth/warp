@@ -640,7 +640,7 @@ EOF
   LAN4=$(ip route get 192.168.193.10 2>/dev/null | grep -oP 'src \K\S+')
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
   [[ "$LAN4" =~ ^[0-9.]+$ ]] && INET4=1
-  [[ "$LAN6" =~ ^[0-9a-z:]+$ ]] && INET6=1
+  [[ "$LAN6" != "::1" && "$LAN6" =~ ^[0-9a-z:]+$ ]] && INET6=1
 
   if [[ "$STATUS" != 2 ]]; then
     if [[ "$INET6" = 1 ]]; then
@@ -957,7 +957,7 @@ Documentation=https://gitlab.com/ProjectWARP/warp-go
 
 [Service]
 WorkingDirectory=/opt/warp-go/
-ExecStart=/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --foreground
+ExecStart=/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf
 Environment="LOG_LEVEL=verbose"
 RemainAfterExit=yes
 Restart=always
