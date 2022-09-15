@@ -522,7 +522,7 @@ check_stack() {
 
   # 判断用于检测 NAT VSP，以选择正确配置文件
   if [ "$m" -le 3 ]; then
-    NAT=("0@1@" "1@0@1" "1@1@1" "@1@1")
+    NAT=("0@1@" "1@0@1" "1@1@1" "0@1@1")
     for ((n=0;n<${#NAT[@]};n++)); do [ "$IPV4@$IPV6@$INET4" = "${NAT[n]}" ] && break; done
     NATIVE=("IPv6 only" "IPv4 only" "$(text 94)" "NAT IPv4")
     CONF1=("014" "104" "114" "11N4")
@@ -637,22 +637,15 @@ EOF
   fi
 
   # 判断机器原生状态类型
+  IPV4=0; IPV6=0
   LAN4=$(ip route get 192.168.193.10 2>/dev/null | grep -oP 'src \K\S+')
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
   [[ "$LAN4" =~ ^[0-9.]+$ ]] && INET4=1
   [[ "$LAN6" != "::1" && "$LAN6" =~ ^[0-9a-z:]+$ ]] && INET6=1
 
   if [[ "$STATUS" != 2 ]]; then
-    if [[ "$INET6" = 1 ]]; then
-      INET6=1 && ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
-    else
-      IPV6=0
-    fi
-    if [[ "$INET4" = 1 ]]; then
-      INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip4_info
-    else
-      IPV4=0
-    fi
+    [[ "$INET6" = 1 ]] && ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
+    [[ "$INET4" = 1 ]] && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip4_info
   else
     if grep -qE "^AllowedIPs.*\:\:\/0" /opt/warp-go/warp.conf || [[ "$INET6" = 1 ]]; then
       IPV6=1 && CDN=-6 && ip6_info
