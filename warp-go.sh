@@ -122,7 +122,7 @@ E[57]="Warp-go file does not exist, script exits. Feedback: [https://github.com/
 C[57]="warp-go 文件不存在，脚本退出，问题反馈: [https://github.com/fscarmen/warp/issues]"
 E[58]="Registration of teams account failed. Script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[58]="注册 teams 账户失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[59]="Registration of free account failed. Script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
+E[59]="Failed to register warp account. Script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[59]="注册 warp 账户失败，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
 E[60]="Step 1/3: Install dependencies..."
 C[60]="进度 2/3: 已安装 warp-go"
@@ -819,7 +819,8 @@ install() {
 
   # 安装 warp-go，尽量下载官方的最新版本，如官方 warp-go 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
   mkdir -p /opt/warp-go/ >/dev/null 2>&1
-  wget --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$latest"/downloads/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
+  wget --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$latest"/downloads/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz ||
+  wget --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
   [[ ! -e /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz ]] && error "$(text 56)"
   tar xzf /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz -C /opt/warp-go/ warp-go
   [[ ! -e /opt/warp-go/warp-go ]] && error "$(text 57)" || chmod +x /opt/warp-go/warp-go
