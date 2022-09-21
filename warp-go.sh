@@ -31,7 +31,7 @@ C[11]="还没有安装 warp-go"
 E[12]="To install, press [y] and other keys to exit:"
 C[12]="如需安装，请按[y]，其他键退出:"
 E[13]="\$(date +'%F %T') Try \${i}. Failed. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retry after \${j} seconds. Brush ip runing time:\$DAY days \$HOUR hours \$MIN minutes \$SEC seconds"
-C[13]="\$(date +'%F %T') 尝试第\${i}次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG，\${j}秒后重新测试，刷 IP 运行时长: \$DAY 天 \$HOUR 时 \$MIN 分 \$SEC 秒"
+C[13]="\$(date +'%F %T') 尝试第\${i}次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG，\${l}秒后重新测试，刷 IP 运行时长: \$DAY 天 \$HOUR 时 \$MIN 分 \$SEC 秒"
 E[14]="1. Brush WARP IPv4 (default)\n 2. Brush WARP IPv6"
 C[14]="1. 刷 WARP IPv4 (默认)\n 2. 刷 WARP IPv6"
 E[15]="The current Netflix region is:\$REGION. To unlock the current region please press [y]. For other addresses please enter two regional abbreviations \(e.g. hk,sg, default:\$REGION\):"
@@ -94,7 +94,7 @@ E[43]="License should be 26 characters, please re-enter WARP+ License. Otherwise
 C[43]="License 应为26位字符,请重新输入 WARP+ License \(剩余\${i}次\): "
 E[44]="Please enter the Teams Token (You can easily available at https://warp-team-api.herokuapp.com/. Or use the one provided by the script if left blank):"
 C[44]="请输入 Teams Token (可通过 https://warp-team-api.herokuapp.com/ 轻松获取，如果留空，则使用脚本提供的):"
-E[45]="Token error, please re-enter Teams token \(remaining \{i} times):"
+E[45]="Token error, please re-enter Teams token \(remaining \${i} times\):"
 C[45]="Token 错误,请重新输入 Teams token \(剩余\${i}次\):"
 E[46]="Can't find the account file: /opt/warp-go/warp.conf.You can uninstall and reinstall it."
 C[46]="找不到账户文件：/opt/warp-go/warp.conf，可以卸载后重装"
@@ -346,7 +346,7 @@ change_ip() {
     k=0
     until [[ -e /opt/warp-go/warp.conf.tmp2 ]]; do
       ((k++)) || true
-      [[ $k = 11 ]] && rm -f /opt/warp-go/warp.conf.tmp* && error "$(text 59)"
+      [[ $k = 11 ]] && rm -f /opt/warp-go/warp.conf.tmp* && error " $(text 59) "
       /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf.tmp2 --license=$(cat /opt/warp-go/License 2>/dev/null) --device-name=$(cat /opt/warp-go/Device_Name 2>/dev/null) >/dev/null 2>&1
       [[ $? != 0 ]] && sleep $l
     done
@@ -409,7 +409,7 @@ change_ip() {
   fi
 
   # 解锁检测程序。 i=尝试次数; j=重启服务后休息秒数; l=账户注册失败后等待重试时间
-  i=0; j=10; l=10
+  i=0; j=3; l=30
   while true; do
     (( i++ )) || true
     ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
@@ -571,7 +571,7 @@ stack_switch() {
         TO="$T4$T6$SWITCHCHOOSE"
       fi
     else
-      [[ "$T4@$T6@$SWITCHCHOOSE" =~ '1@0@4'|'0@1@6'|'1@1@D' ]] && error "$(text 30)" || TO="$T4$T6$SWITCHCHOOSE"
+      [[ "$T4@$T6@$SWITCHCHOOSE" =~ '1@0@4'|'0@1@6'|'1@1@D' ]] && error " $(text 30) " || TO="$T4$T6$SWITCHCHOOSE"
     fi
   else
     OPTION1="$(text_eval 31)"; OPTION2="$(text_eval 32)"
@@ -715,7 +715,7 @@ update_license() {
 input_token() {
   [[ -z $TOKEN ]] && reading " $(text 44) " TOKEN
   i=5
-  until [[ -z $TOKEN || ${#TOKEN} -gt 1200 ]]; do
+  until [[ -z $TOKEN || ${#TOKEN} -gt 800 ]]; do
     (( i-- )) || true
     [[ $i = 0 ]] && error "$(text 39)" || reading " $(text_eval 45) " TOKEN
   done
