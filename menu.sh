@@ -468,26 +468,26 @@ proxy_info() {
   unset PROXYSOCKS5 PROXYPORT PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC PROXYSOCKS52 PROXYPORT2 PROXYJASON2 PROXYIP2 PROXYCOUNTR2 PROXYASNORG2 ACCOUNT2 AC2 TRACE42
 
   if type -p warp-cli >/dev/null 2>&1; then
-  PROXYSOCKS5=$(ss -nltp | grep 'warp' | grep -oP '127.0*\S+')
-  PROXYPORT=$(echo $PROXYSOCKS5 | cut -d: -f2)
-  PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT https://ip.gs/json)
-  PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
-  PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
-  [[ $L = C ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
-  PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
-  ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-  [[ $ACCOUNT =~ 'Limited' ]] && AC='+' && check_quota
+    PROXYSOCKS5=$(ss -nltp | grep 'warp' | grep -oP '127.0*\S+')
+    PROXYPORT=$(echo $PROXYSOCKS5 | cut -d: -f2)
+    PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT https://ip.gs/json)
+    PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
+    PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
+    [[ $L = C ]] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
+    PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
+    ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+    [[ $ACCOUNT =~ 'Limited' ]] && AC='+' && check_quota
   fi
 
   if type -p wireproxy >/dev/null 2>&1; then
-  PROXYSOCKS52=$(ss -nltp | grep 'wireproxy' | grep -oP '127.0*\S+')
-  PROXYPORT2=$(echo $PROXYSOCKS52 | cut -d: -f2)
-  PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 https://ip.gs/json)
-  PROXYIP2=$(expr "$PROXYJASON2" : '.*ip\":\"\([^"]*\).*')
-  PROXYCOUNTRY2=$(expr "$PROXYJASON2" : '.*country\":\"\([^"]*\).*')
-  [[ $L = C ]] && PROXYCOUNTRY2=$(translate "$PROXYCOUNTRY2")
-  PROXYASNORG2=$(expr "$PROXYJASON2" : '.*asn_org\":\"\([^"]*\).*')
-  TRACE42=$(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)")
+    PROXYSOCKS52=$(ss -nltp | grep 'wireproxy' | grep -oP '127.0*\S+')
+    PROXYPORT2=$(echo $PROXYSOCKS52 | cut -d: -f2)
+    PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 https://ip.gs/json)
+    PROXYIP2=$(expr "$PROXYJASON2" : '.*ip\":\"\([^"]*\).*')
+    PROXYCOUNTRY2=$(expr "$PROXYJASON2" : '.*country\":\"\([^"]*\).*')
+    [[ $L = C ]] && PROXYCOUNTRY2=$(translate "$PROXYCOUNTRY2")
+    PROXYASNORG2=$(expr "$PROXYJASON2" : '.*asn_org\":\"\([^"]*\).*')
+    TRACE42=$(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)")
     if [[ $TRACE42 =~ plus ]]; then
       grep -sq 'Device name' /etc/wireguard/info.log && AC2='+' && check_quota || AC2=' Teams'
     fi
@@ -810,12 +810,12 @@ net() {
     ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
     ip4_info; ip6_info
     if [[ $i = "$j" ]]; then
-        if [[ $LICENSETYPE = 2 ]]; then 
+        if [[ $LICENSETYPE = 2 ]]; then
           unset LICENSETYPE && i=0 && info " $(text 129) " &&
           cp -f /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf
         else
           wg-quick down wgcf >/dev/null 2>&1
-          warning " $(text_eval 13) "
+          error " $(text_eval 13) "
         fi
     fi
   done
@@ -968,7 +968,7 @@ EOF
   # 判断机器原生状态类型
   LAN4=$(ip route get 192.168.193.10 2>/dev/null | grep -oP 'src \K\S+')
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
-  if [[ "$LAN6" =~ ^[0-9a-z:]+$ ]]; then
+  if [[ "$LAN6" != "::1" && "$LAN6" =~ ^[0-9a-z:]+$ ]]; then
     INET6=1 && ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
   else
     IPV6=0
