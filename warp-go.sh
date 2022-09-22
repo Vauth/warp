@@ -356,7 +356,7 @@ change_ip() {
     /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf.tmp1 --remove >/dev/null 2>&1
     rm -f /opt/warp-go/warp.conf.tmp*
     ${SYSTEMCTL_RESTART[int]}
-    sleep $j
+    sleep $l
   }
 
   # 检测账户类型为 Team 的不能更换
@@ -409,7 +409,7 @@ change_ip() {
   fi
 
   # 解锁检测程序。 i=尝试次数; j=重启服务后休息秒数; l=账户注册失败后等待重试时间
-  i=0; j=3; l=30
+  i=0; l=30
   while true; do
     (( i++ )) || true
     ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
@@ -429,6 +429,10 @@ change_ip() {
 # 关闭 WARP 网络接口，并删除 warp-go
 uninstall() {
   unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 INTERFACE
+
+  # 如已安装 warp_unlock 项目，先行卸载
+  [ -e /etc/wireguard/warp_unlock.sh ] && bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -U -$L
+
   # 卸载
   systemctl disable --now warp-go >/dev/null 2>&1
   kill -15 $(pgrep warp-go) >/dev/null 2>&1
