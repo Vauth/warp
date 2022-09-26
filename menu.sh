@@ -564,9 +564,10 @@ change_ip() {
     grep -q "^#.*0\.\0\/0" /etc/wireguard/wgcf.conf && T4=0 || T4=1
     grep -q "^#.*\:\:\/0" /etc/wireguard/wgcf.conf && T6=0 || T6=1
     case "$T4$T6" in
-                        01 ) NF='6';;   10 ) NF='4';;
-                        11 ) hint "\n $(text 124) \n" && reading " $(text 50) " NETFLIX
-                             NF='4' && [[ $NETFLIX = 2 ]] && NF='6';;
+      01 ) NF='6';;
+      10 ) NF='4';;
+      11 ) hint "\n $(text 124) \n" && reading " $(text 50) " NETFLIX
+           NF='4' && [[ $NETFLIX = 2 ]] && NF='6';;
     esac
 
     [[ -z "$EXPECT" ]] && input_region
@@ -1542,7 +1543,7 @@ EOF
     info " IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
     info " IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
     grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && TYPE='+' || TYPE=' Teams'
-    [[ $TRACE4$TRACE6 =~ plus ]] && info " $(text_eval 41) " && check_quota && info " $(text_eval 133) "
+    [[ $TRACE4$TRACE6 =~ plus ]] && info " $(text_eval 41) " && [ $TYPE = '+' ] && check_quota && info " $(text_eval 133) "
     [[ $TRACE4$TRACE6 =~ on ]] && info " $(text_eval 42) "
     info " $PRIORITY "
     echo -e "\n==============================================================\n"
@@ -1742,7 +1743,7 @@ wireproxy_solution() {
 check_quota() {
   if [ "$CHECK_TYPE" = 1 ]; then
     QUOTA=$(grep -oP 'Quota: \K\d+' <<< $ACCOUNT)
-  else
+  elif [ -e /etc/wireguard/wgcf-account.toml ]; then
     ACCESS_TOKEN=$(grep 'access_token' /etc/wireguard/wgcf-account.toml | cut -d \' -f2)
     DEVICE_ID=$(grep 'device_id' /etc/wireguard/wgcf-account.toml | cut -d \' -f2)
     API=$(curl -s "https://api.cloudflareclient.com/v0a884/reg/$DEVICE_ID" -H "User-Agent: okhttp/3.12.1" -H "Authorization: Bearer $ACCESS_TOKEN")
