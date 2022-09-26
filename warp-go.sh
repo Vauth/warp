@@ -3,6 +3,7 @@ export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
 VERSION=1.0.6
+TOKEN_LENGTH=800
 
 E[0]="Language:\n  1.English (default) \n  2.简体中文"
 C[0]="${E[0]}"
@@ -30,7 +31,7 @@ E[11]="Warp-go is not installed yet."
 C[11]="还没有安装 warp-go"
 E[12]="To install, press [y] and other keys to exit:"
 C[12]="如需安装，请按[y]，其他键退出:"
-E[13]="\$(date +'%F %T') Try \${i}. Failed. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retry after \${j} seconds. Brush ip runing time:\$DAY days \$HOUR hours \$MIN minutes \$SEC seconds"
+E[13]="\$(date +'%F %T') Try \${i}. Failed. IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG. Retry after \${l} seconds. Brush ip runing time:\$DAY days \$HOUR hours \$MIN minutes \$SEC seconds"
 C[13]="\$(date +'%F %T') 尝试第\${i}次，解锁失败，IPv\$NF: \$WAN  \$COUNTRY  \$ASNORG，\${l}秒后重新测试，刷 IP 运行时长: \$DAY 天 \$HOUR 时 \$MIN 分 \$SEC 秒"
 E[14]="1. Brush WARP IPv4 (default)\n 2. Brush WARP IPv6"
 C[14]="1. 刷 WARP IPv4 (默认)\n 2. 刷 WARP IPv6"
@@ -45,9 +46,9 @@ C[18]="成功！已同步最新脚本，版本号"
 E[19]="New features"
 C[19]="功能新增"
 E[20]="Maximum \${j} attempts to get WARP IP..."
-C[20]="后台获取 WARP IP 中,最大尝试\${j}次……"
-E[21]="Try \${i}"
-C[21]="第\${i}次尝试"
+C[20]="后台获取 WARP IP 中, 最大尝试\${j}次……"
+E[21]=""
+C[21]=""
 E[22]="Current Teams account is not available. Switch back to free account automatically."
 C[22]="当前 Teams 账户不可用，自动切换回免费账户"
 E[23]="Failed more than \${j} times, script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -104,8 +105,8 @@ E[48]="It is a Teams account already. Update is aborted."
 C[48]="已经是 Teams 账户，不需要升级"
 E[49]="1. Use WARP+ license to upgrade \n 2. Use Teams token to upgrade"
 C[49]="1.使用 WARP+ license 升级\n 2.使用 Teams token 升级"
-E[50]="Registration of teams account failed, script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[50]="注册 teams 账户失败，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
+E[50]="Registration of WARP\${k} account failed, script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
+C[50]="注册 WARP\${k} 账户失败，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
 E[51]="Warp-go not yet installed. No account registered. Script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[51]="warp-go 还没有安装，没有注册账户，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
 E[52]="Path to wgcf.conf for this account: /opt/warp-go/wgcf.conf\n"
@@ -120,10 +121,10 @@ E[56]="Download warp-go zip file unsuccessful. Script exits. Feedback: [https://
 C[56]="下载 warp-go 压缩文件不成功，脚本退出，问题反馈: [https://github.com/fscarmen/warp/issues]"
 E[57]="Warp-go file does not exist, script exits. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[57]="warp-go 文件不存在，脚本退出，问题反馈: [https://github.com/fscarmen/warp/issues]"
-E[58]="Registration of teams account failed. Script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[58]="注册 teams 账户失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[59]="Failed to register warp account. Script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[59]="注册 warp 账户失败，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
+E[58]="Maximum \${j} attempts to registe WARP\${k} account..."
+C[58]="注册 WARP\${k} 账户中, 最大尝试\${j}次……"
+E[59]="Try \${i}"
+C[59]="第\${i}次尝试"
 E[60]="Step 1/3: Install dependencies..."
 C[60]="进度 2/3: 已安装 warp-go"
 E[61]="Step 1/3: Install dependencies..."
@@ -198,8 +199,8 @@ E[95]="Run again with warp-go [option] [lisence], such as"
 C[95]="再次运行用 warp-go [option] [lisence]，如"
 E[96]="WARP Global dualstack"
 C[96]="WARP 全局 双栈"
-E[97]="The account type is Teams and does not support changing IP\n  1. Change to free (default)\n  2. Change to plus\n  3. Quit"
-C[97]="账户类型为 Teams，不支持更换 IP\n  1. 更换为 free (默认)\n  2. 更换为 plus\n  3. 退出"
+E[97]="The account type is Teams and does not support changing IP\n 1. Change to free (default)\n 2. Change to plus\n 3. Quit"
+C[97]="账户类型为 Teams，不支持更换 IP\n 1. 更换为 free (默认)\n 2. 更换为 plus\n 3. 退出"
 E[98]="Non-global"
 C[98]="非全局"
 E[99]="global"
@@ -214,7 +215,6 @@ reading() { read -rp "$(info "$1")" "$2"; }
 text() { eval echo "\${${L}[$*]}"; }
 text_eval() { eval echo "\$(eval echo "\${${L}[$*]}")"; }
 translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
-
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times() {
@@ -343,12 +343,12 @@ change_ip() {
   warp_restart() {
     warning " $(text_eval 13) "
     cp -f /opt/warp-go/warp.conf{,.tmp1}
-    k=0
+    [ -e /opt/warp-go/License ] && k='+' || k=' free'
     until [[ -e /opt/warp-go/warp.conf.tmp2 ]]; do
-      ((k++)) || true
-      [[ $k = 11 ]] && rm -f /opt/warp-go/warp.conf.tmp* && error " $(text 59) "
+      ((b++)) || true
+      [[ $b -gt $j ]] && rm -f /opt/warp-go/warp.conf.tmp* && error " $(text_eval 50) "
       /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf.tmp2 --license=$(cat /opt/warp-go/License 2>/dev/null) --device-name=$(cat /opt/warp-go/Device_Name 2>/dev/null) >/dev/null 2>&1
-      [[ $? != 0 ]] && sleep $l
+      [[ $? != 0 && $b -le $j ]] && sleep $l
     done
     sed -i '1,6!d' /opt/warp-go/warp.conf.tmp2
     tail -n +7 /opt/warp-go/warp.conf.tmp1 >> /opt/warp-go/warp.conf.tmp2
@@ -408,9 +408,10 @@ change_ip() {
     [[ -z $EXPECT || $EXPECT = [Yy] ]] && EXPECT="$REGION"
   fi
 
-  # 解锁检测程序。 i=尝试次数; j=重启服务后休息秒数; l=账户注册失败后等待重试时间
-  i=0; l=30
+  # 解锁检测程序。 i=尝试次数; b=当前账户注册次数; j=注册账户失败的最大次数; l=账户注册失败后等待重试时间
+  i=0; j=10; l=30
   while true; do
+    b=0
     (( i++ )) || true
     ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
     ip${NF}_info
@@ -458,15 +459,15 @@ ver() {
 # i=当前尝试次数，j=要尝试的次数
 net() {
   unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 WARPSTATUS4 WARPSTATUS6
-  i=1;j=5;
+  i=1; j=5
   grep -qE "^AllowedIPs[ ]+=.*0\.\0\/0|#AllowedIPs" /opt/warp-go/warp.conf && INTERFACE='--interface WARP'
-  hint " $(text_eval 20)\n $(text_eval 21) "
+  hint " $(text_eval 20)\n $(text_eval 59) "
   ${SYSTEMCTL_RESTART[int]}
   sleep 5
   ip4_info; ip6_info
   until [[ $TRACE4$TRACE6 =~ on|plus ]]; do
     (( i++ )) || true
-    hint " $(text_eval 21) "
+    hint " $(text_eval 59) "
     ${SYSTEMCTL_RESTART[int]}
     sleep 5
     ip4_info; ip6_info
@@ -719,7 +720,7 @@ update_license() {
 input_token() {
   [[ -z $TOKEN ]] && reading " $(text 44) " TOKEN
   i=5
-  until [[ -z $TOKEN || ${#TOKEN} -gt 800 ]]; do
+  until [[ -z $TOKEN || "${#TOKEN}" -ge "$TOKEN_LENGTH" ]]; do
     (( i-- )) || true
     [[ $i = 0 ]] && error "$(text 39)" || reading " $(text_eval 45) " TOKEN
   done
@@ -742,9 +743,13 @@ update() {
         if [[ -n $LICENSE ]]; then
           cp -f /opt/warp-go/warp.conf{,.tmp1}
           /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --remove >/dev/null 2>&1
+          i=0; j=5; k='+'
+          hint " $(text_eval 58) "
           until [[ -e /opt/warp-go/warp.conf ]]; do
-            /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --license=$LICENSE  --device-name=$NAME >/dev/null 2>&1
-            [[ $? != 0 ]] && sleep 10 || echo "$LICENSE" > /opt/warp-go/License
+            ((i++)) || true
+            [[ $i -gt $j ]] && rm -f /opt/warp-go/warp.conf.tmp && error " $(text_eval 50) "
+            hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --license=$LICENSE  --device-name=$NAME >/dev/null 2>&1
+            [[ $? != 0 && $i -lt $j ]] && sleep 30 || echo "$LICENSE" > /opt/warp-go/License
           done
           head -n +6 /opt/warp-go/warp.conf > /opt/warp-go/warp.conf.tmp2
           tail -n +7 /opt/warp-go/warp.conf.tmp1 >> /opt/warp-go/warp.conf.tmp2
@@ -756,11 +761,12 @@ update() {
 
     2 ) input_token
         if [[ -n $TOKEN ]]; then
-          i=0
+          i=0; j=5; k=' teams'
+          hint " $(text_eval 58) "
           until [[ -e /opt/warp-go/warp.conf.tmp ]]; do
             ((i++)) || true
-            [[ $i = 11 ]] && rm -f /opt/warp-go/warp.conf.tmp && error "$(text 50)"
-            /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf.tmp --team-config "$TOKEN" >/dev/null 2>&1
+            [[ $i -gt $j ]] && rm -f /opt/warp-go/warp.conf.tmp && error " $(text_eval 50) "
+            hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf.tmp --team-config "$TOKEN" >/dev/null 2>&1
             [[ $? != 0 ]] && sleep 10
           done
           for a in {2..5}; do sed -i "${a}s#.*#$(sed -ne ${a}p /opt/warp-go/warp.conf.tmp)#" /opt/warp-go/warp.conf; done
@@ -833,12 +839,13 @@ install() {
   # 注册用户自定义 token 的 Teams 账户
   if [[ $LICENSETYPE = 2 ]]; then
     if [[ -n $TOKEN ]]; then
-      i=0
+      i=0; j=5; k=' teams'
+      hint " $(text_eval 58) "
       until [[ -e /opt/warp-go/warp.conf ]]; do
         ((i++)) || true
-        [[ $i = 11 ]] && error "$(text 58)"
-        /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config "$TOKEN" >/dev/null 2>&1
-        [[ $? != 0 ]] && sleep 10
+        [[ $i -gt $j ]] && error " $(text_eval 50) "
+        hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config "$TOKEN" >/dev/null 2>&1
+        [[ $? != 0 && $i -lt $j ]] && sleep 30
       done
 
   # 注册公用 token 的 Teams 账户
@@ -864,12 +871,14 @@ EOF
 
   # 注册免费和 Plus 账户
   else
-    i=0
+    i=0; j=5
+    [ -n "$LICENSE" ] && k='+' || k=' free'
+    hint " $(text_eval 58) "
     until [[ -e /opt/warp-go/warp.conf ]]; do
       ((i++)) || true
-      [[ $i = 11 ]] && error "$(text 59)"
-      /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --license=$LICENSE --device-name=$NAME >/dev/null 2>&1
-      [[ $? != 0 ]] && sleep 10
+      [[ $i -gt $j ]] && error " $(text_eval 50) "
+      hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --license=$LICENSE --device-name=$NAME >/dev/null 2>&1
+      [[ $? != 0 && $i -lt $j ]] && sleep 30
     done
   fi
 
@@ -995,11 +1004,12 @@ EOF
 
 # 查 WARP+ 余额流量接口
 check_quota() {
-  ACCESS_TOKEN=$(grep 'Token' /opt/warp-go/warp.conf | cut -d= -f2 | sed 's# ##g')
-  DEVICE_ID=$(grep 'Device' /opt/warp-go/warp.conf | cut -d= -f2 | sed 's# ##g')
-  API=$(curl -s "https://api.cloudflareclient.com/v0a884/reg/$DEVICE_ID" -H "User-Agent: okhttp/3.12.1" -H "Authorization: Bearer $ACCESS_TOKEN")
-  QUOTA=$(grep -oP '"quota":\K\d+' <<< $API)
-
+  if [ -e /opt/warp-go/warp.conf ]; then
+    ACCESS_TOKEN=$(grep 'Token' /opt/warp-go/warp.conf | cut -d= -f2 | sed 's# ##g')
+    DEVICE_ID=$(grep 'Device' /opt/warp-go/warp.conf | cut -d= -f2 | sed 's# ##g')
+    API=$(curl -s "https://api.cloudflareclient.com/v0a884/reg/$DEVICE_ID" -H "User-Agent: okhttp/3.12.1" -H "Authorization: Bearer $ACCESS_TOKEN")
+    QUOTA=$(grep -oP '"quota":\K\d+' <<< $API)
+  fi
   if type -p bc >/dev/null 2>&1; then
     [[ $QUOTA -gt 10000000000000 ]] && QUOTA="$(echo "scale=2; $QUOTA/1000000000000" | bc) TB" ||  QUOTA="$(echo "scale=2; $QUOTA/1000000000" | bc) GB"
   else
@@ -1093,7 +1103,7 @@ menu() {
 if [[ $2 != '[lisence]' ]]; then
   if [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then
     LICENSETYPE=1 && LICENSE=$2
-  elif [[ $2 =~ [A-Z0-9a-z]{1200,} ]]; then LICENSETYPE=2 && TOKEN=$2
+  elif [[ ${#2} -ge $TOKEN_LENGTH ]]; then LICENSETYPE=2 && TOKEN=$2
   elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
   fi
 fi
