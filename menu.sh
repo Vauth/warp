@@ -723,12 +723,13 @@ uninstall() {
   uninstall_wgcf() {
     wg-quick down wgcf >/dev/null 2>&1
     systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
-    rpm -e wireguard-tools 2>/dev/null
-    [[ $(systemctl is-active systemd-resolved 2>/dev/null) != active ]] && systemctl enable --now systemd-resolved >/dev/null 2>&1
+    type -p rpm >/dev/null 2>&1 && rpm -e wireguard-tools 2>/dev/null
+    systemctl start systemd-resolved >/dev/null 2>&1 && sleep 5
+    systemctl enable --now systemd-resolved >/dev/null 2>&1
     rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy /etc/local.d/wgcf.start
-    [[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
-    [[ -e /usr/bin/tun.sh ]] && rm -f /usr/bin/tun.sh
-    [[ -e /etc/crontab ]] && sed -i '/tun.sh/d' /etc/crontab
+    [ -e /etc/gai.conf ] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
+    [ -e /usr/bin/tun.sh ] && rm -f /usr/bin/tun.sh
+    [ -e /etc/crontab ] && sed -i '/tun.sh/d' /etc/crontab
     sed -i "/250   warp/d" /etc/iproute2/rt_tables
   }
 
@@ -748,8 +749,8 @@ uninstall() {
   uninstall_wireproxy() {
     systemctl disable --now wireproxy
     rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy /lib/systemd/system/wireproxy.service
-    [[ -e /etc/gai.conf ]] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
-    [[ -e /usr/bin/tun.sh ]] && rm -f /usr/bin/tun.sh && sed -i '/tun.sh/d' /etc/crontab
+    [ -e /etc/gai.conf ] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
+    [ -e /usr/bin/tun.sh ] && rm -f /usr/bin/tun.sh && sed -i '/tun.sh/d' /etc/crontab
   }
 
   # 如已安装 warp_unlock 项目，先行卸载
@@ -759,11 +760,13 @@ uninstall() {
   UNINSTALL_CHECK=("wg-quick" "warp-cli" "wireproxy")
   UNINSTALL_DO=("uninstall_wgcf" "uninstall_proxy" "uninstall_wireproxy")
   UNINSTALL_DEPENDENCIES=("wireguard-tools openresolv " "" " openresolv ")
-  UNINSTALL_NOT_ARCH=("wireguard-dkms ipset dnsmasq resolvconf " "" "wireguard-dkms resolvconf ")
+  UNINSTALL_NOT_ARCH=("wireguard-dkms " "" "wireguard-dkms resolvconf ")
+  UNINSTALL_DNSMASQ=("ipset dnsmasq resolvconf ")
   UNINSTALL_RESULT=("$(text 117)" "$(text 119)" "$(text 98)")
   for ((i=0; i<${#UNINSTALL_CHECK[@]}; i++)); do
-    type -p ${UNINSTALL_CHECK[i]} >/dev/null 2>&1 && UNINSTALL_DO_LIST[i]=1 && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_DEPENDENCIES[i]} && 
-    [[ $SYSTEM != "Arch" ]] && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_NOT_ARCH[i]}
+    type -p ${UNINSTALL_CHECK[i]} >/dev/null 2>&1 && UNINSTALL_DO_LIST[i]=1 && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_DEPENDENCIES[i]}
+    [[ $SYSTEM != "Arch" && $(dkms status 2>/dev/null) =~ "wireguard" ]] && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_NOT_ARCH[i]}
+    [ -e /etc/dnsmasq.d/warp.conf ] && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_DNSMASQ[i]}
   done
 
   # 列出依赖，确认是手动还是自动卸载
