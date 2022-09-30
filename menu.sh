@@ -970,18 +970,11 @@ EOF
   fi
 
   # 判断机器原生状态类型
+  IPV4=0; IPV6=0
   LAN4=$(ip route get 192.168.193.10 2>/dev/null | grep -oP 'src \K\S+')
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
-  if [[ "$LAN6" != "::1" && "$LAN6" =~ ^[0-9a-z:]+$ ]]; then
-    INET6=1 && ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
-  else
-    IPV6=0
-  fi
-  if [[ "$LAN4" =~ ^[0-9.]+$ ]]; then
-    INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip4_info
-  else
-    IPV4=0
-  fi
+  [[ "$LAN6" != "::1" && "$LAN6" =~ ^[0-9a-z:]+$ ]] && INET6=1 && ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
+  [[ "$LAN4" =~ ^[0-9.]+$ ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip4_info
   [[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
   [[ $L = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
 
@@ -1515,13 +1508,19 @@ EOF
     [[ $CONFIRM = [Yy] ]] && teams_change && echo "$TEAMS" > /etc/wireguard/info.log 2>&1
 
     # 设置开机启动
-    ${SYSTEMCTL_ENABLE[int]}>/dev/null 2>&1
+    ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
     type -p dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
 
     # Linux 内核低于5.6的，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
-    ([[ $WG = 1 ]] || [[ $(systemctl is-active wg-quick@wgcf) != active ]] || [[ $(systemctl is-enabled wg-quick@wgcf) != enabled ]]) &&
-    wget --no-check-certificate $CDN -N https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go_linux_"$ARCHITECTURE".tar.gz &&
-    tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
+    if [[ $SYSTEM != Alpine ]]; then
+      if [[ $WG = 1 ]] || [[ $(systemctl is-active wg-quick@wgcf) != active ]] || [[ $(systemctl is-enabled wg-quick@wgcf) != enabled ]]; then
+        systemctl disable --now wg-quick@wgcf
+        sleep 3
+        wget --no-check-certificate $CDN -N https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go_linux_"$ARCHITECTURE".tar.gz &&
+        tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
+        ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
+      fi
+    fi
 
     # 保存好配置文件
     mv -f wgcf-account.toml wgcf-profile.conf menu.sh /etc/wireguard >/dev/null 2>&1
