@@ -21,12 +21,12 @@ E[6]="This script only supports Debian, Ubuntu, CentOS, Arch or Alpine systems, 
 C[6]="本脚本只支持 Debian、Ubuntu、CentOS、Arch 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[7]="Curren operating system is \$SYS.\\\n The system lower than \$SYSTEM \${MAJOR[int]} is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[7]="当前操作是 \$SYS\\\n 不支持 \$SYSTEM \${MAJOR[int]} 以下系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[8]="Installing curl..."
-C[8]="安装curl中……"
-E[9]="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..."
-C[9]="先升级软件库才能继续安装 curl，时间较长，请耐心等待……"
-E[10]="Installation of curl fails. Script aborts. Feedback:[https://github.com/fscarmen/warp/issues]"
-C[10]="安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[8]="Install dependence-list:"
+C[8]="安装依赖列表:"
+E[9]="All dependencies already exist and do not need to be installed additionally."
+C[9]="所有依赖已存在，不需要额外安装"
+E[10]=""
+C[10]=""
 E[11]="Warp-go is not installed yet."
 C[11]="还没有安装 warp-go"
 E[12]="To install, press [y] and other keys to exit:"
@@ -293,11 +293,21 @@ check_operating_system() {
 
 # 安装 curl
 check_dependencies() {
-  type -p curl >/dev/null 2>&1 || (hint " $(text 8) " && ${PACKAGE_INSTALL[int]} curl 2>/dev/null) || (hint " $(text 9) " && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl 2>/dev/null)
-  ! type -p curl >/dev/null 2>&1 && error "$(text 10)"
-
   # 对于 alpine 系统，升级库并重新安装依赖
-  [[ $SYSTEM = Alpine && ! -e /opt/warp-go/warp-go ]] && (${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep)
+  if [ $SYSTEM = Alpine ]; then
+    [ ! -e /opt/warp-go/warp-go ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash )
+  else
+    DEPS_CHECK=("ping" "wget" "curl" "systemctl" "ip")
+    DEPS_INSTALL=(" inetutils-ping" " wget" " curl" " systemctl" " iproute2")
+    for ((c=0;c<${#DEPS_CHECK[@]};c++)); do ! type -p ${DEPS_CHECK[c]} >/dev/null 2>&1 && DEPS+=${DEPS_INSTALL[c]}; done
+    if [ -n "$DEPS" ]; then
+      info "\n $(text 8) $DEPS \n"
+      ${PACKAGE_UPDATE[int]}
+      ${PACKAGE_INSTALL[int]} $DEPS
+    else
+      info "\n $(text 9) \n"
+    fi
+  fi
 }
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
@@ -917,13 +927,13 @@ EOF
   # 根据系统选择需要安装的依赖, 安装一些必要的网络工具包
   info "\n $(text 61) \n"
 
-  Debian() { ! type -p ip >/dev/null 2>&1 && (${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} --no-install-recommends iproute2); }
+  Debian() { :; }
 
-  Ubuntu() { ! type -p ip >/dev/null 2>&1 && (${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} --no-install-recommends iproute2); }
+  Ubuntu() { :; }
 
   CentOS() { :; }
 
-  Alpine() { ${PACKAGE_INSTALL[int]} iproute2 openrc; }
+  Alpine() { ${PACKAGE_INSTALL[int]} openrc; }
 
   Arch() { ${PACKAGE_INSTALL[int]} openresolv; }
 
