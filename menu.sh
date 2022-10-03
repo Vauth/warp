@@ -347,6 +347,8 @@ E[170]="Confirm all uninstallation please press [y], other keys do not uninstall
 C[170]="确认全部卸载请按y，其他键默认不卸载:"
 E[171]="Uninstall dependencies were complete."
 C[171]="依赖卸载成功"
+E[172]="No suitable solution was found for modifying the wgcf configuration file wgcf.conf and the script aborted. When you see this message, please send feedback on the bug to:[https://github.com/fscarmen/warp/issues]"
+C[172]="没有找到适合的方案用于修改 wgcf 配置文件 wgcf.conf，脚本中止。当你看到此信息，请把该 bug 反馈至:[https://github.com/fscarmen/warp/issues]"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }
@@ -936,7 +938,7 @@ stack_switch() {
       * ) warning " $(text 51) [0-2] "; sleep 1; stack_switch;;
     esac
   fi
-  sh -c "$(eval echo "\$SWITCH$TO")"
+  [ "${#TO}" != 3 ] && error " $(text 172) " || sh -c "$(eval echo "\$SWITCH$TO")"
   ${SYSTEMCTL_RESTART[int]}
   OPTION=n && net
 }
@@ -1404,7 +1406,7 @@ install() {
   MODIFY11N6='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g;s/^.*0\.\0\/0/#&/g" wgcf-profile.conf'
   MODIFY11ND='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" wgcf-profile.conf'
 
-  sh -c "$(eval echo "\$MODIFY$CONF")"
+  [[ "${#CONF}" != [34] ]] && error " $(text 172) " || sh -c "$(eval echo "\$MODIFY$CONF")"
 
   if [[ $OCTEEP = 1 ]]; then
     # 默认 Endpoint 和 DNS 默认 IPv4 和 双栈的，如是 IPv6 修改默认值
