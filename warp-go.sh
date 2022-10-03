@@ -812,8 +812,11 @@ export_wireguard() {
 
 # warp-go 安装
 install() {
-  # 已经状态码不为 0 ，即已安装，脚本退出
+  # 已经状态码不为 0， 即已安装， 脚本退出
   [[ $STATUS != 0 ]] && error "$(text 53)"
+
+  # CONF 参数如果不是3位或4位， 即检测不出正确的配置参数， 脚本退出
+  [[ "${#CONF}" != [34] ]] && error " $(text 10) "
 
   # 先删除之前安装，可能导致失败的文件
   rm -rf /opt/warp-go/warp-go /opt/warp-go/warp.conf
@@ -958,7 +961,7 @@ EOF
   MODIFY11N6='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:2408/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g" /opt/warp-go/warp.conf'
   MODIFY11ND='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:2408/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g" /opt/warp-go/warp.conf'
 
-  [[ "${#CONF}" != [34] ]] && error " $(text 10) " || sh -c "$(eval echo "\$MODIFY$CONF")"
+  sh -c "$(eval echo "\$MODIFY$CONF")"
 
   # 如为 WARP IPv4 非全局，修改配置文件，在路由表插入规则
   [[ $WARP_STACK = 4 || $OPTION = n ]] && STATUS=3 && global_switch
