@@ -25,8 +25,8 @@ E[8]="Install dependence-list:"
 C[8]="安装依赖列表:"
 E[9]="All dependencies already exist and do not need to be installed additionally."
 C[9]="所有依赖已存在，不需要额外安装"
-E[10]=""
-C[10]=""
+E[10]="No suitable solution was found for modifying the warp-go configuration file warp.conf and the script aborted. When you see this message, please send feedback on the bug to:[https://github.com/fscarmen/warp/issues]"
+C[10]="没有找到适合的方案用于修改 warp-go 配置文件 warp.conf，脚本中止。当你看到此信息，请把该 bug 反馈至:[https://github.com/fscarmen/warp/issues]"
 E[11]="Warp-go is not installed yet."
 C[11]="还没有安装 warp-go"
 E[12]="To install, press [y] and other keys to exit:"
@@ -599,7 +599,7 @@ stack_switch() {
     esac
   fi
 
-  sh -c "$(eval echo "\$SWITCH$TO")"
+  [ "${#TO}" != 3 ] && error " $(text 10) " || sh -c "$(eval echo "\$SWITCH$TO")"
   ${SYSTEMCTL_RESTART[int]}
   grep -q "^AllowedIPs.*0\.\0\/0" /opt/warp-go/warp.conf || unset INTERFACE
   OPTION=o && net
@@ -958,7 +958,7 @@ EOF
   MODIFY11N6='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:2408/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g" /opt/warp-go/warp.conf'
   MODIFY11ND='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/[2606:4700:d0::a29f:c003]:2408/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g" /opt/warp-go/warp.conf'
 
-  sh -c "$(eval echo "\$MODIFY$CONF")"
+  [[ "${#CONF}" != [34] ]] && error " $(text 10) " || sh -c "$(eval echo "\$MODIFY$CONF")"
 
   # 如为 WARP IPv4 非全局，修改配置文件，在路由表插入规则
   [[ $WARP_STACK = 4 || $OPTION = n ]] && STATUS=3 && global_switch
