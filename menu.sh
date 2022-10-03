@@ -903,7 +903,7 @@ check_stack() {
 
   # 判断用于检测 NAT VSP，以选择正确配置文件
   if [ "$m" -le 3 ]; then
-    NAT=("0@1@" "1@0@1" "1@1@1" "@1@1")
+    NAT=("0@1@" "1@0@1" "1@1@1" "0@1@1")
     for ((n=0;n<${#NAT[@]};n++)); do [ "$IPV4@$IPV6@$INET4" = "${NAT[n]}" ] && break; done
     NATIVE=("IPv6 only" "IPv4 only" "$(text 69)" "NAT IPv4")
     CONF1=("014" "104" "114" "11N4")
