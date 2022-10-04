@@ -214,8 +214,8 @@ E[103]="Port \$PORT is in use. Please input another Port\(\${i} times remaining\
 C[103]="\$PORT 端口占用中，请使用另一端口\(剩余\${i}次\):"
 E[104]="Please customize the Client port (1000-65535. Default to 40000 if it is blank):"
 C[104]="请自定义 Client 端口号 (1000-65535，如果不输入，会默认40000):"
-E[105]="Please choose the priority:\n 1.IPv4 (default)\n 2.IPv6\n 3.Use initial settings"
-C[105]="请选择优先级别:\n 1.IPv4 (默认)\n 2.IPv6\n 3.使用 VPS 初始设置"
+E[105]="Please choose the priority:\n 1.IPv4\n 2.IPv6\n 3.Use initial settings (default)"
+C[105]="请选择优先级别:\n 1.IPv4\n 2.IPv6\n 3.使用 VPS 初始设置 (默认)"
 E[106]="IPv6 priority"
 C[106]="IPv6 优先"
 E[107]="IPv4 priority"
@@ -539,8 +539,8 @@ plus() {
 stack_priority() {
   [ -e /etc/gai.conf ] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
   case "$PRIORITY" in
+    1 ) echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
     2 ) echo "label 2002::/16   2" >> /etc/gai.conf;;
-    3 ) ;;
     * ) echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
   esac
 }
@@ -689,7 +689,7 @@ change_ip() {
   done
 
   for ((b=0; b<${#CASE_RESAULT[@]}; b++)); do
-    [ "${INSTALL_RESULT[@]}" = "${CASE_RESAULT[b]}" ] && break
+    [[ "${INSTALL_RESULT[@]}" = "${CASE_RESAULT[b]}" ]] && break
   done
 
   case "$b" in
@@ -777,7 +777,7 @@ uninstall() {
 
   # 卸载核心程序
   for ((i=0; i<${#UNINSTALL_CHECK[@]}; i++)); do
-    [ "${UNINSTALL_DO_LIST[i]}" = 1 ] && ( ${UNINSTALL_DO[i]}; info " ${UNINSTALL_RESULT[i]} " )
+    [[ "${UNINSTALL_DO_LIST[i]}" = 1 ]] && ( ${UNINSTALL_DO[i]}; info " ${UNINSTALL_RESULT[i]} " )
   done
 
   # 选择自动卸载依赖执行以下
@@ -1103,11 +1103,11 @@ change_port() {
   CHANGE_PORT2=("" "" "wireproxy_port")
 
   for ((e=0;e<${#INSTALL_CHECK[@]}; e++)); do
-    [ "${INSTALL_CHECK[e]}" -gt 1 ]  && INSTALL_RESULT[e]=1 ||  INSTALL_RESULT[e]=0
+    [[ "${INSTALL_CHECK[e]}" -gt 1 ]]  && INSTALL_RESULT[e]=1 ||  INSTALL_RESULT[e]=0
   done
 
   for ((f=0; f<${#CASE_RESAULT[@]}; f++)); do
-    [ "${INSTALL_RESULT[@]}" = "${CASE_RESAULT[f]}" ] && break
+    [[ "${INSTALL_RESULT[@]}" = "${CASE_RESAULT[f]}" ]] && break
   done
 
   case "$f" in
