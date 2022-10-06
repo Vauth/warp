@@ -1032,6 +1032,7 @@ rule_del() {
   ip -4 rule delete from 172.16.0.2 lookup 51820
   ip -4 rule delete table main suppress_prefixlength 0
 }
+
 # 替换为 Teams 账户信息
 teams_change() {
   sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" /etc/wireguard/wgcf.conf
@@ -1779,22 +1780,16 @@ check_quota() {
   fi
 
   # 部分系统没有依赖 bc，所以两个小数不能用 $(echo "scale=2; $QUOTA/1000000000000000" | bc)，改为从右往左数字符数的方法
-  if [[ "$QUOTA" -gt 1000000000000000000 ]]; then
-    QUOTA_INTEGER="$(($QUOTA/1000000000000000000))"
-    QUOTA_DECIMALS=${QUOTA:0-18:2}
-    QUOTA="$QUOTA_INTEGER.$QUOTA_DECIMALS EB"
-  elif [[ "$QUOTA" -gt 1000000000000000 ]]; then
-    QUOTA_INTEGER="$(($QUOTA/1000000000000000))"
-    QUOTA_DECIMALS=${QUOTA:0-15:2}
-    QUOTA="$QUOTA_INTEGER.$QUOTA_DECIMALS PB"
-  elif [[ "$QUOTA" -gt 1000000000000 ]]; then
-    QUOTA_INTEGER="$(($QUOTA/1000000000000))"
-    QUOTA_DECIMALS=${QUOTA:0-12:2}
-    QUOTA="$QUOTA_INTEGER.$QUOTA_DECIMALS TB"
-  else
-    QUOTA_INTEGER="$(($QUOTA/1000000000))"
-    QUOTA_DECIMALS=${QUOTA:0-9:2}
-    QUOTA="$QUOTA_INTEGER.$QUOTA_DECIMALS GB"
+  if [[ "$QUOTA" =~ ^[0-9]+$ ]]; then  
+    CONVERSION=("1000000000000000000" "1000000000000000" "1000000000000" "1000000000")
+    UNIT=("EB" "PB" "TB" "GB")
+    for ((o=0; o<${#CONVERSION[*]}; o++)); do
+      [[ "$QUOTA" -gt "${CONVERSION[o]}" ]] && break
+    done
+
+    QUOTA_INTEGER=$(( $QUOTA / ${CONVERSION[o]} ))
+    QUOTA_DECIMALS=${QUOTA:0-$(( ${#CONVERSION[o]} - 1 )):2}
+    QUOTA="$QUOTA_INTEGER.$QUOTA_DECIMALS ${UNIT[o]}"
   fi
 }
 
