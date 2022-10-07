@@ -432,7 +432,7 @@ check_operating_system() {
   SYSTEMCTL_ENABLE=("systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "alpine_wgcf_enable" "systemctl enable --now wg-quick@wgcf")
 
   for ((int=0; int<${#REGEX[@]}; int++)); do
-    [[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ "${REGEX[int]}" ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
+    [[ $(tr '[:upper:]' '[:lower:]' <<< $"SYS) =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
   done
   [ -z "$SYSTEM" ] && error " $(text 5) "
 
@@ -490,7 +490,7 @@ proxy_info() {
     [ "$L" = C ] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
     PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
     ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-    [[ "$ACCOUNT" =~ 'Limited' ]] && AC='+' && check_quota
+    [[ "$ACCOUNT" =~ Limited ]] && AC='+' && check_quota
   fi
 
   if type -p wireproxy >/dev/null 2>&1; then
@@ -777,7 +777,7 @@ uninstall() {
   UNINSTALL_RESULT=("$(text 117)" "$(text 119)" "$(text 98)")
   for ((i=0; i<${#UNINSTALL_CHECK[@]}; i++)); do
     type -p ${UNINSTALL_CHECK[i]} >/dev/null 2>&1 && UNINSTALL_DO_LIST[i]=1 && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_DEPENDENCIES[i]}
-    [[ $SYSTEM != "Arch" && $(dkms status 2>/dev/null) =~ "wireguard" ]] && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_NOT_ARCH[i]}
+    [[ $SYSTEM != "Arch" && $(dkms status 2>/dev/null) =~ wireguard ]] && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_NOT_ARCH[i]}
     [ -e /etc/dnsmasq.d/warp.conf ] && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_DNSMASQ[i]}
   done
 
@@ -859,8 +859,8 @@ proxy_onoff() {
     if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
       proxy_info
       ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-      [[ $ACCOUNT =~ 'Limited' ]] && AC='+' && CHECK_TYPE=1 && check_quota
-      [[ $(ss -nltp) =~ 'warp-svc' ]] && info " $(text 90)\n $(text_eval 27) "
+      [[ $ACCOUNT =~ Limited ]] && AC='+' && CHECK_TYPE=1 && check_quota
+      [[ $(ss -nltp) =~ warp-svc ]] && info " $(text 90)\n $(text_eval 27) "
       [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
       exit 0
 
@@ -869,8 +869,8 @@ proxy_onoff() {
       ip4_info
       [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
       ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-      [[ $ACCOUNT =~ 'Limited' ]] && AC='+' && CHECK_TYPE=1 && check_quota
-      [[ $(ip a) =~ 'CloudflareWARP' ]] && info " $(text 90)\n $(text_eval 169) "
+      [[ $ACCOUNT =~ Limited ]] && AC='+' && CHECK_TYPE=1 && check_quota
+      [[ $(ip a) =~ CloudflareWARP ]] && info " $(text 90)\n $(text_eval 169) "
       [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
       exit 0
     fi
@@ -882,11 +882,11 @@ wireproxy_onoff() {
   ! type -p wireproxy >/dev/null 2>&1 && error " $(text 157) " || OCTEEP=1
   if ss -nltp | grep wireproxy >/dev/null 2>&1; then
     systemctl stop wireproxy
-    [[ ! $(ss -nltp) =~ 'wireproxy' ]] && info " $(text 158) "
+    [[ ! $(ss -nltp) =~ wireproxy ]] && info " $(text 158) "
   else
     systemctl start wireproxy
     sleep 1 && proxy_info
-    [[ $(ss -nltp) =~ 'wireproxy' ]] && info " $(text 99)\n $(text_eval 162) "
+    [[ $(ss -nltp) =~ wireproxy ]] && info " $(text 99)\n $(text_eval 162) "
     [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
   fi
 }
@@ -1004,13 +1004,13 @@ EOF
   CLIENT=0
   if type -p warp-cli >/dev/null 2>&1; then
     ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-    [[ $ACCOUNT =~ 'Limited' ]] && CHECK_TYPE=1 && AC='+' && check_quota
+    [[ $ACCOUNT =~ Limited ]] && CHECK_TYPE=1 && AC='+' && check_quota
     CLIENT=1 && CLIENT_INSTALLED="$(text 92)"
     [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
     if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
-      [ "$CLIENT" = 2 ] && CLIENT_MODE='Proxy' && [[ $(ss -nltp) =~ 'warp-svc' ]] && CLIENT=3 && proxy_info
+      [ "$CLIENT" = 2 ] && CLIENT_MODE='Proxy' && [[ $(ss -nltp) warp-svc ]] && CLIENT=3 && proxy_info
     else
-      [ "$CLIENT" = 2 ] && CLIENT_MODE='WARP' && [[ $(ip a) =~ 'CloudflareWARP' ]] && CLIENT=5 && INTERFACE='--interface CloudflareWARP' && ip4_info
+      [ "$CLIENT" = 2 ] && CLIENT_MODE='WARP' && [[ $(ip a) =~ CloudflareWARP ]] && CLIENT=5 && INTERFACE='--interface CloudflareWARP' && ip4_info
     fi
   fi
 
@@ -1018,7 +1018,7 @@ EOF
   WIREPROXY=0
   if type -p wireproxy >/dev/null 2>&1; then
     WIREPROXY=1
-    [ "$WIREPROXY" = 1 ] && WIREPROXY_INSTALLED="$(text 92)" && [[ $(ss -nltp) =~ 'wireproxy' ]] && WIREPROXY=3 && proxy_info || WIREPROXY=2
+    [ "$WIREPROXY" = 1 ] && WIREPROXY_INSTALLED="$(text 92)" && [[ $(ss -nltp) =~ wireproxy ]] && WIREPROXY=3 && proxy_info || WIREPROXY=2
   fi
 }
 
@@ -1633,7 +1633,7 @@ proxy() {
       warp-cli --accept-tos set-proxy-port "$PORT" >/dev/null 2>&1
       warp-cli --accept-tos connect >/dev/null 2>&1
       warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-      sleep 2 && [[ ! $(ss -nltp) =~ 'warp-svc' ]] && error " $(text 87) " || info " $(text_eval 86) "
+      sleep 2 && [[ ! $(ss -nltp) =~ warp-svc ]] && error " $(text 87) " || info " $(text_eval 86) "
     fi
   }
 
@@ -1656,7 +1656,7 @@ proxy() {
         7 ) #  CentOS 7，需要用 Cloudflare CentOS 8 的库以安装 Client，并在线编译升级 C 运行库 Glibc 2.28
             ${PACKAGE_INSTALL[int]} nftables
             rpm -ivh Client_CentOS_8.rpm
-            if [[ ! $(strings /lib64/libc.so.6) =~ 'GLIBC_2.28' ]]; then
+            if [[ ! $(strings /lib64/libc.so.6) =~ GLIBC_2.28 ]]; then
               GLIBC=1
               wget -O /usr/bin/make https://github.com/fscarmen/warp/releases/download/Glibc/make
               wget https://github.com/fscarmen/warp/releases/download/Glibc/glibc-2.28.tar.gz
@@ -1714,7 +1714,7 @@ proxy() {
 
   # 结果提示，脚本运行时间，次数统计
   ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-  [[ "$ACCOUNT" =~ 'Limited' ]] && CHECK_TYPE=1 && AC='+' && check_quota
+  [[ "$ACCOUNT" =~ Limited ]] && CHECK_TYPE=1 && AC='+' && check_quota
 
   if [ "$LUBAN" = 1 ]; then
     [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
@@ -1729,7 +1729,7 @@ proxy() {
     info " $(text_eval 94)\n $(text_eval 27) "
   fi
 
-  [[ "$ACCOUNT" =~ 'Limited' ]] && info " $(text 63): $QUOTA "
+  [[ "$ACCOUNT" =~ Limited ]] && info " $(text 63): $QUOTA "
   echo -e "\n==============================================================\n"
   hint " $(text 43)\n " && help
 }
@@ -1844,7 +1844,7 @@ change_to_free() {
 change_to_plus() {
   update_license
   if [ "$UPDATE_ACCOUNT" = client ]; then
-    [[ "$ACCOUNT" =~ "$LICENSE" ]] && KEY_LICENSE='License' && error " $(text_eval 31) "
+    [[ "$ACCOUNT" =~ $LICENSE ]] && KEY_LICENSE='License' && error " $(text_eval 31) "
     [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]] && CLIENT_PROXY=1
     hint "\n $(text 35) \n"
     warp-cli --accept-tos delete >/dev/null 2>&1
@@ -2086,7 +2086,7 @@ menu() {
 
 # 参数选项 URL 或 License 或转换 WARP 单双栈
 if [ "$2" != '[lisence]' ]; then
-  if [[ $2 =~ 'http' ]]; then CHOOSE_TYPE=3 && URL=$2
+  if [[ $2 =~ http ]]; then CHOOSE_TYPE=3 && URL=$2
   elif [[ $2 =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then CHOOSE_TYPE=2 && LICENSE=$2
   elif [[ $2 = [46Dd] ]]; then SWITCHCHOOSE=$(tr '[:lower:]' '[:upper:]' <<< "$2")
   elif [[ $2 =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
