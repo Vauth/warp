@@ -432,7 +432,7 @@ check_operating_system() {
   SYSTEMCTL_ENABLE=("systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "alpine_wgcf_enable" "systemctl enable --now wg-quick@wgcf")
 
   for ((int=0; int<${#REGEX[@]}; int++)); do
-    [[ $(tr '[:upper:]' '[:lower:]' <<< $"SYS) =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
+    [[ $(tr '[:upper:]' '[:lower:]' <<< $"SYS") =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
   done
   [ -z "$SYSTEM" ] && error " $(text 5) "
 
@@ -1008,7 +1008,7 @@ EOF
     CLIENT=1 && CLIENT_INSTALLED="$(text 92)"
     [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
     if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
-      [ "$CLIENT" = 2 ] && CLIENT_MODE='Proxy' && [[ $(ss -nltp) warp-svc ]] && CLIENT=3 && proxy_info
+      [ "$CLIENT" = 2 ] && CLIENT_MODE='Proxy' && [[ $(ss -nltp) =~ warp-svc ]] && CLIENT=3 && proxy_info
     else
       [ "$CLIENT" = 2 ] && CLIENT_MODE='WARP' && [[ $(ip a) =~ CloudflareWARP ]] && CLIENT=5 && INTERFACE='--interface CloudflareWARP' && ip4_info
     fi
