@@ -21,6 +21,8 @@
 * * *
 
 ## 更新信息
+2022.10.7 warp-go V1.0.7 1. Further improve the conversion function between accounts. You can even switch from one WARP+ to another; 2. Formatting code； 1. 进一步完善账户间转换功能，你甚至可以从一个 WARP+ 换到另一个; 2. 优化代码。
+
 2022.10.6 menu V2.45 1. Further improve the conversion function between accounts. You can even switch from one WARP+ to another; 2. Rebuild the account registration module; 1. 进一步完善账户间转换功能，你甚至可以从一个 WARP+ 换到另一个; 2. 重构账户注册模块
 
 2022.9.10 Over 2,000 users star. Thank you to every solution creator. I'm just passing these on more widely to serve more players. Thank you to each user for your continued support. I wish you all good health and Happy Mid-Autumn Festival!    
