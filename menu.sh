@@ -16,8 +16,8 @@ E[4]="The WARP server cannot be connected. It may be a China Mainland VPS. You c
 C[4]="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.193.10 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[5]="The script supports Debian, Ubuntu, CentOS, Arch or Alpine systems only. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[5]="本脚本只支持 Debian、Ubuntu、CentOS、Arch 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Upgrade to WARP+ account)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n"
-C[6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (免费 WARP 账户升级 WARP+)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n"
+E[6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Change account to Free, WARP+ or Teams)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n"
+C[6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (更换账户为 Free，WARP+ 或 Teams)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n"
 E[7]="Installing curl..."
 C[7]="安装curl中……"
 E[8]="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..."
@@ -268,7 +268,7 @@ E[130]="Please confirm\\\n Private key\\\t: \$PRIVATEKEY \$MATCH1\\\n Public key
 C[130]="请确认Teams 信息\\\n Private key\\\t: \$PRIVATEKEY \$MATCH1\\\n Public key\\\t: \$PUBLICKEY \$MATCH2\\\n Address IPv4\\\t: \$ADDRESS4/32 \$MATCH3\\\n Address IPv6\\\t: \$ADDRESS6/128 \$MATCH4"
 E[131]="comfirm please enter [y] , and other keys to use free account:"
 C[131]="确认请按 y ，其他按键则使用免费账户:"
-E[132]="Is there a WARP+ or Teams account?\n 1. WARP+\n 2. Teams\n 3. use free account (default)"
+E[132]="Is there a WARP+ or Teams account?\n 1. WARP+\n 2. Teams\n 3. Use free account (default)"
 C[132]="如有 WARP+ 或 Teams 账户请选择\n 1. WARP+\n 2. Teams\n 3. 使用免费账户 (默认)"
 E[133]="Device name: \$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n Quota: \$QUOTA"
 C[133]="设备名: \$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量: \$QUOTA"
@@ -385,7 +385,7 @@ select_language() {
   case $(cat /etc/wireguard/language 2>&1) in
     E ) L=E;;
     C ) L=C;;
-    * ) L=E && [[ -z "$OPTION" || $OPTION = [aclehdpbviw46] ]] && hint " $(text 0) " && reading " $(text 50) " LANGUAGE
+    * ) L=E && [[ -z "$OPTION" || "$OPTION" = [aclehdpbviw46] ]] && hint " $(text 0) " && reading " $(text 50) " LANGUAGE
     [ "$LANGUAGE" = 2 ] && L=C;;
   esac
 }
@@ -1780,11 +1780,11 @@ check_quota() {
   fi
 
   # 部分系统没有依赖 bc，所以两个小数不能用 $(echo "scale=2; $QUOTA/1000000000000000" | bc)，改为从右往左数字符数的方法
-  if [[ "$QUOTA" =~ ^[0-9]+$ ]]; then  
+  if [[ "$QUOTA" != 0 && "$QUOTA" =~ ^[0-9]+$ && "$QUOTA" -ge 1000000000 ]]; then  
     CONVERSION=("1000000000000000000" "1000000000000000" "1000000000000" "1000000000")
     UNIT=("EB" "PB" "TB" "GB")
     for ((o=0; o<${#CONVERSION[*]}; o++)); do
-      [[ "$QUOTA" -gt "${CONVERSION[o]}" ]] && break
+      [[ "$QUOTA" -ge "${CONVERSION[o]}" ]] && break
     done
 
     QUOTA_INTEGER=$(( $QUOTA / ${CONVERSION[o]} ))
