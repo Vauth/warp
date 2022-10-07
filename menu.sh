@@ -432,7 +432,7 @@ check_operating_system() {
   SYSTEMCTL_ENABLE=("systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "alpine_wgcf_enable" "systemctl enable --now wg-quick@wgcf")
 
   for ((int=0; int<${#REGEX[@]}; int++)); do
-    [[ $(tr '[:upper:]' '[:lower:]' <<< $"SYS") =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
+    [[ $(tr '[:upper:]' '[:lower:]' <<< "$SYS") =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
   done
   [ -z "$SYSTEM" ] && error " $(text 5) "
 
