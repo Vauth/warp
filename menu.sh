@@ -120,8 +120,8 @@ E[56]="The current Netflix region is \$REGION. Confirm press [y] . If you want a
 C[56]="当前 Netflix 地区是:\$REGION，需要解锁当前地区请按 y , 如需其他地址请输入两位地区简写 \(如 hk ,sg，默认:\$REGION\):"
 E[57]="The target quota you want to get. The unit is GB, the default value is 10:"
 C[57]="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
-E[58]=""
-C[58]=""
+E[58]="Glibc 2.28 download failed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues] "
+C[58]="Glibc 2.28 下载失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[59]="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License"
 C[59]="找不到账户文件:/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
 E[60]="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License"
@@ -419,7 +419,7 @@ check_operating_system() {
   alpine_wgcf_restart() { wg-quick down wgcf >/dev/null 2>&1; wg-quick up wgcf >/dev/null 2>&1; }
   alpine_wgcf_enable() { echo -e "/usr/bin/tun.sh\nwg-quick up wgcf" > /etc/local.d/wgcf.start; chmod +x /etc/local.d/wgcf.start; rc-update add local; }
 
-  REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "'amazon linux'" "alpine" "arch linux")
+  REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "amazon linux" "alpine" "arch linux")
   RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS" "Alpine" "Arch")
   EXCLUDE=("bookworm")
   COMPANY=("" "" "" "amazon" "" "")
@@ -437,7 +437,7 @@ check_operating_system() {
   [ -z "$SYSTEM" ] && error " $(text 5) "
 
   # 先排除 EXCLUDE 里包括的特定系统，其他系统需要作大发行版本的比较
-  for ex in "${EXCLUDE[@]}"; do [[ ! $(echo "$SYS" | tr '[:upper:]' '[:lower:]')  =~ $ex ]]; done &&
+  for ex in "${EXCLUDE[@]}"; do [[ ! $(tr '[:upper:]' '[:lower:]' <<< "$SYS")  =~ $ex ]]; done &&
   [ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ] && error " $(text_eval 26) "
 }
 
@@ -1596,7 +1596,7 @@ proxy() {
     warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1 && sleep 1 &&
     ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
     [[ "$ACCOUNT" =~ Limited ]] && AC3='+' && echo "$LICENSE" > /etc/wireguard/license && info " $(text_eval 62) " ||
-    warning " $(text 36) " )
+    warning " $(text_eval 36) " )
     if [ "$LUBAN" = 1 ]; then
       i=1; j=5; INTERFACE='--interface CloudflareWARP'
       hint " $(text_eval 11)\n $(text_eval 12) "
@@ -1665,7 +1665,7 @@ proxy() {
               ${PACKAGE_INSTALL[int]} devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-binutils
               source /opt/rh/devtoolset-8/enable
               wait
-              cd ./glibc-2.28/build
+              cd ./glibc-2.28/build || error " $(text 58) "
               ../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin
               make install
               cd ../..
@@ -1780,9 +1780,9 @@ check_quota() {
   fi
 
   # 部分系统没有依赖 bc，所以两个小数不能用 $(echo "scale=2; $QUOTA/1000000000000000" | bc)，改为从右往左数字符数的方法
-  if [[ "$QUOTA" != 0 && "$QUOTA" =~ ^[0-9]+$ && "$QUOTA" -ge 1000000000 ]]; then  
-    CONVERSION=("1000000000000000000" "1000000000000000" "1000000000000" "1000000000")
-    UNIT=("EB" "PB" "TB" "GB")
+  if [[ "$QUOTA" != 0 && "$QUOTA" =~ ^[0-9]+$ && "$QUOTA" -ge 1000000 ]]; then  
+    CONVERSION=("1000000000000000000" "1000000000000000" "1000000000000" "1000000000" "1000000")
+    UNIT=("EB" "PB" "TB" "GB" "MB")
     for ((o=0; o<${#CONVERSION[*]}; o++)); do
       [[ "$QUOTA" -ge "${CONVERSION[o]}" ]] && break
     done
