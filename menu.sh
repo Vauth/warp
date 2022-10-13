@@ -459,7 +459,7 @@ ip4_info() {
   ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
   TRACE4=$(curl -ks4m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
   if [ "$TRACE4" = plus ]; then
-    [ -e /etc/wireguard/info.log ] && PLUS4=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && PLUS4='+'
+    [[ -e /etc/wireguard/info.log || -e /etc/wireguard/info-temp.log ]] && PLUS4=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && PLUS4='+'
   fi
   [[ "$TRACE4" =~ on|plus ]] && WARPSTATUS4="( WARP$PLUS4 IPv4 )"
 }
@@ -472,7 +472,7 @@ ip6_info() {
   ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
   TRACE6=$(curl -ks6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
   if [ "$TRACE6" = plus ]; then
-    [ -e /etc/wireguard/info.log ] && PLUS6=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && PLUS6='+'
+    [[ -e /etc/wireguard/info.log || -e /etc/wireguard/info-temp.log ]] && PLUS6=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && PLUS6='+'
   fi
   [[ "$TRACE6" =~ on|plus ]] && WARPSTATUS6="( WARP$PLUS6 IPv6 )"
 }
@@ -825,8 +825,8 @@ net() {
     ip4_info; ip6_info
     if [[ "$i" = "$j" ]]; then
         if [ "$CHOOSE_TYPE" = 3 ]; then
-          unset CHOOSE_TYPE && i=0 && info " $(text 129) " &&
-          mv -f /etc/wireguard/wgcf.conf.bak /etc/wireguard/wgcf.conf &&
+          unset CHOOSE_TYPE && i=0 && info " $(text 129) "
+          mv -f /etc/wireguard/wgcf.conf.bak /etc/wireguard/wgcf.conf
           rm -f /etc/wireguard/info-temp.log
         else
           wg-quick down wgcf >/dev/null 2>&1
@@ -1934,7 +1934,6 @@ change_to_plus() {
       sed -i "s#PrivateKey.*#PrivateKey = $(grep "PrivateKey.*" /etc/wireguard/wgcf.conf | sed "s#PrivateKey = ##g")#g" /etc/wireguard/proxy.conf
       rm -f /etc/wireguard/profile-temp.conf
       wireproxy_onoff
-#      [[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127\.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && TYPE='+' && check_quota
       info " $(text_eval 62) "
     fi
     mv -f /etc/wireguard/account-temp.toml /etc/wireguard/wgcf-account.toml
