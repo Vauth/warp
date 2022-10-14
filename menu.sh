@@ -18,12 +18,12 @@ E[5]="The script supports Debian, Ubuntu, CentOS, Arch or Alpine systems only. F
 C[5]="本脚本只支持 Debian、Ubuntu、CentOS、Arch 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Change account to Free, WARP+ or Teams)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n"
 C[6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (更换账户为 Free，WARP+ 或 Teams)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n"
-E[7]="Installing curl..."
-C[7]="安装curl中……"
-E[8]="It is necessary to upgrade the latest package library before install curl.It will take a little time,please be patiently..."
-C[8]="先升级软件库才能继续安装 curl，时间较长，请耐心等待……"
-E[9]="Failed to install curl. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[9]="安装 curl 失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[7]="Install dependence-list:"
+C[7]="安装依赖列表:"
+E[8]="All dependencies already exist and do not need to be installed additionally."
+C[8]="所有依赖已存在，不需要额外安装"
+E[9]=""
+C[9]=""
 E[10]="WireGuard tools are not installed or the configuration file wgcf.conf cannot be found, please reinstall."
 C[10]="没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装。"
 E[11]="Maximum \${j} attempts to get WARP IP..."
@@ -443,11 +443,21 @@ check_operating_system() {
 
 # 安装 curl
 check_dependencies() {
-  type -p curl >/dev/null 2>&1 || (hint " $(text 7) " && ${PACKAGE_INSTALL[int]} curl 2>/dev/null) || (hint " $(text 8) " && ${PACKAGE_UPDATE[int]} && ${PACKAGE_INSTALL[int]} curl 2>/dev/null)
-  ! type -p curl >/dev/null 2>&1 && error " $(text 9) "
-
   # 对于 alpine 系统，升级库并重新安装依赖
-  [[ "$SYSTEM" = Alpine && ! -e /etc/wireguard/menu.sh ]] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep )
+  if [ "$SYSTEM" = Alpine ]; then
+    [ ! -e /etc/wireguard/menu.sh ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash )
+  else
+    DEPS_CHECK=("ping" "wget" "curl" "systemctl" "ip")
+    DEPS_INSTALL=(" iputils-ping" " wget" " curl" " systemctl" " iproute2")
+    for ((g=0; g<${#DEPS_CHECK[@]}; g++)); do [ ! $(type -p ${DEPS_CHECK[g]}) ] && DEPS+=${DEPS_INSTALL[g]}; done
+    if [ -n "$DEPS" ]; then
+      info "\n $(text 7) $DEPS \n"
+      ${PACKAGE_UPDATE[int]} >/dev/null 2>&1
+      ${PACKAGE_INSTALL[int]} $DEPS >/dev/null 2>&1
+    else
+      info "\n $(text 8) \n"
+    fi
+  fi
 }
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
@@ -481,7 +491,7 @@ ip6_info() {
 proxy_info() {
   unset PROXYSOCKS5 PROXYPORT PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC PROXYSOCKS52 PROXYPORT2 PROXYJASON2 PROXYIP2 PROXYCOUNTR2 PROXYASNORG2 ACCOUNT2 AC2 TRACE42
 
-  if type -p warp-cli >/dev/null 2>&1; then
+  if [ $(type -p warp-cli) ]; then
     PROXYSOCKS5=$(ss -nltp | grep 'warp' | grep -oP '127\.0*\S+')
     PROXYPORT=$(echo "$PROXYSOCKS5" | cut -d: -f2)
     PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT https://ip.gs/json)
@@ -493,7 +503,7 @@ proxy_info() {
     [[ "$ACCOUNT" =~ Limited ]] && AC='+' && check_quota
   fi
 
-  if type -p wireproxy >/dev/null 2>&1; then
+  if [ $(type -p wireproxy) ]; then
     PROXYSOCKS52=$(ss -nltp | grep 'wireproxy' | grep -oP '127\.0*\S+')
     PROXYPORT2=$(echo "$PROXYSOCKS52" | cut -d: -f2)
     PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 https://ip.gs/json)
@@ -694,7 +704,7 @@ change_ip() {
   CHANGE_IP3=("" "" "" "" "" "" "" "change_wireproxy")
 
   for ((a=0; a<${#INSTALL_CHECK[@]}; a++)); do
-    type -p ${INSTALL_CHECK[a]} >/dev/null 2>&1 && INSTALL_RESULT[a]=1 || INSTALL_RESULT[a]=0
+    [ $(type -p ${INSTALL_CHECK[a]}) ] && INSTALL_RESULT[a]=1 || INSTALL_RESULT[a]=0
   done
 
   for ((b=0; b<${#CASE_RESAULT[@]}; b++)); do
@@ -734,7 +744,7 @@ uninstall() {
   uninstall_wgcf() {
     wg-quick down wgcf >/dev/null 2>&1
     systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
-    type -p rpm >/dev/null 2>&1 && rpm -e wireguard-tools 2>/dev/null
+    [ $(type -p rpm) ] && rpm -e wireguard-tools 2>/dev/null
     systemctl restart systemd-resolved >/dev/null 2>&1 && sleep 5
     systemctl enable --now systemd-resolved >/dev/null 2>&1
     rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy /etc/local.d/wgcf.start
@@ -774,7 +784,7 @@ uninstall() {
   UNINSTALL_DNSMASQ=("ipset dnsmasq resolvconf ")
   UNINSTALL_RESULT=("$(text 117)" "$(text 119)" "$(text 98)")
   for ((i=0; i<${#UNINSTALL_CHECK[@]}; i++)); do
-    type -p ${UNINSTALL_CHECK[i]} >/dev/null 2>&1 && UNINSTALL_DO_LIST[i]=1 && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_DEPENDENCIES[i]}
+    [ $(type -p ${UNINSTALL_CHECK[i]}) ] && UNINSTALL_DO_LIST[i]=1 && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_DEPENDENCIES[i]}
     [[ $SYSTEM != "Arch" && $(dkms status 2>/dev/null) =~ wireguard ]] && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_NOT_ARCH[i]}
     [ -e /etc/dnsmasq.d/warp.conf ] && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_DNSMASQ[i]}
   done
@@ -846,13 +856,13 @@ net() {
 
 # WARP 开关，先检查是否已安装，再根据当前状态转向相反状态
 onoff() { 
-  ! type -p wg-quick >/dev/null 2>&1 && error " $(text 155) "
+  [ ! $(type -p wg-quick) ] && error " $(text 155) "
   [ -n "$(wg 2>/dev/null)" ] && (wg-quick down wgcf >/dev/null 2>&1; info " $(text 15) ") || net
 }
 
 # Proxy 开关，先检查是否已安装，再根据当前状态转向相反状态
 proxy_onoff() {
-  ! type -p warp-cli >/dev/null 2>&1 && error " $(text 93) "
+  [ ! $(type -p warp-cli) ] && error " $(text 93) "
   if systemctl is-active warp-svc >/dev/null 2>&1; then
     [[ ! "$(warp-cli --accept-tos settings)" =~ WarpProxy ]] && rule_del >/dev/null 2>&1
     systemctl stop warp-svc
@@ -883,7 +893,7 @@ proxy_onoff() {
 # WireProxy 开关，先检查是否已安装，再根据当前状态转向相反状态
 wireproxy_onoff() {
   unset QUOTA
-  ! type -p wireproxy >/dev/null 2>&1 && error " $(text 157) " || OCTEEP=1
+  [ ! $(type -p wireproxy) ] && error " $(text 157) " || OCTEEP=1
   if ss -nltp | grep wireproxy >/dev/null 2>&1; then
     systemctl stop wireproxy
     [[ ! $(ss -nltp) =~ wireproxy ]] && info " $(text 158) "
@@ -1006,7 +1016,7 @@ EOF
 
   # 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义:0=未安装  1=已安装未激活  2=状态激活  3=Clinet proxy 已开启  5=Clinet warp 已开启
   CLIENT=0
-  if type -p warp-cli >/dev/null 2>&1; then
+  if [ $(type -p warp-cli) ]; then
     ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
     [[ $ACCOUNT =~ Limited ]] && CHECK_TYPE=1 && AC='+' && check_quota
     CLIENT=1 && CLIENT_INSTALLED="$(text 92)"
@@ -1020,7 +1030,7 @@ EOF
 
   # 判断当前 WireProxy 状态，决定变量 WIREPROXY，变量 WIREPROXY 含义:0=未安装  1=已安装未激活  2=状态激活  3=Clinet 已开启
   WIREPROXY=0
-  if type -p wireproxy >/dev/null 2>&1; then
+  if [ $(type -p wireproxy) ]; then
     WIREPROXY=1
     [ "$WIREPROXY" = 1 ] && WIREPROXY_INSTALLED="$(text 92)" && [[ $(ss -nltp) =~ wireproxy ]] && WIREPROXY=3 && proxy_info || WIREPROXY=2
   fi
@@ -1379,7 +1389,7 @@ install() {
     ${PACKAGE_UPDATE[int]}
 
     # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
-    ${PACKAGE_INSTALL[int]} --no-install-recommends net-tools iproute2 openresolv dnsutils iptables
+    ${PACKAGE_INSTALL[int]} --no-install-recommends net-tools openresolv dnsutils iptables
     [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
 
     # 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
@@ -1391,7 +1401,7 @@ install() {
     ${PACKAGE_UPDATE[int]}
 
     # 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
-    ${PACKAGE_INSTALL[int]} --no-install-recommends net-tools iproute2 openresolv dnsutils iptables
+    ${PACKAGE_INSTALL[int]} --no-install-recommends net-tools openresolv dnsutils iptables
     [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
   }
 
@@ -1412,10 +1422,10 @@ install() {
     ${PACKAGE_UPDATE[int]}
 
     # s390x wireguard-tools 安装
-    [ "$ARCHITECTURE" = s390x ] && ! type -p wg >/etc/null 2>&1 && rpm -i https://mirrors.cloud.tencent.com/epel/8/Everything/s390x/Packages/w/wireguard-tools-1.0.20210914-1.el8.s390x.rpm
+    [ "$ARCHITECTURE" = s390x ] && [ ! $(type -p wg) ] && rpm -i https://mirrors.cloud.tencent.com/epel/8/Everything/s390x/Packages/w/wireguard-tools-1.0.20210914-1.el8.s390x.rpm
 
     # CentOS Stream 9 需要安装 resolvconf
-    [[ "$SYSTEM" = CentOS && "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" = 9 ]] && ! type -p resolvconf >/dev/null 2>&1 && 
+    [[ "$SYSTEM" = CentOS && "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" = 9 ]] && [ ! $(type -p resolvconf) ] && 
     wget $CDN -P /usr/sbin https://github.com/fscarmen/warp/releases/download/resolvconf/resolvconf && chmod +x /usr/sbin/resolvconf
   }
 
@@ -1554,7 +1564,7 @@ EOF
 
     # 设置开机启动
     ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
-    type -p dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
+    [ $(type -p dnsmasq) ] && systemctl restart dnsmasq >/dev/null 2>&1
 
     # Linux 内核低于5.6的，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
     if [ "$SYSTEM" != Alpine ]; then
@@ -1661,7 +1671,7 @@ proxy() {
   if [ "$CLIENT" = 0 ]; then info " $(text 83) "
     if [ "$SYSTEM" = CentOS ]; then
       { wget https://github.com/fscarmen/warp/raw/main/Client/Client_CentOS_8.rpm; } &
-      ! type -p desktop-file-install >/dev/null 2>&1 && ${PACKAGE_INSTALL[int]} desktop-file-utils
+      [ ! $(type -p desktop-file-install) ] && ${PACKAGE_INSTALL[int]} desktop-file-utils
       case "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" in
         7 ) #  CentOS 7，需要用 Cloudflare CentOS 8 的库以安装 Client，并在线编译升级 C 运行库 Glibc 2.28
             ${PACKAGE_INSTALL[int]} nftables
@@ -2031,7 +2041,7 @@ update() {
   ACCOUNT3=("" ""  "" "" "" "" "" "wireproxy_account")
 
   for ((c=0; c<${#INSTALL_CHECK[@]}; c++)); do
-    type -p ${INSTALL_CHECK[c]} >/dev/null 2>&1 && INSTALL_RESULT[c]=1 || INSTALL_RESULT[c]=0
+    [ $(type -p ${INSTALL_CHECK[c]}) ] && INSTALL_RESULT[c]=1 || INSTALL_RESULT[c]=0
   done
 
   for ((d=0; d<${#CASE_RESAULT[@]}; d++)); do

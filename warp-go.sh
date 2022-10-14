@@ -298,12 +298,12 @@ check_dependencies() {
     [ ! -e /opt/warp-go/warp-go ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash )
   else
     DEPS_CHECK=("ping" "wget" "curl" "systemctl" "ip")
-    DEPS_INSTALL=(" inetutils-ping" " wget" " curl" " systemctl" " iproute2")
-    for ((c=0;c<${#DEPS_CHECK[@]};c++)); do ! type -p ${DEPS_CHECK[c]} >/dev/null 2>&1 && DEPS+=${DEPS_INSTALL[c]}; done
+    DEPS_INSTALL=(" iputils-ping" " wget" " curl" " systemctl" " iproute2")
+    for ((c=0;c<${#DEPS_CHECK[@]};c++)); do [[ ! $(type -p ${DEPS_CHECK[c]}) ]] && DEPS+=${DEPS_INSTALL[c]}; done
     if [ -n "$DEPS" ]; then
       info "\n $(text 8) $DEPS \n"
-      ${PACKAGE_UPDATE[int]}
-      ${PACKAGE_INSTALL[int]} $DEPS
+      ${PACKAGE_UPDATE[int]} >/dev/null 2>&1
+      ${PACKAGE_INSTALL[int]} $DEPS >/dev/null 2>&1
     else
       info "\n $(text 9) \n"
     fi
