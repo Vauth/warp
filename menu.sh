@@ -4,7 +4,7 @@ export LANG=en_US.UTF-8
 # 当前脚本版本号和新增功能
 VERSION=2.45
 
-E[0]="\n Language:\n 1.English (default) \n 2.简体中文\n"
+E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
 E[1]="1. Further improve the conversion function between accounts. You can even switch from one WARP+ to another.; 2. Rebuild the account registration module."
 C[1]="1. 进一步完善账户间转换功能，你甚至可以从一个 WARP+ 换到另一个; 2. 重构账户注册模块。"
@@ -22,8 +22,8 @@ E[7]="Install dependence-list:"
 C[7]="安装依赖列表:"
 E[8]="All dependencies already exist and do not need to be installed additionally."
 C[8]="所有依赖已存在，不需要额外安装"
-E[9]=""
-C[9]=""
+E[9]="Client cannot be upgraded to a Teams account."
+C[9]="Client 不能升级为 Teams 账户"
 E[10]="WireGuard tools are not installed or the configuration file wgcf.conf cannot be found, please reinstall."
 C[10]="没有安装 WireGuard tools 或者找不到配置文件 wgcf.conf，请重新安装。"
 E[11]="Maximum \${j} attempts to get WARP IP..."
@@ -114,8 +114,8 @@ E[53]="WARP+ ID should be 36 characters, please re-enter \(\${i} times remaining
 C[53]="WARP+ ID 应为36位字符，请重新输入 \(剩余\${i}次\):"
 E[54]="Getting the WARP+ quota by the following 3 authors:\n	• [ALIILAPRO]，[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	• [mixool]，[https://github.com/mixool/across/tree/master/wireguard]\n	• [SoftCreatR]，[https://github.com/SoftCreatR/warp-up]\n • Open the 1.1.1.1 app\n • Click on the hamburger menu button on the top-right corner\n • Navigate to: Account > Key\n Important:Refresh WARP+ quota: 三 --> Advanced --> Connection options --> Reset keys\n It is best to run script with screen."
 C[54]="刷 WARP+ 流量用可选择以下三位作者的成熟作品，请熟知:\n	• [ALIILAPRO]，地址[https://github.com/ALIILAPRO/warp-plus-cloudflare]\n	• [mixool]，地址[https://github.com/mixool/across/tree/master/wireguard]\n	• [SoftCreatR]，地址[https://github.com/SoftCreatR/warp-up]\n 下载地址:https://1.1.1.1/，访问和苹果外区 ID 自理\n 获取 WARP+ ID 填到下面。方法:App右上角菜单 三 --> 高级 --> 诊断 --> ID\n 重要:刷脚本后流量没有增加处理:右上角菜单 三 --> 高级 --> 连接选项 --> 重置加密密钥\n 最好配合 screen 在后台运行任务"
-E[55]="1.Run [ALIILAPRO] script\n 2.Run [mixool] script\n 3.Run [SoftCreatR] script"
-C[55]="1.运行 [ALIILAPRO] 脚本\n 2.运行 [mixool] 脚本\n 3.运行 [SoftCreatR] 脚本"
+E[55]="1. Run [ALIILAPRO] script\n 2. Run [mixool] script\n 3. Run [SoftCreatR] script"
+C[55]="1. 运行 [ALIILAPRO] 脚本\n 2. 运行 [mixool] 脚本\n 3. 运行 [SoftCreatR] 脚本"
 E[56]="The current Netflix region is \$REGION. Confirm press [y] . If you want another regions, please enter the two-digit region abbreviation. \(such as hk,sg. Default is \$REGION\):"
 C[56]="当前 Netflix 地区是:\$REGION，需要解锁当前地区请按 [y], 如需其他地址请输入两位地区简写 \(如 hk ,sg，默认:\$REGION\):"
 E[57]="The target quota you want to get. The unit is GB, the default value is 10:"
@@ -214,8 +214,8 @@ E[103]="Port \$PORT is in use. Please input another Port\(\${i} times remaining\
 C[103]="\$PORT 端口占用中，请使用另一端口\(剩余\${i}次\):"
 E[104]="Please customize the Client port (1000-65535. Default to 40000 if it is blank):"
 C[104]="请自定义 Client 端口号 (1000-65535，如果不输入，会默认40000):"
-E[105]="Please choose the priority:\n 1.IPv4\n 2.IPv6\n 3.Use initial settings (default)"
-C[105]="请选择优先级别:\n 1.IPv4\n 2.IPv6\n 3.使用 VPS 初始设置 (默认)"
+E[105]="Please choose the priority:\n 1. IPv4\n 2. IPv6\n 3. Use initial settings (default)"
+C[105]="请选择优先级别:\n 1. IPv4\n 2. IPv6\n 3. 使用 VPS 初始设置 (默认)"
 E[106]="IPv6 priority"
 C[106]="IPv6 优先"
 E[107]="IPv4 priority"
@@ -533,7 +533,7 @@ plus() {
   echo -e "\n=============================================================="
   hint " $(text 54)\n "
   info " $(text 55) "
-  [ "$OPTION" != p ] && info " 4.$(text 49) " || info " 4.$(text 76) "
+  [ "$OPTION" != p ] && info " 4. $(text 49) " || info " 4. $(text 76) "
   echo -e "=============================================================="
   reading " $(text 50) " CHOOSEPLUS
   case "$CHOOSEPLUS" in
@@ -726,8 +726,8 @@ change_ip() {
 bbrInstall() {
   echo -e "\n=============================================================="
   hint " $(text 47)\n "
-  info " 1.$(text 48) "
-  [ "$OPTION" != b ] && info " 2.$(text 49) " || info " 2.$(text 76) "
+  info " 1. $(text 48) "
+  [ "$OPTION" != b ] && info " 2. $(text 49) " || info " 2. $(text 76) "
   echo -e "=============================================================="
   reading " $(text 50) " BBR
   case "$BBR" in
@@ -1760,8 +1760,8 @@ stream_solution() {
 
   echo -e "\n=============================================================="
   hint " $(text 139)\n "
-  info " 1.$(text 48) "
-  [ "$OPTION" != e ] && info " 2.$(text 49) " || info " 2.$(text 76) "
+  info " 1. $(text 48) "
+  [ "$OPTION" != e ] && info " 2. $(text 49) " || info " 2. $(text 76) "
   echo -e "=============================================================="
   reading " $(text 50) " IPTABLES
   case "$IPTABLES" in
@@ -1777,8 +1777,8 @@ wireproxy_solution() {
 
   echo -e "\n=============================================================="
   hint " $(text 165)\n "
-  info " 1.$(text 48) "
-  [ "$OPTION" != w ] && info " 2.$(text 49) " || info " 2.$(text 76) "
+  info " 1. $(text 48) "
+  [ "$OPTION" != w ] && info " 2. $(text 49) " || info " 2. $(text 76) "
   echo -e "=============================================================="
   reading " $(text 50) " WIREPROXY_CHOOSE
   case "$WIREPROXY_CHOOSE" in
@@ -2013,6 +2013,7 @@ update() {
   client_account() {
     UPDATE_ACCOUNT=client
     [ "$ARCHITECTURE" = arm64 ] && error " $(text 101) "
+    [ -n "$URL" ] && unset CHOOSE_TYPE && warning "\n $(text 9) "
 
     CHANGE_DO0() { menu; }
     CHANGE_DO1() { change_to_free; }
