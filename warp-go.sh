@@ -654,8 +654,8 @@ EOF
   IPV4=0; IPV6=0
   LAN4=$(ip route get 192.168.193.10 2>/dev/null | grep -oP 'src \K\S+')
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
-  [[ "$LAN4" =~ ^[0-9.]+$ ]] && INET4=1
-  [[ "$LAN6" != "::1" && "$LAN6" =~ ^[0-9a-z:]+$ ]] && INET6=1
+  [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1
+  [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1
 
   if [ "$STATUS" != 2 ]; then
     [ "$INET6" = 1 ] && ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
