@@ -14,7 +14,7 @@ jobs:
       EMAIL: ${{ secrets.GH_EMAIL }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.1.0
       - name: Update wireproxy to latest version
         run: |
           NOW=$(wget -qO- https://raw.githubusercontent.com/${{ env.USERNAME }}/warp/main/wireproxy/version_history | head -n 1 | sed "s/.*v\(.*\)/\1/g")
