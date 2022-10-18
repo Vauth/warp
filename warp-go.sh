@@ -2,13 +2,13 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=1.0.7
+VERSION=1.0.8
 TOKEN_LENGTH=800
 
 E[0]="Language:\n  1.English (default) \n  2.简体中文"
 C[0]="${E[0]}"
-E[1]="1. Further improve the conversion function between accounts. You can even switch from one WARP+ to another.; 2. Rebuild the account registration module."
-C[1]="1. 进一步完善账户间转换功能，你甚至可以从一个 WARP+ 换到另一个; 2. 重构账户注册模块。"
+E[1]="Switch the IPv4 / IPv6 priority by [warp-go s 4/6/d]."
+C[1]="通过 [warp-go s 4/6/d] 来切换 IPv4 / IPv6 的优先级别"
 E[2]="warp-go h (help)\n warp-go o (temporary warp-go switch)\n warp-go u (uninstall WARP web interface and warp-go)\n warp-go v (sync script to latest version)\n warp-go i (replace IP with Netflix support)\n warp-go 4/6 ( WARP IPv4/IPv6 single-stack)\n warp-go d (WARP dual-stack)\n warp-go n (WARP IPv4 non-global)\n warp-go g (WARP global/non-global switching)\n warp-go e (output wireguard configuration file)\n warp-go a (Change to Free, WARP+ or Teams account)"
 C[2]="warp-go h (帮助）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 配置文件)\n warp-go a (更换到 Free，WARP+ 或 Teams 账户)"
 E[3]="This project is designed to add WARP network interface for VPS, using warp-go core, using various interfaces of CloudFlare-WARP, integrated wireguard-go, can completely replace WGCF. Save Hong Kong, Toronto and other VPS, can also get WARP IP. Thanks again @CoiaPrant and his team. Project address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/"
@@ -205,6 +205,8 @@ E[98]="Non-global"
 C[98]="非全局"
 E[99]="global"
 C[99]="全局"
+E[100]="IPv\$PRIO priority"
+C[100]="IPv\$PRIO 优先"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }
@@ -332,13 +334,38 @@ ip6_info() {
 # 帮助说明
 help() { hint " $(text 2) "; }
 
-# IPv4 / IPv6 优先
+# IPv4 / IPv6 优先设置
 stack_priority() {
+  [ "$OPTION" = s ] && case "$PRIORITY_SWITCH" in
+    4 ) PRIORITY=1 ;;
+    6 ) PRIORITY=2 ;;
+    d ) : ;;
+    * ) hint "\n $(text 55) \n" && reading " $(text 4) " PRIORITY ;;
+  esac
+
   [ -e /etc/gai.conf ] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
   case "$PRIORITY" in
     1 ) echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf ;;
     2 )	echo "label 2002::/16   2" >> /etc/gai.conf ;;
   esac
+}
+
+# IPv4 / IPv6 优先结果
+result_priority() {
+  PRIO=(0 0)
+  if [ -e /etc/gai.conf ]; then
+    grep -qsE "^precedence[ ]+::ffff:0:0/96[ ]+100" /etc/gai.conf && PRIO[0]=1
+    grep -qsE "^label[ ]+2002::/16[ ]+2" /etc/gai.conf && PRIO[1]=1
+  fi
+  case "${PRIO[*]}" in
+    '1 0' ) PRIO=4 ;;
+    '0 1' ) PRIO=6 ;;
+    * ) [[ "$(curl -ksm8 https://ip.gs)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
+  esac
+  PRIORITY_NOW=$(text_eval 100)
+
+  # 如是快捷方式切换优先级别的话，显示结果
+  [ "$OPTION" = s ] && hint "\n $PRIORITY_NOW \n"
 }
 
 need_install() {
@@ -599,7 +626,7 @@ stack_switch() {
   fi
 
   [ "${#TO}" != 3 ] && error " $(text 10) " || sh -c "$(eval echo "\$SWITCH$TO")"
-  ${SYSTEMCTL_RESTART[int]}
+  ${SYSTEMCTL_RESTART[int]}; sleep 1
   grep -q "^AllowedIPs.*0\.\0\/0" /opt/warp-go/warp.conf || unset INTERFACE
   OPTION=o && net
 }
@@ -864,6 +891,7 @@ install() {
   wget --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$latest"/downloads/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz ||
   wget --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
   [ ! -e /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz ] && error "$(text 56)"
+  [ $(type -p tar) ] || ${PACKAGE_INSTALL[int]} tar 2>/dev/null || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} tar 2>/dev/null )
   tar xzf /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz -C /opt/warp-go/ warp-go
   [ ! -e /opt/warp-go/warp-go ] && error "$(text 57)" || chmod +x /opt/warp-go/warp-go
   rm -f /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
@@ -1011,16 +1039,19 @@ EOF
   ln -sf /opt/warp-go/warp-go.sh /usr/bin/warp-go
   echo "$L" > /opt/warp-go/language
 
-  # 结果提示，脚本运行时间，次数统计
+  # 结果提示，脚本运行时间，次数统计，IPv4 / IPv6 优先级别
+  [ "$(curl -ksm8 https://ip.gs)" = "$WAN6" ] && PRIO=6 || PRIO=4
   end=$(date +%s)
   ACCOUNT_TYPE=$(grep "Type" /opt/warp-go/warp.conf | cut -d= -f2 | sed "s# ##g")
   [ "$ACCOUNT_TYPE" = 'plus' ] && check_quota
+  result_priority
 
   echo -e "\n==============================================================\n"
   info " IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
   info " IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
   info " $(text_eval 62) "
   [[ -n "$QUOTA" ]] && info " $(text 26): $QUOTA "
+  info " $PRIORITY_NOW "
   echo -e "\n==============================================================\n"
   hint " $(text 95)\n " && help
   [ "$TRACE4$TRACE6" = offoff ] && warning " $(text 63) "
@@ -1138,6 +1169,7 @@ if [ "$2" != '[lisence]' ]; then
     LICENSETYPE=1 && LICENSE="$2"
   elif [[ "${#2}" -ge "$TOKEN_LENGTH" ]]; then LICENSETYPE=2 && TOKEN="$2"
   elif [[ "$2" =~ ^[A-Za-z]{2}$ ]]; then EXPECT="$2"
+  elif [[ "$1" = s && "$2" = [46Dd] ]]; then PRIORITY_SWITCH=$(tr '[:upper:]' '[:lower:]' <<< "$2")
   fi
 fi
 
@@ -1155,6 +1187,7 @@ case "$OPTION" in
   h ) help; exit 0 ;;
   i ) change_ip; exit 0 ;;
   e ) export_wireguard; exit 0 ;;
+  s ) stack_priority; result_priority; exit 0 ;;
 esac
 
 # 主程序运行 2/3

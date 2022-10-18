@@ -2,12 +2,12 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=2.45
+VERSION=2.46
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="1. Further improve the conversion function between accounts. You can even switch from one WARP+ to another.; 2. Rebuild the account registration module."
-C[1]="1. 进一步完善账户间转换功能，你甚至可以从一个 WARP+ 换到另一个; 2. 重构账户注册模块。"
+E[1]="Switch the IPv4 / IPv6 priority by [warp s 4/6/d]."
+C[1]="通过 [warp s 4/6/d] 来切换 IPv4 / IPv6 的优先级别"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -16,8 +16,8 @@ E[4]="The WARP server cannot be connected. It may be a China Mainland VPS. You c
 C[4]="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.193.10 或 ping6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[5]="The script supports Debian, Ubuntu, CentOS, Arch or Alpine systems only. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[5]="本脚本只支持 Debian、Ubuntu、CentOS、Arch 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Change account to Free, WARP+ or Teams)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n"
-C[6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (更换账户为 Free，WARP+ 或 Teams)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n"
+E[6]="warp h (help)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Change account to Free, WARP+ or Teams)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n warp s 4/6/d (Set stack proiority: IPv4 / IPv6 / VPS default)\n"
+C[6]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (更换账户为 Free，WARP+ 或 Teams)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n warp s 4/6/d (优先级: IPv4 / IPv6 / VPS default)\n"
 E[7]="Install dependence-list:"
 C[7]="安装依赖列表:"
 E[8]="All dependencies already exist and do not need to be installed additionally."
@@ -198,8 +198,8 @@ E[95]="Client works with non-WARP IPv4. The script is aborted. Feedback: [https:
 C[95]="Client 在非 WARP IPv4 下才能工作正常，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[96]="Client connecting failure. It may be a CloudFlare IPv4."
 C[96]="Client 连接失败，可能是 CloudFlare IPv4."
-E[97]=""
-C[97]=""
+E[97]="IPv\$PRIO priority"
+C[97]="IPv\$PRIO 优先"
 E[98]="Uninstall WirePorxy was complete."
 C[98]="WirePorxy 卸载成功"
 E[99]="WireProxy is connected"
@@ -216,10 +216,10 @@ E[104]="Please customize the Client port (1000-65535. Default to 40000 if it is 
 C[104]="请自定义 Client 端口号 (1000-65535，如果不输入，会默认40000):"
 E[105]="Please choose the priority:\n 1. IPv4\n 2. IPv6\n 3. Use initial settings (default)"
 C[105]="请选择优先级别:\n 1. IPv4\n 2. IPv6\n 3. 使用 VPS 初始设置 (默认)"
-E[106]="IPv6 priority"
-C[106]="IPv6 优先"
-E[107]="IPv4 priority"
-C[107]="IPv4 优先"
+E[106]=""
+C[106]=""
+E[107]=""
+C[107]=""
 E[108]="\n 1. WARP Linux Client IP\n 2. WGCF WARP IP ( Only IPv6 can be brushed when WGCF and Client exist at the same time )\n"
 C[108]="\n 1. WARP Linux Client IP\n 2. WGCF WARP IP ( WGCF 和 Client 并存时只能刷 IPv6)\n"
 E[109]="Socks5 Proxy Client is working now. WARP IPv4 and dualstack interface could not be switch to. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -294,8 +294,8 @@ E[143]="Change Client or WireProxy port"
 C[143]="更改 Client 或 WireProxy 端口"
 E[144]="Install WARP IPv6 interface"
 C[144]="安装 WARP IPv6 网络接口"
-E[145]="WARP ineterface can be switched to the following:\\\n 1. \$OPTION1\\\n 2. \$OPTION2\\\n 0. \${T[\${L}76]}"
-C[145]="WARP 网络接口可以切换为以下方式:\\\n 1. \$OPTION1\\\n 2. \$OPTION2\\\n 0. \${T[\${L}76]}"
+E[145]=""
+C[145]=""
 E[146]="Cannot switch to the same form as the current one."
 C[146]="不能切换为当前一样的形态"
 E[147]="Not available for IPv6 only VPS"
@@ -351,16 +351,16 @@ E[172]="No suitable solution was found for modifying the wgcf configuration file
 C[172]="没有找到适合的方案用于修改 wgcf 配置文件 wgcf.conf，脚本中止。当你看到此信息，请把该 bug 反馈至:[https://github.com/fscarmen/warp/issues]"
 E[173]="Current account type is: WARP \$ACCOUNT_TYPE\\\t \$PLUS_QUOTA\\\n \$CHANGE_TYPE"
 C[173]="当前账户类型是: WARP \$ACCOUNT_TYPE\\\t \$PLUS_QUOTA\\\n \$CHANGE_TYPE"
-E[174]="1. Continue using the free account without changing.\n 2. Change to WARP+ account.\n 3. Change to Teams account. (You need upload the Teams file to a private storage space before. For example: gist.github.com)\n 0. Return to the main menu."
-C[174]="1. 继续使用 free 账户，不变更\n 2. 变更为 WARP+ 账户\n 3. 变更为 Teams 账户 (你须事前把 Teams 文件上传到私密存储空间，比如:gist.github.com)\n 0. 返回主菜单"
-E[175]="1. Change to free account.\n 2. Change to WARP+ account.\n 3. Change to another WARP Teams account. (You need upload the Teams file to a private storage space before. For example: gist.github.com)\n 0. Return to the main menu."
-C[175]="1. 变更为 free 账户\n 2. 变更为 WARP+ 账户\n 3. 更换为另一个 Teams 账户 (你须事前把 Teams 文件上传到私密存储空间，比如:gist.github.com)\n 0. 返回主菜单"
-E[176]="1. Change to free account.\n 2. Change to another WARP+ account.\n 3. Change to Teams account. (You need upload the Teams file to a private storage space before. For example: gist.github.com)\n 0. Return to the main menu."
-C[176]="1. 变更为 free 账户\n 2. 变更为另一个 WARP+ 账户\n 3. 变更为 Teams 账户 (你须事前把 Teams 文件上传到私密存储空间，比如:gist.github.com)\n 0. 返回主菜单"
-E[177]="1. Continue using the free account without changing.\n 2. Change to WARP+ account.\n 0. Return to the main menu."
-C[177]="1. 继续使用 free 账户，不变更\n 2. 变更为 WARP+ 账户\n 0. 返回主菜单"
-E[178]="1. Change to free account.\n 2. Change to another WARP+ account.\n 0. Return to the main menu."
-C[178]="1. 变更为 free 账户\n 2. 变更为另一个 WARP+ 账户\n 0. 返回主菜单"
+E[174]="1. Continue using the free account without changing.\n 2. Change to WARP+ account.\n 3. Change to Teams account. (You need upload the Teams file to a private storage space before. For example: gist.github.com)"
+C[174]="1. 继续使用 free 账户，不变更\n 2. 变更为 WARP+ 账户\n 3. 变更为 Teams 账户 (你须事前把 Teams 文件上传到私密存储空间，比如:gist.github.com)"
+E[175]="1. Change to free account.\n 2. Change to WARP+ account.\n 3. Change to another WARP Teams account. (You need upload the Teams file to a private storage space before. For example: gist.github.com)"
+C[175]="1. 变更为 free 账户\n 2. 变更为 WARP+ 账户\n 3. 更换为另一个 Teams 账户 (你须事前把 Teams 文件上传到私密存储空间，比如:gist.github.com)"
+E[176]="1. Change to free account.\n 2. Change to another WARP+ account.\n 3. Change to Teams account. (You need upload the Teams file to a private storage space before. For example: gist.github.com)"
+C[176]="1. 变更为 free 账户\n 2. 变更为另一个 WARP+ 账户\n 3. 变更为 Teams 账户 (你须事前把 Teams 文件上传到私密存储空间，比如:gist.github.com)"
+E[177]="1. Continue using the free account without changing.\n 2. Change to WARP+ account."
+C[177]="1. 继续使用 free 账户，不变更\n 2. 变更为 WARP+ 账户"
+E[178]="1. Change to free account.\n 2. Change to another WARP+ account."
+C[178]="1. 变更为 free 账户\n 2. 变更为另一个 WARP+ 账户"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }
@@ -383,10 +383,10 @@ COUNT=$(
 # 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语
 select_language() {
   case $(cat /etc/wireguard/language 2>&1) in
-    E ) L=E;;
-    C ) L=C;;
-    * ) L=E && [[ -z "$OPTION" || "$OPTION" = [aclehdpbviw46] ]] && hint " $(text 0) " && reading " $(text 50) " LANGUAGE
-    [ "$LANGUAGE" = 2 ] && L=C;;
+    E ) L=E ;;
+    C ) L=C ;;
+    * ) L=E && [[ -z "$OPTION" || "$OPTION" = [aclehdpbviw46s] ]] && hint " $(text 0) " && reading " $(text 50) " LANGUAGE
+    [ "$LANGUAGE" = 2 ] && L=C ;;
   esac
 }
 
@@ -530,41 +530,66 @@ input() {
 }
 
 plus() {
-  echo -e "\n=============================================================="
-  hint " $(text 54)\n "
-  info " $(text 55) "
-  [ "$OPTION" != p ] && info " 4. $(text 49) " || info " 4. $(text 76) "
-  echo -e "=============================================================="
+  echo -e "\n==============================================================\n"
+  info " $(text 54) "
+  echo -e "\n==============================================================\n"
+  hint " $(text 55) "
+  [ "$OPTION" != p ] && hint " 0. $(text 49) \n" || hint " 0. $(text 76) \n"
   reading " $(text 50) " CHOOSEPLUS
   case "$CHOOSEPLUS" in
     1 ) input
         [ $(type -p git) ] || ${PACKAGE_INSTALL[int]} git 2>/dev/null
         [ $(type -p python3) ] || ${PACKAGE_INSTALL[int]} python3 2>/dev/null
         [ -d ~/warp-plus-cloudflare ] || git clone https://github.com/aliilapro/warp-plus-cloudflare.git
-        echo "$ID" | python3 ~/warp-plus-cloudflare/wp-plus.py;;
+        echo "$ID" | python3 ~/warp-plus-cloudflare/wp-plus.py ;;
     2 ) input
         reading " $(text 57) " MISSION
         MISSION=${MISSION//[^0-9]/}
-        bash <(wget --no-check-certificate -qO- -T8 https://raw.githubusercontent.com/fscarmen/tools/main/warp_plus.sh) $MISSION $ID;;
+        bash <(wget --no-check-certificate -qO- -T8 https://raw.githubusercontent.com/fscarmen/tools/main/warp_plus.sh) $MISSION $ID ;;
     3 ) input
         reading " $(text 57) " MISSION
         MISSION=${MISSION//[^0-9]/}
-        bash <(wget --no-check-certificate -qO- -T8 https://raw.githubusercontent.com/SoftCreatR/warp-up/main/warp-up.sh) --disclaimer --id $ID --iterations $MISSION;;
-    4 ) [ "$OPTION" != p ] && menu || exit;;
-    * ) warning " $(text 51) [1-4] "; sleep 1; plus;;
+        bash <(wget --no-check-certificate -qO- -T8 https://raw.githubusercontent.com/SoftCreatR/warp-up/main/warp-up.sh) --disclaimer --id $ID --iterations $MISSION ;;
+    0 ) [ "$OPTION" != p ] && menu || exit ;;
+    * ) warning " $(text 51) [0-3] "; sleep 1; plus ;;
   esac
 }
 
-# IPv4 / IPv6 优先
+# IPv4 / IPv6 优先设置
 stack_priority() {
+  [ "$OPTION" = s ] && case "$PRIORITY_SWITCH" in
+    4 ) PRIORITY=1 ;;
+    6 ) PRIORITY=2 ;;
+    d ) : ;;
+    * ) hint "\n $(text 105) \n" && reading " $(text 50) " PRIORITY ;;
+  esac
+
   [ -e /etc/gai.conf ] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
   case "$PRIORITY" in
-    1 ) echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf;;
-    2 ) echo "label 2002::/16   2" >> /etc/gai.conf;;
+    1 ) echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf ;;
+    2 ) echo "label 2002::/16   2" >> /etc/gai.conf ;;
   esac
 }
 
-# 更换 Netflix IP 时确认期望区域
+# IPv4 / IPv6 优先结果
+result_priority() {
+  PRIO=(0 0)
+  if [ -e /etc/gai.conf ]; then
+    grep -qsE "^precedence[ ]+::ffff:0:0/96[ ]+100" /etc/gai.conf && PRIO[0]=1
+    grep -qsE "^label[ ]+2002::/16[ ]+2" /etc/gai.conf && PRIO[1]=1
+  fi
+  case "${PRIO[*]}" in
+    '1 0' ) PRIO=4 ;;
+    '0 1' ) PRIO=6 ;;
+    * ) [[ "$(curl -ksm8 https://ip.gs)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
+  esac
+  PRIORITY_NOW=$(text_eval 97)
+
+  # 如是快捷方式切换优先级别的话，显示结果
+  [ "$OPTION" = s ] && hint "\n $PRIORITY_NOW \n"
+}
+
+# 更换 Netflix IP 时确认期望区域  
 input_region() {
   [ -n "$NF" ] && REGION=$(tr '[:lower:]' '[:upper:]' <<< "$(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
   [ -n "$PROXYPORT" ] && REGION=$(tr '[:lower:]' '[:upper:]' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
@@ -585,10 +610,10 @@ change_ip() {
     grep -q "^#.*0\.\0\/0" /etc/wireguard/wgcf.conf && T4=0 || T4=1
     grep -q "^#.*\:\:\/0" /etc/wireguard/wgcf.conf && T6=0 || T6=1
     case "$T4$T6" in
-      01 ) NF='6';;
-      10 ) NF='4';;
+      01 ) NF='6' ;;
+      10 ) NF='4' ;;
       11 ) hint "\n $(text 124) \n" && reading " $(text 50) " NETFLIX
-           NF='4' && [ "$NETFLIX" = 2 ] && NF='6';;
+           NF='4' && [ "$NETFLIX" = 2 ] && NF='6' ;;
     esac
 
     [ -z "$EXPECT" ] && input_region
@@ -712,28 +737,28 @@ change_ip() {
   done
 
   case "$b" in
-    0 ) error " $(text 150) ";;
-    1|2|4 ) ${CHANGE_IP1[b]};;
+    0 ) error " $(text 150) " ;;
+    1|2|4 ) ${CHANGE_IP1[b]} ;;
     * ) hint "\n ${SHOW_CHOOSE[b]} \n" && reading " $(text 50) " MODE
         case "$MODE" in
-          [1-3] ) $(eval echo "\${CHANGE_IP$MODE[b]}");;
-          * ) warning " $(text 51) [1-3] "; sleep 1; change_ip;;
-        esac;;
+          [1-3] ) $(eval echo "\${CHANGE_IP$MODE[b]}") ;;
+          * ) warning " $(text 51) [1-3] "; sleep 1; change_ip ;;
+        esac ;;
   esac
 }
 
 # 安装BBR
 bbrInstall() {
-  echo -e "\n=============================================================="
-  hint " $(text 47)\n "
-  info " 1. $(text 48) "
-  [ "$OPTION" != b ] && info " 2. $(text 49) " || info " 2. $(text 76) "
-  echo -e "=============================================================="
+  echo -e "\n==============================================================\n"
+  info " $(text 47) "
+  echo -e "\n==============================================================\n"
+  hint " 1. $(text 48) "
+  [ "$OPTION" != b ] && hint " 0. $(text 49) \n" || hint " 0. $(text 76) \n"
   reading " $(text 50) " BBR
   case "$BBR" in
-    1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh;;
-    2 ) [ "$OPTION" != b ] && menu || exit;;
-    * ) warning " $(text 51) [1-2]"; sleep 1; bbrInstall;;
+    1 ) wget --no-check-certificate -N "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh ;;
+    0 ) [ "$OPTION" != b ] && menu || exit ;;
+    * ) warning " $(text 51) [0-1]"; sleep 1; bbrInstall ;;
   esac
 }
 
@@ -911,8 +936,8 @@ check_stack() {
     grep -q "^#.*0\.\0\/0" /etc/wireguard/wgcf.conf && T4=0 || T4=1
     grep -q "^#.*\:\:\/0" /etc/wireguard/wgcf.conf && T6=0 || T6=1
   else
-    case "$TRACE4" in off ) T4='0';; 'on'|'plus' ) T4='1';; esac
-    case "$TRACE6" in off ) T6='0';; 'on'|'plus' ) T6='1';; esac
+    case "$TRACE4" in off ) T4='0' ;; 'on'|'plus' ) T4='1' ;; esac
+    case "$TRACE6" in off ) T6='0' ;; 'on'|'plus' ) T6='1' ;; esac
   fi
   CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1")
   for ((m=0;m<${#CASE[@]};m++)); do [ "$T4"@"$T6" = "${CASE[m]}" ] && break; done
@@ -951,18 +976,9 @@ stack_switch() {
     TO=$(eval echo "\${TO$CHOOSE1[m]}")
   elif [[ "$SWITCHCHOOSE" = [46D] ]]; then
     [[ "$T4@$T6@$SWITCHCHOOSE" =~ '1@0@4'|'0@1@6'|'1@1@D' ]] && error " $(text 146) " || TO="$T4$T6$SWITCHCHOOSE"
-  else
-    OPTION1="$(text_eval 141)"; OPTION2="$(text_eval 142)"
-    hint "\n $(text_eval 145) \n" && reading " $(text 50) " SWITCHTO
-    case "$SWITCHTO" in
-      1 ) TO=${TO1[m]};;
-      2 ) TO=${TO2[m]};;
-      0 ) exit;;
-      * ) warning " $(text 51) [0-2] "; sleep 1; stack_switch;;
-    esac
   fi
   [ "${#TO}" != 3 ] && error " $(text 172) " || sh -c "$(eval echo "\$SWITCH$TO")"
-  ${SYSTEMCTL_RESTART[int]}
+  ${SYSTEMCTL_RESTART[int]}; sleep 1
   OPTION=n && net
 }
 
@@ -1008,10 +1024,10 @@ EOF
 
   # 判断处理器架构
   case $(uname -m) in
-    aarch64 ) ARCHITECTURE=arm64; AMD64_ONLY="$(text 156)";;
-    x86_64 ) ARCHITECTURE=amd64;;
-    s390x ) ARCHITECTURE=s390x; AMD64_ONLY="$(text 156)";;
-    * ) error " $(text_eval 134) ";;
+    aarch64 ) ARCHITECTURE=arm64; AMD64_ONLY="$(text 156)" ;;
+    x86_64 ) ARCHITECTURE=amd64 ;;
+    s390x ) ARCHITECTURE=s390x; AMD64_ONLY="$(text 156)" ;;
+    * ) error " $(text_eval 134) " ;;
   esac
 
   # 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义:0=未安装  1=已安装未激活  2=状态激活  3=Clinet proxy 已开启  5=Clinet warp 已开启
@@ -1051,8 +1067,8 @@ rule_del() {
 teams_change() {
   sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" /etc/wireguard/wgcf.conf
   case $IPV4$IPV6 in
-    01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v6&quot;:&quot;\(.*]\):.*'):2408#g" /etc/wireguard/wgcf.conf;;
-    10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v4&quot;:&quot;\(.*\):0&quot;,.*'):2408#g" /etc/wireguard/wgcf.conf;;     
+    01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v6&quot;:&quot;\(.*]\):.*'):2408#g" /etc/wireguard/wgcf.conf ;;
+    10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v4&quot;:&quot;\(.*\):0&quot;,.*'):2408#g" /etc/wireguard/wgcf.conf ;;     
   esac
 }
         
@@ -1146,13 +1162,13 @@ change_port() {
 
   case "$f" in
     0|1 ) ${CHANGE_PORT1[f]}
-          ss -nltp | grep -q ":$PORT" && info " $(text_eval 122) " || error " $(text 34) ";;
+          ss -nltp | grep -q ":$PORT" && info " $(text_eval 122) " || error " $(text 34) " ;;
     2 ) hint " ${SHOW_CHOOSE[f]} " && reading " $(text 50) " MODE
         case "$MODE" in
           [1-2] ) $(eval echo "\${CHANGE_IP$MODE[f]}")
-                  ss -nltp | grep -q ":$PORT" && info " $(text_eval 122) " || error " $(text 34) ";;
-          * ) warning " $(text 51) [1-2] "; sleep 1; change_port;;
-        esac;;
+                  ss -nltp | grep -q ":$PORT" && info " $(text_eval 122) " || error " $(text 34) " ;;
+          * ) warning " $(text 51) [1-2] "; sleep 1; change_port ;;
+        esac ;;
   esac  
 }
 
@@ -1277,8 +1293,8 @@ install() {
   # 询问是否有 WARP+ 或 Teams 账户
   [ -z "$CHOOSE_TYPE" ] && hint "\n $(text 132) \n" && reading " $(text 50) " CHOOSE_TYPE
   case "$CHOOSE_TYPE" in
-    2 ) INPUT_LICENSE=1 && input_license;;
-    3 ) input_url;;
+    2 ) INPUT_LICENSE=1 && input_license ;;
+    3 ) input_url ;;
   esac
 
   # 选择优先使用 IPv4 /IPv6 网络
@@ -1304,6 +1320,7 @@ install() {
       wireproxy_latest=${wireproxy_latest:-'1.0.3'}
       wget --no-check-certificate -T1 -t1 $CDN -N https://github.com/octeep/wireproxy/releases/download/v"$wireproxy_latest"/wireproxy_linux_$ARCHITECTURE.tar.gz ||
       wget --no-check-certificate $CDN -N https://raw.githubusercontent.com/fscarmen/warp/main/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
+      [ $(type -p tar) ] || ${PACKAGE_INSTALL[int]} tar 2>/dev/null || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} tar 2>/dev/null )
       tar xzf wireproxy_linux_$ARCHITECTURE.tar.gz -C /usr/bin/; rm -f wireproxy_linux*
     fi
 
@@ -1556,9 +1573,6 @@ EOF
   else
     [ "$ANEMONE" = 1 ] && iptables_solution
 
-    # 特殊 VPS 的配置文件 DNS 次序
-    [ $(hostname 2>&1) = DiG9 ] && sed -i "s/DNS.*/DNS = 8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844/g" /etc/wireguard/wgcf.conf
-
     # 如有 Teams，改为 Teams 账户信息
     grep -qiw "y" <<< "$CONFIRM" && teams_change && echo "$TEAMS" > /etc/wireguard/info-temp.log 2>&1
 
@@ -1570,7 +1584,8 @@ EOF
     if [ "$SYSTEM" != Alpine ]; then
       if [ "$WG" = 1 ] || [[ $(systemctl is-active wg-quick@wgcf) != active ]] || [[ $(systemctl is-enabled wg-quick@wgcf) != enabled ]]; then
         systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
-        wget --no-check-certificate $CDN -N https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go_linux_"$ARCHITECTURE".tar.gz &&
+        wget --no-check-certificate $CDN -N https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go_linux_"$ARCHITECTURE".tar.gz
+        [ $(type -p tar) ] || ${PACKAGE_INSTALL[int]} tar 2>/dev/null || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} tar 2>/dev/null )
         tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
         ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
       fi
@@ -1584,10 +1599,10 @@ EOF
 
     # 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地，IPv4 / IPv6 优先级别
     info " $(text 39) "
-        unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
+    unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
     [ "$COMPANY" = amazon ] && warning " $(text_eval 40) " && reboot || net
-    [ "$(curl -ksm8 https://ip.gs)" = "$WAN6" ] && PRIORITY=$(text 106) || PRIORITY=$(text 107)
-
+    result_priority
+  
     # /etc/wireguard/info-temp.log 存在，说明升级 Teams 成功，移动文件到 /etc/wireguard/info.log
     grep -qiw "y" <<< "$CONFIRM" && [ -e /etc/wireguard/info-temp.log ] && mv -f /etc/wireguard/info-temp.log /etc/wireguard/info.log
 
@@ -1600,7 +1615,7 @@ EOF
     info " IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
     info " IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
     info " $(text_eval 41) " && [ -n "$QUOTA" ] && info " $(text_eval 133) "
-    info " $PRIORITY "
+    info " $PRIORITY_NOW "
     echo -e "\n==============================================================\n"
     hint " $(text 43)\n " && help
     [[ "$TRACE4$TRACE6" = offoff ]] && warning " $(text 44) "
@@ -1681,6 +1696,7 @@ proxy() {
               wget -O /usr/bin/make https://github.com/fscarmen/warp/releases/download/Glibc/make
               wget https://github.com/fscarmen/warp/releases/download/Glibc/glibc-2.28.tar.gz
               tar -xzvf glibc-2.28.tar.gz
+              [ $(type -p tar) ] || ${PACKAGE_INSTALL[int]} tar 2>/dev/null || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} tar 2>/dev/null )
               ${PACKAGE_INSTALL[int]} gcc bison make centos-release-scl
               ${PACKAGE_INSTALL[int]} devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-binutils
               source /opt/rh/devtoolset-8/enable
@@ -1691,9 +1707,9 @@ proxy() {
               cd ../..
               rm -rf glibc-2.28*
               ! systemctl is-active warp-svc >/dev/null 2>&1 && systemctl enable --now warp-svc
-            fi;;
+            fi ;;
 
-        8|9 ) rpm -ivh Client_CentOS_8.rpm;;
+        8|9 ) rpm -ivh Client_CentOS_8.rpm ;;
       esac
       rm -f Client_CentOS_8.rpm
     else
@@ -1758,16 +1774,16 @@ proxy() {
 stream_solution() {
   [ "$m" = 0 ] && error " $(text 147) "
 
-  echo -e "\n=============================================================="
-  hint " $(text 139)\n "
-  info " 1. $(text 48) "
-  [ "$OPTION" != e ] && info " 2. $(text 49) " || info " 2. $(text 76) "
-  echo -e "=============================================================="
+  echo -e "\n==============================================================\n"
+  info " $(text 139) "
+  echo -e "\n==============================================================\n"
+  hint " 1. $(text 48) "
+  [ "$OPTION" != e ] && hint " 0. $(text 49) \n" || hint " 0. $(text 76) \n"
   reading " $(text 50) " IPTABLES
   case "$IPTABLES" in
-    1 ) CONF=${CONF1[n]}; ANEMONE=1; install;;
-    2 ) [ "$OPTION" != e ] && menu || exit;;
-    * ) warning " $(text 51) [1-2]"; sleep 1; stream_solution;;
+    1 ) CONF=${CONF1[n]}; ANEMONE=1; install ;;
+    0 ) [ "$OPTION" != e ] && menu || exit ;;
+    * ) warning " $(text 51) [0-1]"; sleep 1; stream_solution ;;
   esac
 }
 
@@ -1775,16 +1791,16 @@ stream_solution() {
 wireproxy_solution() {
   ss -nltp | grep -q wireproxy && error " $(text 166) "
 
-  echo -e "\n=============================================================="
-  hint " $(text 165)\n "
-  info " 1. $(text 48) "
-  [ "$OPTION" != w ] && info " 2. $(text 49) " || info " 2. $(text 76) "
-  echo -e "=============================================================="
+  echo -e "\n==============================================================\n"
+  info " $(text 165) "
+  echo -e "\n==============================================================\n"
+  hint " 1. $(text 48) "
+  [ "$OPTION" != w ] && hint " 0. $(text 49) \n" || hint " 0. $(text 76) \n"
   reading " $(text 50) " WIREPROXY_CHOOSE
   case "$WIREPROXY_CHOOSE" in
-    1 ) OCTEEP=1; install;;
-    2 ) [ "$OPTION" != w ] && menu || exit;;
-    * ) warning " $(text 51) [1-2]"; sleep 1; wireproxy_solution;;
+    1 ) OCTEEP=1; install ;;
+    0 ) [ "$OPTION" != w ] && menu || exit ;;
+    * ) warning " $(text 51) [0-1]"; sleep 1; wireproxy_solution ;;
   esac
 }
 
@@ -1977,11 +1993,12 @@ change_to_teams() {
 
 # 免费 WARP 账户升级 WARP+ 账户
 update() {
+  unset CHOOSE_TYPE
   wgcf_wireproxy() {
     [ ! -e /etc/wireguard/wgcf-account.toml ] && error " $(text 59) "
     [ ! -e /etc/wireguard/wgcf.conf ] && error " $(text 60) "
 
-    CHANGE_DO0() { menu; }
+    CHANGE_DO0() { [ "$OPTION" != a ] && menu || exit; }
     CHANGE_DO1() { change_to_free; }
     CHANGE_DO2() { change_to_plus; }
     CHANGE_DO3() { change_to_teams; }
@@ -1991,7 +2008,12 @@ update() {
     [ -e /etc/wireguard/info.log ] && ACCOUNT_TYPE=teams && CHANGE_TYPE=$(text 175) &&
     grep -q 'Device name' /etc/wireguard/info.log && ACCOUNT_TYPE='+' && CHANGE_TYPE=$(text 176) && check_quota && PLUS_QUOTA="\\n $(text 63): $QUOTA"
 
-    [ -z "$CHOOSE_TYPE" ] && hint "\n $(text_eval 173) \n" && reading " $(text 50) " CHOOSE_TYPE
+    if [ -z "$CHOOSE_TYPE" ]; then
+      hint "\n $(text_eval 173)"
+      [ "$OPTION" != a ] && hint " 0. $(text 49) \n" || hint " 0. $(text 76) \n"
+      reading " $(text 50) " CHOOSE_TYPE
+    fi
+  
     # 输入必须是数字且少于等于3
     if [[ "$CHOOSE_TYPE" = [0-3] ]]; then
       CHANGE_DO$CHOOSE_TYPE
@@ -2024,7 +2046,12 @@ update() {
     ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
     [[ "$ACCOUNT" =~ Limited ]] && ACCOUNT_TYPE='+' && CHANGE_TYPE=$(text 178) && CHECK_TYPE=1 && check_quota && PLUS_QUOTA="$(text 63): $QUOTA"
 
-    [ -z "$CHOOSE_TYPE" ] && hint "\n $(text_eval 173) \n" && reading " $(text 50) " CHOOSE_TYPE
+    if [ -z "$CHOOSE_TYPE" ]; then
+      hint "\n $(text_eval 173) \n"
+      [ "$OPTION" != a ] && hint " 0. $(text 49) \n" || hint " 0. $(text 76) \n"
+      reading " $(text 50) " CHOOSE_TYPE
+    fi
+
     # 输入必须是数字且少于等于2
     if [[ "$CHOOSE_TYPE" = [0-2] ]]; then
       CHANGE_DO$CHOOSE_TYPE
@@ -2050,13 +2077,13 @@ update() {
   done
 
   case "$d" in
-    0 ) error " $(text 150) ";;
-    1|2|4 ) ${ACCOUNT1[d]};;
+    0 ) error " $(text 150) " ;;
+    1|2|4 ) ${ACCOUNT1[d]} ;;
     * ) hint " ${SHOW_CHOOSE[d]} " && reading " $(text 50) " MODE
         case "$MODE" in
-          [1-3] ) $(eval echo "\${ACCOUNT$MODE[d]}");;
-          * ) warning " $(text 51) [1-3] "; sleep 1; update;;
-        esac;;
+          [1-3] ) $(eval echo "\${ACCOUNT$MODE[d]}") ;;
+          * ) warning " $(text 51) [1-3] "; sleep 1; update ;;
+        esac ;;
   esac
 }
 
@@ -2073,10 +2100,10 @@ menu_setting() {
     check_stack
     case "$m" in
       [0-2] ) OPTION1="$(text_eval 66)"; OPTION2="$(text_eval 67)"; OPTION3="$(text_eval 68)"
-              ACTION1() { CONF=${CONF1[n]}; install; }; ACTION2() { CONF=${CONF2[n]}; install; }; ACTION3() { CONF=${CONF3[n]}; install; };;
+              ACTION1() { CONF=${CONF1[n]}; install; }; ACTION2() { CONF=${CONF2[n]}; install; }; ACTION3() { CONF=${CONF3[n]}; install; } ;;
         
       * ) OPTION1="$(text_eval 141)"; OPTION2="$(text_eval 142)"; OPTION3="$(text 78)"
-          ACTION1() { stack_switch; }; ACTION2() { stack_switch; }; ACTION3() { update; };;
+          ACTION1() { stack_switch; }; ACTION2() { stack_switch; }; ACTION3() { update; } ;;
     esac
   fi
 
@@ -2106,24 +2133,24 @@ menu() {
   info "\t IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
   info "\t IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
   case "$TRACE4$TRACE6" in
-    *plus* ) info "\t $(text_eval 114)\t $PLUSINFO ";;
-    *on* ) info "\t $(text 115) ";;
+    *plus* ) info "\t $(text_eval 114)\t $PLUSINFO " ;;
+    *on* ) info "\t $(text 115) " ;;
   esac
   [ "$PLAN" != 3 ] && info "\t $(text 116) "
   case "CLIENT" in
-    0 ) info "\t $(text 112) ";;
-    2 ) info "\t $(text_eval 113) ";;
-    3 ) info "\t WARP$AC $(text 24)\t $(text 27): $PROXYSOCKS5\n WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG ";;
-    5 ) info "\t WARP$AC $(text 24)\t $(text_eval 169) ";;
+    0 ) info "\t $(text 112) " ;;
+    2 ) info "\t $(text_eval 113) " ;;
+    3 ) info "\t WARP$AC $(text 24)\t $(text 27): $PROXYSOCKS5\n WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG " ;;
+    5 ) info "\t WARP$AC $(text 24)\t $(text_eval 169) " ;;
   esac
   case "$WIREPROXY" in
-    0 ) info "\t $(text 160) ";;
-    2 ) info "\t $(text 161) ";;
-    3 ) info "\t WARP$AC2 $(text 159)\t $(text 27): $PROXYSOCKS52\n\t WARP$AC2 IPv4: $PROXYIP2 $PROXYCOUNTRY2 $PROXYASNORG2 ";;
+    0 ) info "\t $(text 160) " ;;
+    2 ) info "\t $(text 161) " ;;
+    3 ) info "\t WARP$AC2 $(text 159)\t $(text 27): $PROXYSOCKS52\n\t WARP$AC2 IPv4: $PROXYIP2 $PROXYCOUNTRY2 $PROXYASNORG2 " ;;
   esac
   grep -q '+' <<< $AC$AC2 && info "\t $(text 63): $QUOTA "
    echo -e "\n======================================================================================================================\n"
-  info " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11\n 12. $OPTION12\n 13. $OPTION13\n 14. $OPTION14\n 0.  $OPTION0\n "
+  hint " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11\n 12. $OPTION12\n 13. $OPTION13\n 14. $OPTION14\n 0.  $OPTION0\n "
   reading " $(text 50) " CHOOSE1
         
   # 输入必须是数字且少于等于最大可选项
@@ -2142,7 +2169,7 @@ menu() {
 if [ "$2" != '[lisence]' ]; then
   if [[ "$2" =~ http ]]; then CHOOSE_TYPE=3 && URL=$2
   elif [[ "$2" =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then CHOOSE_TYPE=2 && LICENSE=$2
-  elif [[ "$2" = [46Dd] ]]; then SWITCHCHOOSE=$(tr '[:lower:]' '[:upper:]' <<< "$2")
+  elif [[ "$1" = s && "$2" = [46Dd] ]]; then PRIORITY_SWITCH=$(tr '[:upper:]' '[:lower:]' <<< "$2")
   elif [[ "$2" =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
   fi
 fi
@@ -2157,9 +2184,10 @@ check_operating_system
 
 # 设置部分后缀 1/3
 case "$OPTION" in
-h ) help; exit 0;;
-p ) plus; exit 0;;
-i ) change_ip; exit 0;;
+  h ) help; exit 0 ;;
+  p ) plus; exit 0 ;;
+  i ) change_ip; exit 0 ;;
+  s ) stack_priority; result_priority; exit 0 ;;
 esac
 
 # 主程序运行 2/3
@@ -2167,13 +2195,13 @@ check_root_virt
 
 # 设置部分后缀 2/3
 case "$OPTION" in
-b ) bbrInstall; exit 0;;
-u ) uninstall; exit 0;;
-v ) ver; exit 0;;
-n ) net; exit 0;;
-o ) onoff; exit 0;;
-r ) proxy_onoff; exit 0;;
-y ) wireproxy_onoff; exit 0;;
+  b ) bbrInstall; exit 0 ;;
+  u ) uninstall; exit 0 ;;
+  v ) ver; exit 0 ;;
+  n ) net; exit 0 ;;
+  o ) onoff; exit 0 ;;
+  r ) proxy_onoff; exit 0 ;;
+  y ) wireproxy_onoff; exit 0 ;;
 esac
 
 # 主程序运行 3/3
@@ -2190,17 +2218,17 @@ case "$OPTION" in
         else
           case "$OPTION" in
             4 ) [[ $CLIENT = [35] ]] && error " $(text 110) "
-                CONF=${CONF1[n]};; 
-            6 ) CONF=${CONF2[n]};;
+                CONF=${CONF1[n]} ;; 
+            6 ) CONF=${CONF2[n]} ;;
             d ) [[ $CLIENT = [35] ]] && error " $(text 110) "
-                CONF=${CONF3[n]};;
+                CONF=${CONF3[n]} ;;
           esac
           install
-        fi;;
-c ) proxy;;
-l ) LUBAN=1 && proxy;;
-a ) update;;
-e ) stream_solution;;
-w ) wireproxy_solution;;
-* ) menu;;
+        fi ;;
+c ) proxy ;;
+l ) LUBAN=1 && proxy ;;
+a ) update ;;
+e ) stream_solution ;;
+w ) wireproxy_solution ;;
+* ) menu ;;
 esac

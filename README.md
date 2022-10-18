@@ -21,7 +21,9 @@
 * * *
 
 ## 更新信息
-2022.10.7 warp-go V1.0.7 1. Further improve the conversion function between accounts. You can even switch from one WARP+ to another; 2. Formatting code； 1. 进一步完善账户间转换功能，你甚至可以从一个 WARP+ 换到另一个; 2. 优化代码。
+2022.10.19 menu V2.46 / warp-go V1.0.8 Switch the IPv4 / IPv6 priority by [warp s 4/6/d] or [warp-go s 4/6/d]; 通过 [warp s 4/6/d] 或者 [warp-go 4/6/d]来切换 IPv4 / IPv6 的优先级别
+
+2022.10.7 warp-go V1.0.7 1. Further improve the conversion function between accounts. You can even switch from one WARP+ to another; 2. Formatting code； 1. 进一步完善账户间转换功能，你甚至可以从一个 WARP+ 换到另一个; 2. 优化代码
 
 2022.10.6 menu V2.45 1. Further improve the conversion function between accounts. You can even switch from one WARP+ to another; 2. Rebuild the account registration module; 1. 进一步完善账户间转换功能，你甚至可以从一个 WARP+ 换到另一个; 2. 重构账户注册模块
 
