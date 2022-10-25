@@ -28,7 +28,7 @@ jobs:
           LATEST3=$(echo $LATEST | cut -d \. -f3)
           NOW_VERSION=$(( NOW1*1000000 + NOW2*1000 + NOW3 ))
           LATEST_VERSION=$(( LATEST1*1000000 + LATEST2*1000 + LATEST3 ))
-          if [ $LATEST_VERSION -gt $NOW_VERSION ]; then
+          if [ $LATEST_VERSION -ge $NOW_VERSION ]; then
             PLATFORM=(  "linux_386"
                         "linux_amd64"
                         "linux_amd64v2"
@@ -44,7 +44,6 @@ jobs:
             
             for i in "${PLATFORM[@]}"; do
               wget -NP ${GITHUB_WORKSPACE}/warp-go/ https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$LATEST"/downloads/warp-go_"$LATEST"_"$i".tar.gz
-              rm -f ${GITHUB_WORKSPACE}/warp-go/warp-go_"$NOW"_"$i".tar.gz
             done
             
             for j in "${SCRIPTS[@]}"; do

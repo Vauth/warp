@@ -438,7 +438,7 @@ check_operating_system() {
 
   # 先排除 EXCLUDE 里包括的特定系统，其他系统需要作大发行版本的比较
   for ex in "${EXCLUDE[@]}"; do [[ ! $(tr '[:upper:]' '[:lower:]' <<< "$SYS")  =~ $ex ]]; done &&
-  [ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ] && error " $(text_eval 26) "
+  [[ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ]] && error " $(text_eval 26) "
 }
 
 # 安装 curl

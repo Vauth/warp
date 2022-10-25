@@ -825,7 +825,7 @@ update() {
           for a in {2..5}; do sed -i "${a}s#.*#$(sed -ne ${a}p /opt/warp-go/warp.conf.tmp)#" /opt/warp-go/warp.conf; done
           rm -f /opt/warp-go/warp.conf.tmp
         else
-          sed -i "s#.*Device.*#Device = FSCARMEN-WARP-SHARE-TEAM#g; s#.*PrivateKey.*#PrivateKey = SHVqHEGI7k2+OQ/oWMmWY2EQObbRQjRBdDPimh0h1WY=#g; s#.*Token.*#Token = SB-KKKYG-YGKKK-SB#g; s#.*Type.*#Type = team#g" /opt/warp-go/warp.conf
+          sed -i "s#.*Device.*#Device = FSCARMEN-WARP-SHARE-TEAM#g; s#.*PrivateKey.*#PrivateKey = SHVqHEGI7k2+OQ/oWMmWY2EQObbRQjRBdDPimh0h1WY=#g; s#.*Token.*#Token = SB-MISAKANO-ZZY-SB#g; s#.*Type.*#Type = team#g" /opt/warp-go/warp.conf
         fi
         OPTION=o && net
         ;;
@@ -914,7 +914,7 @@ install() {
 [Account]
 Device = FSCARMEN-WARP-SHARE-TEAM
 PrivateKey = SHVqHEGI7k2+OQ/oWMmWY2EQObbRQjRBdDPimh0h1WY=
-Token = SB-KKKYG-YGKKK-SB
+Token = SB-MISAKANO-ZZY-SB
 Type = team
 
 [Peer]
