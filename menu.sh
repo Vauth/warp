@@ -1581,16 +1581,14 @@ EOF
     [ $(type -p dnsmasq) ] && systemctl restart dnsmasq >/dev/null 2>&1
 
     # Linux 内核低于5.6的，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
-    if [ "$SYSTEM" != Alpine ]; then
-      if [ "$WG" = 1 ] || [[ $(systemctl is-active wg-quick@wgcf) != active ]] || [[ $(systemctl is-enabled wg-quick@wgcf) != enabled ]]; then
-        systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
-        wget --no-check-certificate $CDN -N https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go_linux_"$ARCHITECTURE".tar.gz
-        [ $(type -p tar) ] || ${PACKAGE_INSTALL[int]} tar 2>/dev/null || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} tar 2>/dev/null )
-        tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
-        ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
-      fi
+    if [ "$WG" = 1 ] || [[ $(systemctl is-active wg-quick@wgcf) != active ]] || [[ $(systemctl is-enabled wg-quick@wgcf) != enabled ]]; then
+      systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
+      wget --no-check-certificate $CDN -N https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go_linux_"$ARCHITECTURE".tar.gz
+      [ $(type -p tar) ] || ${PACKAGE_INSTALL[int]} tar 2>/dev/null || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} tar 2>/dev/null )
+      tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
+      ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
     fi
-    
+  
     # 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
     mv -f menu.sh /etc/wireguard >/dev/null 2>&1
     chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
