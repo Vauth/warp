@@ -1760,7 +1760,7 @@ proxy() {
     proxy_info
     end=$(date +%s)
     echo -e "\n==============================================================\n"
-    info " $(text_eval 94)\n $(text 27: $PROXYSOCKS5\n WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG) "
+    info " $(text_eval 94)\n $(text 27): $PROXYSOCKS5\n WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG) "
   fi
 
   [[ "$ACCOUNT" =~ Limited ]] && info " $(text 63): $QUOTA "
