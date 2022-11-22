@@ -38,8 +38,9 @@ jobs:
           Operating_System=("CentOS 8" "Debian Bullseye" "Debian Buster" "Debian Stretch" "Ubuntu Jammy" "Ubuntu Focal" "Ubuntu Bionic" "Ubuntu Xenial")
           System_Rename=("CentOS_8.rpm" "Debian_11.deb" "Debian_10.deb" "Debian_9.deb" "Ubuntu_22.04.deb" "Ubuntu_20.04.deb" "Ubuntu_18.04.deb" "Ubuntu_16.04.deb")
           
-          if [ $LATEST_VERSION -gt $NOW_VERSION ]; then
+          if [ $LATEST_VERSION -ge $NOW_VERSION ]; then
             for ((i=0; i<${#Operating_System[@]}; i++)); do
+              [[ ${Operating_System[i]} = "Ubuntu Bionic" ]] && File_Path='/uploads/cloudflare_warp_2022_7_472_1_amd64_d0d4c0c1f9.deb' ||
               File_Path=$(wget -qO- https://pkg.cloudflareclient.com/packages/cloudflare-warp | grep 'release-row' | awk -F "</td><td>${Operating_System[i]}" {'print $2'} | awk -F 'Download' {'print $1'} | awk -F \" {'print $2'})
               Download_URL="https://pkg.cloudflareclient.com$File_Path"
               wget -O ${GITHUB_WORKSPACE}/Client/Client_${System_Rename[i]} $Download_URL
