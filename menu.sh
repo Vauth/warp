@@ -176,8 +176,8 @@ E[84]="Step 2/2: Setting Client Mode"
 C[84]="进度 2/2: 设置 Client 模式"
 E[85]="Client was installed.\n connect/disconnect by [warp r].\n uninstall by [warp u]"
 C[85]="Linux Client 已安装\n 连接/断开: warp r\n 卸载: warp u"
-E[86]="Client is working. Socks5 proxy listening on: \$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127\.0*\S+')"
-C[86]="Linux Client 正常运行中。 Socks5 代理监听:\$(ss -nltp | grep -E 'warp|wireproxy' | grep -oP '127\.0*\S+')"
+E[86]="Client is working. Socks5 proxy listening on: \$(ss -nltp | grep -E 'warp|wireproxy' | awk '{print \$(NF-2)}')"
+C[86]="Linux Client 正常运行中。 Socks5 代理监听:\$(ss -nltp | grep -E 'warp|wireproxy' | awk '{print \$(NF-2)}')"
 E[87]="Fail to establish Socks5 proxy. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[87]="创建 Socks5 代理失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[88]="Connect the client (warp r)"
@@ -492,7 +492,7 @@ proxy_info() {
   unset PROXYSOCKS5 PROXYPORT PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC PROXYSOCKS52 PROXYPORT2 PROXYJASON2 PROXYIP2 PROXYCOUNTR2 PROXYASNORG2 ACCOUNT2 AC2 TRACE42
 
   if [ $(type -p warp-cli) ]; then
-    PROXYSOCKS5=$(ss -nltp | grep 'warp' | grep -oP '127\.0*\S+')
+    PROXYSOCKS5=$(ss -nltp | grep 'warp' | awk '{print $(NF-2)}')
     PROXYPORT=$(echo "$PROXYSOCKS5" | cut -d: -f2)
     PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT https://ip.gs/json)
     PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
@@ -504,14 +504,14 @@ proxy_info() {
   fi
 
   if [ $(type -p wireproxy) ]; then
-    PROXYSOCKS52=$(ss -nltp | grep 'wireproxy' | grep -oP '127\.0*\S+')
+    PROXYSOCKS52=$(ss -nltp | grep 'wireproxy' | awk '{print $(NF-2)}')
     PROXYPORT2=$(echo "$PROXYSOCKS52" | cut -d: -f2)
     PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 https://ip.gs/json)
     PROXYIP2=$(expr "$PROXYJASON2" : '.*ip\":\"\([^"]*\).*')
     PROXYCOUNTRY2=$(expr "$PROXYJASON2" : '.*country\":\"\([^"]*\).*')
     [ "$L" = C ] && PROXYCOUNTRY2=$(translate "$PROXYCOUNTRY2")
     PROXYASNORG2=$(expr "$PROXYJASON2" : '.*asn_org\":\"\([^"]*\).*')
-    TRACE42=$(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127\.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)")
+    TRACE42=$(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | awk '{print $(NF-2)}'  | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)")
     AC2=' free' && [[ "$TRACE42" =~ plus ]] && [ -e /etc/wireguard/info.log ] && AC2=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && AC2='+' && check_quota
   fi
 }
@@ -647,7 +647,7 @@ change_ip() {
     }
 
     if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
-      PROXYPORT="$(ss -nltp | grep 'warp' | grep -oP '127\.0*\S+' | cut -d: -f2)"
+      PROXYPORT="$(ss -nltp | grep 'warp' | awk '{print $(NF-2)}'  | cut -d: -f2)"
       [ -z "$EXPECT" ] && input_region
       i=0; j=10
       while true; do
@@ -690,7 +690,7 @@ change_ip() {
   change_wireproxy() {
     wireproxy_restart() { warning " $(text_eval 126) " && systemctl restart wireproxy; sleep $j; }
 
-    PROXYPORT="$(ss -nltp | grep 'wireproxy' | grep -oP '127\.0*\S+' | cut -d: -f2)"
+    PROXYPORT="$(ss -nltp | grep 'wireproxy' | awk '{print $(NF-2)}'  | cut -d: -f2)"
     [ -z "$EXPECT" ] && input_region
     i=0; j=5
     while true; do
@@ -1044,11 +1044,11 @@ EOF
     fi
   fi
 
-  # 判断当前 WireProxy 状态，决定变量 WIREPROXY，变量 WIREPROXY 含义:0=未安装  1=已安装未激活  2=状态激活  3=Clinet 已开启
+  # 判断当前 WireProxy 状态，决定变量 WIREPROXY，变量 WIREPROXY 含义:0=未安装，1=已安装,断开状态，2=Clinet 已开启
   WIREPROXY=0
   if [ $(type -p wireproxy) ]; then
     WIREPROXY=1
-    [ "$WIREPROXY" = 1 ] && WIREPROXY_INSTALLED="$(text 92)" && [[ $(ss -nltp) =~ wireproxy ]] && WIREPROXY=3 && proxy_info || WIREPROXY=2
+    [ "$WIREPROXY" = 1 ] && WIREPROXY_INSTALLED="$(text 92)" && [[ $(ss -nltp) =~ wireproxy ]] && WIREPROXY=2 && proxy_info
   fi
 }
 
@@ -1501,7 +1501,7 @@ DNS = $DNS
 [Peer]
 PublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
 # PresharedKey = UItQuvLsyh50ucXHfjF0bbR4IIpVBd74lwKc8uIPXXs= (optional)
-Endpoint = $ENDPOINT:2408
+Endpoint = $ENDPOINT:1701
 # PersistentKeepalive = 25 (optional)
 
 # TCPClientTunnel is a tunnel listening on your machine,
@@ -1760,7 +1760,7 @@ proxy() {
     proxy_info
     end=$(date +%s)
     echo -e "\n==============================================================\n"
-    info " $(text_eval 94)\n $(text 27): $PROXYSOCKS5\n WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG) "
+    info " $(text_eval 94)\n $(text 27): $PROXYSOCKS5\n WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG "
   fi
 
   [[ "$ACCOUNT" =~ Limited ]] && info " $(text 63): $QUOTA "
@@ -1984,7 +1984,7 @@ change_to_teams() {
       sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g" /etc/wireguard/proxy.conf
       [ -e /etc/wireguard/info-temp.log ] && mv -f /etc/wireguard/info-temp.log /etc/wireguard/info.log
       wireproxy_onoff
-      [[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | grep -oP '127\.0*\S+' | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && rm -f /etc/wireguard/wgcf.conf.bak && TYPE=' teams' && info " $(text_eval 62) "
+      [[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | awk '{print $(NF-2)}'  | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && rm -f /etc/wireguard/wgcf.conf.bak && TYPE=' teams' && info " $(text_eval 62) "
     fi
   fi
 }
@@ -2086,9 +2086,9 @@ update() {
 
 # 判断当前 WARP 网络接口及 Client 的运行状态，并对应的给菜单和动作赋值
 menu_setting() {
-  if [[ "$CLIENT" -gt 1 || "$WIREPROXY" -gt 1 ]]; then
+  if [[ "$CLIENT" -gt 1 || "$WIREPROXY" -gt 0 ]]; then
     [ "$CLIENT" -lt 3 ] && OPTION1="$(text 88)" || OPTION1="$(text 89)"
-    [ "$WIREPROXY" -lt 3 ] && OPTION2="$(text 163)" || OPTION2="$(text 164)"
+    [ "$WIREPROXY" -lt 2 ] && OPTION2="$(text 163)" || OPTION2="$(text 164)"
     OPTION3="$(text 143)"; OPTION4="$(text 78)"
 
     ACTION1() { proxy_onoff; }; ACTION2() { wireproxy_onoff; }; ACTION3() { change_port; }; ACTION4() { update; };
@@ -2134,16 +2134,16 @@ menu() {
     *on* ) info "\t $(text 115) " ;;
   esac
   [ "$PLAN" != 3 ] && info "\t $(text 116) "
-  case "CLIENT" in
+  case "$CLIENT" in
     0 ) info "\t $(text 112) " ;;
-    2 ) info "\t $(text_eval 113) " ;;
-    3 ) info "\t WARP$AC $(text 24)\t $(text 27): $PROXYSOCKS5\n WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG " ;;
+    1 ) info "\t $(text_eval 113) " ;;
+    3 ) info "\t WARP$AC $(text 24)\t $(text 27): $PROXYSOCKS5\n\t WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG " ;;
     5 ) info "\t WARP$AC $(text 24)\t $(text_eval 169) " ;;
   esac
   case "$WIREPROXY" in
     0 ) info "\t $(text 160) " ;;
-    2 ) info "\t $(text 161) " ;;
-    3 ) info "\t WARP$AC2 $(text 159)\t $(text 27): $PROXYSOCKS52\n\t WARP$AC2 IPv4: $PROXYIP2 $PROXYCOUNTRY2 $PROXYASNORG2 " ;;
+    1 ) info "\t $(text 161) " ;;
+    2 ) info "\t WARP$AC2 $(text 159)\t $(text 27): $PROXYSOCKS52\n\t WARP$AC2 IPv4: $PROXYIP2 $PROXYCOUNTRY2 $PROXYASNORG2 " ;;
   esac
   grep -q '+' <<< $AC$AC2 && info "\t $(text 63): $QUOTA "
    echo -e "\n======================================================================================================================\n"
