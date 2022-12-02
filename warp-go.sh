@@ -685,7 +685,7 @@ EOF
   [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1
 
   if [ "$STATUS" != 2 ]; then
-    [ "$INET6" = 1 ] && ping6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
+    [ "$INET6" = 1 ] && ping -6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
     [ "$INET4" = 1 ] && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip4_info
   else
     if grep -qE "^AllowedIPs.*\:\:\/0" /opt/warp-go/warp.conf || [ "$INET6" = 1 ]; then
