@@ -881,10 +881,10 @@ install() {
   start=$(date +%s)
 
   # 注册 WARP 账户 (将生成 warp 文件保存账户信息)
-  # 判断 warp-go 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.5
+  # 判断 warp-go 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.6
   {	
   latest=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | grep -oP '"tag_name":"v\K[^\"]+' | head -n 1)
-  latest=${latest:-'1.0.5'}
+  latest=${latest:-'1.0.6'}
 
   # 安装 warp-go，尽量下载官方的最新版本，如官方 warp-go 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
   mkdir -p /opt/warp-go/ >/dev/null 2>&1
