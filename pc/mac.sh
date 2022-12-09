@@ -4,6 +4,10 @@
 # 当前脚本版本号和新增功能
 VERSION=1.00
 
+# 选择 IP API 服务商
+IP_API=ifconfig.co
+#IP_API=ip.gs
+
 E[0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 C[0]="${E[0]}"
 E[1]="First publication on a global scale: WARP one-click script on macOS. A VPN that fast,modern,secure by WireGuard tunnel and WARP service"
@@ -146,10 +150,10 @@ check_operating_system(){
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
 	unset IP4 LAN4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
-	IP4=$(curl -ks4m10 https://ip.gs/json)
-	WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]*\).*')
-	COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
-	ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
+	IP4=$(curl -ks4m10 https://$IP_API/json)
+	WAN4=$(expr "$IP4" : '.*ip\":[ ]\"\([^"]*\).*')
+	COUNTRY4=$(expr "$IP4" : '.*country\":[ ]\"\([^"]*\).*')
+	ASNORG4=$(expr "$IP4" : '.*asn_org\":[ ]\"\([^"]*\).*')
 	TRACE4=$(curl -ks4m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	if [[ $TRACE4 = plus ]]; then
 		grep -sq 'Device name' /etc/wireguard/info.log && PLUS4='+' || PLUS4=' Teams'
@@ -159,10 +163,10 @@ ip4_info(){
 
 ip6_info(){
 	unset IP6 LAN6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
-	IP6=$(curl -ks6m10 https://ip.gs/json)
-	WAN6=$(expr "$IP6" : '.*ip\":\"\([^"]*\).*')
-	COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
-	ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
+	IP6=$(curl -ks6m10 https://$IP_API/json)
+	WAN6=$(expr "$IP6" : '.*ip\":[ ]\"\([^"]*\).*')
+	COUNTRY6=$(expr "$IP6" : '.*country\":[ ]\"\([^"]*\).*')
+	ASNORG6=$(expr "$IP6" : '.*asn_org\":[ ]\"\([^"]*\).*')
 	TRACE6=$(curl -ks6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	if [[ $TRACE6 = plus ]]; then
 		grep -sq 'Device name' /etc/wireguard/info.log && PLUS6='+' || PLUS6=' Teams'

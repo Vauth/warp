@@ -3,6 +3,12 @@ export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
 VERSION=1.0.8
+
+# 选择 IP API 服务商
+IP_API=ifconfig.co
+#IP_API=ip.gs
+
+# 判断 Teams token 最少字符数
 TOKEN_LENGTH=800
 
 E[0]="Language:\n  1.English (default) \n  2.简体中文"
@@ -315,19 +321,19 @@ check_dependencies() {
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info() {
   unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
-  IP4=$(curl -ks4m8 https://ip.gs/json $INTERFACE)
-  WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]*\).*')
-  COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
-  ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
+  IP4=$(curl -ks4m8 https://$IP_API/json $INTERFACE)
+  WAN4=$(expr "$IP4" : '.*ip\":[ ]*\"\([^"]*\).*')
+  COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
+  ASNORG4=$(expr "$IP4" : '.*asn_org\":[ ]*\"\([^"]*\).*')
   TRACE4=$(curl -ks4m8 https://www.cloudflare.com/cdn-cgi/trace $INTERFACE | grep warp | sed "s/warp=//g")
 }
 
 ip6_info() {
   unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
-  IP6=$(curl -ks6m8 https://ip.gs/json)
-  WAN6=$(expr "$IP6" : '.*ip\":\"\([^"]*\).*')
-  COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
-  ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
+  IP6=$(curl -ks6m8 https://$IP_API/json)
+  WAN6=$(expr "$IP6" : '.*ip\":[ ]*\"\([^"]*\).*')
+  COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
+  ASNORG6=$(expr "$IP6" : '.*asn_org\":[ ]*\"\([^"]*\).*')
   TRACE6=$(curl -ks6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 }
 
@@ -360,7 +366,7 @@ result_priority() {
   case "${PRIO[*]}" in
     '1 0' ) PRIO=4 ;;
     '0 1' ) PRIO=6 ;;
-    * ) [[ "$(curl -ksm8 https://ip.gs)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
+    * ) [[ "$(curl -ksm8 https://$IP_API)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
   esac
   PRIORITY_NOW=$(text_eval 100)
 
@@ -881,10 +887,10 @@ install() {
   start=$(date +%s)
 
   # 注册 WARP 账户 (将生成 warp 文件保存账户信息)
-  # 判断 warp-go 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.6
+  # 判断 warp-go 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.5
   {	
   latest=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | grep -oP '"tag_name":"v\K[^\"]+' | head -n 1)
-  latest=${latest:-'1.0.6'}
+  latest=${latest:-'1.0.5'}
 
   # 安装 warp-go，尽量下载官方的最新版本，如官方 warp-go 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
   mkdir -p /opt/warp-go/ >/dev/null 2>&1
@@ -1040,7 +1046,7 @@ EOF
   echo "$L" > /opt/warp-go/language
 
   # 结果提示，脚本运行时间，次数统计，IPv4 / IPv6 优先级别
-  [ "$(curl -ksm8 https://ip.gs)" = "$WAN6" ] && PRIO=6 || PRIO=4
+  [ "$(curl -ksm8 https://$IP_API)" = "$WAN6" ] && PRIO=6 || PRIO=4
   end=$(date +%s)
   ACCOUNT_TYPE=$(grep "Type" /opt/warp-go/warp.conf | cut -d= -f2 | sed "s# ##g")
   [ "$ACCOUNT_TYPE" = 'plus' ] && check_quota

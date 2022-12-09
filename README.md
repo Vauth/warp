@@ -483,7 +483,8 @@ https://github.com/acacia233/Project-WARP-Unlock
 * luoxue-bot 的成熟作品:https://github.com/luoxue-bot/warp_auto_change_ip
 * lmc999 的成熟作品: https://github.com/lmc999/RegionRestrictionCheck
 * WireProxy 作者: https://github.com/octeep/wireproxy
-* 获取公网 IP 及归属地查询: https://ip.gs/
+* 获取公网 IP 及归属地查询: https://ifconfig.co/
+https://ip.gs/
 * 统计PV网:https://hits.seeyoufarm.com/
 * Coia 的网页版提出 Teams Token: https://warp-team-api.herokuapp.com/
 

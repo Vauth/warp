@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 export LANG=en_US.UTF-8
 
-# 当前脚本版本号和新增功能
+# 当前脚本版本号
 VERSION=2.46
+
+# 选择 IP API 服务商
+IP_API=ifconfig.co
+#IP_API=ip.gs
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
@@ -441,7 +445,7 @@ check_operating_system() {
   [[ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ]] && error " $(text_eval 26) "
 }
 
-# 安装 curl
+# 安装系统依赖
 check_dependencies() {
   # 对于 alpine 系统，升级库并重新安装依赖
   if [ "$SYSTEM" = Alpine ]; then
@@ -463,10 +467,10 @@ check_dependencies() {
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info() {
   unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
-  IP4=$(curl -ks4m8 https://ip.gs/json $INTERFACE)
-  WAN4=$(expr "$IP4" : '.*ip\":\"\([^"]*\).*')
-  COUNTRY4=$(expr "$IP4" : '.*country\":\"\([^"]*\).*')
-  ASNORG4=$(expr "$IP4" : '.*asn_org\":\"\([^"]*\).*')
+  IP4=$(curl -ks4m8 https://$IP_API/json $INTERFACE)
+  WAN4=$(expr "$IP4" : '.*ip\":[ ]*\"\([^"]*\).*')
+  COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
+  ASNORG4=$(expr "$IP4" : '.*asn_org\":[ ]*\"\([^"]*\).*')
   TRACE4=$(curl -ks4m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
   if [ "$TRACE4" = plus ]; then
     [[ -e /etc/wireguard/info.log || -e /etc/wireguard/info-temp.log ]] && PLUS4=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && PLUS4='+'
@@ -476,10 +480,10 @@ ip4_info() {
 
 ip6_info() {
   unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
-  IP6=$(curl -ks6m8 https://ip.gs/json)
-  WAN6=$(expr "$IP6" : '.*ip\":\"\([^"]*\).*')
-  COUNTRY6=$(expr "$IP6" : '.*country\":\"\([^"]*\).*')
-  ASNORG6=$(expr "$IP6" : '.*asn_org\":\"\([^"]*\).*')
+  IP6=$(curl -ks6m8 https://$IP_API/json)
+  WAN6=$(expr "$IP6" : '.*ip\":[ ]*\"\([^"]*\).*')
+  COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
+  ASNORG6=$(expr "$IP6" : '.*asn_org\":[ ]*\"\([^"]*\).*')
   TRACE6=$(curl -ks6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
   if [ "$TRACE6" = plus ]; then
     [[ -e /etc/wireguard/info.log || -e /etc/wireguard/info-temp.log ]] && PLUS6=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && PLUS6='+'
@@ -494,11 +498,11 @@ proxy_info() {
   if [ $(type -p warp-cli) ]; then
     PROXYSOCKS5=$(ss -nltp | grep 'warp' | awk '{print $(NF-2)}')
     PROXYPORT=$(echo "$PROXYSOCKS5" | cut -d: -f2)
-    PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT https://ip.gs/json)
-    PROXYIP=$(expr "$PROXYJASON" : '.*ip\":\"\([^"]*\).*')
-    PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":\"\([^"]*\).*')
+    PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT https://$IP_API/json)
+    PROXYIP=$(expr "$PROXYJASON" : '.*ip\":[ ]*\"\([^"]*\).*')
+    PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":[ ]*\"\([^"]*\).*')
     [ "$L" = C ] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
-    PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":\"\([^"]*\).*')
+    PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":[ ]*\"\([^"]*\).*')
     ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
     [[ "$ACCOUNT" =~ Limited ]] && AC='+' && check_quota
   fi
@@ -506,11 +510,11 @@ proxy_info() {
   if [ $(type -p wireproxy) ]; then
     PROXYSOCKS52=$(ss -nltp | grep 'wireproxy' | awk '{print $(NF-2)}')
     PROXYPORT2=$(echo "$PROXYSOCKS52" | cut -d: -f2)
-    PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 https://ip.gs/json)
-    PROXYIP2=$(expr "$PROXYJASON2" : '.*ip\":\"\([^"]*\).*')
-    PROXYCOUNTRY2=$(expr "$PROXYJASON2" : '.*country\":\"\([^"]*\).*')
+    PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 https://$IP_API/json)
+    PROXYIP2=$(expr "$PROXYJASON2" : '.*ip\":[ ]*\"\([^"]*\).*')
+    PROXYCOUNTRY2=$(expr "$PROXYJASON2" : '.*country\":[ ]*\"\([^"]*\).*')
     [ "$L" = C ] && PROXYCOUNTRY2=$(translate "$PROXYCOUNTRY2")
-    PROXYASNORG2=$(expr "$PROXYJASON2" : '.*asn_org\":\"\([^"]*\).*')
+    PROXYASNORG2=$(expr "$PROXYJASON2" : '.*asn_org\":[ ]*\"\([^"]*\).*')
     TRACE42=$(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | awk '{print $(NF-2)}'  | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)")
     AC2=' free' && [[ "$TRACE42" =~ plus ]] && [ -e /etc/wireguard/info.log ] && AC2=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && AC2='+' && check_quota
   fi
@@ -581,7 +585,7 @@ result_priority() {
   case "${PRIO[*]}" in
     '1 0' ) PRIO=4 ;;
     '0 1' ) PRIO=6 ;;
-    * ) [[ "$(curl -ksm8 https://ip.gs)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
+    * ) [[ "$(curl -ksm8 https://$IP_API)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
   esac
   PRIORITY_NOW=$(text_eval 97)
 
@@ -1192,6 +1196,7 @@ server=/gstatic.com/1.1.1.1
 
 ipset=/www.cloudflare.com/warp
 ipset=/ip.gs/warp
+ipset=/ifconfig.co/warp
 ipset=/googlevideo.com/warp
 ipset=/youtube.com/warp
 ipset=/youtubei.googleapis.com/warp
