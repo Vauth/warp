@@ -2,7 +2,7 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=1.0.8
+VERSION=1.0.9
 
 # 选择 IP API 服务商
 IP_API=ifconfig.co
@@ -13,10 +13,10 @@ TOKEN_LENGTH=800
 
 E[0]="Language:\n  1.English (default) \n  2.简体中文"
 C[0]="${E[0]}"
-E[1]="Switch the IPv4 / IPv6 priority by [warp-go s 4/6/d]."
-C[1]="通过 [warp-go s 4/6/d] 来切换 IPv4 / IPv6 的优先级别"
-E[2]="warp-go h (help)\n warp-go o (temporary warp-go switch)\n warp-go u (uninstall WARP web interface and warp-go)\n warp-go v (sync script to latest version)\n warp-go i (replace IP with Netflix support)\n warp-go 4/6 ( WARP IPv4/IPv6 single-stack)\n warp-go d (WARP dual-stack)\n warp-go n (WARP IPv4 non-global)\n warp-go g (WARP global/non-global switching)\n warp-go e (output wireguard configuration file)\n warp-go a (Change to Free, WARP+ or Teams account)"
-C[2]="warp-go h (帮助）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 配置文件)\n warp-go a (更换到 Free，WARP+ 或 Teams 账户)"
+E[1]="1.Export wireguard and sing-box config file with [warp-go e]; 2.Teams token website change to https://web--public--warp-team-api--coia-mfs4.code.run"
+C[1]="使用 [warp-go e] 导出 wireguard 和 sing-box 配置文件; 2.获取 teams token 网站更换为: https://web--public--warp-team-api--coia-mfs4.code.run"
+E[2]="warp-go h (help)\n warp-go o (temporary warp-go switch)\n warp-go u (uninstall WARP web interface and warp-go)\n warp-go v (sync script to latest version)\n warp-go i (replace IP with Netflix support)\n warp-go 4/6 ( WARP IPv4/IPv6 single-stack)\n warp-go d (WARP dual-stack)\n warp-go n (WARP IPv4 non-global)\n warp-go g (WARP global/non-global switching)\n warp-go e (output wireguard and sing-box configuration file)\n warp-go a (Change to Free, WARP+ or Teams account)"
+C[2]="warp-go h (帮助）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 和 sing-box 配置文件)\n warp-go a (更换到 Free，WARP+ 或 Teams 账户)"
 E[3]="This project is designed to add WARP network interface for VPS, using warp-go core, using various interfaces of CloudFlare-WARP, integrated wireguard-go, can completely replace WGCF. Save Hong Kong, Toronto and other VPS, can also get WARP IP. Thanks again @CoiaPrant and his team. Project address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/"
 C[3]="本项目专为 VPS 添加 WARP 网络接口，使用 wire-go 核心程序，利用CloudFlare-WARP 的各类接口，集成 wireguard-go，可以完全替代 WGCF。 救活了香港、多伦多等 VPS 也可以获取 WARP IP。再次感谢 @CoiaPrant 及其团队。项目地址: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/"
 E[4]="Choose:"
@@ -99,24 +99,24 @@ E[42]="Please Input WARP+ license:"
 C[42]="请输入WARP+ License:"
 E[43]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\${i} times remaining\): "
 C[43]="License 应为26位字符,请重新输入 WARP+ License \(剩余\${i}次\): "
-E[44]="Please enter the Teams Token (You can easily available at https://warp-team-api.herokuapp.com/. Or use the one provided by the script if left blank):"
-C[44]="请输入 Teams Token (可通过 https://warp-team-api.herokuapp.com/ 轻松获取，如果留空，则使用脚本提供的):"
+E[44]="Please enter the Teams Token (You can easily available at https://web--public--warp-team-api--coia-mfs4.code.run. Or use the one provided by the script if left blank):"
+C[44]="请输入 Teams Token (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取，如果留空，则使用脚本提供的):"
 E[45]="Token error, please re-enter Teams token \(remaining \${i} times\):"
 C[45]="Token 错误,请重新输入 Teams token \(剩余\${i}次\):"
 E[46]="Current account type is: \$ACCOUNT_TYPE\\\t \$PLUS_QUOTA\\\n \$CHANGE_TYPE"
 C[46]="当前账户类型是: \$ACCOUNT_TYPE\\\t \$PLUS_QUOTA\\\n \$CHANGE_TYPE"
-E[47]="1. Continue using the free account without changing.\n 2. Change to WARP+ account.\n 3. Change to Teams account. (You can easily available at https://warp-team-api.herokuapp.com/. Or use the one provided by the script if left blank)\n 0. Return to the main menu."
-C[47]="1. 继续使用 free 账户，不变更\n 2. 变更为 WARP+ 账户\n 3. 变更为 Teams 账户 (可通过 https://warp-team-api.herokuapp.com/ 轻松获取，如果留空，则使用脚本提供的)\n 0. 返回主菜单"
-E[48]="1. Change to free account.\n 2. Change to WARP+ account.\n 3. Change to another WARP Teams account. (You can easily available at https://warp-team-api.herokuapp.com/. Or use the one provided by the script if left blank)\n 0. Return to the main menu."
-C[48]="1. 变更为 free 账户\n 2. 变更为 WARP+ 账户\n 3. 更换为另一个 Teams 账户 (可通过 https://warp-team-api.herokuapp.com/ 轻松获取，如果留空，则使用脚本提供的)\n 0. 返回主菜单"
-E[49]="1. Change to free account.\n 2. Change to another WARP+ account.\n 3. Change to Teams account. (You can easily available at https://warp-team-api.herokuapp.com/. Or use the one provided by the script if left blank)\n 0. Return to the main menu."
-C[49]="1. 变更为 free 账户\n 2. 变更为另一个 WARP+ 账户\n 3. 变更为 Teams 账户 (可通过 https://warp-team-api.herokuapp.com/ 轻松获取，如果留空，则使用脚本提供的)\n 0. 返回主菜单"
+E[47]="1. Continue using the free account without changing.\n 2. Change to WARP+ account.\n 3. Change to Teams account. (You can easily available at https://web--public--warp-team-api--coia-mfs4.code.run. Or use the one provided by the script if left blank)\n 0. Return to the main menu."
+C[47]="1. 继续使用 free 账户，不变更\n 2. 变更为 WARP+ 账户\n 3. 变更为 Teams 账户 (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取，如果留空，则使用脚本提供的)\n 0. 返回主菜单"
+E[48]="1. Change to free account.\n 2. Change to WARP+ account.\n 3. Change to another WARP Teams account. (You can easily available at https://web--public--warp-team-api--coia-mfs4.code.run. Or use the one provided by the script if left blank)\n 0. Return to the main menu."
+C[48]="1. 变更为 free 账户\n 2. 变更为 WARP+ 账户\n 3. 更换为另一个 Teams 账户 (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取，如果留空，则使用脚本提供的)\n 0. 返回主菜单"
+E[49]="1. Change to free account.\n 2. Change to another WARP+ account.\n 3. Change to Teams account. (You can easily available at https://web--public--warp-team-api--coia-mfs4.code.run. Or use the one provided by the script if left blank)\n 0. Return to the main menu."
+C[49]="1. 变更为 free 账户\n 2. 变更为另一个 WARP+ 账户\n 3. 变更为 Teams 账户 (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取，如果留空，则使用脚本提供的)\n 0. 返回主菜单"
 E[50]="Registration of WARP\${k} account failed, script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[50]="注册 WARP\${k} 账户失败，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
 E[51]="Warp-go not yet installed. No account registered. Script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[51]="warp-go 还没有安装，没有注册账户，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
-E[52]="Path to wgcf.conf for this account: /opt/warp-go/wgcf.conf\n"
-C[52]="该账户的 wgcf.conf 路径: /opt/warp-go/wgcf.conf\n"
+E[52]="Wireguard configuration file: /opt/warp-go/wgcf.conf\n"
+C[52]="Wireguard 配置文件: /opt/warp-go/wgcf.conf\n"
 E[53]="Warp-go installed. Script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[53]="warp-go 已安装，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
 E[54]="Is there a WARP+ or Teams account?\n  1. WARP+\n  2. Teams\n  3. Use free account (default)"
@@ -169,8 +169,8 @@ E[77]="Change to Free, WARP+ or Teams account \(warp-go a\)"
 C[77]="更换为 Free，WARP+ 或 Teams 账户 \(warp-go a\)"
 E[78]="Change the WARP IP to support Netflix (warp-go i)"
 C[78]="更换支持 Netflix 的 IP (warp-go i)"
-E[79]="Export wgcf configuration file (warp-go e)"
-C[79]="输出 wgcf 配置文件 (warp-go e)"
+E[79]="Export wireguard and sing-box configuration file (warp-go e)"
+C[79]="输出 wireguard 和 sing-box 配置文件 (warp-go e)"
 E[80]="Uninstall the WARP interface and warp-go (warp-go u)"
 C[80]="卸载 WARP 网络接口和 warp-go (warp-go u)"
 E[81]="Exit"
@@ -213,6 +213,8 @@ E[99]="global"
 C[99]="全局"
 E[100]="IPv\$PRIO priority"
 C[100]="IPv\$PRIO 优先"
+E[101]="Sing-box configuration file: /opt/warp-go/singbox.conf\n"
+C[101]="Sing-box 配置文件: /opt/warp-go/singbox.conf\n"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }
@@ -842,23 +844,25 @@ update() {
   esac
 }
 
-# 输出 wgcf 配置文件
-export_wireguard() {
-  if [ ! -e /opt/warp-go/wgcf.conf ]; then
-    if [ -e /opt/warp-go/warp-go ]; then
-      if [ -e /opt/warp-go/warp.conf ]; then
-        /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-wireguard=/opt/warp-go/wgcf.conf >/dev/null 2>&1
-      else
-        /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config "$TOKEN" >/dev/null 2>&1
-        /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-wireguard=/opt/warp-go/wgcf.conf >/dev/null 2>&1
-      fi
-    else
-      error "$(text 51)"
-    fi
+# 输出 wireguard 和 sing-box 配置文件
+export_file() {
+  if [ -e /opt/warp-go/warp-go ]; then
+    PY=("python3" "python" "python2")
+    for g in "${PY[@]}"; do [ $(type -p $g) ] && PYTHON=$g && break; done
+    [ -z "$PYTHON" ] && PYTHON=python3 && ${PACKAGE_INSTALL[int]} $PYTHON
+    [ ! -e /opt/warp-go/warp.conf ] && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config "$TOKEN" >/dev/null 2>&1
+    /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-wireguard=/opt/warp-go/wgcf.conf >/dev/null 2>&1
+    /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-singbox=/opt/warp-go/singbox.conf >/dev/null 2>&1
+  else
+    error "$(text 51)"
   fi
   
-  info " $(text 52) "
+  info "\n $(text 52) "
   cat /opt/warp-go/wgcf.conf
+  echo -e "\n\n"
+
+  info " $(text 101) "
+  cat /opt/warp-go/singbox.conf | $PYTHON -m json.tool
   echo -e "\n\n"
 }
 
@@ -1124,7 +1128,7 @@ menu_setting() {
     ACTION4() { OPTION=o; onoff; }
     ACTION5() { update; }
     ACTION6() { change_ip; }
-    ACTION7() { export_wireguard; }
+    ACTION7() { export_file; }
     ACTION8() { uninstall; }
   fi
 
@@ -1192,7 +1196,7 @@ check_operating_system
 case "$OPTION" in
   h ) help; exit 0 ;;
   i ) change_ip; exit 0 ;;
-  e ) export_wireguard; exit 0 ;;
+  e ) export_file; exit 0 ;;
   s ) stack_priority; result_priority; exit 0 ;;
 esac
 

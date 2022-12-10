@@ -21,6 +21,8 @@
 * * *
 
 ## 更新信息
+2022.12.10 warp-go V1.0.9 1.Export wireguard and sing-box config file with [warp-go e]; 2.Teams token website change to https://web--public--warp-team-api--coia-mfs4.code.run 1. 使用 [warp-go e] 导出 wireguard 和 sing-box 配置文件; 2.获取 teams token 网站更换为: https://web--public--warp-team-api--coia-mfs4.code.run
+
 2022.10.19 menu V2.46 / warp-go V1.0.8 Switch the IPv4 / IPv6 priority by [warp s 4/6/d] or [warp-go s 4/6/d]; 通过 [warp s 4/6/d] 或者 [warp-go 4/6/d]来切换 IPv4 / IPv6 的优先级别
 
 2022.10.7 warp-go V1.0.7 1. Further improve the conversion function between accounts. You can even switch from one WARP+ to another; 2. Formatting code； 1. 进一步完善账户间转换功能，你甚至可以从一个 WARP+ 换到另一个; 2. 优化代码
@@ -483,7 +485,7 @@ https://github.com/acacia233/Project-WARP-Unlock
 * luoxue-bot 的成熟作品:https://github.com/luoxue-bot/warp_auto_change_ip
 * lmc999 的成熟作品: https://github.com/lmc999/RegionRestrictionCheck
 * WireProxy 作者: https://github.com/octeep/wireproxy
-* 获取公网 IP 及归属地查询: https://ifconfig.co/
+* 获取公网 IP 及归属地查询: https://ifconfig.co/  
 https://ip.gs/
 * 统计PV网:https://hits.seeyoufarm.com/
 * Coia 的网页版提出 Teams Token: https://warp-team-api.herokuapp.com/
