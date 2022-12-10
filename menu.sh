@@ -5,8 +5,9 @@ export LANG=en_US.UTF-8
 VERSION=2.46
 
 # 选择 IP API 服务商
-IP_API=ifconfig.co
-#IP_API=ip.gs
+IP_API=https://api.ip.sb/geoip; ISP=isp
+#IP_API=https://ifconfig.co/json; ISP=asn_org
+#IP_API=https://ip.gs/json; ISP=asn_org
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
@@ -468,10 +469,10 @@ check_dependencies() {
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info() {
   unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
-  IP4=$(curl -ks4m8 https://$IP_API/json $INTERFACE)
+  IP4=$(curl -ks4m8 -A Mozilla $IP_API $INTERFACE)
   WAN4=$(expr "$IP4" : '.*ip\":[ ]*\"\([^"]*\).*')
   COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
-  ASNORG4=$(expr "$IP4" : '.*asn_org\":[ ]*\"\([^"]*\).*')
+  ASNORG4=$(expr "$IP4" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
   TRACE4=$(curl -ks4m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
   if [ "$TRACE4" = plus ]; then
     [[ -e /etc/wireguard/info.log || -e /etc/wireguard/info-temp.log ]] && PLUS4=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && PLUS4='+'
@@ -481,10 +482,10 @@ ip4_info() {
 
 ip6_info() {
   unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
-  IP6=$(curl -ks6m8 https://$IP_API/json)
+  IP6=$(curl -ks6m8 -A Mozilla $IP_API)
   WAN6=$(expr "$IP6" : '.*ip\":[ ]*\"\([^"]*\).*')
   COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
-  ASNORG6=$(expr "$IP6" : '.*asn_org\":[ ]*\"\([^"]*\).*')
+  ASNORG6=$(expr "$IP6" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
   TRACE6=$(curl -ks6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
   if [ "$TRACE6" = plus ]; then
     [[ -e /etc/wireguard/info.log || -e /etc/wireguard/info-temp.log ]] && PLUS6=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && PLUS6='+'
@@ -499,11 +500,11 @@ proxy_info() {
   if [ $(type -p warp-cli) ]; then
     PROXYSOCKS5=$(ss -nltp | grep 'warp' | awk '{print $(NF-2)}')
     PROXYPORT=$(echo "$PROXYSOCKS5" | cut -d: -f2)
-    PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT https://$IP_API/json)
+    PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT -A Mozilla $IP_API)
     PROXYIP=$(expr "$PROXYJASON" : '.*ip\":[ ]*\"\([^"]*\).*')
     PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":[ ]*\"\([^"]*\).*')
     [ "$L" = C ] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
-    PROXYASNORG=$(expr "$PROXYJASON" : '.*asn_org\":[ ]*\"\([^"]*\).*')
+    PROXYASNORG=$(expr "$PROXYJASON" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
     ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
     [[ "$ACCOUNT" =~ Limited ]] && AC='+' && check_quota
   fi
@@ -511,11 +512,11 @@ proxy_info() {
   if [ $(type -p wireproxy) ]; then
     PROXYSOCKS52=$(ss -nltp | grep 'wireproxy' | awk '{print $(NF-2)}')
     PROXYPORT2=$(echo "$PROXYSOCKS52" | cut -d: -f2)
-    PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 https://$IP_API/json)
+    PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 -A Mozilla $IP_API)
     PROXYIP2=$(expr "$PROXYJASON2" : '.*ip\":[ ]*\"\([^"]*\).*')
     PROXYCOUNTRY2=$(expr "$PROXYJASON2" : '.*country\":[ ]*\"\([^"]*\).*')
     [ "$L" = C ] && PROXYCOUNTRY2=$(translate "$PROXYCOUNTRY2")
-    PROXYASNORG2=$(expr "$PROXYJASON2" : '.*asn_org\":[ ]*\"\([^"]*\).*')
+    PROXYASNORG2=$(expr "$PROXYJASON2" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
     TRACE42=$(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | awk '{print $(NF-2)}'  | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)")
     AC2=' free' && [[ "$TRACE42" =~ plus ]] && [ -e /etc/wireguard/info.log ] && AC2=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && AC2='+' && check_quota
   fi
@@ -586,7 +587,7 @@ result_priority() {
   case "${PRIO[*]}" in
     '1 0' ) PRIO=4 ;;
     '0 1' ) PRIO=6 ;;
-    * ) [[ "$(curl -ksm8 https://$IP_API)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
+    * ) [[ "$(curl -ksm8 -A Mozilla $IP_API | grep '"ip"' | sed 's/.*ip\":[ ]*\"\([^"]*\).*/\1/g')" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
   esac
   PRIORITY_NOW=$(text_eval 97)
 

@@ -5,8 +5,9 @@ export LANG=en_US.UTF-8
 VERSION=1.0.9
 
 # 选择 IP API 服务商
-IP_API=ifconfig.co
-#IP_API=ip.gs
+IP_API=https://api.ip.sb/geoip; ISP=isp
+#IP_API=https://ifconfig.co/json; ISP=asn_org
+#IP_API=https://ip.gs/json; ISP=asn_org
 
 # 判断 Teams token 最少字符数
 TOKEN_LENGTH=800
@@ -324,19 +325,19 @@ check_dependencies() {
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info() {
   unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
-  IP4=$(curl -ks4m8 https://$IP_API/json $INTERFACE)
+  IP4=$(curl -ks4m8 -A Mozilla $IP_API $INTERFACE)
   WAN4=$(expr "$IP4" : '.*ip\":[ ]*\"\([^"]*\).*')
   COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
-  ASNORG4=$(expr "$IP4" : '.*asn_org\":[ ]*\"\([^"]*\).*')
+  ASNORG4=$(expr "$IP4" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
   TRACE4=$(curl -ks4m8 https://www.cloudflare.com/cdn-cgi/trace $INTERFACE | grep warp | sed "s/warp=//g")
 }
 
 ip6_info() {
   unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
-  IP6=$(curl -ks6m8 https://$IP_API/json)
+  IP6=$(curl -ks6m8 -A Mozilla $IP_API)
   WAN6=$(expr "$IP6" : '.*ip\":[ ]*\"\([^"]*\).*')
   COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
-  ASNORG6=$(expr "$IP6" : '.*asn_org\":[ ]*\"\([^"]*\).*')
+  ASNORG6=$(expr "$IP6" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
   TRACE6=$(curl -ks6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 }
 
@@ -369,7 +370,7 @@ result_priority() {
   case "${PRIO[*]}" in
     '1 0' ) PRIO=4 ;;
     '0 1' ) PRIO=6 ;;
-    * ) [[ "$(curl -ksm8 https://$IP_API)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
+    * ) [[ "$(curl -ksm8 -A Mozilla $IP_API | grep '"ip"' | sed 's/.*ip\":[ ]*\"\([^"]*\).*/\1/g')" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
   esac
   PRIORITY_NOW=$(text_eval 100)
 

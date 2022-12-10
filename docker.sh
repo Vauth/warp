@@ -6,8 +6,9 @@ export LANG=en_US.UTF-8
 VERSION=1.0
 
 # 选择 IP API 服务商
-IP_API=ifconfig.co
-#IP_API=ip.gs
+IP_API=https://api.ip.sb/geoip; ISP=isp
+#IP_API=https://ifconfig.co/json; ISP=asn_org
+#IP_API=https://ip.gs/json; ISP=asn_org
 
 # 自定义字体彩色，read 函数，友道翻译函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
@@ -350,12 +351,12 @@ done
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info(){
-	IP4=$(curl -s4m8 https://$IP_API/json)
+	IP4=$(curl -ks4m8 -A Mozilla $IP_API $INTERFACE)
 	LAN4=$(ip route get 162.159.192.1 2>/dev/null | grep -oP 'src \K\S+')
 	WAN4=$(expr "$IP4" : '.*ip\":[ ]*\"\([^"]*\).*')
 	COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
-	ASNORG4=$(expr "$IP4" : '.*asn_org\":[ ]*\"\([^"]*\).*')
-	TRACE4=$(curl -s4m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
+	ASNORG4=$(expr "$IP4" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
+	TRACE4=$(curl -ks4m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	if [[ $TRACE4 = plus ]]; then 
 	grep -sq 'Device name' /etc/wireguard/info.log && PLUS4='+' || PLUS4=' Teams'
 	fi
@@ -363,12 +364,12 @@ ip4_info(){
 	}
 
 ip6_info(){
-	IP6=$(curl -s6m8 https://$IP_API/json)
+	IP6=$(curl -ks6m8 -A Mozilla $IP_API)
 	LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
 	WAN6=$(expr "$IP6" : '.*ip\":[ ]*\"\([^"]*\).*')
 	COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
-	ASNORG6=$(expr "$IP6" : '.*asn_org\":[ ]*\"\([^"]*\).*')
-	TRACE6=$(curl -s6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
+	ASNORG6=$(expr "$IP6" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
+	TRACE6=$(curl -ks6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
 	if [[ $TRACE6 = plus ]]; then 
 	grep -sq 'Device name' /etc/wireguard/info.log && PLUS6='+' || PLUS6=' Teams'
 	fi
@@ -692,7 +693,7 @@ install(){
 	# 运行 WGCF
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
 	net
-	[[ $(curl -sm8 https://$IP_API) = "$WAN6" ]] && PRIORITY=${T[${L}106]} || PRIORITY=${T[${L}107]}
+	[[ "$(curl -ksm8 -A Mozilla $IP_API | grep '"ip"' | sed 's/.*ip\":[ ]*\"\([^"]*\).*/\1/g')" =~ ^([0-9]{1,3}\.){3} ]] && PRIORITY=${T[${L}107]} || PRIORITY=${T[${L}106]}
 
 	# 结果提示，脚本运行时间，次数统计
 	ip4_info; [[ $L = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
