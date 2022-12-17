@@ -400,8 +400,8 @@ check_root_virt() {
   [ "$(id -u)" != 0 ] && error " $(text 2) "
         
   # 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go
-  VIRT=$(systemd-detect-virt 2>/dev/null | tr '[:upper:]' '[:lower:]')
-  [ -n "$VIRT" ] || VIRT=$(hostnamectl 2>/dev/null | tr '[:upper:]' '[:lower:]' | grep virtualization | sed "s/.*://g")
+  VIRT=$(systemd-detect-virt 2>/dev/null | tr 'A-Z' 'a-z')
+  [ -n "$VIRT" ] || VIRT=$(hostnamectl 2>/dev/null | tr 'A-Z' 'a-z' | grep virtualization | sed "s/.*://g")
   [[ "$VIRT" =~ openvz|lxc || -z "$VIRT" ]] && LXC=1
 }
 
@@ -437,12 +437,12 @@ check_operating_system() {
   SYSTEMCTL_ENABLE=("systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "systemctl enable --now wg-quick@wgcf" "alpine_wgcf_enable" "systemctl enable --now wg-quick@wgcf")
 
   for ((int=0; int<${#REGEX[@]}; int++)); do
-    [[ $(tr '[:upper:]' '[:lower:]' <<< "$SYS") =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
+    [[ $(tr 'A-Z' 'a-z' <<< "$SYS") =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
   done
   [ -z "$SYSTEM" ] && error " $(text 5) "
 
   # 先排除 EXCLUDE 里包括的特定系统，其他系统需要作大发行版本的比较
-  for ex in "${EXCLUDE[@]}"; do [[ ! $(tr '[:upper:]' '[:lower:]' <<< "$SYS")  =~ $ex ]]; done &&
+  for ex in "${EXCLUDE[@]}"; do [[ ! $(tr 'A-Z' 'a-z' <<< "$SYS")  =~ $ex ]]; done &&
   [[ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ]] && error " $(text_eval 26) "
 }
 
@@ -597,9 +597,9 @@ result_priority() {
 
 # 更换 Netflix IP 时确认期望区域  
 input_region() {
-  [ -n "$NF" ] && REGION=$(tr '[:lower:]' '[:upper:]' <<< "$(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
-  [ -n "$PROXYPORT" ] && REGION=$(tr '[:lower:]' '[:upper:]' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
-  [ -n "$INTERFACE" ] && REGION=$(tr '[:lower:]' '[:upper:]' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+  [ -n "$NF" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+  [ -n "$PROXYPORT" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+  [ -n "$INTERFACE" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
   REGION=${REGION:-'US'}
   reading " $(text_eval 56) " EXPECT
   until [[ -z "$EXPECT" || "$EXPECT" = [Yy] || "$EXPECT" =~ ^[A-Za-z]{2}$ ]]; do
@@ -632,7 +632,7 @@ change_ip() {
       [ "$L" = C ] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
       RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
       if [ "$RESULT" = 200 ]; then
-        REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -"$NF" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+        REGION=$(tr 'a-z' 'A-Z' <<< $(curl --user-agent "${UA_Browser}" -"$NF" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
         REGION=${REGION:-'US'}
         echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || wgcf_restart
       else
@@ -663,7 +663,7 @@ change_ip() {
         WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
         RESULT=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
         if [ "$RESULT" = 200 ]; then
-          REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+          REGION=$(tr 'a-z' 'A-Z' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
           REGION=${REGION:-'US'}
           echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || client_restart
         else
@@ -683,7 +683,7 @@ change_ip() {
         [ "$L" = C ] && COUNTRY=$(translate "$COUNTRY4") || COUNTRY=$COUNTRY4
         RESULT=$(curl --user-agent "${UA_Browser}" $INTERFACE -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
         if [ "$RESULT" = 200 ]; then
-          REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+          REGION=$(tr 'a-z' 'A-Z' <<< $(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
           REGION=${REGION:-'US'}
           echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || client_restart
         else
@@ -706,7 +706,7 @@ change_ip() {
       WAN=$PROXYIP2 && ASNORG=$PROXYASNORG2 && COUNTRY=$PROXYCOUNTRY2
       RESULT=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
       if [ "$RESULT" = 200 ]; then
-        REGION=$(tr '[:lower:]' '[:upper:]' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+        REGION=$(tr 'a-z' 'A-Z' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
         REGION=${REGION:-'US'}
         echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || wireproxy_restart
       else
@@ -724,7 +724,7 @@ change_ip() {
   LMC999=$(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh)
   RESULT_TITLE=$(echo "$LMC999" | grep "result.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
   REGION_TITLE=$(echo "$LMC999" | grep "region.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
-  RESULT_TITLE=${RESULT_TITLE:-'81215567'}; REGION_TITLE=${REGION_TITLE:-'80018499'}
+  RESULT_TITLE=${RESULT_TITLE:-'80062035'}; REGION_TITLE=${REGION_TITLE:-'80018499'}
 
   # 根据 WARP interface 、 Client 和 WirePorxy 的安装情况判断刷 IP 的方式
   INSTALL_CHECK=("wg-quick" "warp-cli" "wireproxy")
@@ -997,7 +997,7 @@ check_system_info() {
 
   # 必须加载 TUN 模块，先尝试在线打开 TUN。尝试成功放到启动项，失败作提示并退出脚本
   if [ "$WG" = 1 ]; then
-    TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
+    TUN=$(cat /dev/net/tun 2>&1 | tr 'A-Z' 'a-z')
     if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
       cat >/usr/bin/tun.sh << EOF
 #!/usr/bin/env bash
@@ -1006,7 +1006,7 @@ mknod /dev/net/tun c 10 200
 chmod 0666 /dev/net/tun
 EOF
       bash /usr/bin/tun.sh
-      TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
+      TUN=$(cat /dev/net/tun 2>&1 | tr 'A-Z' 'a-z')
       if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
         rm -f /usr/bin/tun.sh && error " $(text 3) "
       else
@@ -1018,8 +1018,8 @@ EOF
 
   # 判断机器原生状态类型
   IPV4=0; IPV6=0
-  LAN4=$(ip route get 192.168.193.10 2>/dev/null | grep -oP 'src \K\S+')
-  LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
+  LAN4=$(ip route get 192.168.193.10 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
+  LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
   [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1 && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
   [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip4_info
   [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
@@ -1817,7 +1817,7 @@ check_quota() {
     ACCESS_TOKEN=$(grep 'access_token' /etc/wireguard/wgcf-account.toml | cut -d \' -f2)
     DEVICE_ID=$(grep 'device_id' /etc/wireguard/wgcf-account.toml | cut -d \' -f2)
     API=$(curl -s "https://api.cloudflareclient.com/v0a884/reg/$DEVICE_ID" -H "User-Agent: okhttp/3.12.1" -H "Authorization: Bearer $ACCESS_TOKEN")
-    QUOTA=$(grep -oP '"quota":\K\d+' <<< $API)
+    QUOTA=$(sed 's/.*quota":\([^,]\+\).*/\1/g' <<< $API)
   fi
 
   # 部分系统没有依赖 bc，所以两个小数不能用 $(echo "scale=2; $QUOTA/1000000000000000" | bc)，改为从右往左数字符数的方法
@@ -2167,13 +2167,13 @@ menu() {
 }
 
 # 传参选项 OPTION: 1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP; b=升级内核、开启BBR及DD; o=WARP开关；p=刷 WARP+ 流量; 其他或空值=菜单界面
-[ "$1" != '[option]' ] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")
+[ "$1" != '[option]' ] && OPTION=$(tr 'A-Z' 'a-z' <<< "$1")
 
 # 参数选项 URL 或 License 或转换 WARP 单双栈
 if [ "$2" != '[lisence]' ]; then
   if [[ "$2" =~ http ]]; then CHOOSE_TYPE=3 && URL=$2
   elif [[ "$2" =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then CHOOSE_TYPE=2 && LICENSE=$2
-  elif [[ "$1" = s && "$2" = [46Dd] ]]; then PRIORITY_SWITCH=$(tr '[:upper:]' '[:lower:]' <<< "$2")
+  elif [[ "$1" = s && "$2" = [46Dd] ]]; then PRIORITY_SWITCH=$(tr 'A-Z' 'a-z' <<< "$2")
   elif [[ "$2" =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
   fi
 fi
@@ -2217,7 +2217,7 @@ menu_setting
 case "$OPTION" in
 # 在已运行 Linux Client 前提下，不能安装 WARP IPv4 或者双栈网络接口。如已经运行 WARP ，参数 4,6,d 从原来的安装改为切换
 [46d] ) if [ -e /etc/wireguard/wgcf.conf ]; then
-          SWITCHCHOOSE="$(tr '[:lower:]' '[:upper:]' <<< "$OPTION")"
+          SWITCHCHOOSE="$(tr 'a-z' 'A-Z' <<< "$OPTION")"
           stack_switch
         else
           case "$OPTION" in

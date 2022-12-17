@@ -21,6 +21,8 @@
 * * *
 
 ## 更新信息
+2022.12.17 warp-go V1.1.0 Support OpenWrt system; 支持 OpenWrt 系统
+
 2022.12.10 warp-go V1.0.9 1.Export wireguard and sing-box config file with [warp-go e]; 2.Teams token website change to https://web--public--warp-team-api--coia-mfs4.code.run 1. 使用 [warp-go e] 导出 wireguard 和 sing-box 配置文件; 2.获取 teams token 网站更换为: https://web--public--warp-team-api--coia-mfs4.code.run
 
 2022.10.19 menu V2.46 / warp-go V1.0.8 Switch the IPv4 / IPv6 priority by [warp s 4/6/d] or [warp-go s 4/6/d]; 通过 [warp s 4/6/d] 或者 [warp-go 4/6/d]来切换 IPv4 / IPv6 的优先级别
@@ -33,36 +35,36 @@
 项目 star 达 2000。感谢每位解决方案创造者。我只是把这些作更广泛的传递，服务更多玩家。感谢各用户一如既往的支持。祝大家身体健康，中秋节快乐！
 今年3月 Star 数，本项目 1000 VS 抄哥 400，到了现在9月，本项目 2000 VS 抄哥 9， 变化的绝对值还是远远不及超足两年，一味只会跟着抄功能，抄代码的抄哥啊！公示抄哥的项目: ~https://gitlab.com/rwkgyg/CFwarp, https://github.com/rkygogo/wwaprp, https://github.com/ai2i/CFwarp, https://github.com/2321387/warp, etc...~
 
-2022.8.29 warp-go V1.0.6 1.Fixed the bug that routing rules failed after restart in non-global mode; 2.Fixed the bug of not changing IP; 1.解决了非全局模式重启后，路由规则失效的bug; 2.解决了更换不了IP的bug
-
-2022.8.27 menu V2.44 Refactoring the uninstallation logic. Dependency uninstallation requires confirmation; 重构卸载逻辑，依赖卸载需要确认
-
-2022.8.23 menu V2.43 warp-go V1.0.5 Support NAT VPS. Such as Woiden; 支持 NAT 服务器，例如 Woiden.
-
-~2022.8.21 After testing, wgcf warp service is back to normal in Hong Kong and Toronto, etc. 经测试，香港和多伦多等地区 wgcf warp 服务恢复正常~
-
-2022.8.21 menu V2.42 1.Add shortcut hints in the menu; 2.Remove the shortcut of S. Single and dual stacks swithing can directly use [warp 4/6/d]; 1.在菜单中增加快捷方式的提示; 2.移除快捷方式 s，单双栈相互切换可以直接 [warp 4/6/d]
-
-2022.8.20 warp-go V1.0.4 Chinese and English language support. Hello World; 中英双语支持，与世界接轨
-
-2022.8.20 warp-go V1.0.3 New feat: Menu + shortcuts for various usage scenarios; 菜单 + 快捷方式，适合各种使用场景
-
-2022.8.17 warp-go v1.0.2 1. Add WARP IPv4 non-global and global switch echo other. To use the v2ray/xray configuration file for triage, refer to the template for Client WARP mode on the project homepage; 2. Output wgcf configuration file (warp-go e); 1.在原来全局的基础上，新增 WARP IPv4 非全局方案，配合 v2ray/xray 配置文件来分流，参考项目主页的 Client WARP 模式的模版; 2.输出 wgcf 配置文件(warp-go e)
-
-2022.8.13 warp-go v1.0.1 1.New feat: Support WARP+ (warp-go a <license>); 2.Support Teams (warp-go a token). You can easily get the token through https://warp-team-api.herokuapp.com/ ; 3.Brush unlock Netflix IP (warp-go i); 4.Support AMD v2 v3 v4  instruction set; 1.新增 WARP+ 升级功能(warp-go a <license>); 2.新增 Teams 升级功能(warp-go a token),通过 https://warp-team-api.herokuapp.com/ 你能轻松获取 token; 3.新增刷解锁奈飞IP功能(warp-go i); 4.支持 GOAMD64v4 等指令集，提升功能
-
-2022.8.13 First on the whole web, proudly presents @CoiaPrant's warp-go one-click script. Using various interfaces of CloudFlare-WARP and integrating wireguard-go, it can completely replace WGCF. Save Hong Kong, Toronto, etc., and let VPS without official WARP also get WARP IP. Thanks @CoiaPrant and his team again. Project official address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/
-
-全网首发，隆重推出 @CoiaPrant 的 warp-go 一键脚本。使用 CloudFlare-WARP 的各类接口，集成 wireguard-go，可以完全替代 WGCF。 救活了香港、多伦多等，让没有官方 WARP 的 VPS 也可以获取 WARP IP。再次感谢 @CoiaPrant 及其团队。项目地址: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/
-
-```
-wget -N https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh && bash warp-go.sh [option] [lisence]
-```
-
 <details>
     <summary>历史更新 history（点击即可展开或收起）</summary>
 <br>
 
+>2022.8.29 warp-go V1.0.6 1.Fixed the bug that routing rules failed after restart in non-global mode; 2.Fixed the bug of not changing IP; 1.解决了非全局模式重启后，路由规则失效的bug; 2.解决了更换不了IP的bug
+>
+>2022.8.27 menu V2.44 Refactoring the uninstallation logic. Dependency uninstallation requires confirmation; 重构卸载逻辑，依赖卸载需要确认
+>
+>2022.8.23 menu V2.43 warp-go V1.0.5 Support NAT VPS. Such as Woiden; 支持 NAT 服务器，例如 Woiden.
+>
+>~2022.8.21 After testing, wgcf warp service is back to normal in Hong Kong and Toronto, etc. 经测试，香港和多伦多等地区 wgcf warp 服务恢复正常~
+>
+>2022.8.21 menu V2.42 1.Add shortcut hints in the menu; 2.Remove the shortcut of S. Single and dual stacks swithing can directly use [warp 4/6/d]; 1.在菜单中增加快捷方式的提示; 2.移除快捷方式 s，单双栈相互切换可以直接 [warp 4/6/d]
+>
+>2022.8.20 warp-go V1.0.4 Chinese and English language support. Hello World; 中英双语支持，与世界接轨
+>
+>2022.8.20 warp-go V1.0.3 New feat: Menu + shortcuts for various usage scenarios; 菜单 + 快捷方式，适合各种使用场景
+>
+>2022.8.17 warp-go v1.0.2 1. Add WARP IPv4 non-global and global switch echo other. To use the v2ray/xray configuration file for triage, refer to the template for Client WARP mode on the project homepage; 2. Output wgcf configuration file (warp-go e); 1.在原来全局的基础上，新增 WARP IPv4 非全局方案，配合 v2ray/xray 配置文件来分流，参考项目主页的 Client WARP 模式的模版; 2.输出 wgcf 配置文件(warp-go e)
+>
+>2022.8.13 warp-go v1.0.1 1.New feat: Support WARP+ (warp-go a <license>); 2.Support Teams (warp-go a token). You can easily get the token through https://warp-team-api.herokuapp.com/ ; 3.Brush unlock Netflix IP (warp-go i); 4.Support AMD v2 v3 v4  instruction set; 1.新增 WARP+ 升级功能(warp-go a <license>); 2.新增 Teams 升级功能(warp-go a token),通过 https://warp-team-api.herokuapp.com/ 你能轻松获取 token; 3.新增刷解锁奈飞IP功能(warp-go i); 4.支持 GOAMD64v4 等指令集，提升功能
+>
+>2022.8.13 First on the whole web, proudly presents @CoiaPrant's warp-go one-click script. Using various interfaces of CloudFlare-WARP and integrating wireguard-go, it can completely replace WGCF. Save Hong Kong, Toronto, etc., and let VPS without official WARP also get WARP IP. Thanks @CoiaPrant and his team again. Project official address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/
+>
+>全网首发，隆重推出 @CoiaPrant 的 warp-go 一键脚本。使用 CloudFlare-WARP 的各类接口，集成 wireguard-go，可以完全替代 WGCF。 救活了香港、多伦多等，让没有官方 WARP 的 VPS 也可以获取 WARP IP。再次感谢 @CoiaPrant 及其团队。项目地址: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/
+>
+>```
+>wget -N https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh && bash warp-go.sh [option] [lisence]
+>```
+>
 >2022.8.5 2.41 1.Get the traffic quota of WARP+ via API. Thanks to Oreo for technical support; 1.通过 API 获取 WARP+ 剩余流量, 感谢猫佬的技术支持。
 >
 >2022.6.27 香港 IPv6 only 安装 Client 的方式，转自 LOC jhsyue 的技术贴:[wiki-hk-61.8 开启warp教程](https://hostloc.com/thread-1036792-1-1.html)

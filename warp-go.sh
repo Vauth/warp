@@ -2,7 +2,7 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=1.0.9
+VERSION=1.1.0
 
 # 选择 IP API 服务商
 IP_API=https://api.ip.sb/geoip; ISP=isp
@@ -14,8 +14,8 @@ TOKEN_LENGTH=800
 
 E[0]="Language:\n  1.English (default) \n  2.简体中文"
 C[0]="${E[0]}"
-E[1]="1.Export wireguard and sing-box config file with [warp-go e]; 2.Teams token website change to https://web--public--warp-team-api--coia-mfs4.code.run"
-C[1]="使用 [warp-go e] 导出 wireguard 和 sing-box 配置文件; 2.获取 teams token 网站更换为: https://web--public--warp-team-api--coia-mfs4.code.run"
+E[1]="Support OpenWrt sysgtem."
+C[1]="支持 OpenWrt 系统"
 E[2]="warp-go h (help)\n warp-go o (temporary warp-go switch)\n warp-go u (uninstall WARP web interface and warp-go)\n warp-go v (sync script to latest version)\n warp-go i (replace IP with Netflix support)\n warp-go 4/6 ( WARP IPv4/IPv6 single-stack)\n warp-go d (WARP dual-stack)\n warp-go n (WARP IPv4 non-global)\n warp-go g (WARP global/non-global switching)\n warp-go e (output wireguard and sing-box configuration file)\n warp-go a (Change to Free, WARP+ or Teams account)"
 C[2]="warp-go h (帮助）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 和 sing-box 配置文件)\n warp-go a (更换到 Free，WARP+ 或 Teams 账户)"
 E[3]="This project is designed to add WARP network interface for VPS, using warp-go core, using various interfaces of CloudFlare-WARP, integrated wireguard-go, can completely replace WGCF. Save Hong Kong, Toronto and other VPS, can also get WARP IP. Thanks again @CoiaPrant and his team. Project address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/"
@@ -214,8 +214,10 @@ E[99]="global"
 C[99]="全局"
 E[100]="IPv\$PRIO priority"
 C[100]="IPv\$PRIO 优先"
-E[101]="Sing-box configuration file: /opt/warp-go/singbox.conf\n"
-C[101]="Sing-box 配置文件: /opt/warp-go/singbox.conf\n"
+E[101]="Sing-box configuration file: /opt/warp-go/singbox.json\n"
+C[101]="Sing-box 配置文件: /opt/warp-go/singbox.json\n"
+E[102]="WAN interface network protocol must be [static] on OpenWrt."
+C[102]="OpenWrt 系统的 WAN 接口的网络传输协议必须为 [静态地址]"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }
@@ -249,8 +251,8 @@ check_root_virt() {
   [ "$(id -u)" != 0 ] && error " $(text 5) "
 
   # 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go
-  VIRT=$(systemd-detect-virt 2>/dev/null | tr '[:upper:]' '[:lower:]')
-  [ -z "$VIRT" ] && VIRT=$(hostnamectl 2>/dev/null | tr '[:upper:]' '[:lower:]' | grep virtualization | sed "s/.*://g")
+  VIRT=$(systemd-detect-virt 2>/dev/null | tr 'A-Z' 'a-z')
+  [ -z "$VIRT" ] && VIRT=$(hostnamectl 2>/dev/null | tr 'A-Z' 'a-z' | grep virtualization | sed "s/.*://g")
 }
 
 # 检测 warp-go 的安装状态。 0-未安装; 1-已安装未启动; 2-已安装启动中; 3-脚本安装中
@@ -279,33 +281,35 @@ check_operating_system() {
   # 自定义 Alpine 系统若干函数
   alpine_warp_restart() { kill -15 $(pgrep warp-go) 2>/dev/null; /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf; }
   alpine_wgcf_enable() { echo -e "/opt/warp-go/tun.sh\n/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf" > /etc/local.d/warp-go.start; chmod +x /etc/local.d/warp-go.start; rc-update add local; }
+  openwrt_wgcf_enable() { echo -e "@reboot /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf" >> /etc/crontabs/root; }
 
-  REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky|amazon linux" "alpine" "arch linux")
-  RELEASE=("Debian" "Ubuntu" "CentOS" "Alpine" "Arch")
+  REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky|amazon linux" "alpine" "arch linux" "openwrt")
+  RELEASE=("Debian" "Ubuntu" "CentOS" "Alpine" "Arch" "OpenWrt")
   EXCLUDE=("bookworm")
-  MAJOR=("9" "16" "7" "3" "")
-  PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "apk update -f" "pacman -Sy")
-  PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm")
-  PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "apk del -f" "pacman -Rcnsu --noconfirm")
-  SYSTEMCTL_START=("systemctl start warp-go" "systemctl start warp-go" "systemctl start warp-go" "/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf" "systemctl start warp-go")
-  SYSTEMCTL_STOP=("systemctl stop warp-go" "systemctl stop warp-go" "systemctl stop warp-go" "kill -15 $(pgrep warp-go)" "systemctl stop warp-go")
-  SYSTEMCTL_RESTART=("systemctl restart warp-go" "systemctl restart warp-go" "systemctl restart warp-go" "alpine_warp_restart" "systemctl restart wg-quick@wgcf")
+  MAJOR=("9" "16" "7" "3" "" "")
+  PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "apk update -f" "pacman -Sy" "opkg update")
+  PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm" "opkg install")
+  PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "apk del -f" "pacman -Rcnsu --noconfirm" "opkg remove --force-depends")
+  SYSTEMCTL_START=("systemctl start warp-go" "systemctl start warp-go" "systemctl start warp-go" "/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf" "systemctl start warp-go" "/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf")
+  SYSTEMCTL_STOP=("systemctl stop warp-go" "systemctl stop warp-go" "systemctl stop warp-go" "kill -15 $(pgrep warp-go)" "systemctl stop warp-go" "kill -15 $(pgrep warp-go)")
+  SYSTEMCTL_RESTART=("systemctl restart warp-go" "systemctl restart warp-go" "systemctl restart warp-go" "alpine_warp_restart" "systemctl restart wg-quick@wgcf" "alpine_warp_restart")
   SYSTEMCTL_ENABLE=("systemctl enable --now warp-go" "systemctl enable --now warp-go" "systemctl enable --now warp-go" "alpine_wgcf_enable" "systemctl enable --now warp-go")
 
   for ((int=0; int<${#REGEX[@]}; int++)); do
-    [[ $(echo "$SYS" | tr '[:upper:]' '[:lower:]') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
+    [[ $(echo "$SYS" | tr 'A-Z' 'a-z') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
   done
   [ -z "$SYSTEM" ] && error "$(text 6)"
+  [ "$SYSTEM" = OpenWrt ] && [[ ! $(uci show network.wan.proto 2>/dev/null | cut -d \' -f2)$(uci show network.lan.proto 2>/dev/null | cut -d \' -f2) =~ 'static' ]] && error "$(text 102)"
 
   # 先排除 EXCLUDE 里包括的特定系统，其他系统需要作大发行版本的比较
-  for ex in "${EXCLUDE[@]}"; do [[ ! $(echo "$SYS" | tr '[:upper:]' '[:lower:]')  =~ $ex ]]; done &&
-  [ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ] && error " $(text_eval 7) "
+  for ex in "${EXCLUDE[@]}"; do [[ ! $(echo "$SYS" | tr 'A-Z' 'a-z')  =~ $ex ]]; done &&
+  [[ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ]] && error " $(text_eval 7) "
 }
 
 # 安装系统依赖及定义 ping 指令
 check_dependencies() {
-  # 对于 alpine 系统，升级库并重新安装依赖
-  if [ "$SYSTEM" = Alpine ]; then
+  # 对于 Alpine 和 OpenWrt 系统，升级库并重新安装依赖
+  if echo "$SYSTEM" | grep -qE "Alpine|OpenWrt"; then
     [ ! -e /opt/warp-go/warp-go ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash )
   else
     DEPS_CHECK=("ping" "wget" "curl" "systemctl" "ip")
@@ -346,18 +350,20 @@ help() { hint " $(text 2) "; }
 
 # IPv4 / IPv6 优先设置
 stack_priority() {
-  [ "$OPTION" = s ] && case "$PRIORITY_SWITCH" in
-    4 ) PRIORITY=1 ;;
-    6 ) PRIORITY=2 ;;
-    d ) : ;;
-    * ) hint "\n $(text 55) \n" && reading " $(text 4) " PRIORITY ;;
-  esac
+  if [ "$SYSTEM" != OpenWrt ]; then
+    [ "$OPTION" = s ] && case "$PRIORITY_SWITCH" in
+      4 ) PRIORITY=1 ;;
+      6 ) PRIORITY=2 ;;
+      d ) : ;;
+      * ) hint "\n $(text 55) \n" && reading " $(text 4) " PRIORITY ;;
+    esac
 
-  [ -e /etc/gai.conf ] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
-  case "$PRIORITY" in
-    1 ) echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf ;;
-    2 )	echo "label 2002::/16   2" >> /etc/gai.conf ;;
-  esac
+    [ -e /etc/gai.conf ] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
+    case "$PRIORITY" in
+      1 ) echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf ;;
+      2 )	echo "label 2002::/16   2" >> /etc/gai.conf ;;
+    esac
+  fi
 }
 
 # IPv4 / IPv6 优先结果
@@ -418,14 +424,14 @@ change_ip() {
 
   # 设置时区，让时间戳时间准确，显示脚本运行时长，中文为 GMT+8，英文为 UTC; 设置 UA
   ip_start=$(date +%s)
-  [ "$SYSTEM" != Alpine ] && ( [ "$L" = C ] && timedatectl set-timezone Asia/Shanghai || timedatectl set-timezone UTC )
+  echo "$SYSTEM" | grep -qE "Alpine" && ( [ "$L" = C ] && timedatectl set-timezone Asia/Shanghai || timedatectl set-timezone UTC )
   UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
   # 根据 lmc999 脚本检测 Netflix Title，如获取不到，使用兜底默认值
-  LMC999=$(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh)
-  RESULT_TITLE=$(echo "$LMC999" | grep "result.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
-  REGION_TITLE=$(echo "$LMC999" | grep "region.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
-  RESULT_TITLE=${RESULT_TITLE:-'81215567'}; REGION_TITLE=${REGION_TITLE:-'80018499'}
+  #LMC999=$(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh)
+  #RESULT_TITLE=$(echo "$LMC999" | grep "result.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
+  #REGION_TITLE=$(echo "$LMC999" | grep "region.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
+  RESULT_TITLE=${RESULT_TITLE:-'80062035'}; REGION_TITLE=${REGION_TITLE:-'80018499'}
 
   # 检测 WARP 单双栈服务
   unset T4 T6
@@ -445,7 +451,7 @@ change_ip() {
 
   # 输入解锁区域
   if [ -z "$EXPECT" ]; then
-    [ -n "$NF" ] && REGION=$(tr '[:lower:]' '[:upper:]' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+    [ -n "$NF" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
     REGION=${REGION:-'US'}
     reading " $(text_eval 15) " EXPECT
     until [[ -z "$EXPECT" || "$EXPECT" = [Yy] || "$EXPECT" =~ ^[A-Za-z]{2}$ ]]; do
@@ -465,7 +471,7 @@ change_ip() {
     [ "$L" = C ] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
     RESULT=$(curl --user-agent "${UA_Browser}" $INTERFACE -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE" 2>&1)
     if [ "$RESULT" = 200 ]; then
-      REGION=$(tr '[:lower:]' '[:upper:]' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+      REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
       REGION=${REGION:-'US'}
       echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 16) " && rm -f /opt/warp-go/warp.conf.tmp1 && i=0 && sleep 1h || warp_restart
     else warp_restart
@@ -668,7 +674,7 @@ check_system_info() {
   info " $(text 35) "
 
   # 必须加载 TUN 模块，先尝试在线打开 TUN。尝试成功放到启动项，失败作提示并退出脚本
-  TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
+  TUN=$(cat /dev/net/tun 2>&1 | tr 'A-Z' 'a-z')
   if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
     mkdir -p /opt/warp-go/ >/dev/null 2>&1
     cat >/opt/warp-go/tun.sh << EOF
@@ -678,19 +684,19 @@ mknod /dev/net/tun c 10 200
 chmod 0666 /dev/net/tun
 EOF
     bash /opt/warp-go/tun.sh
-    TUN=$(cat /dev/net/tun 2>&1 | tr '[:upper:]' '[:lower:]')
+    TUN=$(cat /dev/net/tun 2>&1 | tr 'A-Z' 'a-z')
     if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
       rm -f /usr/bin/tun.sh && error "$(text 36)"
     else
       chmod +x /opt/warp-go/tun.sh
-      [ "$SYSTEM" != Alpine ] && echo "@reboot root bash /opt/warp-go/tun.sh" >> /etc/crontab
+      echo "$SYSTEM" | grep -qvE "Alpine|OpenWrt" && echo "@reboot root bash /opt/warp-go/tun.sh" >> /etc/crontab
     fi
   fi
 
   # 判断机器原生状态类型
   IPV4=0; IPV6=0
-  LAN4=$(ip route get 192.168.193.10 2>/dev/null | grep -oP 'src \K\S+')
-  LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | grep -oP 'src \K\S+')
+  LAN4=$(ip route get 192.168.193.10 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
+  LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
   [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1
   [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1
 
@@ -854,7 +860,7 @@ export_file() {
     [ -z "$PYTHON" ] && PYTHON=python3 && ${PACKAGE_INSTALL[int]} $PYTHON
     [ ! -e /opt/warp-go/warp.conf ] && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config "$TOKEN" >/dev/null 2>&1
     /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-wireguard=/opt/warp-go/wgcf.conf >/dev/null 2>&1
-    /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-singbox=/opt/warp-go/singbox.conf >/dev/null 2>&1
+    /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-singbox=/opt/warp-go/singbox.json >/dev/null 2>&1
   else
     error "$(text 51)"
   fi
@@ -864,7 +870,7 @@ export_file() {
   echo -e "\n\n"
 
   info " $(text 101) "
-  cat /opt/warp-go/singbox.conf | $PYTHON -m json.tool
+  cat /opt/warp-go/singbox.json | $PYTHON -m json.tool
   echo -e "\n\n"
 }
 
@@ -895,13 +901,13 @@ install() {
   # 注册 WARP 账户 (将生成 warp 文件保存账户信息)
   # 判断 warp-go 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.6
   {	
-  latest=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | grep -oP '"tag_name":"v\K[^\"]+' | head -n 1)
+  latest=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | awk -F '"' '{for (i=0; i<NF; i++) if ($i=="tag_name") {print $(i+2); exit}}' | sed "s/v//")
   latest=${latest:-'1.0.6'}
 
   # 安装 warp-go，尽量下载官方的最新版本，如官方 warp-go 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
   mkdir -p /opt/warp-go/ >/dev/null 2>&1
-  wget --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$latest"/downloads/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz ||
-  wget --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
+  wget -T20 -t1 --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$latest"/downloads/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz ||
+  wget -T20 -t2 --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
   [ ! -e /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz ] && error "$(text 56)"
   [ $(type -p tar) ] || ${PACKAGE_INSTALL[int]} tar 2>/dev/null || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} tar 2>/dev/null )
   tar xzf /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz -C /opt/warp-go/ warp-go
@@ -1019,7 +1025,7 @@ EOF
   [[ "$WARP_STACK" = 4 || "$OPTION" = n ]] && STATUS=3 && global_switch
 
   # 创建 warp-go systemd 进程守护(Alpine 系统除外)
-  if [ "$SYSTEM" != Alpine ]; then
+  if echo "$SYSTEM" | grep -qvE "Alpine|OpenWrt"; then
     cat > /lib/systemd/system/warp-go.service << EOF
 [Unit]
 Description=warp-go service
@@ -1076,7 +1082,7 @@ check_quota() {
     ACCESS_TOKEN=$(grep 'Token' /opt/warp-go/warp.conf | cut -d= -f2 | sed 's# ##g')
     DEVICE_ID=$(grep 'Device' /opt/warp-go/warp.conf | cut -d= -f2 | sed 's# ##g')
     API=$(curl -s "https://api.cloudflareclient.com/v0a884/reg/$DEVICE_ID" -H "User-Agent: okhttp/3.12.1" -H "Authorization: Bearer $ACCESS_TOKEN")
-    QUOTA=$(grep -oP '"quota":\K\d+' <<< $API)
+    QUOTA=$(sed 's/.*quota":\([^,]\+\).*/\1/g' <<< $API)
   fi
 
   # 部分系统没有依赖 bc，所以两个小数不能用 $(echo "scale=2; $QUOTA/1000000000000000" | bc)，改为从右往左数字符数的方法
@@ -1173,7 +1179,7 @@ menu() {
 }
 
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈WARP; 2=安装双栈 WARP; u=卸载 WARP
-[ "$1" != '[option]' ] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")
+[ "$1" != '[option]' ] && OPTION=$(tr 'A-Z' 'a-z' <<< "$1")
 
 # 参数选项 URL 或 License 或转换 WARP 单双栈
 if [ "$2" != '[lisence]' ]; then
@@ -1181,7 +1187,7 @@ if [ "$2" != '[lisence]' ]; then
     LICENSETYPE=1 && LICENSE="$2"
   elif [[ "${#2}" -ge "$TOKEN_LENGTH" ]]; then LICENSETYPE=2 && TOKEN="$2"
   elif [[ "$2" =~ ^[A-Za-z]{2}$ ]]; then EXPECT="$2"
-  elif [[ "$1" = s && "$2" = [46Dd] ]]; then PRIORITY_SWITCH=$(tr '[:upper:]' '[:lower:]' <<< "$2")
+  elif [[ "$1" = s && "$2" = [46Dd] ]]; then PRIORITY_SWITCH=$(tr 'A-Z' 'a-z' <<< "$2")
   fi
 fi
 
@@ -1224,7 +1230,7 @@ menu_setting
 case "$OPTION" in
   [46dn] )	
     if [[ $STATUS != 0 ]]; then
-      SWITCHCHOOSE="$(tr '[:lower:]' '[:upper:]' <<< "$OPTION")"
+      SWITCHCHOOSE="$(tr 'a-z' 'A-Z' <<< "$OPTION")"
       stack_switch
     else
       case "$OPTION" in
