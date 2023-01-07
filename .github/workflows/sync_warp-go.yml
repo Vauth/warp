@@ -15,7 +15,7 @@ jobs:
       REPO: ${{ secrets.GH_REPO }}
 
     steps:
-      - uses: actions/checkout@v3.2.0
+      - uses: actions/checkout@v3.3.0
       - name: Update warp-go to latest version
         run: |
           NOW=$(wget -qO- https://raw.githubusercontent.com/${{ env.USERNAME }}/${{ env.REPO }}/main/warp-go.sh | grep 'latest=${latest' | cut -d \' -f2)
