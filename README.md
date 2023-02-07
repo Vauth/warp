@@ -21,6 +21,8 @@
 * * *
 
 ## 更新信息
+2023.2.7 menu.sh V2.47 Iptables + dnsmasq + ipset solution supports chatGPT. Install via the 12 option in the menu or `bash menu.sh e`; Iptables + dnsmasq + ipset 方案支持 chatGPT. 安装方式: 菜单 12 选项或者 `bash menu.sh e` 
+
 2022.12.17 warp-go V1.1.0 Support OpenWrt system; 支持 OpenWrt 系统
 
 2022.12.10 warp-go V1.0.9 1.Export wireguard and sing-box config file with [warp-go e]; 2.Teams token website change to https://web--public--warp-team-api--coia-mfs4.code.run 1. 使用 [warp-go e] 导出 wireguard 和 sing-box 配置文件; 2.获取 teams token 网站更换为: https://web--public--warp-team-api--coia-mfs4.code.run
@@ -184,7 +186,7 @@
 
 ## WARP好处
 
-* 解锁奈飞流媒体
+* 支持 chatGPT，解锁奈飞流媒体
 * 避免 Google 验证码或是使用 Google 学术搜索
 * 可调用 IPv4 接口，使青龙和V2P等项目能正常运行
 * 由于可以双向转输数据，能做对方VPS的跳板和探针，替代 HE tunnelbroker
