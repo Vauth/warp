@@ -227,7 +227,7 @@ hint() { echo -e "\033[33m\033[01m$*\033[0m"; }
 reading() { read -rp "$(info "$1")" "$2"; }
 text() { eval echo "\${${L}[$*]}"; }
 text_eval() { eval echo "\$(eval echo "\${${L}[$*]}")"; }
-translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
+translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times() {

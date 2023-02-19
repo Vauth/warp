@@ -15,7 +15,7 @@ red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
 green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
 yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
-translate(){ [[ -n "$1" ]] && curl -sm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
+translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
 
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈 WARP; u=卸载 WARP; o=WARP开关; 其他或空值=菜单界面
 [[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")

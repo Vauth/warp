@@ -375,7 +375,7 @@ hint() { echo -e "\033[33m\033[01m$*\033[0m"; }
 reading() { read -rp "$(info "$1")" "$2"; }
 text() { eval echo "\${${L}[$*]}"; }
 text_eval() { eval echo "\$(eval echo "\${${L}[$*]}")"; }
-translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$1" | cut -d \" -f18 2>/dev/null; }
+translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times() {
@@ -774,10 +774,10 @@ uninstall() {
   # 卸载 WGCF
   uninstall_wgcf() {
     wg-quick down wgcf >/dev/null 2>&1
-    systemctl disable --now wg-quick@wgcf >/dev/null 2>&1
+    systemctl disable --now wg-quick@wgcf >/dev/null 2>&1; sleep 3
     [ $(type -p rpm) ] && rpm -e wireguard-tools 2>/dev/null
-    systemctl restart systemd-resolved >/dev/null 2>&1 && sleep 5
-    systemctl enable --now systemd-resolved >/dev/null 2>&1
+    systemctl restart systemd-resolved >/dev/null 2>&1; sleep 3
+    systemctl enable --now systemd-resolved >/dev/null 2>&1; sleep 3
     rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy /etc/local.d/wgcf.start
     [ -e /etc/gai.conf ] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
     [ -e /usr/bin/tun.sh ] && rm -f /usr/bin/tun.sh
