@@ -9,6 +9,7 @@
 - [WARP好处](README.md#WARP好处)
 - [warp 运行脚本](README.md#warp-运行脚本)
 - [warp-go 运行脚本](README.md#warp-go-运行脚本)
+- [通过 warp 解锁 chatGPT 的方法](README.md#通过-warp-解锁-chatgpt-的方法)
 - [刷 Netflix 解锁 WARP IP 的方法](README.md#刷-Netflix-解锁-WARP-IP-的方法)
 - [Netflix 分流到 WARP Client Proxy、WireProxy 的方法](README.md#Netflix-分流到-WARP-Client-ProxyWireProxy-的方法)
 - [Netflix,Google 分流到 Client WARP 网络接口的方法](README.md#netflixgoogle-分流到-client-warp-网络接口的方法)
@@ -21,6 +22,8 @@
 * * *
 
 ## 更新信息
+2023.2.22 Unlock chatGPT without installing warp; 不安装 warp 就能解锁 chatGPT 的方法  [TO:](README.md#通过-warp-解锁-chatgpt-的方法)
+
 2023.2.7 menu.sh V2.47 Iptables + dnsmasq + ipset solution supports chatGPT. Install via the 12 option in the menu or `bash menu.sh e`; Iptables + dnsmasq + ipset 方案支持 chatGPT. 安装方式: 菜单 12 选项或者 `bash menu.sh e` 
 
 2022.12.17 warp-go V1.1.0 Support OpenWrt system; 支持 OpenWrt 系统
@@ -239,6 +242,50 @@ wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && bash men
 warp i jp
 ```
 
+## 通过 warp 解锁 chatGPT 的方法
+
+方法原创，转引用请标明本项目出处。
+思路是使用已经注册的 warp 做链式代理的设置，此解决方法是最轻便的，用户只要有 xray 即可。具体做法是修改 xray 配置文件的 outbound 和 routing，模板如下
+```
+{
+    "outbounds":[
+        {
+            "protocol":"freedom"
+        },
+        {
+            "tag":"WARP",
+            "protocol":"wireguard",
+            "settings":{
+                "secretKey":"cKE7LmCF61IhqqABGhvJ44jWXp8fKymcMAEVAzbDF2k=",
+                "address":[
+                    "172.16.0.2/32",
+                    "fd01:5ca1:ab1e:823e:e094:eb1c:ff87:1fab/128"
+                ],
+                "peers":[
+                    {
+                        "publicKey":"bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+                        "endpoint":"162.159.193.10:2408"
+                    }
+                ]
+            }
+        }
+    ],
+    "routing":{
+        "domainStrategy":"AsIs",
+        "rules":[
+            {
+                "type":"field",
+                "domain":[
+                    "domain:openai.com",
+                    "domain:ai.com"
+                ],
+                "outboundTag":"WARP"
+            }
+        ]
+    }
+}
+```
+    
 ## 刷 Netflix 解锁 WARP IP 的方法
 
 也可以用另一个通过 WARP 解锁流媒体的一键脚本: [【刷 WARP IP】 - 为 WARP 解锁流媒体而生](https://github.com/fscarmen/warp_unlock)

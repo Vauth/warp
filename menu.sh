@@ -11,8 +11,8 @@ IP_API=https://api.ip.sb/geoip; ISP=isp
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="Iptables + dnsmasq + ipset solution supports chatGPT. Install via the 12 option in the menu or [bash menu.sh e]"
-C[1]="Iptables + dnsmasq + ipset 方案支持 chatGPT. 安装方式: 菜单 12 选项或者 [bash menu.sh e]"
+E[1]="Unlock chatGPT without installing warp; Detail: [https://github.com/fscarmen/warp/]  "
+C[1]="不安装 warp 就能解锁 chatGPT 的方法，详细方法:[https://github.com/fscarmen/warp/]"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
