@@ -269,8 +269,8 @@ E[128]=""
 C[128]=""
 E[129]="The current Teams account is unavailable, automatically switch back to the free account"
 C[129]="当前 Teams 账户不可用，自动切换回免费账户"
-E[130]="Please confirm\\\n Private key\\\t: \$PRIVATEKEY \$MATCH1\\\n Public key\\\t: \$PUBLICKEY \$MATCH2\\\n Address IPv4\\\t: \$ADDRESS4/32 \$MATCH3\\\n Address IPv6\\\t: \$ADDRESS6/128 \$MATCH4"
-C[130]="请确认Teams 信息\\\n Private key\\\t: \$PRIVATEKEY \$MATCH1\\\n Public key\\\t: \$PUBLICKEY \$MATCH2\\\n Address IPv4\\\t: \$ADDRESS4/32 \$MATCH3\\\n Address IPv6\\\t: \$ADDRESS6/128 \$MATCH4"
+E[130]="Please confirm\\\n Private key\\\t: \$PRIVATEKEY \${MATCH[1]}\\\n Address IPv6\\\t: \$ADDRESS6/128 \${MATCH[2]}"
+C[130]="请确认Teams 信息\\\n Private key\\\t: \$PRIVATEKEY \${MATCH[1]}\\\n Address IPv6\\\t: \$ADDRESS6/128 \${MATCH[2]}"
 E[131]="comfirm please enter [y] , and other keys to use free account:"
 C[131]="确认请按 [y]，其他按键则使用免费账户:"
 E[132]="Is there a WARP+ or Teams account?\n 1. Use free account (default)\n 2. WARP+\n 3. Teams"
@@ -867,7 +867,8 @@ net() {
     if [[ "$i" = "$j" ]]; then
         if [ "$CHOOSE_TYPE" = 3 ]; then
           unset CHOOSE_TYPE && i=0 && info " $(text 129) "
-          mv -f /etc/wireguard/wgcf.conf.bak /etc/wireguard/wgcf.conf
+          [ -e /etc/wireguard/wgcf.conf.bak ] && mv -f /etc/wireguard/wgcf.conf.bak /etc/wireguard/wgcf.conf
+          [ -e /etc/wireguard/proxy.conf.bak ] && mv -f /etc/wireguard/proxy.conf.bak /etc/wireguard/proxy.conf
           rm -f /etc/wireguard/info-temp.log
         else
           wg-quick down wgcf >/dev/null 2>&1
@@ -978,8 +979,8 @@ stack_switch() {
 
   [[ "$CLIENT" = [35] && "$SWITCHCHOOSE" = [4D] ]] && error " $(text 109) "
   check_stack
-  if [[ "$CHOOSE1" = [12] ]]; then
-    TO=$(eval echo "\${TO$CHOOSE1[m]}")
+  if [[ "$MENU_CHOOSE" = [12] ]]; then
+    TO=$(eval echo "\${TO$MENU_CHOOSE[m]}")
   elif [[ "$SWITCHCHOOSE" = [46D] ]]; then
     [[ "$T4@$T6@$SWITCHCHOOSE" =~ '1@0@4'|'0@1@6'|'1@1@D' ]] && error " $(text 146) " || TO="$T4$T6$SWITCHCHOOSE"
   fi
@@ -1071,13 +1072,16 @@ rule_del() {
 
 # 替换为 Teams 账户信息
 teams_change() {
-  sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" /etc/wireguard/wgcf.conf
+  [ -e /etc/wireguard/proxy.conf ] && cp -f /etc/wireguard/proxy.conf{,.bak}
+  [ -e /etc/wireguard/wgcf.conf ] && cp -f /etc/wireguard/wgcf.conf{,.bak}
+  echo "$TEAMS" > /etc/wireguard/info-temp.log
+  sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g; s#Address.*128#Address = ${ADDRESS6}/128#g" /etc/wireguard/wgcf.conf
   case $IPV4$IPV6 in
-    01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v6&quot;:&quot;\(.*]\):.*'):2408#g" /etc/wireguard/wgcf.conf ;;
-    10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v4&quot;:&quot;\(.*\):0&quot;,.*'):2408#g" /etc/wireguard/wgcf.conf ;;     
+    01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v6&quot;:&quot;\(.*]:[0-9]\+\).*')#g" /etc/wireguard/wgcf.conf ;;
+    10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v4&quot;:&quot;\([0-9.]\+:[0-9]\+\).*')#g" /etc/wireguard/wgcf.conf ;;     
   esac
 }
-        
+
 # 输入 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
 input_license() {
   [ -z "$LICENSE" ] && reading " $(text 28) " LICENSE
@@ -1095,16 +1099,13 @@ input_license() {
 # 输入 Teams 账户 URL（如有）
 input_url() {
   [ -z "$URL" ] && reading " $(text 127) " URL
-  URL=${URL:-'https://gist.githubusercontent.com/fscarmen/56aaf02d743551737c9973b8be7a3496/raw/61bf63e68e4e91152545679b8f11c72cac215128/2021.12.21'}
+  URL=${URL:-'https://gist.githubusercontents.com/fscarmen/56aaf02d743551737c9973b8be7a3496/raw/61bf63e68e4e91152545679b8f11c72cac215128/2021.12.21'}
   TEAMS=$(curl -sSL "$URL" | sed "s/\"/\&quot;/g")
   PRIVATEKEY=$(expr "$TEAMS" : '.*private_key&quot;>\([^<]*\).*')
-  PUBLICKEY=$(expr "$TEAMS" : '.*public_key&quot;:&quot;\([^&]*\).*')
-  ADDRESS4=$(expr "$TEAMS" : '.*v4&quot;:&quot;\(172[^&]*\).*')
   ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*')
-  [[ "$PRIVATEKEY" =~ ^[A-Z0-9a-z/+]{43}=$ ]] && MATCH1=$(text 135) || MATCH1=$(text 136)
-  [[ "$PUBLICKEY" =~ ^[A-Z0-9a-z/+]{43}=$ ]] && MATCH2=$(text 135) || MATCH2=$(text 136)
-  [[ "$ADDRESS4" =~ ^172.16.[01].[0-9]{1,3}$ ]] && MATCH3=$(text 135) || MATCH3=$(text 136)
-  [[ "$ADDRESS6" =~ ^fd01(:[0-9a-f]{0,4}){7}$ ]] && MATCH4=$(text 135) || MATCH4=$(text 136)
+
+  [[ "$PRIVATEKEY" =~ ^[A-Z0-9a-z/+]{43}=$ ]] && MATCH[1]=$(text 135) || MATCH[1]=$(text 136)
+  [[ "$ADDRESS6" =~ ^fd01(:[0-9a-f]{0,4}){7}$ ]] && MATCH[2]=$(text 135) || MATCH[2]=$(text 136)
   hint "\n $(text_eval 130) \n" && reading " $(text 131) " CONFIRM
 }
 
@@ -1405,71 +1406,72 @@ install() {
   # 根据系统选择需要安装的依赖
   info "\n $(text 32) \n"
 
-  Debian() {
-    # 添加 backports 源,之后才能安装 wireguard-tools 
-    if [[ $(echo $SYS | sed "s/[^0-9.]//g" | cut -d. -f1) = 9 ]]; then
-      echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable-wireguard.list
-      echo -e "Package: *\nPin: release a=unstable\nPin-Priority: 150\n" > /etc/apt/preferences.d/limit-unstable
-    else
-      echo "deb http://deb.debian.org/debian $(cat /etc/os-release | grep -i VERSION_CODENAME | sed s/.*=//g)-backports main" > /etc/apt/sources.list.d/backports.list
-    fi  
-    # 更新源
-    ${PACKAGE_UPDATE[int]}
+  case "$SYSTEM" in
+    Debian )
+      # 添加 backports 源,之后才能安装 wireguard-tools 
+      if [[ $(echo $SYS | sed "s/[^0-9.]//g" | cut -d. -f1) = 9 ]]; then
+        echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable-wireguard.list
+        echo -e "Package: *\nPin: release a=unstable\nPin-Priority: 150\n" > /etc/apt/preferences.d/limit-unstable
+      else
+        echo "deb http://deb.debian.org/debian $(cat /etc/os-release | grep -i VERSION_CODENAME | sed s/.*=//g)-backports main" > /etc/apt/sources.list.d/backports.list
+      fi  
+      # 更新源
+      ${PACKAGE_UPDATE[int]}
 
-    # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
-    ${PACKAGE_INSTALL[int]} --no-install-recommends net-tools openresolv dnsutils iptables
-    [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
+      # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
+      ${PACKAGE_INSTALL[int]} --no-install-recommends net-tools openresolv dnsutils iptables
+      [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
 
-    # 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-    [ "$WG" = 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends linux-headers-"$(uname -r)" && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-dkms
-  }
+      # 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
+      [ "$WG" = 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends linux-headers-"$(uname -r)" && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-dkms
+    ;;
 
-  Ubuntu() {
-    # 更新源
-    ${PACKAGE_UPDATE[int]}
+    Ubuntu )
+      # 更新源
+      ${PACKAGE_UPDATE[int]}
 
-    # 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
-    ${PACKAGE_INSTALL[int]} --no-install-recommends net-tools openresolv dnsutils iptables
-    [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
-  }
+      # 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
+      ${PACKAGE_INSTALL[int]} --no-install-recommends net-tools openresolv dnsutils iptables
+      [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
+    ;;
 
-  CentOS() {
-    # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
-    [ "$COMPANY" = amazon ] && ${PACKAGE_UPDATE[int]} && amazon-linux-extras install -y epel            
-    ${PACKAGE_INSTALL[int]} epel-release
-    ${PACKAGE_INSTALL[int]} net-tools iptables
-    [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
+    CentOS )
+      # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
+      [ "$COMPANY" = amazon ] && ${PACKAGE_UPDATE[int]} && amazon-linux-extras install -y epel            
+      ${PACKAGE_INSTALL[int]} epel-release
+      ${PACKAGE_INSTALL[int]} net-tools iptables
+      [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
 
-    # 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-    VERSION_ID=$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')
-    [ "$ARCHITECTURE" != s390x ] && [ "$WG" = 1 ] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-"$VERSION_ID"/jdoss-wireguard-epel-"$VERSION_ID".repo &&
+      # 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
+      VERSION_ID=$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')
+      [ "$ARCHITECTURE" != s390x ] && [ "$WG" = 1 ] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-"$VERSION_ID"/jdoss-wireguard-epel-"$VERSION_ID".repo &&
 
-    ${PACKAGE_INSTALL[int]} wireguard-dkms
+      ${PACKAGE_INSTALL[int]} wireguard-dkms
 
-    # 升级所有包同时也升级软件和系统内核
-    ${PACKAGE_UPDATE[int]}
+      # 升级所有包同时也升级软件和系统内核
+      ${PACKAGE_UPDATE[int]}
 
-    # s390x wireguard-tools 安装
-    [ "$ARCHITECTURE" = s390x ] && [ ! $(type -p wg) ] && rpm -i https://mirrors.cloud.tencent.com/epel/8/Everything/s390x/Packages/w/wireguard-tools-1.0.20210914-1.el8.s390x.rpm
+      # s390x wireguard-tools 安装
+      [ "$ARCHITECTURE" = s390x ] && [ ! $(type -p wg) ] && rpm -i https://mirrors.cloud.tencent.com/epel/8/Everything/s390x/Packages/w/wireguard-tools-1.0.20210914-1.el8.s390x.rpm
 
-    # CentOS Stream 9 需要安装 resolvconf
-    [[ "$SYSTEM" = CentOS && "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" = 9 ]] && [ ! $(type -p resolvconf) ] && 
-    wget $CDN -P /usr/sbin https://github.com/fscarmen/warp/releases/download/resolvconf/resolvconf && chmod +x /usr/sbin/resolvconf
-  }
+      # CentOS Stream 9 需要安装 resolvconf
+      [[ "$SYSTEM" = CentOS && "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" = 9 ]] && [ ! $(type -p resolvconf) ] && 
+      wget $CDN -P /usr/sbin https://github.com/fscarmen/warp/releases/download/resolvconf/resolvconf && chmod +x /usr/sbin/resolvconf
+    ;;
 
-  Alpine() {
-    # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
-    ${PACKAGE_INSTALL[int]} net-tools iproute2 openresolv openrc iptables ip6tables
-    [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
-  }
+    Alpine )
+      # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
+      ${PACKAGE_INSTALL[int]} net-tools iproute2 openresolv openrc iptables ip6tables
+      [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
+    ;;
 
-  Arch() {
-    # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
-    ${PACKAGE_INSTALL[int]} openresolv
-    [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
-  }
+    Arch )
+      # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
+      ${PACKAGE_INSTALL[int]} openresolv
+      [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
+    ;;
 
-  $SYSTEM
+  esac
 
   wait
 
@@ -1566,7 +1568,7 @@ EOF
 
     # 保存好配置文件, 如有 Teams，改为 Teams 账户信息    
     mv -f menu.sh /etc/wireguard >/dev/null 2>&1
-    [[ "$CONFIRM" = [Yy] ]] && teams_change && echo "$TEAMS" > /etc/wireguard/info-temp.log 2>&1
+    [[ "$CONFIRM" = [Yy] ]] && teams_change
 
     # 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
     chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
@@ -1582,14 +1584,10 @@ EOF
     hint " $(text 43) \n" && help
 
   else
-    [ "$ANEMONE" = 1 ] && iptables_solution
+    [ "$ANEMONE" = 1 ] && ( iptables_solution; systemctl restart dnsmasq >/dev/null 2>&1 )
 
     # 如有 Teams，改为 Teams 账户信息
-    grep -qiw "y" <<< "$CONFIRM" && teams_change && echo "$TEAMS" > /etc/wireguard/info-temp.log 2>&1
-
-    # 设置开机启动
-    ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
-    [ $(type -p dnsmasq) ] && systemctl restart dnsmasq >/dev/null 2>&1
+    [[ "$CONFIRM" = [Yy] ]] && teams_change
 
     # Linux 内核低于5.6的，安装 Wireguard-GO。部分较低内核版本的KVM，即使安装了wireguard-dkms, 仍不能正常工作，兜底使用 wireguard-go
     if [ "$WG" = 1 ] || [[ $(systemctl is-active wg-quick@wgcf) != active ]] || [[ $(systemctl is-enabled wg-quick@wgcf) != enabled ]]; then
@@ -1599,7 +1597,7 @@ EOF
       tar xzf wireguard-go_linux_$ARCHITECTURE.tar.gz -C /usr/bin/ && rm -f wireguard-go_linux_* && chmod +x /usr/bin/wireguard-go
       ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
     fi
-  
+
     # 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
     mv -f menu.sh /etc/wireguard >/dev/null 2>&1
     chmod +x /etc/wireguard/menu.sh >/dev/null 2>&1
@@ -1611,7 +1609,10 @@ EOF
     unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
     [ "$COMPANY" = amazon ] && warning " $(text_eval 40) " && reboot || net
     result_priority
-  
+
+    # 设置开机启动
+    ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
+
     # /etc/wireguard/info-temp.log 存在，说明升级 Teams 成功，移动文件到 /etc/wireguard/info.log
     grep -qiw "y" <<< "$CONFIRM" && [ -e /etc/wireguard/info-temp.log ] && mv -f /etc/wireguard/info-temp.log /etc/wireguard/info.log
 
@@ -1980,8 +1981,6 @@ change_to_teams() {
   input_url
   grep -q "$PRIVATEKEY" /etc/wireguard/wgcf.conf && KEY_LICENSE='Private key' && error " $(text_eval 31) "
   if grep -qiw "y" <<< "$CONFIRM"; then
-    cp -f /etc/wireguard/wgcf.conf{,.bak}
-    echo "$TEAMS" > /etc/wireguard/info-temp.log 2>&1
     if [ "$UPDATE_ACCOUNT" = wgcf ]; then
       wg-quick down wgcf >/dev/null 2>&1
       teams_change
@@ -1991,7 +1990,6 @@ change_to_teams() {
     else
       systemctl stop wireproxy; sleep 2
       teams_change
-
       sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g" /etc/wireguard/proxy.conf
       [ -e /etc/wireguard/info-temp.log ] && mv -f /etc/wireguard/info-temp.log /etc/wireguard/info.log
       wireproxy_onoff
@@ -2006,10 +2004,10 @@ update() {
     [ ! -e /etc/wireguard/wgcf-account.toml ] && error " $(text 59) "
     [ ! -e /etc/wireguard/wgcf.conf ] && error " $(text 60) "
 
-    CHANGE_DO0() { [ "$OPTION" != a ] && unset CHOOSE_TYPE && menu || exit; }
-    CHANGE_DO1() { change_to_free; }
-    CHANGE_DO2() { change_to_plus; }
-    CHANGE_DO3() { change_to_teams; }
+    CHANGE_DO[0]() { [ "$OPTION" != a ] && unset CHOOSE_TYPE && menu || exit; }
+    CHANGE_DO[1]() { change_to_free; }
+    CHANGE_DO[2]() { change_to_plus; }
+    CHANGE_DO[3]() { change_to_teams; }
 
     # 判断现 WGCF 账户类型: free, plus, teams，如果是 plus，查 WARP+ 余额流量
     [ -z "$ACCOUNT_TYPE" ] && ACCOUNT_TYPE=free && CHANGE_TYPE=$(text 174) &&
@@ -2024,7 +2022,7 @@ update() {
   
     # 输入必须是数字且少于等于3
     if [[ "$CHOOSE_TYPE" = [0-3] ]]; then
-      CHANGE_DO$CHOOSE_TYPE
+      CHANGE_DO[$CHOOSE_TYPE]
     else
       warning " $(text 51) [0-3] " && unset CHOOSE_TYPE && sleep 1 && update
     fi
@@ -2045,9 +2043,9 @@ update() {
     [ "$ARCHITECTURE" = arm64 ] && error " $(text 101) "
     [ -n "$URL" ] && unset CHOOSE_TYPE && warning "\n $(text 9) "
 
-    CHANGE_DO0() { menu; }
-    CHANGE_DO1() { change_to_free; }
-    CHANGE_DO2() { change_to_plus; }
+    CHANGE_DO[0]() { menu; }
+    CHANGE_DO[1]() { change_to_free; }
+    CHANGE_DO[2]() { change_to_plus; }
 
     # 判断现 WGCF 账户类型: free, plus，如果是 plus，查 WARP+ 余额流量
     ACCOUNT_TYPE=free && CHANGE_TYPE=$(text 177)
@@ -2062,7 +2060,7 @@ update() {
 
     # 输入必须是数字且少于等于2
     if [[ "$CHOOSE_TYPE" = [0-2] ]]; then
-      CHANGE_DO$CHOOSE_TYPE
+      CHANGE_DO[$CHOOSE_TYPE]
     else
       warning " $(text 51) [0-2] " && unset CHOOSE_TYPE && sleep 1 && update
     fi
@@ -2098,36 +2096,59 @@ update() {
 # 判断当前 WARP 网络接口及 Client 的运行状态，并对应的给菜单和动作赋值
 menu_setting() {
   if [[ "$CLIENT" -gt 1 || "$WIREPROXY" -gt 0 ]]; then
-    [ "$CLIENT" -lt 3 ] && OPTION1="$(text 88)" || OPTION1="$(text 89)"
-    [ "$WIREPROXY" -lt 2 ] && OPTION2="$(text 163)" || OPTION2="$(text 164)"
-    OPTION3="$(text 143)"; OPTION4="$(text 78)"
+    [ "$CLIENT" -lt 3 ] && MENU_OPTION[1]="1. $(text 88)" || MENU_OPTION[1]="1. $(text 89)"
+    [ "$WIREPROXY" -lt 2 ] && MENU_OPTION[2]="2. $(text 163)" || MENU_OPTION[2]="2. $(text 164)"
+    MENU_OPTION[3]="3. $(text 143)"
+    MENU_OPTION[4]="4. $(text 78)"
 
-    ACTION1() { proxy_onoff; }; ACTION2() { wireproxy_onoff; }; ACTION3() { change_port; }; ACTION4() { update; };
+    ACTION[1]() { proxy_onoff; }
+    ACTION[2]() { wireproxy_onoff; }
+    ACTION[3]() { change_port; }
+    ACTION[4]() { update; }
 
   else
     check_stack
     case "$m" in
-      [0-2] ) OPTION1="$(text_eval 66)"; OPTION2="$(text_eval 67)"; OPTION3="$(text_eval 68)"
-              ACTION1() { CONF=${CONF1[n]}; install; }; ACTION2() { CONF=${CONF2[n]}; install; }; ACTION3() { CONF=${CONF3[n]}; install; } ;;
-        
-      * ) OPTION1="$(text_eval 141)"; OPTION2="$(text_eval 142)"; OPTION3="$(text 78)"
-          ACTION1() { stack_switch; }; ACTION2() { stack_switch; }; ACTION3() { update; } ;;
+      [0-2] ) MENU_OPTION[1]="1.  $(text_eval 66)"
+              MENU_OPTION[2]="2.  $(text_eval 67)"
+              MENU_OPTION[3]="3.  $(text_eval 68)"
+              ACTION[1]() { CONF=${CONF1[n]}; install; }
+              ACTION[2]() { CONF=${CONF2[n]}; install; }
+              ACTION[3]() { CONF=${CONF3[n]}; install; }
+      ;;
+
+      * ) MENU_OPTION[1]="1.  $(text_eval 141)"
+          MENU_OPTION[2]="2.  $(text_eval 142)"
+          MENU_OPTION[3]="3.  $(text 78)"
+          ACTION[1]() { stack_switch; }
+          ACTION[2]() { stack_switch; }
+          ACTION[3]() { update; }
+      ;;
     esac
   fi
 
   [ -e /etc/dnsmasq.d/warp.conf ] && IPTABLE_INSTALLED="$(text 92)"
-  [ -n "$(wg 2>/dev/null)" ] && OPTION4="$(text 77)" || OPTION4="$(text 71)"
+  [ -n "$(wg 2>/dev/null)" ] && MENU_OPTION[4]="4.  $(text 77)" || MENU_OPTION[4]="4.  $(text 71)"
 
-  OPTION5="$CLIENT_INSTALLED$AMD64_ONLY$(text 82)"; OPTION6="$(text 123)"; OPTION7="$(text 72)"; OPTION8="$(text 74)"; OPTION9="$(text 73)"; OPTION10="$(text 75)";
-  OPTION11="$(text 80)"; OPTION12="$IPTABLE_INSTALLED$(text 138)"; OPTION13="$WIREPROXY_INSTALLED$(text 148)"; OPTION14="$CLIENT_INSTALLED$AMD64_ONLY$(text 168)"; OPTION0="$(text 76)"
+  MENU_OPTION[5]="5.  $CLIENT_INSTALLED$AMD64_ONLY$(text 82)"
+  MENU_OPTION[6]="6.  $(text 123)"
+  MENU_OPTION[7]="7.  $(text 72)"
+  MENU_OPTION[8]="8.  $(text 74)"
+  MENU_OPTION[9]="9.  $(text 73)"
+  MENU_OPTION[10]="10. $(text 75)"
+  MENU_OPTION[11]="11. $(text 80)"
+  MENU_OPTION[12]="12. $IPTABLE_INSTALLED$(text 138)"
+  MENU_OPTION[13]="13. $WIREPROXY_INSTALLED$(text 148)"
+  MENU_OPTION[14]="14. $CLIENT_INSTALLED$AMD64_ONLY$(text 168)"
+  MENU_OPTION[0]="0.  $(text 76)"
 
-  ACTION4() { OPTION=o; onoff; }
-  ACTION5() { proxy; }; ACTION6() { change_ip; }; ACTION7() { uninstall; }; ACTION8() { plus; }; ACTION9() { bbrInstall; }; ACTION10() { ver; }; 
-  ACTION11() { bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
-  ACTION12() { ANEMONE=1 ;install; }; 
-  ACTION13() { OCTEEP=1; install; };
-  ACTION14() { LUBAN=1; proxy; };
-  ACTION0() { exit; }
+  ACTION[4]() { OPTION=o; onoff; }
+  ACTION[5]() { proxy; }; ACTION[6]() { change_ip; }; ACTION[7]() { uninstall; }; ACTION[8]() { plus; }; ACTION[9]() { bbrInstall; }; ACTION[10]() { ver; }; 
+  ACTION[11]() { bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; }; 
+  ACTION[12]() { ANEMONE=1 ;install; }; 
+  ACTION[13]() { OCTEEP=1; install; };
+  ACTION[14]() { LUBAN=1; proxy; };
+  ACTION[0]() { exit; }
 
   [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && check_quota && TYPE='+' && PLUSINFO="$(text 25): $(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')\t $(text 63): $QUOTA"
   }
@@ -2137,7 +2158,7 @@ menu() {
   clear
   hint " $(text 16) "
   echo -e "======================================================================================================================\n"
-  info " $(text 17):$VERSION\t $(text 18):$(text 1)\n $(text 19):\n\t $(text 20):$SYS\n\t $(text 21):$(uname -r)\n\t $(text 22):$ARCHITECTURE\n\t $(text 23):$VIRT "
+  info " $(text 17):$VERSION\n $(text 18):$(text 1)\n $(text 19):\n\t $(text 20):$SYS\n\t $(text 21):$(uname -r)\n\t $(text 22):$ARCHITECTURE\n\t $(text 23):$VIRT "
   info "\t IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
   info "\t IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
   case "$TRACE4$TRACE6" in
@@ -2158,15 +2179,15 @@ menu() {
   esac
   grep -q '+' <<< $AC$AC2 && info "\t $(text 63): $QUOTA "
    echo -e "\n======================================================================================================================\n"
-  hint " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 10. $OPTION10\n 11. $OPTION11\n 12. $OPTION12\n 13. $OPTION13\n 14. $OPTION14\n 0.  $OPTION0\n "
-  reading " $(text 50) " CHOOSE1
-        
+  for ((h=1; h<${#MENU_OPTION[*]}; h++)); do hint " ${MENU_OPTION[h]} "; done
+  hint " ${MENU_OPTION[0]} "
+  reading "\n $(text 50) " MENU_CHOOSE
+
   # 输入必须是数字且少于等于最大可选项
-  MAX_CHOOSE=14
-  if grep -qE "^[0-9]{1,2}$" <<< $CHOOSE1 && [ "$CHOOSE1" -le "$MAX_CHOOSE" ]; then
-    ACTION$CHOOSE1
+  if [[ $MENU_CHOOSE =~ ^[0-9]{1,2}$ ]] && (( $MENU_CHOOSE >= 0 && $MENU_CHOOSE < ${#MENU_OPTION[*]} )); then
+    ACTION[$MENU_CHOOSE]
   else
-    warning " $(text 51) [0-$MAX_CHOOSE] " && sleep 1 && menu
+    warning " $(text 51) [0-$((${#MENU_OPTION[*]}-1))] " && sleep 1 && menu
   fi
 }
 

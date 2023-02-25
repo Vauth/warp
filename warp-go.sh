@@ -12,6 +12,8 @@ IP_API=https://api.ip.sb/geoip; ISP=isp
 # 判断 Teams token 最少字符数
 TOKEN_LENGTH=800
 
+trap "rm -f /tmp/warp-go*; exit 1" INT
+
 E[0]="Language:\n  1.English (default) \n  2.简体中文"
 C[0]="${E[0]}"
 E[1]="Support OpenWrt sysgtem."
@@ -78,8 +80,8 @@ E[31]="Switch \${WARP_BEFORE[m]} to \${WARP_AFTER1[m]}"
 C[31]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER1[m]}"
 E[32]="Switch \${WARP_BEFORE[m]} to \${WARP_AFTER2[m]}"
 C[32]="\${WARP_BEFORE[m]} 转为 \${WARP_AFTER2[m]}"
-E[33]="WARP network interface can be switched as follows:\\\n 1. \$OPTION1\\\n 2. \$OPTION2\\\n 0. Exit script"
-C[33]="WARP 网络接口可以切换为以下方式:\\\n 1. \$OPTION1\\\n 2. \$OPTION2\\\n 0. 退出脚本"
+E[33]="WARP network interface can be switched as follows:\\\n 1. \${OPTION[1]}\\\n 2. \${OPTION[2]}\\\n 0. Exit script"
+C[33]="WARP 网络接口可以切换为以下方式:\\\n 1. \${OPTION[1]}\\\n 2. \${OPTION[2]}\\\n 0. 退出脚本"
 E[34]="Please enter the correct number"
 C[34]="请输入正确数字"
 E[35]="Checking VPS infomation..."
@@ -127,7 +129,7 @@ C[55]="请选择优先级别:\n  1. IPv4\n  2. IPv6\n  3. 使用 VPS 初始设�
 E[56]="Download warp-go zip file unsuccessful. Script exits. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[56]="下载 warp-go 压缩文件不成功，脚本退出，问题反馈: [https://github.com/fscarmen/warp/issues]"
 E[57]="Warp-go file does not exist, script exits. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[57]="warp-go 文件不存在，脚本退出，问题反馈: [https://github.com/fscarmen/warp/issues]"
+C[57]="Warp-go 文件不存在，脚本退出，问题反馈: [https://github.com/fscarmen/warp/issues]"
 E[58]="Maximum \${j} attempts to registe WARP\${k} account..."
 C[58]="注册 WARP\${k} 账户中, 最大尝试\${j}次……"
 E[59]="Try \${i}"
@@ -221,7 +223,7 @@ C[102]="OpenWrt 系统的 WAN 接口的网络传输协议必须为 [静态地址
 
 # 自定义字体彩色，read 函数，友道翻译函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }
-error() { echo -e "\033[31m\033[01m$*\033[0m" && exit 1; }
+error() { echo -e "\033[31m\033[01m$*\033[0m"; rm -f /tmp/warp-go*; exit 1; }
 info() { echo -e "\033[32m\033[01m$*\033[0m"; }
 hint() { echo -e "\033[33m\033[01m$*\033[0m"; }
 reading() { read -rp "$(info "$1")" "$2"; }
@@ -253,15 +255,6 @@ check_root_virt() {
   # 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go
   VIRT=$(systemd-detect-virt 2>/dev/null | tr 'A-Z' 'a-z')
   [ -z "$VIRT" ] && VIRT=$(hostnamectl 2>/dev/null | tr 'A-Z' 'a-z' | grep virtualization | sed "s/.*://g")
-}
-
-# 检测 warp-go 的安装状态。 0-未安装; 1-已安装未启动; 2-已安装启动中; 3-脚本安装中
-check_install() {
-  if [ -e /opt/warp-go/warp.conf ]; then
-    [[ "$(ip a)" =~ ": WARP:" ]] && STATUS=2 || STATUS=1
-  else
-    STATUS=0
-  fi
 }
 
 # 多方式判断操作系统，试到有值为止。只支持 Debian 9/10/11、Ubuntu 18.04/20.04/22.04 或 CentOS 7/8 ,如非上述操作系统，退出脚本
@@ -306,11 +299,28 @@ check_operating_system() {
   [[ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ]] && error " $(text_eval 7) "
 }
 
+check_arch() {
+  # 判断处理器架构
+  case $(uname -m) in
+    aarch64 ) ARCHITECTURE=arm64 ;;
+    x86)      ARCHITECTURE=386 ;;
+    x86_64 )  CPU_FLAGS=$(cat /proc/cpuinfo | grep flags | head -n 1 | cut -d: -f2)
+              case "$CPU_FLAGS" in
+                *avx512* ) ARCHITECTURE=amd64v4 ;;
+                *avx2* )   ARCHITECTURE=amd64v3 ;;
+                *sse3* )   ARCHITECTURE=amd64v2 ;;
+                * )        ARCHITECTURE=amd64 ;;
+              esac ;;
+    s390x )   ARCHITECTURE=s390x ;;
+    * ) error " $(text_eval 37) " ;;
+  esac
+}
+
 # 安装系统依赖及定义 ping 指令
 check_dependencies() {
   # 对于 Alpine 和 OpenWrt 系统，升级库并重新安装依赖
   if echo "$SYSTEM" | grep -qE "Alpine|OpenWrt"; then
-    [ ! -e /opt/warp-go/warp-go ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash )
+    [ ! -e /opt/warp-go/warp-go ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash tar )
   else
     DEPS_CHECK=("ping" "wget" "curl" "systemctl" "ip")
     DEPS_INSTALL=(" iputils-ping" " wget" " curl" " systemctl" " iproute2")
@@ -324,6 +334,24 @@ check_dependencies() {
     fi
   fi
   PING6='ping -6' && [ $(type -p ping6) ] && PING6='ping6'
+}
+
+# 检测 warp-go 的安装状态。 0-未安装; 1-已安装未启动; 2-已安装启动中; 3-脚本安装中
+check_install() {
+  if [ -e /opt/warp-go/warp.conf ]; then
+    [[ "$(ip a)" =~ ": WARP:" ]] && STATUS=2 || STATUS=1
+  else
+    STATUS=0
+    {
+      # 预下载 warp-go，使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限，如因 gitlab 接口问题未能获取，默认 v1.0.6
+      latest=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | awk -F '"' '{for (i=0; i<NF; i++) if ($i=="tag_name") {print $(i+2); exit}}' | sed "s/v//")
+      latest=${latest:-'1.0.6'}
+      wget --no-check-certificate -qO /tmp/warp-go.tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
+      tar xzf /tmp/warp-go.tar.gz -C /tmp/ warp-go
+      chmod +x /tmp/warp-go
+      rm -f /tmp/warp-go.tar.gz
+    }&
+  fi
 }
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
@@ -490,7 +518,7 @@ uninstall() {
   systemctl disable --now warp-go >/dev/null 2>&1
   kill -15 $(pgrep warp-go) >/dev/null 2>&1
   /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --remove >/dev/null 2>&1
-  rm -rf /opt/warp-go /lib/systemd/system/warp-go.service /usr/bin/warp-go
+  rm -rf /opt/warp-go /lib/systemd/system/warp-go.service /usr/bin/warp-go /tmp/warp-go*
   [ -e /opt/warp-go/tun.sh ] && rm -f /opt/warp-go/tun.sh && sed -i '/tun.sh/d' /etc/crontab
 
   # 显示卸载结果
@@ -631,7 +659,7 @@ stack_switch() {
       [[ "$T4@$T6@$SWITCHCHOOSE" =~ '1@0@4'|'0@1@6'|'1@1@D' ]] && error " $(text 30) " || TO="$T4$T6$SWITCHCHOOSE"
     fi
   else
-    OPTION1="$(text_eval 31)"; OPTION2="$(text_eval 32)"
+    STACK_OPTION[1]="$(text_eval 31)"; STACK_OPTION[2]="$(text_eval 32)"
     hint "\n $(text_eval 33) \n" && reading " $(text 4) " SWITCHTO
     case "$SWITCHTO" in
       1 ) TO=${TO1[m]};;
@@ -720,21 +748,6 @@ EOF
 
   [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
   [[ "$L" = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
-
-  # 判断处理器架构
-  case $(uname -m) in
-    aarch64 ) ARCHITECTURE=arm64 ;;
-    x86)      ARCHITECTURE=386 ;;
-    x86_64 )  CPU_FLAGS=$(cat /proc/cpuinfo | grep flags | head -n 1 | cut -d: -f2)
-              case "$CPU_FLAGS" in
-                *avx512* ) ARCHITECTURE=amd64v4 ;;
-                *avx2* )   ARCHITECTURE=amd64v3 ;;
-                *sse3* )   ARCHITECTURE=amd64v2 ;;
-                * )        ARCHITECTURE=amd64 ;;
-              esac ;;
-    s390x )   ARCHITECTURE=s390x ;;
-    * ) error " $(text_eval 37) " ;;
-  esac
 
   # 判断当前 IPv4 与 IPv6 ，IP归属
   [ "$STATUS" = 2 ] && grep -qE "^AllowedIPs[ ]+=.*0\.\0\/0|#AllowedIPs" /opt/warp-go/warp.conf && INTERFACE='--interface WARP'
@@ -899,20 +912,11 @@ install() {
   start=$(date +%s)
 
   # 注册 WARP 账户 (将生成 warp 文件保存账户信息)
-  # 判断 warp-go 的最新版本,如因 gitlab 接口问题未能获取，默认 v1.0.6
-  {	
-  latest=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | awk -F '"' '{for (i=0; i<NF; i++) if ($i=="tag_name") {print $(i+2); exit}}' | sed "s/v//")
-  latest=${latest:-'1.0.6'}
-
-  # 安装 warp-go，尽量下载官方的最新版本，如官方 warp-go 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
+  {
   mkdir -p /opt/warp-go/ >/dev/null 2>&1
-  wget -T20 -t1 --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$latest"/downloads/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz ||
-  wget -T20 -t2 --no-check-certificate $CDN -O /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
-  [ ! -e /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz ] && error "$(text 56)"
-  [ $(type -p tar) ] || ${PACKAGE_INSTALL[int]} tar 2>/dev/null || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} tar 2>/dev/null )
-  tar xzf /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz -C /opt/warp-go/ warp-go
-  [ ! -e /opt/warp-go/warp-go ] && error "$(text 57)" || chmod +x /opt/warp-go/warp-go
-  rm -f /opt/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
+  wait
+  [ ! -e /tmp/warp-go ] && error "$(text 56)" || mv -f /tmp/warp-go /opt/warp-go/
+  [ ! -e /opt/warp-go/warp-go ] && error "$(text 57)"
 
   # 注册用户自定义 token 的 Teams 账户
   if [ "$LICENSETYPE" = 2 ]; then
@@ -1102,48 +1106,48 @@ check_quota() {
 # 判断当前 WARP 网络接口及 Client 的运行状态，并对应的给菜单和动作赋值
 menu_setting() {
   if [ "$STATUS" = 0 ]; then
-    OPTION1="$(text_eval 64)"
-    OPTION2="$(text_eval 65)"
-    OPTION3="$(text_eval 66)"
-    OPTION4="$(text_eval 67)"
-    OPTION5="$(text_eval 68)"
-    OPTION6="$(text_eval 69)"
-    OPTION7="$(text_eval 70)"
-    OPTION8="$(text_eval 71)"
-    ACTION1() { CONF=${CONF1[n]}; PRIORITY=1; install; }
-    ACTION2() { CONF=${CONF1[n]}; PRIORITY=2; install; }
-    ACTION3() { CONF=${CONF2[n]}; PRIORITY=1; install; }
-    ACTION4() { CONF=${CONF2[n]}; PRIORITY=2; install; }
-    ACTION5() { CONF=${CONF3[n]}; PRIORITY=1; install; }
-    ACTION6() { CONF=${CONF3[n]}; PRIORITY=2; install; }
-    ACTION7() { CONF=${CONF3[n]}; PRIORITY=1; WARP_STACK=4; install; }
-    ACTION8() { CONF=${CONF3[n]}; PRIORITY=2; WARP_STACK=4; install; }
+    MENU_OPTION[1]="$(text_eval 64)"
+    MENU_OPTION[2]="$(text_eval 65)"
+    MENU_OPTION[3]="$(text_eval 66)"
+    MENU_OPTION[4]="$(text_eval 67)"
+    MENU_OPTION[5]="$(text_eval 68)"
+    MENU_OPTION[6]="$(text_eval 69)"
+    MENU_OPTION[7]="$(text_eval 70)"
+    MENU_OPTION[8]="$(text_eval 71)"
+    ACTION[1]() { CONF=${CONF1[n]}; PRIORITY=1; install; }
+    ACTION[2]() { CONF=${CONF1[n]}; PRIORITY=2; install; }
+    ACTION[3]() { CONF=${CONF2[n]}; PRIORITY=1; install; }
+    ACTION[4]() { CONF=${CONF2[n]}; PRIORITY=2; install; }
+    ACTION[5]() { CONF=${CONF3[n]}; PRIORITY=1; install; }
+    ACTION[6]() { CONF=${CONF3[n]}; PRIORITY=2; install; }
+    ACTION[7]() { CONF=${CONF3[n]}; PRIORITY=1; WARP_STACK=4; install; }
+    ACTION[8]() { CONF=${CONF3[n]}; PRIORITY=2; WARP_STACK=4; install; }
   else
     [ "$NON_GLOBAL" = 1 ] || GLOBAL_AFTER="$(text 24)"
     [ "$STATUS" = 2 ] && ON_OFF="$(text 72)" || ON_OFF="$(text 73)"
-    OPTION1="$(text_eval 74)"
-    OPTION2="$(text_eval 75)"
-    OPTION3="$(text_eval 76)"
-    OPTION4="$ON_OFF"
-    OPTION5="$(text_eval 77)"
+    MENU_OPTION[1]="$(text_eval 74)"
+    MENU_OPTION[2]="$(text_eval 75)"
+    MENU_OPTION[3]="$(text_eval 76)"
+    MENU_OPTION[4]="$ON_OFF"
+    MENU_OPTION[5]="$(text_eval 77)"
 
-    OPTION6="$(text 78)"
-    OPTION7="$(text 79)"
-    OPTION8="$(text 80)"
-    ACTION1() { stack_switch; }
-    ACTION2() { stack_switch; }
-    ACTION3() { global_switch; }
-    ACTION4() { OPTION=o; onoff; }
-    ACTION5() { update; }
-    ACTION6() { change_ip; }
-    ACTION7() { export_file; }
-    ACTION8() { uninstall; }
+    MENU_OPTION[6]="$(text 78)"
+    MENU_OPTION[7]="$(text 79)"
+    MENU_OPTION[8]="$(text 80)"
+    ACTION[1]() { stack_switch; }
+    ACTION[2]() { stack_switch; }
+    ACTION[3]() { global_switch; }
+    ACTION[4]() { OPTION=o; onoff; }
+    ACTION[5]() { update; }
+    ACTION[6]() { change_ip; }
+    ACTION[7]() { export_file; }
+    ACTION[8]() { uninstall; }
   fi
 
-  OPTION0="$(text 81)"
-  OPTION9="$(text 82) (warp-go v)"
-  ACTION0() { exit; }
-  ACTION9() { ver; }
+  MENU_OPTION[0]="$(text 81)"
+  MENU_OPTION[9]="$(text 82) (warp-go v)"
+  ACTION[0]() { rm -f /tmp/warp-go*; exit; }
+  ACTION[9]() { ver; }
 
   [ -e /opt/warp-go/warp.conf ] && TYPE=$(grep "Type" /opt/warp-go/warp.conf | cut -d= -f2 | sed "s# ##g") &&
   [ "$TYPE" = plus ] && check_quota && PLUSINFO="$(text 83): $(cat /opt/warp-go/Device_Name)\t $(text 26): $QUOTA"
@@ -1154,7 +1158,7 @@ menu() {
 	clear
 	hint " $(text 3) "
 	echo -e "======================================================================================================================\n"
-	info " $(text 84): $VERSION\t $(text 85): $(text 1)\n $(text 86):\n\t $(text 87): $SYS\n\t $(text 88): $(uname -r)\n\t $(text 89): $ARCHITECTURE\n\t $(text 90): $VIRT "
+	info " $(text 84): $VERSION\n $(text 85): $(text 1)\n $(text 86):\n\t $(text 87): $SYS\n\t $(text 88): $(uname -r)\n\t $(text 89): $ARCHITECTURE\n\t $(text 90): $VIRT "
 	info "\t IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
 	info "\t IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
   if [ "$STATUS" = 2 ]; then
@@ -1166,15 +1170,14 @@ menu() {
   fi
   [ -n "$PLUSINFO" ] && info "\t $PLUSINFO "
  	echo -e "\n======================================================================================================================\n"
-	info " 1.  $OPTION1\n 2.  $OPTION2\n 3.  $OPTION3\n 4.  $OPTION4\n 5.  $OPTION5\n 6.  $OPTION6\n 7.  $OPTION7\n 8.  $OPTION8\n 9.  $OPTION9 \n 0.  $OPTION0\n "
-	reading " $(text 4) " CHOOSE
+	for ((d=1; d<=${#MENU_OPTION[*]}; d++)); do [ "$d" = "${#MENU_OPTION[*]}" ] && d=0 && hint " $d. ${MENU_OPTION[d]} " && break || hint " $d. ${MENU_OPTION[d]} "; done
+  reading "\n $(text 4) " CHOOSE
 
   # 输入必须是数字且少于等于最大可选项
-  MAX_CHOOSE=9
-  if grep -qE "^[0-9]$" <<< "$CHOOSE" && [ "$CHOOSE" -le "$MAX_CHOOSE" ]; then
-    ACTION$CHOOSE
+  if [[ "$CHOOSE" =~ ^[0-9]+$ ]] && (( $CHOOSE >= 0 && $CHOOSE < ${#MENU_OPTION[*]} )); then
+    ACTION[$CHOOSE]
   else
-    warning " $(text 34) [0-$MAX_CHOOSE] " && sleep 1 && menu
+    warning " $(text 34) [0-$((${#MENU_OPTION[*]}-1))] " && sleep 1 && menu
   fi
 }
 
@@ -1197,8 +1200,10 @@ NAME="$3"
 # 主程序运行 1/3
 statistics_of_run-times
 select_language
-check_install
 check_operating_system
+check_arch
+check_dependencies
+check_install
 
 # 设置部分后缀 1/3
 case "$OPTION" in
@@ -1220,7 +1225,6 @@ case "$OPTION" in
 esac
 
 # 主程序运行 3/3
-check_dependencies
 check_system_info
 check_global
 check_stack
