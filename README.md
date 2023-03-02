@@ -22,6 +22,8 @@
 * * *
 
 ## 更新信息
+2023.3.2 warp-go V1.1.1 1. warp-go v1.0.8 is supported. Allowing custom MTU values in the configuration file /opt/warp-go/warp.conf; 2. Singbox configuration exports reseved using 3-numeric-array instead of a string; 1. 支持 warp-go v1.0.8 , 允许在配置文件 /opt/warp-go/warp.conf 自定义 MTU 值; 2. Singbox配置导出 reseved 使用三个数字的数组代替字符串
+
 2023.2.22 [Unlock chatGPT without installing warp; 不安装 warp 就能解锁 chatGPT 的方法](README.md#通过-warp-解锁-chatgpt-的方法)
 
 2023.2.7 menu.sh V2.47 Iptables + dnsmasq + ipset solution supports chatGPT. Install via the 12 option in the menu or `bash menu.sh e`; Iptables + dnsmasq + ipset 方案支持 chatGPT. 安装方式: 菜单 12 选项或者 `bash menu.sh e` 
@@ -244,8 +246,8 @@ warp i jp
 
 ## 通过 warp 解锁 chatGPT 的方法
 
-方法原创，转引用请标明本项目出处。
-适合范围: 除大陆、香港和美国 LA 外的所有 VPS，因为这些地方没有 wgcf 的 warp 服务
+方法原创，转引用请标明本项目出处。<br>
+适合范围: 除大陆、香港和美国 LA 外的所有 VPS，因为这些地方没有 wgcf 的 warp 服务<br>
 思路是使用已经注册的 warp 做链式代理的设置，此解决方法是最轻便的，用户只要有 xray 即可。具体做法是修改 xray 配置文件的 outbound 和 routing，模板如下
 ```
 {
