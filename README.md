@@ -22,6 +22,8 @@
 * * *
 
 ## 更新信息
+2023.3.14 warp-go V1.1.2 / menu.sh 2.48 To speed up WARP, automatically find the most suitable endpoint for local use and apply it to wgcf, warp-go and client. Thanks to an anonymous and enthusiastic user for the tool; 为了提速 WARP，自动寻找最适合本机使用的 endpoint，应用在 wgcf, warp-go 和 client，感谢匿名的热心网友提供的工具
+
 2023.3.2 warp-go V1.1.1 1. warp-go v1.0.8 is supported. Allowing custom MTU values in the configuration file /opt/warp-go/warp.conf; 2. Singbox configuration exports reseved using 3-numeric-array instead of a string; 1. 支持 warp-go v1.0.8 , 允许在配置文件 /opt/warp-go/warp.conf 自定义 MTU 值; 2. Singbox配置导出 reseved 使用三个数字的数组代替字符串
 
 2023.2.22 [Unlock chatGPT without installing warp; 不安装 warp 就能解锁 chatGPT 的方法](README.md#通过-warp-解锁-chatgpt-的方法)
@@ -526,6 +528,7 @@ https://github.com/acacia233/Project-WARP-Unlock
 * wangying202: https://blog.csdn.net/wangying202/article/details/113178159
 * LUBAN: https://github.com/HXHGTS/Cloudflare_WARP_Connect
 * valetzx: https://gitlab.com/valetzx/pubfile
+* 所有的热心网友们
 
 服务提供（排名不分先后）:
 * CloudFlare Warp(+): https://1.1.1.1/

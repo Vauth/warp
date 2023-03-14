@@ -2,7 +2,7 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号
-VERSION=2.47
+VERSION=2.48
 
 # 选择 IP API 服务商
 IP_API=https://api.ip.sb/geoip; ISP=isp
@@ -11,8 +11,8 @@ IP_API=https://api.ip.sb/geoip; ISP=isp
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="Unlock chatGPT without installing warp; Detail: [https://github.com/fscarmen/warp/]  "
-C[1]="不安装 warp 就能解锁 chatGPT 的方法，详细方法:[https://github.com/fscarmen/warp/]"
+E[1]="To speed up WARP, automatically find the most suitable endpoint for local use and apply it to wgcf and client. Thanks to an anonymous and enthusiastic user for the tool."
+C[1]="为了提速 WARP，自动寻找最适合本机使用的 endpoint，应用在 wgcf 和 client，感谢匿名的热心网友提供工具"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -171,8 +171,8 @@ E[79]="Do you uninstall the following dependencies \(if any\)? Please note that 
 C[79]="是否卸载以下依赖\(如有\)？请注意，这将有可能使其他正在使用该依赖的程序不能正常工作\\\n\\\n \$UNINSTALL_DEPENDENCIES_LIST"
 E[80]="Professional one-click script for WARP to unblock streaming media (Supports multi-platform, multi-mode and TG push)"
 C[80]="WARP 解锁 Netflix 等流媒体专业一键(支持多平台、多方式和 TG 通知)"
-E[81]="Step 3/3: Searching for the best MTU value is ready."
-C[81]="进度 3/3: 寻找 MTU 最优值已完成"
+E[81]="Step 3/3: Searching for the best MTU value and endpoint address are ready."
+C[81]="进度 3/3: 寻找 MTU 最优值和优选 endpoint 地址已完成"
 E[82]="Install CloudFlare Client and set mode to Proxy (bash menu.sh c)"
 C[82]="安装 CloudFlare Client 并设置为 Proxy 模式 (bash menu.sh c)"
 E[83]="Step 1/2: Installing WARP Client..."
@@ -199,8 +199,8 @@ E[93]="Client is not installed."
 C[93]="Client 未安装"
 E[94]="Congratulations! WARP\$AC Linux Client is working. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
 C[94]="恭喜！WARP\$AC Linux Client 工作中, 总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数:\$TOTAL"
-E[95]="Client works with non-WARP IPv4. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[95]="Client 在非 WARP IPv4 下才能工作正常，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[95]="Client requires native IPv4 to install properly, and that IP cannot be Warp. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
+C[95]="Client 需要原生 IPv4 才能正常安装，该 IP 不能是 Warp，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[96]="Client connecting failure. It may be a CloudFlare IPv4."
 C[96]="Client 连接失败，可能是 CloudFlare IPv4."
 E[97]="IPv\$PRIO priority"
@@ -1076,10 +1076,10 @@ teams_change() {
   [ -e /etc/wireguard/wgcf.conf ] && cp -f /etc/wireguard/wgcf.conf{,.bak}
   echo "$TEAMS" > /etc/wireguard/info-temp.log
   sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g; s#Address.*128#Address = ${ADDRESS6}/128#g" /etc/wireguard/wgcf.conf
-  case $IPV4$IPV6 in
-    01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v6&quot;:&quot;\(.*]:[0-9]\+\).*')#g" /etc/wireguard/wgcf.conf ;;
-    10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v4&quot;:&quot;\([0-9.]\+:[0-9]\+\).*')#g" /etc/wireguard/wgcf.conf ;;     
-  esac
+#  case $IPV4$IPV6 in
+#    01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v6&quot;:&quot;\(.*]:[0-9]\+\).*')#g" /etc/wireguard/wgcf.conf ;;
+#    10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v4&quot;:&quot;\([0-9.]\+:[0-9]\+\).*')#g" /etc/wireguard/wgcf.conf ;;     
+#  esac
 }
 
 # 输入 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
@@ -1105,7 +1105,7 @@ input_url() {
   ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*')
 
   [[ "$PRIVATEKEY" =~ ^[A-Z0-9a-z/+]{43}=$ ]] && MATCH[1]=$(text 135) || MATCH[1]=$(text 136)
-  [[ "$ADDRESS6" =~ ^fd01(:[0-9a-f]{0,4}){7}$ ]] && MATCH[2]=$(text 135) || MATCH[2]=$(text 136)
+  [[ "$ADDRESS6" =~ ^[0-9a-f]{4}(:[0-9a-f]{0,4}){7}$ ]] && MATCH[2]=$(text 135) || MATCH[2]=$(text 136)
   hint "\n $(text_eval 130) \n" && reading " $(text 131) " CONFIRM
 }
 
@@ -1284,6 +1284,66 @@ EOF
   systemctl enable dnsmasq --now >/dev/null 2>&1 && sleep 2
 }
 
+# 寻找最佳 MTU
+best_mtu() {
+  # 反复测试最佳 MTU。 Wireguard Header:IPv4=60 bytes,IPv6=80 bytes，1280 ≤ MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
+  # 详细说明:<[WireGuard] Header / MTU sizes for Wireguard>:https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
+  MTU=$((1500-28))
+  [ "$IPV4$IPV6" = 01 ] && $PING6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.193.10 >/dev/null 2>&1
+  until [[ $? = 0 || $MTU -le $((1280+80-28)) ]]; do
+    MTU=$((MTU-10))
+    [ "$IPV4$IPV6" = 01 ] && $PING6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.193.10 >/dev/null 2>&1
+  done
+
+  if [ "$MTU" -eq $((1500-28)) ]; then
+    MTU=$MTU
+  elif [ "$MTU" -le $((1280+80-28)) ]; then
+    MTU=$((1280+80-28))
+  else
+    for ((i=0; i<9; i++)); do
+      (( MTU++ ))
+      ( [ "$IPV4$IPV6" = 01 ] && $PING6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.193.10 >/dev/null 2>&1 ) || break
+    done
+    (( MTU-- ))
+  fi
+
+  MTU=$((MTU+28-80))
+}
+
+# 寻找最佳 Endpoint
+best_endpoint() {
+  wget $CDN -qO /tmp/endpoint https://raw.githubusercontent.com/fscarmen/warp/main/endpoint/warp-linux-"$ARCHITECTURE"
+  chmod +x /tmp/endpoint
+
+  # 根据 v4 / v6 情况生成 endpoint 库
+  if [ "$IPV4$IPV6" = 01 ]; then
+    echo [2606:4700:d0::a29f:c001] > /tmp/ip
+    p=1
+    until [ $p -gt 350 ]; do
+      echo [2606:4700:d0::$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2)))] >> /tmp/ip
+      echo [2606:4700:d1::$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2)))] >> /tmp/ip
+      (( p++ ))
+    done
+  else
+    p=0
+    until [ $p -gt 254 ]; do
+      echo "162.159.192.$p" >> /tmp/ip
+      echo "162.159.193.$p" >> /tmp/ip
+      echo "162.159.195.$p" >> /tmp/ip
+      (( p++ ))
+    done
+  fi
+
+  if [[ -e /tmp/endpoint && -e /tmp/ip ]]; then
+    /tmp/endpoint -ipfile /tmp/ip -output /tmp/endpoint_result >/dev/null 2>&1
+    ENDPOINT=$(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $1}')
+    rm -f /tmp/{endpoint,ip}
+  fi
+
+  # 如果失败，会有默认值 162.159.193.10:2408 或 [2606:4700:d0::a29f:c001]:2408
+  [ "$IPV4$IPV6" = 01 ] && ENDPOINT=${ENDPOINT:-'[2606:4700:d0::a29f:c001]:2408'} || ENDPOINT=${ENDPOINT:-'162.159.193.10:2408'}
+}
+
 # WGCF 或 WireProxy 安装
 install() {
   # WireProxy 禁止重复安装，自定义 Port
@@ -1365,30 +1425,14 @@ install() {
       info "\n $(text 33) \n"
     fi
 
-    # 反复测试最佳 MTU。 Wireguard Header:IPv4=60 bytes,IPv6=80 bytes，1280 ≤ MTU ≤ 1420。 ping = 8(ICMP回显示请求和回显应答报文格式长度) + 20(IP首部) 。
-    # 详细说明:<[WireGuard] Header / MTU sizes for Wireguard>:https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html
-    MTU=$((1500-28))
-    [ "$IPV4$IPV6" = 01 ] && $PING6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.193.10 >/dev/null 2>&1
-    until [[ $? = 0 || $MTU -le $((1280+80-28)) ]]; do
-      MTU=$((MTU-10))
-      [ "$IPV4$IPV6" = 01 ] && $PING6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.193.10 >/dev/null 2>&1
-    done
+    # 最佳 MTU
+    best_mtu
 
-    if [ "$MTU" -eq $((1500-28)) ]; then
-      MTU=$MTU
-    elif [ "$MTU" -le $((1280+80-28)) ]; then
-      MTU=$((1280+80-28))
-    else
-      for ((i=0; i<9; i++)); do
-        (( MTU++ ))
-        ( [ "$IPV4$IPV6" = 01 ] && $PING6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.193.10 >/dev/null 2>&1 ) || break
-      done
-      (( MTU-- ))
-    fi
+    # 优选 WARP Endpoint
+    best_endpoint
 
-    MTU=$((MTU+28-80))
-
-    [ -e /etc/wireguard/wgcf.conf ] && sed -i "s/MTU.*/MTU = $MTU/g" /etc/wireguard/wgcf.conf && info "\n $(text 81) \n"
+    # 修改配置文件
+    [ -e /etc/wireguard/wgcf.conf ] && sed -i "s/MTU.*/MTU = $MTU/g; s/engage.*/$ENDPOINT/g" /etc/wireguard/wgcf.conf && info "\n $(text 81) \n"
   }&
 
   # 对于 IPv4 only VPS 开启 IPv6 支持
@@ -1475,29 +1519,28 @@ install() {
 
   wait
 
-  # WGCF 配置修改，其中用到的 162.159.193.10 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的 IP
-  MODIFY014='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY016='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY01D='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" /etc/wireguard/wgcf.conf'
-  MODIFY104='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.193.10/g;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY106='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.193.10/g;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY10D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.193.10/g" /etc/wireguard/wgcf.conf'
-  MODIFY114='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.193.10/g;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY116='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.193.10/g;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY11D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/162.159.193.10/g" /etc/wireguard/wgcf.conf'
-  MODIFY11N4='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY11N6='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY11ND='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/engage.cloudflareclient.com/[2606:4700:d0::a29f:c001]/g" /etc/wireguard/wgcf.conf'
+  # WGCF 配置修改
+  MODIFY014='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
+  MODIFY016='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
+  MODIFY01D='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" /etc/wireguard/wgcf.conf'
+  MODIFY104='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
+  MODIFY106='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
+  MODIFY10D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" /etc/wireguard/wgcf.conf'
+  MODIFY114='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
+  MODIFY116='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
+  MODIFY11D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" /etc/wireguard/wgcf.conf'
+  MODIFY11N4='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
+  MODIFY11N6='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
+  MODIFY11ND='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" /etc/wireguard/wgcf.conf'
 
   sh -c "$(eval echo "\$MODIFY$CONF")"
 
   if [ "$OCTEEP" = 1 ]; then
     # 默认 Endpoint 和 DNS 默认 IPv4 和 双栈的，如是 IPv6 修改默认值
-    ENDPOINT='162.159.193.10'
-    DNS='1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844'
-    [ "$m" = 0 ] && ENDPOINT='[2606:4700:d0::a29f:c001]' && DNS='2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4'
-    MTU=$(grep MTU /etc/wireguard/wgcf.conf | sed "s/MTU = //g")
+    ENDPOINT=$(grep 'Endpoint' /etc/wireguard/wgcf.conf | sed "s/Endpoint[ ]*=[ ]*//g")
+    MTU=$(grep 'MTU' /etc/wireguard/wgcf.conf | sed "s/MTU = //g")
     PRIVATEKEY=${PRIVATEKEY:-"$(grep PrivateKey /etc/wireguard/wgcf.conf | sed "s/PrivateKey = //g")"}
+    [ "$m" = 0 ] && DNS='2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4' || DNS='1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844'
 
     # 创建 WirePorxy 配置文件
     cat > /etc/wireguard/proxy.conf << EOF
@@ -1514,7 +1557,7 @@ DNS = $DNS
 [Peer]
 PublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
 # PresharedKey = UItQuvLsyh50ucXHfjF0bbR4IIpVBd74lwKc8uIPXXs= (optional)
-Endpoint = $ENDPOINT:1701
+Endpoint = $ENDPOINT
 # PersistentKeepalive = 25 (optional)
 
 # TCPClientTunnel is a tunnel listening on your machine,
@@ -1648,6 +1691,7 @@ proxy() {
       warp-cli --accept-tos add-excluded-route 0.0.0.0/0 >/dev/null 2>&1
       warp-cli --accept-tos add-excluded-route ::0/0 >/dev/null 2>&1
       warp-cli --accept-tos set-mode warp >/dev/null 2>&1
+      warp-cli --accept-tos set-custom-endpoint "$ENDPOINT" >/dev/null 2>&1
       warp-cli --accept-tos connect >/dev/null 2>&1
       warp-cli --accept-tos enable-always-on >/dev/null 2>&1
       sleep 5
@@ -1676,6 +1720,7 @@ proxy() {
     else
       warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
       warp-cli --accept-tos set-proxy-port "$PORT" >/dev/null 2>&1
+      warp-cli --accept-tos set-custom-endpoint "$ENDPOINT" >/dev/null 2>&1
       warp-cli --accept-tos connect >/dev/null 2>&1
       warp-cli --accept-tos enable-always-on >/dev/null 2>&1
       sleep 2 && [[ ! $(ss -nltp) =~ warp-svc ]] && error " $(text 87) " || info " $(text_eval 86) "
@@ -1735,9 +1780,12 @@ proxy() {
       sleep 1
     fi
     [ "$(systemctl is-active warp-svc)" != active ] && ( systemctl start warp-svc; sleep 2 )
+
+    best_endpoint
     settings
 
   elif [[ "$CLIENT" = 2 && "$(warp-cli --accept-tos status 2>/dev/null)" =~ 'Registration missing' ]]; then
+    best_endpoint
     settings
 
   else
