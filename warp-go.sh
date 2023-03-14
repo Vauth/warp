@@ -958,7 +958,7 @@ install() {
     if [[ -e /tmp/endpoint && -e /tmp/ip ]]; then
       /tmp/endpoint -ipfile /tmp/ip -output /tmp/endpoint_result >/dev/null 2>&1
       ENDPOINT=$(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $1}')
-      rm -f /tmp/{endpoint,ip}
+      rm -f /tmp/{endpoint,ip,endpoint_result}
     fi
 
     # 如果失败，会有默认值 162.159.193.10:2408 或 [2606:4700:d0::a29f:c001]:2408
