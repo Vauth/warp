@@ -935,25 +935,9 @@ install() {
 
     echo "$MTU" > /tmp/warp-go-mtu
 
-    # 寻找最佳 Endpoint，# 根据 v4 / v6 情况生成 endpoint 库
-    wget $CDN -qO /tmp/endpoint https://raw.githubusercontent.com/fscarmen/warp/main/endpoint/warp-linux-"${ARCHITECTURE//v?/}" && chmod +x /tmp/endpoint
-    if [ "$IPV4$IPV6" = 01 ]; then
-      echo [2606:4700:d0::a29f:c001] > /tmp/ip
-      p=1
-      until [ $p -gt 350 ]; do
-        echo [2606:4700:d0::$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2)))] >> /tmp/ip
-        echo [2606:4700:d1::$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2))):$(printf '%x\n' $(($RANDOM*2+$RANDOM%2)))] >> /tmp/ip
-        (( p++ ))
-      done
-    else
-      p=0
-      until [ $p -gt 254 ]; do
-        echo "162.159.192.$p" >> /tmp/ip
-        echo "162.159.193.$p" >> /tmp/ip
-        echo "162.159.195.$p" >> /tmp/ip
-        (( p++ ))
-      done
-    fi
+    # 寻找最佳 Endpoint，根据 v4 / v6 情况下载 endpoint 库
+    wget $CDN -qO /tmp/endpoint https://raw.githubusercontent.com/fscarmen/warp/main/endpoint/warp-linux-"$ARCHITECTURE" && chmod +x /tmp/endpoint
+    [ "$IPV4$IPV6" = 01 ] && wget $CDN -qO /tmp/ip https://raw.githubusercontent.com/fscarmen/warp/main/endpoint/ipv6 || wget $CDN -qO /tmp/ip https://raw.githubusercontent.com/fscarmen/warp/main/endpoint/ipv4
 
     if [[ -e /tmp/endpoint && -e /tmp/ip ]]; then
       /tmp/endpoint -ipfile /tmp/ip -output /tmp/endpoint_result >/dev/null 2>&1
