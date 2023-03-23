@@ -14,7 +14,7 @@ jobs:
       EMAIL: ${{ secrets.GH_EMAIL }}
 
     steps:
-      - uses: actions/checkout@v3.3.0
+      - uses: actions/checkout@v3.4.0
       - name: Update wgcf to latest version
         run: |
           NOW=$(wget -qO- https://raw.githubusercontent.com/${{ env.USERNAME }}/warp/main/menu.sh | grep 'latest=${latest' | cut -d \' -f2)

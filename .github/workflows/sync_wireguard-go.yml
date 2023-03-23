@@ -27,35 +27,30 @@ jobs:
         run: |
           NOW=$(wget -qO- "https://api.github.com/repos/${{ env.USERNAME }}/warp/releases" | grep "tag_name" | grep -i "wireguard-go" | head -n 1 | sed "s/.*_v\(.*\)\".*/\1/g")
           LATEST=$(wget -qO- https://git.zx2c4.com/wireguard-go/ | grep '/wireguard-go/tag' | sed -n 1p | sed "s/.*>\([0-9.]\{1,\}\)<.*/\1/g")
-          NOW1=$(echo $NOW | cut -d \. -f1)
-          NOW2=$(echo $NOW | cut -d \. -f2)
-          NOW3=$(echo $NOW | cut -d \. -f3)
-          LATEST1=$(echo $LATEST | cut -d \. -f1)
-          LATEST2=$(echo $LATEST | cut -d \. -f2)
-          LATEST3=$(echo $LATEST | cut -d \. -f3)
-          NOW_VERSION=$(( NOW1*1000000 + NOW2*1000 + NOW3 ))
-          LATEST_VERSION=$(( LATEST1*1000000 + LATEST2*1000 + LATEST3 ))
           
-          if [ $LATEST_VERSION -gt $NOW_VERSION ]; then
+          if [ "$LATEST" != "$NOW" ]; then
             git clone https://git.zx2c4.com/wireguard-go ${{ env.WORKDIR }}
-            cp ./.github/wireguard-go-releaser.yml ${{ env.WORKDIR }}/.goreleaser.yml
+            cp .github/wireguard-go-releaser.yml ${{ env.WORKDIR }}/.goreleaser.yml
             echo "VERSION=$LATEST" >> $GITHUB_ENV
+            echo "flags=--snapshot" >> $GITHUB_ENV
           fi
             
       - name: Set up GoReleaser
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v4.0.0
         if: ${{ env.VERSION != '' }}
         with:
-          go-version: "1.18"
+          go-version: "1.20"
 
       - name: Cross compile WireGuard-go
-        uses: goreleaser/goreleaser-action@v4
+        uses: goreleaser/goreleaser-action@v4.2.0
         if: ${{ env.VERSION != '' }}
         with:
           distribution: goreleaser
           workdir: ${{ env.WORKDIR }}
           version: latest
-          args: release --rm-dist
+          args: release --clean ${{ env.flags }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
   
       - name: Release binaries 
         uses: softprops/action-gh-release@v1
@@ -68,10 +63,9 @@ jobs:
         if: ${{ env.VERSION != '' }}
         run: |
           cp -f ${{ env.WORKDIR }}/dist/*.tar.gz ${GITHUB_WORKSPACE}/wireguard-go/
-          wget -O ${GITHUB_WORKSPACE}/wireguard-go/wireguard-go_linux_amd64.tar.gz https://github.com/fscarmen/warp/releases/download/WireGuard-go_v0.0.20201118/wireguard-go_linux_amd64.tar.gz
           rm -rf ${{ env.WORKDIR }}
           git config --global user.email "${{ env.EMAIL }}"
           git config --global user.name "${{ env.USERNAME }}"
           git add .
-          git commit -m "AMD64 V0.0.20201118 and others V${{ env.VERSION }}, $(date "+%Y/%m/%d")"
+          git commit -m "Wireguard-go V${{ env.VERSION }}, $(date "+%Y/%m/%d")"
           git push
