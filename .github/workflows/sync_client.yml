@@ -26,21 +26,13 @@ jobs:
         run: |
           NOW=$(wget -qO- "https://api.github.com/repos/${{ env.USERNAME }}/warp/releases" | grep "tag_name" | grep "CloudFlare" | head -n 1 | sed "s/.*_v\(.\{1,\}\)\".*/\1/g")
           LATEST=$(wget -qO- "https://pkg.cloudflareclient.com/packages/cloudflare-warp" | grep "release-row" | awk -F '</td><td>' {'print $1'} | awk -F '<td>' {'print $2'})
-          NOW1=$(echo $NOW | cut -d \. -f1)
-          NOW2=$(echo $NOW | cut -d \. -f2)
-          NOW3=$(echo $NOW | cut -d \. -f3)
-          LATEST1=$(echo $LATEST | cut -d \. -f1)
-          LATEST2=$(echo $LATEST | cut -d \. -f2)
-          LATEST3=$(echo $LATEST | cut -d \. -f3)
-          NOW_VERSION=$(( NOW1*10000000 + NOW2*10000 + NOW3 ))
-          LATEST_VERSION=$(( LATEST1*10000000 + LATEST2*10000 + LATEST3 ))
           
           Operating_System=("CentOS 8" "Debian Bullseye" "Debian Buster" "Debian Stretch" "Ubuntu Jammy" "Ubuntu Focal" "Ubuntu Bionic" "Ubuntu Xenial")
           System_Rename=("CentOS_8.rpm" "Debian_11.deb" "Debian_10.deb" "Debian_9.deb" "Ubuntu_22.04.deb" "Ubuntu_20.04.deb" "Ubuntu_18.04.deb" "Ubuntu_16.04.deb")
           
-          if [ $LATEST_VERSION -gt $NOW_VERSION ]; then
+          if [ "$LATEST" != "$NOW" ]; then
+            [ ! -d ${GITHUB_WORKSPACE}/Client ] && mkdir -p ${GITHUB_WORKSPACE}/Client
             for ((i=0; i<${#Operating_System[@]}; i++)); do
-              [[ ${Operating_System[i]} = "Ubuntu Bionic" ]] && File_Path='/uploads/cloudflare_warp_2022_7_472_1_amd64_d0d4c0c1f9.deb' ||
               File_Path=$(wget -qO- https://pkg.cloudflareclient.com/packages/cloudflare-warp | grep 'release-row' | awk -F "</td><td>${Operating_System[i]}" {'print $2'} | awk -F 'Download' {'print $1'} | awk -F \" {'print $2'})
               Download_URL="https://pkg.cloudflareclient.com$File_Path"
               wget -O ${GITHUB_WORKSPACE}/Client/Client_${System_Rename[i]} $Download_URL

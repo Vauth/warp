@@ -20,15 +20,8 @@ jobs:
         run: |
           NOW=$(wget -qO- https://raw.githubusercontent.com/${{ env.USERNAME }}/${{ env.REPO }}/main/warp-go.sh | grep 'latest=${latest' | cut -d \' -f2)
           LATEST=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | grep -oP '"tag_name":"v\K[^\"]+' | head -n 1)
-          NOW1=$(echo $NOW | cut -d \. -f1)
-          NOW2=$(echo $NOW | cut -d \. -f2)
-          NOW3=$(echo $NOW | cut -d \. -f3)
-          LATEST1=$(echo $LATEST | cut -d \. -f1)
-          LATEST2=$(echo $LATEST | cut -d \. -f2)
-          LATEST3=$(echo $LATEST | cut -d \. -f3)
-          NOW_VERSION=$(( NOW1*1000000 + NOW2*1000 + NOW3 ))
-          LATEST_VERSION=$(( LATEST1*1000000 + LATEST2*1000 + LATEST3 ))
-          if [ $LATEST_VERSION -gt $NOW_VERSION ]; then
+          if [ "$LATEST" != "$NOW" ]; then
+            [ ! -d ${GITHUB_WORKSPACE}/warp-go ] && mkdir -p ${GITHUB_WORKSPACE}/warp-go
             PLATFORM=(  "linux_386"
                         "linux_amd64"
                         "linux_amd64v2"

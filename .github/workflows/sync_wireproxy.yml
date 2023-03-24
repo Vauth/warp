@@ -19,16 +19,9 @@ jobs:
         run: |
           NOW=$(wget -qO- https://raw.githubusercontent.com/${{ env.USERNAME }}/warp/main/wireproxy/version_history | head -n 1 | sed "s/.*v\(.*\)/\1/g")
           LATEST=$(wget -qO- "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
-          NOW1=$(echo $NOW | cut -d \. -f1)
-          NOW2=$(echo $NOW | cut -d \. -f2)
-          NOW3=$(echo $NOW | cut -d \. -f3)
-          LATEST1=$(echo $LATEST | cut -d \. -f1)
-          LATEST2=$(echo $LATEST | cut -d \. -f2)
-          LATEST3=$(echo $LATEST | cut -d \. -f3)
-          NOW_VERSION=$(( NOW1*1000000 + NOW2*1000 + NOW3 ))
-          LATEST_VERSION=$(( LATEST1*1000000 + LATEST2*1000 + LATEST3 ))
           
-          if [ $LATEST_VERSION -gt $NOW_VERSION ]; then
+          if [ "$LATEST" != "$NOW" ]; then
+            [ ! -d ${GITHUB_WORKSPACE}/wireproxy ] && mkdir -p ${GITHUB_WORKSPACE}/wireproxy
             PLATFORM=( "linux_amd64" "linux_arm64" "linux_s390x" )
             for i in "${PLATFORM[@]}"; do
               wget -O ${GITHUB_WORKSPACE}/wireproxy/wireproxy_"$i".tar.gz https://github.com/octeep/wireproxy/releases/download/v"$LATEST"/wireproxy_"$i".tar.gz
@@ -38,7 +31,7 @@ jobs:
           
           echo "VERSION=$LATEST" >> $GITHUB_ENV
           fi
-          
+
       - name: Upload to REPO
         if: ${{ env.VERSION != '' }}
         run: |

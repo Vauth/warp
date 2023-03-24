@@ -2,8 +2,8 @@ name: Sync WireGuard-go
 
 on:
   workflow_dispatch:
-#  schedule:
-#    - cron: '18 2 * * *'
+  schedule:
+    - cron: '18 2 * * *'
 
 jobs:
   WireGuard-go:
@@ -29,6 +29,7 @@ jobs:
           LATEST=$(wget -qO- https://git.zx2c4.com/wireguard-go/ | grep '/wireguard-go/tag' | sed -n 1p | sed "s/.*>\([0-9.]\{1,\}\)<.*/\1/g")
           
           if [ "$LATEST" != "$NOW" ]; then
+            [ ! -d ${GITHUB_WORKSPACE}/wireguard-go ] && mkdir -p ${GITHUB_WORKSPACE}/wireguard-go
             git clone https://git.zx2c4.com/wireguard-go ${{ env.WORKDIR }}
             cp .github/wireguard-go-releaser.yml ${{ env.WORKDIR }}/.goreleaser.yml
             echo "VERSION=$LATEST" >> $GITHUB_ENV
