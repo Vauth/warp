@@ -1,4 +1,4 @@
-name: Sync wgcf latest version
+name: Synchronize wgcf
 
 on:
   workflow_dispatch:
@@ -7,21 +7,22 @@ on:
 
 jobs:
   build:
-    name: Sync wgcf latest version
+    name: Synchronize wgcf
+
     runs-on: ubuntu-latest
+
     env:
-      USERNAME: ${{ secrets.GH_USERNAME }}
-      EMAIL: ${{ secrets.GH_EMAIL }}
+      FILE_DIR: wgcf
 
     steps:
       - uses: actions/checkout@v3.4.0
-      - name: Update wgcf to latest version
+      - name: Synchronize wgcf to the latest version
         run: |
-          NOW=$(wget -qO- https://raw.githubusercontent.com/${{ env.USERNAME }}/warp/main/menu.sh | grep 'latest=${latest' | cut -d \' -f2)
+          NOW=$(wget -qO- https://raw.githubusercontent.com/${{ github.repository }}/main/menu.sh | grep 'latest=${latest' | cut -d \' -f2)
           LATEST=$(wget -qO- "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 
           if [ "$LATEST" != "$NOW" ]; then
-            [ ! -d ${GITHUB_WORKSPACE}/wgcf ] && mkdir -p ${GITHUB_WORKSPACE}/wgcf
+            [ ! -d ${{ env.FILE_DIR }} ] && mkdir -p ${{ env.FILE_DIR }}
             PLATFORM=(  "darwin_amd64"
                         "darwin_arm64"
                         "linux_386"
@@ -39,22 +40,20 @@ jobs:
                     )
             
             for i in "${PLATFORM[@]}"; do
-              wget -NP ${GITHUB_WORKSPACE}/wgcf/ https://github.com/ViRb3/wgcf/releases/download/v"$LATEST"/wgcf_"$LATEST"_"$i"
-              rm -f ${GITHUB_WORKSPACE}/wgcf/wgcf_"$NOW"_"$i"
+              wget -NP ${{ env.FILE_DIR }}/ https://github.com/ViRb3/wgcf/releases/download/v"$LATEST"/wgcf_"$LATEST"_"$i"
+              rm -f ${{ env.FILE_DIR }}/wgcf_"$NOW"_"$i"
             done
             
             for j in "${SCRIPTS[@]}"; do
-              sed -i "s/$NOW/$LATEST/g" ${GITHUB_WORKSPACE}/$j
+              sed -i "s/$NOW/$LATEST/g" $j || true
             done
             
             echo "VERSION=$LATEST" >> $GITHUB_ENV
+            echo "DATE=$(date "+%Y/%m/%d %H:%M:%S")" >> $GITHUB_ENV
           fi
 
-      - name: Upload to REPO
+      - name: Upload to repository
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
         if: ${{ env.VERSION != '' }}
-        run: |
-          git config --global user.email "${{ env.EMAIL }}"
-          git config --global user.name "${{ env.USERNAME }}"
-          git add .
-          git commit -m "Sync WGCF to V${{ env.VERSION }} by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
-          git push
+        with:
+          commit_message: Sync WGCF to V${{ env.VERSION }} by Github Actions, ${{ env.DATE }}

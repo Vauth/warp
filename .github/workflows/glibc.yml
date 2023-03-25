@@ -1,11 +1,11 @@
-name: "Build glibc & make"
+name: Build glibc & make
 
 on:
   workflow_dispatch:
 
 jobs:
   Building:
-    name: "Build on CentOS 7"
+    name: Build on CentOS 7
     runs-on: ubuntu-latest
     container: docker.io/centos:7
     steps:
@@ -49,5 +49,3 @@ jobs:
       with:
           tag_name: Glibc
           files: /opt/release/*
-      env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

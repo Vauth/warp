@@ -1,4 +1,4 @@
-name: Sync wireproxy latest version
+name: Synchronize wireproxy
 
 on:
   workflow_dispatch:
@@ -7,36 +7,35 @@ on:
 
 jobs:
   build:
-    name: Sync wireproxy latest version
+    name: Synchronize wireproxy
+
     runs-on: ubuntu-latest
+
     env:
-      USERNAME: ${{ secrets.GH_USERNAME }}
-      EMAIL: ${{ secrets.GH_EMAIL }}
+      FILE_DIR: wireproxy
 
     steps:
       - uses: actions/checkout@v3.4.0
-      - name: Update wireproxy to latest version
+      - name: Synchronize wireproxy to the latest version
         run: |
-          NOW=$(wget -qO- https://raw.githubusercontent.com/${{ env.USERNAME }}/warp/main/wireproxy/version_history | head -n 1 | sed "s/.*v\(.*\)/\1/g")
+          NOW=$(wget -qO- https://raw.githubusercontent.com/${{ github.repository }}/main/wireproxy/version_history | head -n 1 | sed "s/.*v\(.*\)/\1/g")
           LATEST=$(wget -qO- "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
           
           if [ "$LATEST" != "$NOW" ]; then
-            [ ! -d ${GITHUB_WORKSPACE}/wireproxy ] && mkdir -p ${GITHUB_WORKSPACE}/wireproxy
+            [ ! -d ${{ env.FILE_DIR }} ] && mkdir -p ${{ env.FILE_DIR }}
             PLATFORM=( "linux_amd64" "linux_arm64" "linux_s390x" )
             for i in "${PLATFORM[@]}"; do
-              wget -O ${GITHUB_WORKSPACE}/wireproxy/wireproxy_"$i".tar.gz https://github.com/octeep/wireproxy/releases/download/v"$LATEST"/wireproxy_"$i".tar.gz
+              wget -O ${{ env.FILE_DIR }}/wireproxy_"$i".tar.gz https://github.com/octeep/wireproxy/releases/download/v"$LATEST"/wireproxy_"$i".tar.gz
             done
             
-          sed -i "1i$(date "+%Y/%m/%d") v$LATEST" ${GITHUB_WORKSPACE}/wireproxy/version_history
+          sed -i "1i$(date "+%Y/%m/%d") v$LATEST" ${{ env.FILE_DIR }}/version_history || true
           
           echo "VERSION=$LATEST" >> $GITHUB_ENV
+          echo "DATE=$(date "+%Y/%m/%d %H:%M:%S")" >> $GITHUB_ENV
           fi
 
-      - name: Upload to REPO
+      - name: Upload to repository
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
         if: ${{ env.VERSION != '' }}
-        run: |
-            git config --global user.email "${{ env.EMAIL }}"
-            git config --global user.name "${{ env.USERNAME }}"
-            git add .
-            git commit -m "Sync wireproxy to V${{ env.VERSION }} by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
-            git push
+        with:
+          commit_message: Sync wireproxy to V${{ env.VERSION }} by Github Actions, ${{ env.DATE }}

@@ -1,4 +1,4 @@
-name: Sync CloudFlare Client
+name: Synchronize client
 
 on:
   workflow_dispatch:
@@ -8,13 +8,11 @@ on:
 jobs:
   WireGuard-go:
 
-    name: Sync Client to the latest
-
+    name: Synchronize client
     runs-on: ubuntu-20.04
 
     env:
-      USERNAME: ${{ secrets.GH_USERNAME }}
-      EMAIL: ${{ secrets.GH_EMAIL }}
+      FILE_DIR: Client
 
     steps:
       - name: Checkout code
@@ -22,39 +20,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check the official latest version of Client
+      - name: Synchronize client to the latest version
         run: |
-          NOW=$(wget -qO- "https://api.github.com/repos/${{ env.USERNAME }}/warp/releases" | grep "tag_name" | grep "CloudFlare" | head -n 1 | sed "s/.*_v\(.\{1,\}\)\".*/\1/g")
+          NOW=$(wget -qO- "https://api.github.com/repos/${{ github.repository }}/releases" | grep "tag_name" | grep "CloudFlare" | head -n 1 | sed "s/.*_v\(.\{1,\}\)\".*/\1/g")
           LATEST=$(wget -qO- "https://pkg.cloudflareclient.com/packages/cloudflare-warp" | grep "release-row" | awk -F '</td><td>' {'print $1'} | awk -F '<td>' {'print $2'})
           
           Operating_System=("CentOS 8" "Debian Bullseye" "Debian Buster" "Debian Stretch" "Ubuntu Jammy" "Ubuntu Focal" "Ubuntu Bionic" "Ubuntu Xenial")
           System_Rename=("CentOS_8.rpm" "Debian_11.deb" "Debian_10.deb" "Debian_9.deb" "Ubuntu_22.04.deb" "Ubuntu_20.04.deb" "Ubuntu_18.04.deb" "Ubuntu_16.04.deb")
           
           if [ "$LATEST" != "$NOW" ]; then
-            [ ! -d ${GITHUB_WORKSPACE}/Client ] && mkdir -p ${GITHUB_WORKSPACE}/Client
+            [ ! -d ${{ env.FILE_DIR }} ] && mkdir -p ${{ env.FILE_DIR }}
             for ((i=0; i<${#Operating_System[@]}; i++)); do
               File_Path=$(wget -qO- https://pkg.cloudflareclient.com/packages/cloudflare-warp | grep 'release-row' | awk -F "</td><td>${Operating_System[i]}" {'print $2'} | awk -F 'Download' {'print $1'} | awk -F \" {'print $2'})
               Download_URL="https://pkg.cloudflareclient.com$File_Path"
-              wget -O ${GITHUB_WORKSPACE}/Client/Client_${System_Rename[i]} $Download_URL
+              wget -O {{ env.FILE_DIR }}/Client_${System_Rename[i]} $Download_URL
             done
             
             echo "VERSION=$LATEST" >> $GITHUB_ENV
-            echo "DIST=${GITHUB_WORKSPACE}/Client" >> $GITHUB_ENV
+            echo "DATE=$(date "+%Y/%m/%d %H:%M:%S")" >> $GITHUB_ENV
           fi
   
-      - name: Upload to REPO
+      - name: Upload to repository
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
         if: ${{ env.VERSION != '' }}
-        run: |
-          git config --global user.email "${{ env.EMAIL }}"
-          git config --global user.name "${{ env.USERNAME }}"
-          git add .
-          git commit -m "Sync Client to V${{ env.VERSION }} by Github Actions, $(date "+%Y/%m/%d %H:%M:%S")"
-          git push
-          rm -f ${{ env.DIST }}/README.md
-          
+        with:
+          commit_message: Sync Client to V${{ env.VERSION }} by Github Actions, ${{ env.DATE }}
+
       - name: Release binaries 
         uses: softprops/action-gh-release@v1
         if: ${{ env.VERSION != '' }}
         with:
           tag_name: CloudFlare_Client_v${{ env.VERSION }}
-          files: ${{ env.DIST }}/*
+          files: ${{ env.FILE_DIR }}/Client*

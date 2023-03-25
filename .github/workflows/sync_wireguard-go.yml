@@ -1,4 +1,4 @@
-name: Sync WireGuard-go
+name: Synchronize wireGuard-go
 
 on:
   workflow_dispatch:
@@ -8,14 +8,13 @@ on:
 jobs:
   WireGuard-go:
 
-    name: Sync WireGuard-go to the latest
+    name: Synchronize wireGuard-go
 
     runs-on: ubuntu-20.04
 
     env:
-      WORKDIR: ./wireguard-go-source
-      USERNAME: ${{ secrets.GH_USERNAME }}
-      EMAIL: ${{ secrets.GH_EMAIL }}
+      WORK_DIR: ./wireguard-go-source
+      FILE_DIR: wireguard-go
 
     steps:
       - name: Checkout code
@@ -23,17 +22,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check the official latest version of WireGuard-go
+      - name: Synchronize wireGuard-go to the latest version
         run: |
-          NOW=$(wget -qO- "https://api.github.com/repos/${{ env.USERNAME }}/warp/releases" | grep "tag_name" | grep -i "wireguard-go" | head -n 1 | sed "s/.*_v\(.*\)\".*/\1/g")
+          NOW=$(wget -qO- "https://api.github.com/repos/${{ github.repository }}/releases" | grep "tag_name" | grep -i "wireguard-go" | head -n 1 | sed "s/.*_v\(.*\)\".*/\1/g")
           LATEST=$(wget -qO- https://git.zx2c4.com/wireguard-go/ | grep '/wireguard-go/tag' | sed -n 1p | sed "s/.*>\([0-9.]\{1,\}\)<.*/\1/g")
           
           if [ "$LATEST" != "$NOW" ]; then
-            [ ! -d ${GITHUB_WORKSPACE}/wireguard-go ] && mkdir -p ${GITHUB_WORKSPACE}/wireguard-go
-            git clone https://git.zx2c4.com/wireguard-go ${{ env.WORKDIR }}
-            cp .github/wireguard-go-releaser.yml ${{ env.WORKDIR }}/.goreleaser.yml
+            git clone https://git.zx2c4.com/wireguard-go ${{ env.WORK_DIR }}
+            cp .github/wireguard-go-releaser.yml ${{ env.WORK_DIR }}/.goreleaser.yml
             echo "VERSION=$LATEST" >> $GITHUB_ENV
             echo "flags=--snapshot" >> $GITHUB_ENV
+            echo "DATE=$(date "+%Y/%m/%d %H:%M:%S")" >> $GITHUB_ENV
           fi
             
       - name: Set up GoReleaser
@@ -47,26 +46,26 @@ jobs:
         if: ${{ env.VERSION != '' }}
         with:
           distribution: goreleaser
-          workdir: ${{ env.WORKDIR }}
+          workdir: ${{ env.WORK_DIR }}
           version: latest
           args: release --clean ${{ env.flags }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          
+      - name: Move the files and delete temp dir
+        if: ${{ env.VERSION != '' }}
+        run: |
+          [ ! -d ${{ env.FILE_DIR }} ] && mkdir -p ${{ env.FILE_DIR }}
+          cp -f ${{ env.WORK_DIR }}/dist/*.tar.gz ${{ env.FILE_DIR }}
+          rm -rf ${{ env.WORK_DIR }}
+
+      - name: Upload to repository
+        uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        if: ${{ env.VERSION != '' }}
+        with:
+          commit_message: Sync wireguard-go to V${{ env.VERSION }} by Github Actions, ${{ env.DATE }}
   
       - name: Release binaries 
         uses: softprops/action-gh-release@v1
         if: ${{ env.VERSION != '' }}
         with:
           tag_name: WireGuard-go_v${{ env.VERSION }}
-          files: ${{ env.WORKDIR }}/dist/*.tar.gz
-          
-      - name: Upload to REPO
-        if: ${{ env.VERSION != '' }}
-        run: |
-          cp -f ${{ env.WORKDIR }}/dist/*.tar.gz ${GITHUB_WORKSPACE}/wireguard-go/
-          rm -rf ${{ env.WORKDIR }}
-          git config --global user.email "${{ env.EMAIL }}"
-          git config --global user.name "${{ env.USERNAME }}"
-          git add .
-          git commit -m "Wireguard-go V${{ env.VERSION }}, $(date "+%Y/%m/%d")"
-          git push
+          files: ${{ env.FILE_DIR }}/*.tar.gz
