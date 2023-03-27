@@ -2,7 +2,7 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号
-VERSION=2.48
+VERSION=2.49
 
 # 选择 IP API 服务商
 IP_API=https://api.ip.sb/geoip; ISP=isp
@@ -11,8 +11,8 @@ IP_API=https://api.ip.sb/geoip; ISP=isp
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="To speed up WARP, automatically find the most suitable endpoint for local use and apply it to wgcf and client. Thanks to an anonymous and enthusiastic user for the tool."
-C[1]="为了提速 WARP，自动寻找最适合本机使用的 endpoint，应用在 wgcf 和 client，感谢匿名的热心网友提供工具"
+E[1]="1. Change the best Warp endpoint to standard ports [500,1701,2408,4500]; 2. Upgrade the Netflix unlocking section"
+C[1]="1. warp endpoint 优选改为标准端口 [500,1701,2408,4500]; 2. 升级奈飞解锁部分"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -630,9 +630,13 @@ change_ip() {
       ip${NF}_info
       WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
       [ "$L" = C ] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
-      RESULT=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
-      if [ "$RESULT" = 200 ]; then
-        REGION=$(tr 'a-z' 'A-Z' <<< $(curl --user-agent "${UA_Browser}" -"$NF" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+      unset RESULT REGION
+      for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
+        RESULT[l]=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
+        [ "${RESULT[l]}" = 200 ] && break
+      done
+      if [[ "${RESULT[@]}" =~ 200 ]]; then
+        REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -"$NF" -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
         REGION=${REGION:-'US'}
         echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || wgcf_restart
       else
@@ -661,9 +665,13 @@ change_ip() {
         ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME %86400 % 3600 % 60 ))
         proxy_info
         WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
-        RESULT=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
-        if [ "$RESULT" = 200 ]; then
-          REGION=$(tr 'a-z' 'A-Z' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+        unset RESULT REGION
+        for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
+          RESULT[l]=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
+          [ "${RESULT[l]}" = 200 ] && break
+        done
+        if [[ "${RESULT[@]}" =~ 200 ]]; then
+          REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
           REGION=${REGION:-'US'}
           echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || client_restart
         else
@@ -681,9 +689,14 @@ change_ip() {
         ip4_info
         WAN=$WAN4 && ASNORG=$ASNORG4 && NF=4
         [ "$L" = C ] && COUNTRY=$(translate "$COUNTRY4") || COUNTRY=$COUNTRY4
-        RESULT=$(curl --user-agent "${UA_Browser}" $INTERFACE -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
-        if [ "$RESULT" = 200 ]; then
-          REGION=$(tr 'a-z' 'A-Z' <<< $(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+        unset RESULT REGION
+        for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
+          RESULT[l]=$(curl --user-agent "${UA_Browser}" $INTERFACE -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
+          [ "${RESULT[l]}" = 200 ] && break
+        done
+        [ "${RESULT[0]}" != 200 ] && RESULT[1]=$(curl --user-agent "${UA_Browser}" $INTERFACE -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[1]}" 2>&1)
+        if [[ "${RESULT[@]}" =~ 200 ]]; then
+          REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
           REGION=${REGION:-'US'}
           echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || client_restart
         else
@@ -704,9 +717,13 @@ change_ip() {
       ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
       proxy_info
       WAN=$PROXYIP2 && ASNORG=$PROXYASNORG2 && COUNTRY=$PROXYCOUNTRY2
-      RESULT=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE"  2>&1)
-      if [ "$RESULT" = 200 ]; then
-        REGION=$(tr 'a-z' 'A-Z' <<< $(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g'))
+      unset RESULT REGION
+      for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
+        RESULT[l]=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
+        [ "${RESULT[l]}" = 200 ] && break
+      done
+      if [[ "${RESULT[@]}" =~ 200 ]]; then
+        REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
         REGION=${REGION:-'US'}
         echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || wireproxy_restart
       else
@@ -722,9 +739,11 @@ change_ip() {
 
   # 根据 lmc999 脚本检测 Netflix Title，如获取不到，使用兜底默认值
   LMC999=$(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh)
-  RESULT_TITLE=$(echo "$LMC999" | grep "result.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
+  RESULT_TITLE=($(echo "$LMC999" | grep "result.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/"))
   REGION_TITLE=$(echo "$LMC999" | grep "region.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
-  RESULT_TITLE=${RESULT_TITLE:-'80062035'}; REGION_TITLE=${REGION_TITLE:-'80018499'}
+  [[ ! ${RESULT_TITLE[0]} =~ ^[0-9]+$ ]] && RESULT_TITLE[0]='81280792'
+  [[ ! ${RESULT_TITLE[1]} =~ ^[0-9]+$ ]] && RESULT_TITLE[1]='70143836'
+  [[ ! "$REGION_TITLE" =~ ^[0-9]+$ ]] && REGION_TITLE='80018499'
 
   # 根据 WARP interface 、 Client 和 WirePorxy 的安装情况判断刷 IP 的方式
   INSTALL_CHECK=("wg-quick" "warp-cli" "wireproxy")
@@ -793,7 +812,7 @@ uninstall() {
     rule_del >/dev/null 2>&1
     ${PACKAGE_UNINSTALL[int]} cloudflare-warp 2>/dev/null
     systemctl disable --now warp-svc >/dev/null 2>&1
-    rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /usr/bin/warp
+    rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /usr/bin/warp $HOME/.local/share/warp
   }
 
   # 卸载 WirePorxy

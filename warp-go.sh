@@ -2,7 +2,7 @@
 export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
-VERSION=1.1.2
+VERSION=1.1.3
 
 # 选择 IP API 服务商
 IP_API=https://api.ip.sb/geoip; ISP=isp
@@ -16,8 +16,8 @@ trap "rm -f /tmp/warp-go*; exit 1" INT
 
 E[0]="Language:\n  1.English (default) \n  2.简体中文"
 C[0]="${E[0]}"
-E[1]="To speed up WARP, automatically find the most suitable endpoint for local use. Thanks to an anonymous and enthusiastic user for the tool."
-C[1]="为了加速 WARP，自动寻找最适合本机使用的 endpoint，感谢匿名的热心网友提供工具"
+E[1]="1. Change the best Warp endpoint to standard ports [500,1701,2408,4500]; 2. Upgrade the Netflix unlocking section"
+C[1]="1. warp endpoint 优选改为标准端口 [500,1701,2408,4500]; 2. 升级奈飞解锁部分"
 E[2]="warp-go h (help)\n warp-go o (temporary warp-go switch)\n warp-go u (uninstall WARP web interface and warp-go)\n warp-go v (sync script to latest version)\n warp-go i (replace IP with Netflix support)\n warp-go 4/6 ( WARP IPv4/IPv6 single-stack)\n warp-go d (WARP dual-stack)\n warp-go n (WARP IPv4 non-global)\n warp-go g (WARP global/non-global switching)\n warp-go e (output wireguard and sing-box configuration file)\n warp-go a (Change to Free, WARP+ or Teams account)"
 C[2]="warp-go h (帮助）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 和 sing-box 配置文件)\n warp-go a (更换到 Free，WARP+ 或 Teams 账户)"
 E[3]="This project is designed to add WARP network interface for VPS, using warp-go core, using various interfaces of CloudFlare-WARP, integrated wireguard-go, can completely replace WGCF. Save Hong Kong, Toronto and other VPS, can also get WARP IP. Thanks again @CoiaPrant and his team. Project address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/"
@@ -96,8 +96,8 @@ E[39]="Input errors up to 5 times.The script is aborted."
 C[39]="输入错误达5次，脚本退出"
 E[40]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\${i} times remaining\):"
 C[40]="License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\${i}次\):"
-E[41]="Please customize the WARP+ device name (Default is [warp-go] if left blank):"
-C[41]="请自定义 WARP+ 设备名 (如果不输入，默认为 [warp-go]):"
+E[41]="Please customize the device name (Default is [warp-go] if left blank):"
+C[41]="请自定义设备名 (如果不输入，默认为 [warp-go]):"
 E[42]="Please Input WARP+ license:"
 C[42]="请输入WARP+ License:"
 E[43]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\${i} times remaining\): "
@@ -454,10 +454,12 @@ change_ip() {
   UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
   # 根据 lmc999 脚本检测 Netflix Title，如获取不到，使用兜底默认值
-  #LMC999=$(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh)
-  #RESULT_TITLE=$(echo "$LMC999" | grep "result.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
-  #REGION_TITLE=$(echo "$LMC999" | grep "region.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
-  RESULT_TITLE=${RESULT_TITLE:-'80062035'}; REGION_TITLE=${REGION_TITLE:-'80018499'}
+  LMC999=$(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh)
+  RESULT_TITLE=($(echo "$LMC999" | grep "result.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/"))
+  REGION_TITLE=$(echo "$LMC999" | grep "region.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
+  [[ ! ${RESULT_TITLE[0]} =~ ^[0-9]+$ ]] && RESULT_TITLE[0]='81280792'
+  [[ ! ${RESULT_TITLE[1]} =~ ^[0-9]+$ ]] && RESULT_TITLE[1]='70143836'
+  [[ ! "$REGION_TITLE" =~ ^[0-9]+$ ]] && REGION_TITLE='80018499'
 
   # 检测 WARP 单双栈服务
   unset T4 T6
@@ -495,12 +497,18 @@ change_ip() {
     ip${NF}_info
     WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
     [ "$L" = C ] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
-    RESULT=$(curl --user-agent "${UA_Browser}" $INTERFACE -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/$RESULT_TITLE" 2>&1)
-    if [ "$RESULT" = 200 ]; then
+    unset RESULT REGION
+    for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
+      RESULT[l]=$(curl --user-agent "${UA_Browser}" $INTERFACE -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
+      [ "${RESULT[l]}" = 200 ] && break
+    done
+    
+    if [[ "${RESULT[@]}" =~ 200 ]]; then
       REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
       REGION=${REGION:-'US'}
       echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 16) " && rm -f /opt/warp-go/warp.conf.tmp1 && i=0 && sleep 1h || warp_restart
-    else warp_restart
+    else
+      warp_restart
     fi
   done
 }
@@ -787,6 +795,8 @@ input_token() {
     (( i-- )) || true
     [ "$i" = 0 ] && error "$(text 39)" || reading " $(text_eval 45) " TOKEN
   done
+  [ -z "$NAME" ] && reading " $(text 41) " NAME
+  [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME="${NAME:-'warp-go'}"  
 }
 
 # 免费 WARP 账户升级 WARP+ 或 Teams 账户
@@ -968,7 +978,7 @@ install() {
         until [ -e /opt/warp-go/warp.conf ]; do
           ((i++)) || true
           [ "$i" -gt "$j" ] && error " $(text_eval 50) "
-          hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config "$TOKEN" >/dev/null 2>&1
+          hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config "$TOKEN" --device-name=$NAME >/dev/null 2>&1
           [[ "$?" != 0 && "$i" -lt "$j" ]] && sleep 30
         done
 

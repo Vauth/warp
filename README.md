@@ -22,6 +22,8 @@
 * * *
 
 ## 更新信息
+2023.3.26 warp-go V1.1.3 / menu.sh 2.49 1. Change the best Warp endpoint to standard ports [500,1701,2408,4500]; 2. Upgrade the Netflix unlocking section; 1. warp endpoint 优选改为标准端口 [500,1701,2408,4500]; 2. 升级奈飞解锁部分
+
 2023.3.14 warp-go V1.1.2 / menu.sh 2.48 To speed up WARP, automatically find the most suitable endpoint for local use and apply it to wgcf, warp-go and client. Thanks to an anonymous and enthusiastic user for the tool; 为了提速 WARP，自动寻找最适合本机使用的 endpoint，应用在 wgcf, warp-go 和 client，感谢匿名的热心网友提供的工具
 
 2023.3.2 warp-go V1.1.1 1. warp-go v1.0.8 is supported. Allowing custom MTU values in the configuration file /opt/warp-go/warp.conf; 2. Singbox configuration exports reseved using 3-numeric-array instead of a string; 1. 支持 warp-go v1.0.8 , 允许在配置文件 /opt/warp-go/warp.conf 自定义 MTU 值; 2. Singbox配置导出 reseved 使用三个数字的数组代替字符串
