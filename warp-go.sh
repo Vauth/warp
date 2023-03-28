@@ -220,6 +220,8 @@ E[101]="Sing-box configuration file: /opt/warp-go/singbox.json\n"
 C[101]="Sing-box 配置文件: /opt/warp-go/singbox.json\n"
 E[102]="WAN interface network protocol must be [static] on OpenWrt."
 C[102]="OpenWrt 系统的 WAN 接口的网络传输协议必须为 [静态地址]"
+E[103]="Unlimited"
+C[103]="无限制"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }
@@ -344,7 +346,7 @@ check_install() {
       # 预下载 warp-go，使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限，如因 gitlab 接口问题未能获取，默认 v1.0.8
       latest=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | awk -F '"' '{for (i=0; i<NF; i++) if ($i=="tag_name") {print $(i+2); exit}}' | sed "s/v//")
       latest=${latest:-'1.0.8'}
-      wget --no-check-certificate -qO /tmp/warp-go.tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
+      wget --no-check-certificate -qO /tmp/warp-go.tar.gz https://raw.githubusercontent.com/fscarmen/warp/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
       tar xzf /tmp/warp-go.tar.gz -C /tmp/ warp-go
       chmod +x /tmp/warp-go
       rm -f /tmp/warp-go.tar.gz
@@ -772,7 +774,7 @@ input_license() {
     [ "$i" = 0 ] && error "$(text 39)" || reading " $(text_eval 40) " LICENSE
   done
   [[ -n "$LICENSE" && -z "$NAME" ]] && reading " $(text 41) " NAME
-  [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME="${NAME:-'warp-go'}"
+  [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME="${NAME:-warp-go}"
 }
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
@@ -795,7 +797,7 @@ input_token() {
     (( i-- )) || true
     [ "$i" = 0 ] && error "$(text 39)" || reading " $(text_eval 45) " TOKEN
   done
-  [ -z "$NAME" ] && reading " $(text 41) " NAME
+  [[ -n "$TOKEN" && -z "$NAME" ]] && reading " $(text 41) " NAME
   [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME="${NAME:-'warp-go'}"  
 }
 
@@ -856,7 +858,7 @@ update() {
           until [ -e /opt/warp-go/warp.conf.tmp ]; do
             ((i++)) || true
             [ "$i" -gt "$j" ] && rm -f /opt/warp-go/warp.conf.tmp && error " $(text_eval 50) "
-            hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf.tmp --team-config "$TOKEN" >/dev/null 2>&1
+            hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf.tmp --team-config=$TOKEN --device-name=$NAME >/dev/null 2>&1
             [ "$?" != 0 ] && sleep 30
           done
           for a in {2..5}; do sed -i "${a}s#.*#$(sed -ne ${a}p /opt/warp-go/warp.conf.tmp)#" /opt/warp-go/warp.conf; done
@@ -864,6 +866,7 @@ update() {
         else
           sed -i "s#^Device.*#Device = FSCARMEN-WARP-SHARE-TEAM#g; s#.*PrivateKey.*#PrivateKey = SHVqHEGI7k2+OQ/oWMmWY2EQObbRQjRBdDPimh0h1WY=#g; s#.*Token.*#Token = PROTECTED_PLACEHOLDER#g; s#.*Type.*#Type = team#g" /opt/warp-go/warp.conf
         fi
+        grep -qE 'Type[ ]+=[ ]+team' /opt/warp-go/warp.conf && echo "$NAME" > /opt/warp-go/Device_Name
         OPTION=o && net
         ;;
     0 ) unset LICENSETYPE
@@ -879,7 +882,7 @@ export_file() {
     PY=("python3" "python" "python2")
     for g in "${PY[@]}"; do [ $(type -p $g) ] && PYTHON=$g && break; done
     [ -z "$PYTHON" ] && PYTHON=python3 && ${PACKAGE_INSTALL[int]} $PYTHON
-    [ ! -e /opt/warp-go/warp.conf ] && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config "$TOKEN" >/dev/null 2>&1
+    [ ! -e /opt/warp-go/warp.conf ] && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config=$TOKEN >/dev/null 2>&1
     /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-wireguard=/opt/warp-go/wgcf.conf >/dev/null 2>&1
     /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-singbox=/opt/warp-go/singbox.json >/dev/null 2>&1
   else
@@ -978,7 +981,7 @@ install() {
         until [ -e /opt/warp-go/warp.conf ]; do
           ((i++)) || true
           [ "$i" -gt "$j" ] && error " $(text_eval 50) "
-          hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config "$TOKEN" --device-name=$NAME >/dev/null 2>&1
+          hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config=$TOKEN --device-name=$NAME >/dev/null 2>&1
           [[ "$?" != 0 && "$i" -lt "$j" ]] && sleep 30
         done
 
@@ -1020,8 +1023,9 @@ EOF
       done
     fi
 
-    # 如为 Plus 账户，把设备名记录到文件 /opt/warp-go/Device_Name; 把 License 保存到 /opt/warp-go/License
+    # 如为 Plus 或 Team 账户，把设备名记录到文件 /opt/warp-go/Device_Name; Plus 账户的话，把 License 保存到 /opt/warp-go/License;
     grep -qE 'Type[ ]+=[ ]+plus' /opt/warp-go/warp.conf && echo "$NAME" > /opt/warp-go/Device_Name && echo "$LICENSE" > /opt/warp-go/License
+    grep -qE 'Type[ ]+=[ ]+team' /opt/warp-go/warp.conf && echo "$NAME" > /opt/warp-go/Device_Name
 
     # 生成非全局执行文件并赋权
     cat > /opt/warp-go/NonGlobalUp.sh << EOF
@@ -1114,7 +1118,7 @@ EOF
   ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
 
   # 创建软链接快捷方式，再次运行可以用 warp-go 指令，设置默认语言
-  mv $0 /opt/warp-go/
+  mv $0 /opt/warp-go/warp-go.sh
   chmod +x /opt/warp-go/warp-go.sh
   ln -sf /opt/warp-go/warp-go.sh /usr/bin/warp-go
   echo "$L" > /opt/warp-go/language
@@ -1130,7 +1134,8 @@ EOF
   info " IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
   info " IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
   info " $(text_eval 62) "
-  [[ -n "$QUOTA" ]] && info " $(text 26): $QUOTA "
+  [ "$ACCOUNT_TYPE" = 'plus' ] && info " $(text 83): $(cat /opt/warp-go/Device_Name)\t $(text 26): $QUOTA "
+  [ "$ACCOUNT_TYPE" = 'team' ] && info " $(text 83): $(cat /opt/warp-go/Device_Name)\t $(text 26): $(text 103) "
   info " $PRIORITY_NOW "
   echo -e "\n==============================================================\n"
   hint " $(text 95)\n " && help
@@ -1207,8 +1212,9 @@ menu_setting() {
   ACTION[0]() { rm -f /tmp/warp-go*; exit; }
   ACTION[9]() { ver; }
 
-  [ -e /opt/warp-go/warp.conf ] && TYPE=$(grep "Type" /opt/warp-go/warp.conf | cut -d= -f2 | sed "s# ##g") &&
-  [ "$TYPE" = plus ] && check_quota && PLUSINFO="$(text 83): $(cat /opt/warp-go/Device_Name)\t $(text 26): $QUOTA"
+  [ -e /opt/warp-go/warp.conf ] && TYPE=$(grep "Type" /opt/warp-go/warp.conf | cut -d= -f2 | sed "s# ##g")
+  [ "$TYPE" = 'plus' ] && check_quota && PLUSINFO="$(text 83): $(cat /opt/warp-go/Device_Name)\t $(text 26): $QUOTA"
+  [ "$TYPE" = 'team' ] && PLUSINFO="$(text 83): $(cat /opt/warp-go/Device_Name)\t $(text 26): $(text 103)"
 }
 
 # 显示菜单
@@ -1245,8 +1251,8 @@ menu() {
 # 参数选项 URL 或 License 或转换 WARP 单双栈
 if [ "$2" != '[lisence]' ]; then
   if [[ "$2" =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then
-    LICENSETYPE=1 && LICENSE="$2"
-  elif [[ "${#2}" -ge "$TOKEN_LENGTH" ]]; then LICENSETYPE=2 && TOKEN="$2"
+    LICENSETYPE='2' && LICENSE="$2"
+  elif [[ "${#2}" -ge "$TOKEN_LENGTH" ]]; then LICENSETYPE='3' && TOKEN="$2"
   elif [[ "$2" =~ ^[A-Za-z]{2}$ ]]; then EXPECT="$2"
   elif [[ "$1" = s && "$2" = [46Dd] ]]; then PRIORITY_SWITCH=$(tr 'A-Z' 'a-z' <<< "$2")
   fi
