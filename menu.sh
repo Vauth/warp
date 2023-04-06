@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-export LANG=en_US.UTF-8
 
 # 当前脚本版本号
 VERSION=2.49
@@ -221,10 +220,10 @@ E[104]="Please customize the Client port (1000-65535. Default to 40000 if it is 
 C[104]="请自定义 Client 端口号 (1000-65535，如果不输入，会默认40000):"
 E[105]="Please choose the priority:\n 1. IPv4\n 2. IPv6\n 3. Use initial settings (default)"
 C[105]="请选择优先级别:\n 1. IPv4\n 2. IPv6\n 3. 使用 VPS 初始设置 (默认)"
-E[106]=""
-C[106]=""
-E[107]=""
-C[107]=""
+E[106]="Shared free accounts cannot be upgraded to WARP+ accounts."
+C[106]="共享免费账户不能升级为 WARP+ 账户"
+E[107]="Failed to register Client account. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
+C[107]="注册 Client 账户失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[108]="\n 1. WARP Linux Client IP\n 2. WGCF WARP IP ( Only IPv6 can be brushed when WGCF and Client exist at the same time )\n"
 C[108]="\n 1. WARP Linux Client IP\n 2. WGCF WARP IP ( WGCF 和 Client 并存时只能刷 IPv6)\n"
 E[109]="Socks5 Proxy Client is working now. WARP IPv4 and dualstack interface could not be switch to. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -989,27 +988,27 @@ check_stack() {
 # 单双栈在线互换。先看菜单是否有选择，再看传参数值，再没有显示2个可选项
 stack_switch() {
   # WARP 单双栈切换选项
-  SWITCH014='sed -i "s/#//g;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-  SWITCH01D='sed -i "s/#//g" /etc/wireguard/wgcf.conf'
-  SWITCH106='sed -i "s/#//g;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-  SWITCH10D='sed -i "s/#//g" /etc/wireguard/wgcf.conf'
-  SWITCH114='sed -i "s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-  SWITCH116='sed -i "s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
+  SWITCH014="s/#//g;s/^.*\:\:\/0/#&/g"
+  SWITCH01D="s/#//g"
+  SWITCH106="s/#//g;s/^.*0\.\0\/0/#&/g"
+  SWITCH10D="s/#//g"
+  SWITCH114="s/^.*\:\:\/0/#&/g"
+  SWITCH116="s/^.*0\.\0\/0/#&/g"
 
   [[ "$CLIENT" = [35] && "$SWITCHCHOOSE" = [4D] ]] && error " $(text 109) "
   check_stack
   if [[ "$MENU_CHOOSE" = [12] ]]; then
     TO=$(eval echo "\${TO$MENU_CHOOSE[m]}")
   elif [[ "$SWITCHCHOOSE" = [46D] ]]; then
-    [[ "$T4@$T6@$SWITCHCHOOSE" =~ '1@0@4'|'0@1@6'|'1@1@D' ]] && error " $(text 146) " || TO="$T4$T6$SWITCHCHOOSE"
+    [[ "$T4@$T6@$SWITCHCHOOSE" =~ '1@0@4'|'0@1@6'|'1@1@D' ]] && error "\n $(text 146) \n" || TO="$T4$T6$SWITCHCHOOSE"
   fi
-  [ "${#TO}" != 3 ] && error " $(text 172) " || sh -c "$(eval echo "\$SWITCH$TO")"
+  [ "${#TO}" != 3 ] && error " $(text 172) " || sed -i "$(eval echo "\$SWITCH$TO")" /etc/wireguard/wgcf.conf
   ${SYSTEMCTL_RESTART[int]}; sleep 1
   OPTION=n && net
 }
 
-# 检测系统信息
-check_system_info() {
+  # 检测系统信息
+  check_system_info() {
   info " $(text 37) "
 
   # 判断 LXC、 KVM 的 Linux 版本是否小于 5.6，如是则安装 wireguard 内核模块，变量 WG=1。由于 linux 不能直接用小数作比较，所以用 （主版本号 * 100 + 次版本号 ）与 506 作比较
@@ -1398,31 +1397,51 @@ install() {
 
     # 注册 WARP 账户 ( wgcf-account.toml 使用默认值加加快速度)。如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
     mkdir -p /etc/wireguard/ >/dev/null 2>&1
-    until [ -e /etc/wireguard/wgcf-account.toml ]; do
+    REGISTE_TIME=0
+    until [[ -e /etc/wireguard/wgcf-account.toml || "$REGISTE_TIME" = 1000 ]]; do
       wgcf register --accept-tos --config /etc/wireguard/wgcf-account.toml >/dev/null 2>&1 && break
+      (( REGISTE_TIME++ )) 
     done
     if [ -n "$LICENSE" ]; then
-      cp -f /etc/wireguard/wgcf-account.toml /etc/wireguard/account-temp.toml || exit 1
-      sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" /etc/wireguard/account-temp.toml
-      wgcf update --name "$NAME" --config /etc/wireguard/account-temp.toml > /etc/wireguard/info.log 2>&1
-      while grep -qisE "429 Too Many Requests|time.*out" /etc/wireguard/info.log; do
-        /usr/bin/wgcf update --name "$NAME" --config /etc/wireguard/account-temp.toml > /etc/wireguard/info.log 2>&1
-      done
-      if grep -qs "400 Bad Request" /etc/wireguard/info.log; then
-        rm -f /etc/wireguard/account-temp.toml /etc/wireguard/info.log && warning " $(text_eval 36) "
-      elif grep -qs "Account type  : free" /etc/wireguard/info.log; then
-        rm -f /etc/wireguard/account-temp.toml /etc/wireguard/info.log && warning " $(text_eval 42) "
-      elif grep -qs "Account type  : limited" /etc/wireguard/info.log; then
-        mv -f /etc/wireguard/account-temp.toml /etc/wireguard/wgcf-account.toml
+      if [ -e /etc/wireguard/wgcf-account.toml ]; then
+        cp -f /etc/wireguard/wgcf-account.toml /etc/wireguard/account-temp.toml || exit 1
+        sed -i "s#license_key.*#license_key = \"$LICENSE\"#g" /etc/wireguard/account-temp.toml
+        wgcf update --name "$NAME" --config /etc/wireguard/account-temp.toml > /etc/wireguard/info.log 2>&1
+        while grep -qisE "429 Too Many Requests|time.*out" /etc/wireguard/info.log; do
+          /usr/bin/wgcf update --name "$NAME" --config /etc/wireguard/account-temp.toml > /etc/wireguard/info.log 2>&1
+        done
+        if grep -qs "400 Bad Request" /etc/wireguard/info.log; then
+          rm -f /etc/wireguard/account-temp.toml /etc/wireguard/info.log && warning " $(text_eval 36) "
+        elif grep -qs "Account type  : free" /etc/wireguard/info.log; then
+          rm -f /etc/wireguard/account-temp.toml /etc/wireguard/info.log && warning " $(text_eval 42) "
+        elif grep -qs "Account type  : limited" /etc/wireguard/info.log; then
+          mv -f /etc/wireguard/account-temp.toml /etc/wireguard/wgcf-account.toml
+        fi
+      else
+        warning " $(text 106) "
       fi
     fi
 
-    # 生成 Wire-Guard 配置文件 (wgcf.conf)
+    # 生成 Wire-Guard 配置文件 (wgcf.conf)，如果注册一直不成功，即使用共享账户
     if [ -e /etc/wireguard/wgcf-account.toml ]; then
       until [ -e /etc/wireguard/wgcf.conf ]; do
         wgcf generate --config /etc/wireguard/wgcf-account.toml --profile /etc/wireguard/wgcf.conf >/dev/null 2>&1
       done
       info "\n $(text 33) \n"
+    else
+      cat > /etc/wireguard/wgcf.conf <<EOF
+[Interface]
+PrivateKey = cKE7LmCF61IhqqABGhvJ44jWXp8fKymcMAEVAzbDF2k=
+Address = 172.16.0.2/32
+Address = fd01:5ca1:ab1e:823e:e094:eb1c:ff87:1fab/128
+DNS = 1.1.1.1
+MTU = 1280
+[Peer]
+PublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
+AllowedIPs = 0.0.0.0/0
+AllowedIPs = ::/0
+Endpoint = engage.cloudflareclient.com:2408
+EOF
     fi
 
     # 最佳 MTU
@@ -1467,7 +1486,7 @@ install() {
       [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
 
       # 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-      [ "$WG" = 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends linux-headers-"$(uname -r)" && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-dkms
+      [ "$WG" = 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends linux-headers-$(uname -r) && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-dkms
     ;;
 
     Ubuntu )
@@ -1520,20 +1539,20 @@ install() {
   wait
 
   # WGCF 配置修改
-  MODIFY014='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY016='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY01D='sed -i "s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/" /etc/wireguard/wgcf.conf'
-  MODIFY104='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY106='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY10D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" /etc/wireguard/wgcf.conf'
-  MODIFY114='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY116='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY11D='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" /etc/wireguard/wgcf.conf'
-  MODIFY11N4='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*\:\:\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY11N6='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/;s/^.*0\.\0\/0/#&/g" /etc/wireguard/wgcf.conf'
-  MODIFY11ND='sed -i "s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from '$LAN6' lookup main\n/;7 s/^/PostUp = ip -6 rule add from '$LAN6' lookup main\n/;7 s/^/PostDown = ip -4 rule delete from '$LAN4' lookup main\n/;7 s/^/PostUp = ip -4 rule add from '$LAN4' lookup main\n/" /etc/wireguard/wgcf.conf'
+  MODIFY014="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;s/^.*\:\:\/0/#&/g"
+  MODIFY016="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;s/^.*0\.\0\/0/#&/g"
+  MODIFY01D="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/"
+  MODIFY104="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*\:\:\/0/#&/g"
+  MODIFY106="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*0\.\0\/0/#&/g"
+  MODIFY10D="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/"
+  MODIFY114="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*\:\:\/0/#&/g"
+  MODIFY116="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*0\.\0\/0/#&/g"
+  MODIFY11D="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/"
+  MODIFY11N4="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*\:\:\/0/#&/g"
+  MODIFY11N6="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*0\.\0\/0/#&/g"
+  MODIFY11ND="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/"
 
-  sh -c "$(eval echo "\$MODIFY$CONF")"
+  sed -i "$(eval echo "\$MODIFY$CONF")" /etc/wireguard/wgcf.conf
 
   if [ "$OCTEEP" = 1 ]; then
     # 默认 Endpoint 和 DNS 默认 IPv4 和 双栈的，如是 IPv6 修改默认值
@@ -1680,6 +1699,7 @@ proxy() {
     # 设置为代理模式，如有 WARP+ 账户，修改 license 并升级
     info " $(text 84) "
     warp-cli --accept-tos register >/dev/null 2>&1
+    [[ $(warp-cli --accept-tos account) =~ 'Error: Missing registration' ]] && error "\n $(text 107) \n"
     [ -n "$LICENSE" ] && ( hint " $(text 35) " &&
     warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1 && sleep 1 &&
     ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null) &&
@@ -2049,6 +2069,7 @@ change_to_teams() {
 # 免费 WARP 账户升级 WARP+ 账户
 update() {
   wgcf_wireproxy() {
+    grep -qs 'cKE7LmCF61IhqqABGhvJ44jWXp8fKymcMAEVAzbDF2k=' /etc/wireguard/wgcf.conf && error "\n $(text 106) \n"
     [ ! -e /etc/wireguard/wgcf-account.toml ] && error " $(text 59) "
     [ ! -e /etc/wireguard/wgcf.conf ] && error " $(text 60) "
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-export LANG=en_US.UTF-8
 
 # 当前脚本版本号和新增功能
 VERSION=1.1.3
@@ -643,12 +642,12 @@ stack_switch() {
   fi
 
   # WARP 单双栈切换选项
-  SWITCH014='sed -i "s#AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g" /opt/warp-go/warp.conf'
-  SWITCH01D='sed -i "s#AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g" /opt/warp-go/warp.conf'
-  SWITCH106='sed -i "s#AllowedIPs.*#AllowedIPs = ::/0#g" /opt/warp-go/warp.conf'
-  SWITCH10D='sed -i "s#AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g" /opt/warp-go/warp.conf'
-  SWITCH114='sed -i "s#AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g" /opt/warp-go/warp.conf'
-  SWITCH116='sed -i "s#AllowedIPs.*#AllowedIPs = ::/0#g" /opt/warp-go/warp.conf'
+  SWITCH014="s#AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g"
+  SWITCH01D="s#AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g"
+  SWITCH106="s#AllowedIPs.*#AllowedIPs = ::/0#g"
+  SWITCH10D="s#AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g"
+  SWITCH114="s#AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g"
+  SWITCH116="s#AllowedIPs.*#AllowedIPs = ::/0#g"
 
   check_stack
   
@@ -677,7 +676,7 @@ stack_switch() {
     esac
   fi
 
-  [ "${#TO}" != 3 ] && error " $(text 10) " || sh -c "$(eval echo "\$SWITCH$TO")"
+  [ "${#TO}" != 3 ] && error " $(text 10) " || sed -i "$(eval echo "\$SWITCH$TO")" /opt/warp-go/warp.conf
   ${SYSTEMCTL_RESTART[int]}; sleep 1
   grep -q "^AllowedIPs.*0\.\0\/0" /opt/warp-go/warp.conf || unset INTERFACE
   OPTION=o && net
@@ -1072,20 +1071,20 @@ EOF
   # warp-go 配置修改，其中用到的 162.159.193.10 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的 IP
   MTU=$(cat /tmp/warp-go-mtu) && rm -f /tmp/warp-go-mtu
   ENDPOINT=$(cat /tmp/warp-go-endpoint) && rm -f /tmp/warp-go-endpoint
-  MODIFY014='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
-  MODIFY016='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
-  MODIFY01D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
-  MODIFY104='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
-  MODIFY106='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
-  MODIFY10D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
-  MODIFY114='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
-  MODIFY116='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
-  MODIFY11D='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
-  MODIFY11N4='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
-  MODIFY11N6='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
-  MODIFY11ND='sed -i "/Endpoint6/d;/PreUp/d;s/162.159.*/'$ENDPOINT'/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from '$LAN4' lookup main; ip -6 rule add from '$LAN6' lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from '$LAN4' lookup main; ip -6 rule delete from '$LAN6' lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1'$MTU'#g" /opt/warp-go/warp.conf'
+  MODIFY014="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY016="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY01D="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY104="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY106="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY10D="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY114="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY116="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY11D="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY11N4="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY11N6="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY11ND="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
 
-  sh -c "$(eval echo "\$MODIFY$CONF")"
+  sed -i "$(eval echo "\$MODIFY$CONF")" /opt/warp-go/warp.conf
 
   # 如为 WARP IPv4 非全局，修改配置文件，在路由表插入规则
   [[ "$WARP_STACK" = 4 || "$OPTION" = n ]] && STATUS=3 && global_switch
