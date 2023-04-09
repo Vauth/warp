@@ -257,10 +257,10 @@ install(){
 	! type -p brew >/dev/null 2>&1 && /bin/zsh -c "$(curl -fsSL https://gitee.com/cunkai/HomebrewCN/raw/master/Homebrew.sh)"
 	! type -p wg >/dev/null 2>&1 && brew install wireguard-tools
 
-	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.15
+	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.16
 	green "\n ${L[11]}\n "
 	latest=$(curl -fsSL "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
-	latest=${latest:-'2.2.15'}
+	latest=${latest:-'2.2.16'}
 	[[ ! -e /usr/local/bin/wgcf ]] && sudo curl -o /usr/local/bin/wgcf https://raw.githubusercontents.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_darwin_"$ARCHITECTURE"
 
 	# 安装 wireguard-go
