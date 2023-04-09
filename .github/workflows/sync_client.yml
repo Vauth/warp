@@ -33,7 +33,7 @@ jobs:
             for ((i=0; i<${#Operating_System[@]}; i++)); do
               File_Path=$(wget -qO- https://pkg.cloudflareclient.com/packages/cloudflare-warp | grep 'release-row' | awk -F "</td><td>${Operating_System[i]}" {'print $2'} | awk -F 'Download' {'print $1'} | awk -F \" {'print $2'})
               Download_URL="https://pkg.cloudflareclient.com$File_Path"
-              wget -O {{ env.FILE_DIR }}/Client_${System_Rename[i]} $Download_URL
+              wget -O ${{ env.FILE_DIR }}/Client_${System_Rename[i]} $Download_URL
             done
             
             echo "VERSION=$LATEST" >> $GITHUB_ENV
