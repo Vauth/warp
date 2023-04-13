@@ -8,12 +8,12 @@ mac 的 WARP 一键脚本，使用 WireGuard 隧道， WARP 服务
 
 中文安装
 ```
-sudo curl -o /usr/local/bin/mac.sh https://raw.githubusercontents.com/fscarmen/warp/main/pc/mac.sh && bash mac.sh c
+sudo curl -o /usr/local/bin/mac.sh https://raw.githubusercontent.com/fscarmen/warp/main/pc/mac.sh && bash mac.sh c
 ```
 
 英文安装
 ```
-sudo curl -o /usr/local/bin/mac.sh https://raw.githubusercontents.com/fscarmen/warp/main/pc/mac.sh && bash mac.sh e
+sudo curl -o /usr/local/bin/mac.sh https://raw.githubusercontent.com/fscarmen/warp/main/pc/mac.sh && bash mac.sh e
 ```
 
 卸载

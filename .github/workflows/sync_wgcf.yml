@@ -15,7 +15,7 @@ jobs:
       FILE_DIR: wgcf
 
     steps:
-      - uses: actions/checkout@v3.5.0
+      - uses: actions/checkout@v3.5.1
       - name: Synchronize wgcf to the latest version
         run: |
           NOW=$(wget -qO- https://raw.githubusercontent.com/${{ github.repository }}/main/menu.sh | grep 'latest=${latest' | cut -d \' -f2)

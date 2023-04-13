@@ -214,7 +214,7 @@ onoff(){
 # 同步脚本至最新版本
 ver(){
         T=$(cat /etc/wireguard/language | tr '[:lower:]' '[:upper:]')
-	sudo curl -o /etc/wireguard/mac.sh https://raw.githubusercontents.com/fscarmen/warp/main/pc/mac.sh
+	sudo curl -o /etc/wireguard/mac.sh https://raw.githubusercontent.com/fscarmen/warp/main/pc/mac.sh
 	sudo chmod +x /etc/wireguard/mac.sh
 	sudo ln -sf /etc/wireguard/mac.sh /usr/local/bin/warp
 	green " ${L[28]}:$(grep ^VERSION /etc/wireguard/mac.sh | sed "s/.*=//g")  ${L[29]}：$(grep "$T\[1]" /etc/wireguard/mac.sh | cut -d \" -f2) " || red " ${L[30]} "
@@ -261,10 +261,10 @@ install(){
 	green "\n ${L[11]}\n "
 	latest=$(curl -fsSL "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 	latest=${latest:-'2.2.16'}
-	[[ ! -e /usr/local/bin/wgcf ]] && sudo curl -o /usr/local/bin/wgcf https://raw.githubusercontents.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_darwin_"$ARCHITECTURE"
+	[[ ! -e /usr/local/bin/wgcf ]] && sudo curl -o /usr/local/bin/wgcf https://raw.githubusercontent.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_darwin_"$ARCHITECTURE"
 
 	# 安装 wireguard-go
-	[[ ! -e /usr/local/bin/wireguard-go ]] && sudo curl -o /usr/local/bin/wireguard-go_darwin_"$ARCHITECTURE".tar.gz https://raw.githubusercontents.com/fscarmen/warp/main/wireguard-go/wireguard-go_darwin_"$ARCHITECTURE".tar.gz &&
+	[[ ! -e /usr/local/bin/wireguard-go ]] && sudo curl -o /usr/local/bin/wireguard-go_darwin_"$ARCHITECTURE".tar.gz https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go_darwin_"$ARCHITECTURE".tar.gz &&
 	sudo tar xzf /usr/local/bin/wireguard-go_darwin_"$ARCHITECTURE".tar.gz -C /usr/local/bin/
 	sudo rm -f /usr/local/bin/wireguard-go_darwin_"$ARCHITECTURE".tar.gz
 

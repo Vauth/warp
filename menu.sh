@@ -1117,7 +1117,7 @@ input_license() {
 # 输入 Teams 账户 URL（如有）
 input_url() {
   [ -z "$URL" ] && reading " $(text 127) " URL
-  URL=${URL:-'https://gist.githubusercontents.com/fscarmen/56aaf02d743551737c9973b8be7a3496/raw/61bf63e68e4e91152545679b8f11c72cac215128/2021.12.21'}
+  URL=${URL:-'https://gist.githubusercontent.com/fscarmen/56aaf02d743551737c9973b8be7a3496/raw/61bf63e68e4e91152545679b8f11c72cac215128/2021.12.21'}
   TEAMS=$(curl -sSL "$URL" | sed "s/\"/\&quot;/g")
   PRIVATEKEY=$(expr "$TEAMS" : '.*private_key&quot;>\([^<]*\).*')
   ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*')
@@ -1380,12 +1380,12 @@ install() {
     latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
     latest=${latest:-'2.2.16'}
 
-    # 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
+    # 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 githubusercontent，以更好的支持双栈。并添加执行权限
     wget --no-check-certificate -T1 -t1 $CDN -O /usr/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE ||
     wget --no-check-certificate $CDN -O /usr/bin/wgcf https://raw.githubusercontent.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_linux_$ARCHITECTURE
     chmod +x /usr/bin/wgcf
 
-    # 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 githubusercontents 的 CDN，以更好的支持双栈。并添加执行权限
+    # 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 githubusercontent，以更好的支持双栈。并添加执行权限
     if [ "$OCTEEP" = 1 ]; then
       wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
       wireproxy_latest=${wireproxy_latest:-'1.0.3'}
