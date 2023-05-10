@@ -22,6 +22,8 @@
 * * *
 
 ## 更新信息
+2023.5.10 warp-go V1.1.4 1. Docking the warp-go official account pool api, wiki: https://docs.zeroteam.top/apis/warp; 2. Change non-global from ipv4 only to dualstacks; 3. Fix the bug that the native IPv6 cannot login when using dualstacks; 4. Update the Best-enpoint app; 5. Change ip api; 1. 对接 warp-go 官方账户池 api，wiki: https://docs.zeroteam.top/apis/warp; 2. 非全局从ipv4 only 改为双栈; 3. 修复双栈时使用原生 IPv6 不能登陆的 bug; 4. 更新最佳 Endpoint 应用; 5. 更换 ip api
+
 2023.3.26 warp-go V1.1.3 / menu.sh 2.49 1. Change the best Warp endpoint to standard ports [500,1701,2408,4500]; 2. Upgrade the Netflix unlocking section; 1. warp endpoint 优选改为标准端口 [500,1701,2408,4500]; 2. 升级奈飞解锁部分
 
 2023.3.14 warp-go V1.1.2 / menu.sh 2.48 To speed up WARP, automatically find the most suitable endpoint for local use and apply it to wgcf, warp-go and client. Thanks to an anonymous and enthusiastic user for the tool; 为了提速 WARP，自动寻找最适合本机使用的 endpoint，应用在 wgcf, warp-go 和 client，感谢匿名的热心网友提供的工具
@@ -536,6 +538,7 @@ https://github.com/acacia233/Project-WARP-Unlock
 * CloudFlare Warp(+): https://1.1.1.1/
 * WGCF 项目原作者: https://github.com/ViRb3/wgcf/
 * Coia 和 warp-go 团队: https://gitlab.com/ProjectWARP/warp-go
+* warp-go api wiki: https://docs.zeroteam.top/apis/warp
 * WireGuard-GO 官方: https://git.zx2c4.com/wireguard-go/
 * ylx2016 的成熟作品: https://github.com/ylx2016/Linux-NetSpeed
 * ALIILAPRO 的成熟作品: https://github.com/ALIILAPRO/warp-plus-cloudflare

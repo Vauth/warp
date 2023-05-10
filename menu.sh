@@ -1334,7 +1334,7 @@ best_endpoint() {
   [ "$IPV4$IPV6" = 01 ] && wget $CDN -qO /tmp/ip https://raw.githubusercontent.com/fscarmen/warp/main/endpoint/ipv6 || wget $CDN -qO /tmp/ip https://raw.githubusercontent.com/fscarmen/warp/main/endpoint/ipv4
 
   if [[ -e /tmp/endpoint && -e /tmp/ip ]]; then
-    /tmp/endpoint -ipfile /tmp/ip -output /tmp/endpoint_result >/dev/null 2>&1
+    /tmp/endpoint -file /tmp/ip -output /tmp/endpoint_result >/dev/null 2>&1
     ENDPOINT=$(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $1}')
     rm -f /tmp/{endpoint,ip,endpoint_result}
   fi

@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号和新增功能
-VERSION=1.1.3
+VERSION=1.1.4
 
 # 选择 IP API 服务商
-IP_API=https://api.ip.sb/geoip; ISP=isp
-#IP_API=https://ifconfig.co/json; ISP=asn_org
+IP_API=https://www.cloudflare.com/cdn-cgi/trace
+IP4_API=http://ip-api.com/json/; ISP4=isp
+IP6_API=https://api.ip.sb/geoip; ISP6=isp
+IP_API_BAK=https://ifconfig.co/json; ISP_BAK=asn_org
 #IP_API=https://ip.gs/json; ISP=asn_org
 
 # 判断 Teams token 最少字符数
@@ -15,8 +17,8 @@ trap "rm -f /tmp/warp-go*; exit 1" INT
 
 E[0]="Language:\n  1.English (default) \n  2.简体中文"
 C[0]="${E[0]}"
-E[1]="1. Change the best Warp endpoint to standard ports [500,1701,2408,4500]; 2. Upgrade the Netflix unlocking section"
-C[1]="1. warp endpoint 优选改为标准端口 [500,1701,2408,4500]; 2. 升级奈飞解锁部分"
+E[1]="1. Docking the warp-go official account pool api; 2. Change non-global from ipv4 only to dualstacks; 3. Fix the bug that the native IPv6 cannot login when using dualstacks; 4. Update the Best-enpoint app; 5. Change ip api"
+C[1]="1. 对接 warp-go 官方账户池 api; 2. 非全局从ipv4 only 改为双栈; 3. 修复双栈时使用原生 IPv6 不能登陆的 bug; 4. 更新最佳 Endpoint 应用; 5. 更换 ip api"
 E[2]="warp-go h (help)\n warp-go o (temporary warp-go switch)\n warp-go u (uninstall WARP web interface and warp-go)\n warp-go v (sync script to latest version)\n warp-go i (replace IP with Netflix support)\n warp-go 4/6 ( WARP IPv4/IPv6 single-stack)\n warp-go d (WARP dual-stack)\n warp-go n (WARP IPv4 non-global)\n warp-go g (WARP global/non-global switching)\n warp-go e (output wireguard and sing-box configuration file)\n warp-go a (Change to Free, WARP+ or Teams account)"
 C[2]="warp-go h (帮助）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 和 sing-box 配置文件)\n warp-go a (更换到 Free，WARP+ 或 Teams 账户)"
 E[3]="This project is designed to add WARP network interface for VPS, using warp-go core, using various interfaces of CloudFlare-WARP, integrated wireguard-go, can completely replace WGCF. Save Hong Kong, Toronto and other VPS, can also get WARP IP. Thanks again @CoiaPrant and his team. Project address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/"
@@ -153,10 +155,10 @@ E[68]="Add WARP dual-stacks global network interface for \${NATIVE[n]}, IPv4 pri
 C[68]="为 \${NATIVE[n]} 添加 WARP 双栈 全局 网络接口，IPv4 优先 \(bash warp-go.sh d\)"
 E[69]="Add WARP dual-stacks global network interface for \${NATIVE[n]}, IPv6 priority \(bash warp-go.sh d\)"
 C[69]="为 \${NATIVE[n]} 添加 WARP 双栈 全局 网络接口，IPv6 优先 \(bash warp-go.sh d\)"
-E[70]="Add WARP IPv4 non-global network interface for \${NATIVE[n]}, IPv4 priority \(bash warp-go.sh n\)"
-C[70]="为 \${NATIVE[n]} 添加 WARP IPv4 非全局 网络接口，IPv4 优先 \(bash warp-go.sh n\)"
-E[71]="Add WARP IPv4 non-global network interface for \${NATIVE[n]}, IPv6 priority \(bash warp-go.sh n\)"
-C[71]="为 \${NATIVE[n]} 添加 WARP IPv4 非全局 网络接口，IPv6 优先 \(bash warp-go.sh n\)"
+E[70]="Add WARP dual-stacks non-global network interface for \${NATIVE[n]}, IPv4 priority \(bash warp-go.sh n\)"
+C[70]="为 \${NATIVE[n]} 添加 WARP 双栈 非全局 网络接口，IPv4 优先 \(bash warp-go.sh n\)"
+E[71]="Add WARP dual-stacks non-global network interface for \${NATIVE[n]}, IPv6 priority \(bash warp-go.sh n\)"
+C[71]="为 \${NATIVE[n]} 添加 WARP 双栈 非全局 网络接口，IPv6 优先 \(bash warp-go.sh n\)"
 E[72]="Turn off warp-go (warp-go o)"
 C[72]="关闭 warp-go (warp-go o)"
 E[73]="Turn on warp-go (warp-go o)"
@@ -205,8 +207,8 @@ E[94]="Native dualstack"
 C[94]="原生双栈"
 E[95]="Run again with warp-go [option] [lisence], such as"
 C[95]="再次运行用 warp-go [option] [lisence]，如"
-E[96]="WARP Global dualstack"
-C[96]="WARP 全局 双栈"
+E[96]="dualstack"
+C[96]="双栈"
 E[97]="The account type is Teams and does not support changing IP\n 1. Change to free (default)\n 2. Change to plus\n 3. Quit"
 C[97]="账户类型为 Teams，不支持更换 IP\n 1. 更换为 free (默认)\n 2. 更换为 plus\n 3. 退出"
 E[98]="Non-global"
@@ -221,6 +223,8 @@ E[102]="WAN interface network protocol must be [static] on OpenWrt."
 C[102]="OpenWrt 系统的 WAN 接口的网络传输协议必须为 [静态地址]"
 E[103]="Unlimited"
 C[103]="无限制"
+E[104]="Failed to get the registration information from API. Script exits. Feedback: [https://github.com/fscarmen/warp/issues]"
+C[104]="API 获取不到注册信息，脚本退出，问题反馈: [https://github.com/fscarmen/warp/issues]"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }
@@ -234,8 +238,7 @@ translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doct
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times() {
-  COUNT=$(curl -4ksm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffscarmen%2Fwarp%2Fmain%2Fwarp-go.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" 2>&1 ||
-          curl -6ksm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffscarmen%2Fwarp%2Fmain%2Fwarp-go.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" 2>&1) &&
+  COUNT=$(curl -ksm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffscarmen%2Fwarp%2Fmain%2Fwarp-go.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" 2>&1) &&
   TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
 }
 
@@ -293,7 +296,7 @@ check_operating_system() {
     [[ $(echo "$SYS" | tr 'A-Z' 'a-z') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
   done
   [ -z "$SYSTEM" ] && error "$(text 6)"
-  [ "$SYSTEM" = OpenWrt ] && [[ ! $(uci show network.wan.proto 2>/dev/null | cut -d \' -f2)$(uci show network.lan.proto 2>/dev/null | cut -d \' -f2) =~ 'static' ]] && error "$(text 102)"
+  [ "$SYSTEM" = OpenWrt ] && [[ ! $(uci show network.wan.proto 2>/dev/null | cut -d \' -f2)$(uci show network.lan.proto 2>/dev/null | cut -d \' -f2) =~ 'static' ]] && error " $(text 102) "
 
   # 先排除 EXCLUDE 里包括的特定系统，其他系统需要作大发行版本的比较
   for ex in "${EXCLUDE[@]}"; do [[ ! $(echo "$SYS" | tr 'A-Z' 'a-z')  =~ $ex ]]; done &&
@@ -335,7 +338,7 @@ check_dependencies() {
   PING6='ping -6' && [ $(type -p ping6) ] && PING6='ping6'
 }
 
-# 检测 warp-go 的安装状态。 0-未安装; 1-已安装未启动; 2-已安装启动中; 3-脚本安装中
+# 检测 warp-go 的安装状态。STATUS: 0-未安装; 1-已安装未启动; 2-已安装启动中; 3-脚本安装中
 check_install() {
   if [ -e /opt/warp-go/warp.conf ]; then
     [[ "$(ip a)" =~ ": WARP:" ]] && STATUS=2 || STATUS=1
@@ -355,21 +358,31 @@ check_install() {
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info() {
-  unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
-  IP4=$(curl -ks4m8 -A Mozilla $IP_API $INTERFACE)
-  WAN4=$(expr "$IP4" : '.*ip\":[ ]*\"\([^"]*\).*')
+  unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4 ERROR4
+  IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE4)
+  until [[ ! "$IP4" =~ 'error code' || -z "$IP4" || "$ERROR4" = 10 ]]; do
+    IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE4)
+    sleep 1
+    (( ERROR4++ )) && [ "$ERROR6" = 7 ] && IP4_API=$IP_API_BAK && ISP4=$ISP_BAK
+  done
+  WAN4=$(expr "$IP4" : '.*query\":[ ]*\"\([^"]*\).*')
   COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
-  ASNORG4=$(expr "$IP4" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
-  TRACE4=$(curl -ks4m8 https://www.cloudflare.com/cdn-cgi/trace $INTERFACE | grep warp | sed "s/warp=//g")
+  ASNORG4=$(expr "$IP4" : '.*'$ISP4'\":[ ]*\"\([^"]*\).*')
+  TRACE4=$(curl -ks4m8 $IP_API $INTERFACE4 | grep warp | sed "s/warp=//g")
 }
 
 ip6_info() {
-  unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
-  IP6=$(curl -ks6m8 -A Mozilla $IP_API)
+  unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6 ERROR6
+  IP6=$(curl -ks6m8 -A Mozilla $IP6_API $INTERFACE6)
+  until [[ ! "$IP6" =~ 'error code' || -z "$IP6" || "$ERROR6" = 10 ]]; do
+    IP6=$(curl -ks6m8 -A Mozilla $IP6_API $INTERFACE6)
+    sleep 1
+    (( ERROR6++ )) && [ "$ERROR6" = 7 ] && IP6_API=$IP_API_BAK && ISP6=$ISP_BAK
+  done
   WAN6=$(expr "$IP6" : '.*ip\":[ ]*\"\([^"]*\).*')
   COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
-  ASNORG6=$(expr "$IP6" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
-  TRACE6=$(curl -ks6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
+  ASNORG6=$(expr "$IP6" : '.*'$ISP6'\":[ ]*\"\([^"]*\).*')
+  TRACE6=$(curl -ks6m8 $IP_API $INTERFACE6 | grep warp | sed "s/warp=//g")
 }
 
 # 帮助说明
@@ -403,7 +416,7 @@ result_priority() {
   case "${PRIO[*]}" in
     '1 0' ) PRIO=4 ;;
     '0 1' ) PRIO=6 ;;
-    * ) [[ "$(curl -ksm8 -A Mozilla $IP_API | grep '"ip"' | sed 's/.*ip\":[ ]*\"\([^"]*\).*/\1/g')" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
+    * ) [[ "$(curl -ksm8 -A Mozilla $IP_API | grep 'ip=' | cut -d= -f2)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
   esac
   PRIORITY_NOW=$(text_eval 100)
 
@@ -423,12 +436,7 @@ change_ip() {
     warning " $(text_eval 13) "
     cp -f /opt/warp-go/warp.conf{,.tmp1}
     [ -e /opt/warp-go/License ] && k='+' || k=' free'
-    until [ -e /opt/warp-go/warp.conf.tmp2 ]; do
-      ((b++)) || true
-      [ "$b" -gt "$j" ] && rm -f /opt/warp-go/warp.conf.tmp* && error " $(text_eval 50) "
-      /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf.tmp2 --license=$(cat /opt/warp-go/License 2>/dev/null) --device-name=$(cat /opt/warp-go/Device_Name 2>/dev/null) >/dev/null 2>&1
-      [[ "$?" != 0 && "$b" -le "$j" ]] && sleep $l
-    done
+    registe_api warp.conf.tmp2
     sed -i '1,6!d' /opt/warp-go/warp.conf.tmp2
     tail -n +7 /opt/warp-go/warp.conf.tmp1 >> /opt/warp-go/warp.conf.tmp2
     mv /opt/warp-go/warp.conf.tmp2 /opt/warp-go/warp.conf
@@ -464,9 +472,8 @@ change_ip() {
 
   # 检测 WARP 单双栈服务
   unset T4 T6
-  INTERFACE='--interface WARP'
   if grep -q "#AllowedIPs" /opt/warp-go/warp.conf; then
-    T4=1; T6=0
+    T4=1; T6=1
   else
     grep -q "0\.\0\/0" /opt/warp-go/warp.conf && T4=1 || T4=0
     grep -q "\:\:\/0" /opt/warp-go/warp.conf && T6=1 || T6=0
@@ -480,7 +487,7 @@ change_ip() {
 
   # 输入解锁区域
   if [ -z "$EXPECT" ]; then
-    [ -n "$NF" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+    [ -n "$NF" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" --interface WARP -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
     REGION=${REGION:-'US'}
     reading " $(text_eval 15) " EXPECT
     until [[ -z "$EXPECT" || "$EXPECT" = [Yy] || "$EXPECT" =~ ^[A-Za-z]{2}$ ]]; do
@@ -489,8 +496,8 @@ change_ip() {
     [[ -z "$EXPECT" || "$EXPECT" = [Yy] ]] && EXPECT="$REGION"
   fi
 
-  # 解锁检测程序。 i=尝试次数; b=当前账户注册次数; j=注册账户失败的最大次数; l=账户注册失败后等待重试时间
-  i=0; j=10; l=30
+  # 解锁检测程序。 i=尝试次数; b=当前账户注册次数; j=注册账户失败的最大次数; l=账户注册失败后等待重试时间;
+  i=0; j=10; l=8
   while true; do
     b=0
     (( i++ )) || true
@@ -499,13 +506,13 @@ change_ip() {
     WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
     [ "$L" = C ] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
     unset RESULT REGION
-    for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
-      RESULT[l]=$(curl --user-agent "${UA_Browser}" $INTERFACE -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
-      [ "${RESULT[l]}" = 200 ] && break
+    for ((p=0; p<${#RESULT_TITLE[@]}; p++)); do
+      RESULT[p]=$(curl --user-agent "${UA_Browser}" --interface WARP -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[p]}")
+      [ "${RESULT[p]}" = 200 ] && break
     done
     
     if [[ "${RESULT[@]}" =~ 200 ]]; then
-      REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+      REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" --interface WARP -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
       REGION=${REGION:-'US'}
       echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 16) " && rm -f /opt/warp-go/warp.conf.tmp1 && i=0 && sleep 1h || warp_restart
     else
@@ -516,7 +523,7 @@ change_ip() {
 
 # 关闭 WARP 网络接口，并删除 warp-go
 uninstall() {
-  unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 INTERFACE
+  unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 INTERFACE4 INTERFACE6
 
   # 如已安装 warp_unlock 项目，先行卸载
   [ -e /etc/wireguard/warp_unlock.sh ] && bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -U -$L
@@ -547,16 +554,17 @@ ver() {
 net() {
   unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 WARPSTATUS4 WARPSTATUS6
   i=1; j=5
-  grep -qE "^AllowedIPs[ ]+=.*0\.\0\/0|#AllowedIPs" /opt/warp-go/warp.conf && INTERFACE='--interface WARP'
+  grep -qE "^AllowedIPs[ ]+=.*0\.\0\/0|#AllowedIPs" /opt/warp-go/warp.conf && INTERFACE4='--interface WARP'
+  grep -qE "^AllowedIPs[ ]+=.*\:\:\/0|#AllowedIPs" /opt/warp-go/warp.conf && INTERFACE6='--interface WARP'
   hint " $(text_eval 20)\n $(text_eval 59) "
   [ "$KEEP_FREE" != 1 ] && ${SYSTEMCTL_RESTART[int]}
-  sleep 1
+  grep -q "#AllowedIPs" /opt/warp-go/warp.conf && sleep 8 || sleep 1
   ip4_info; ip6_info
   until [[ "$TRACE4$TRACE6" =~ on|plus ]]; do
     (( i++ )) || true
     hint " $(text_eval 59) "
     ${SYSTEMCTL_RESTART[int]}
-    sleep 1
+    grep -q "#AllowedIPs" /opt/warp-go/warp.conf && sleep 8 || sleep 1
     ip4_info; ip6_info
       if [[ "$i" = "$j" ]]; then
         if [ -e /opt/warp-go/warp.conf.tmp1 ]; then 
@@ -571,13 +579,38 @@ net() {
 
   ACCOUNT_TYPE=$(grep "Type" /opt/warp-go/warp.conf | cut -d= -f2 | sed "s# ##g")
   [ "$ACCOUNT_TYPE" = 'plus' ] && check_quota
-  [ "$WARP_STACK" = 4 ] || grep -q '#AllowedIPs' /opt/warp-go/warp.conf && GLOBAL_TYPE="$(text 24)"
+  grep -q '#AllowedIPs' /opt/warp-go/warp.conf && GLOBAL_TYPE="$(text 24)"
 
   info " $(text_eval 25) "
   [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
   [ "$L" = C ] && COUNTRY6=$(translate "$COUNTRY6")
   [ "$OPTION" = o ] && info " IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4 $ASNORG4\n IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6 $ASNORG6 "
   [ -n "$QUOTA" ] && info " $(text 26): $QUOTA "
+}
+
+# api 注册账户
+registe_api() {
+  local REGISTE_FILE="$1"
+  local i=0; local j=5
+  [ -n "$2" ] && hint " $(text_eval $2) "
+  until [ -e /opt/warp-go/$REGISTE_FILE ]; do
+    ((i++)) || true
+    [ "$i" -gt "$j" ] && rm -f /opt/warp-go/warp.conf.tmp* && error " $(text_eval 50) "
+    [ -n "$2" ] && hint " $(text_eval $3) "
+    curl -sm10 -SL "https://api.zeroteam.top/warp?format=warp-go" 2>&1 | tee /opt/warp-go/$REGISTE_FILE >/dev/null 2>&1
+    if grep -sq 'Account' /opt/warp-go/$REGISTE_FILE; then
+      echo -e "\n[Script]\nPostUp =\nPostDown =" >> /opt/warp-go/$REGISTE_FILE && sed -i 's/\r//' /opt/warp-go/$REGISTE_FILE
+      if [ -n "$LICENSE" ]; then
+        /opt/warp-go/warp-go --update --config=/opt/warp-go/warp.conf --license=$LICENSE --device-name=$NAME >/dev/null 2>&1 && echo "$LICENSE" > /opt/warp-go/License
+      elif [ -n "$TOKEN" ]; then
+        /opt/warp-go/warp-go --update --config=/opt/warp-go/$REGISTE_FILE --team-config=$TOKEN --device-name=$NAME >/dev/null 2>&1
+      elif [[ -e /opt/warp-go/License && -e /opt/warp-go/Device_Name ]]; then
+        /opt/warp-go/warp-go --update --config=/opt/warp-go/$REGISTE_FILE --license=$(cat /opt/warp-go/License 2>/dev/null) --device-name=$(cat /opt/warp-go/Device_Name 2>/dev/null) >/dev/null 2>&1
+      fi
+    else
+      rm -f /opt/warp-go/$REGISTE_FILE
+    fi
+ done
 }
 
 # WARP 开关，先检查是否已安装，再根据当前状态转向相反状态
@@ -604,9 +637,9 @@ check_stack() {
   fi
   CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1" "2@")
   for ((m=0;m<${#CASE[@]};m++)); do [[ "$T4@$T6" = "${CASE[m]}" ]] && break; done
-  WARP_BEFORE=("" "" "" "WARP $(text 99) IPv6 only" "WARP $(text 99) IPv6" "WARP $(text 99) IPv4 only" "WARP $(text 99) IPv4" "$(text 96)" "WARP $(text 98) IPv4")
+  WARP_BEFORE=("" "" "" "WARP $(text 99) IPv6 only" "WARP $(text 99) IPv6" "WARP $(text 99) IPv4 only" "WARP $(text 99) IPv4" "WARP $(text 99) $(text 96)" "WARP $(text 98) $(text 96)")
   WARP_AFTER1=("" "" "" "WARP $(text 99) IPv4" "WARP $(text 99) IPv4" "WARP $(text 99) IPv6" "WARP $(text 99) IPv6" "WARP $(text 99) IPv4" "WARP $(text 99) IPv4")
-  WARP_AFTER2=("" "" "" "$(text 96)" "$(text 96)" "$(text 96)" "$(text 96)" "WARP $(text 99) IPv6" "$(text 96)")
+  WARP_AFTER2=("" "" "" "WARP $(text 99) $(text 96)" "WARP $(text 99) $(text 96)" "WARP $(text 99) $(text 96)" "WARP $(text 99) $(text 96)" "WARP $(text 99) IPv6" "WARP $(text 99) $(text 96)")
   TO1=("" "" "" "014" "014" "106" "106" "114" "014")
   TO2=("" "" "" "01D" "01D" "10D" "10D" "116" "01D")
   SHORTCUT1=("" "" "" "(warp-go 4)" "(warp-go 4)" "(warp-go 6)" "(warp-go 6)" "(warp-go 4)" "(warp-go 4)")
@@ -650,13 +683,13 @@ stack_switch() {
   SWITCH116="s#AllowedIPs.*#AllowedIPs = ::/0#g"
 
   check_stack
-  
+
   if [[ "$CHOOSE" = [12] ]]; then
     TO=$(eval echo \${TO$CHOOSE[m]})
   elif [[ "$SWITCHCHOOSE" = [46D] ]]; then
     if [[ "$TO_GLOBAL" = [Yy] ]]; then
       if [[ "$T4@$T6@$SWITCHCHOOSE" =~ '1@0@4'|'0@1@6'|'1@1@D' ]]; then
-        grep -q "^AllowedIPs.*0\.\0\/0" /opt/warp-go/warp.conf || unset INTERFACE
+        grep -q "^AllowedIPs.*0\.\0\/0" /opt/warp-go/warp.conf || unset INTERFACE4 INTERFACE6
         OPTION=o && net
         exit 0
       else
@@ -677,8 +710,12 @@ stack_switch() {
   fi
 
   [ "${#TO}" != 3 ] && error " $(text 10) " || sed -i "$(eval echo "\$SWITCH$TO")" /opt/warp-go/warp.conf
-  ${SYSTEMCTL_RESTART[int]}; sleep 1
-  grep -q "^AllowedIPs.*0\.\0\/0" /opt/warp-go/warp.conf || unset INTERFACE
+  case "$TO" in
+    014|114 ) INTERFACE4='--interface WARP'; unset INTERFACE6 ;;
+    106|116 ) INTERFACE6='--interface WARP'; unset INTERFACE4 ;;
+    01D|10D ) INTERFACE4='--interface WARP'; INTERFACE6='--interface WARP' ;;
+  esac
+
   OPTION=o && net
 }
 
@@ -692,6 +729,7 @@ global_switch() {
 
   if grep -q "^Allowed" /opt/warp-go/warp.conf; then
     sed -i "s/^#//g; s/^AllowedIPs.*/#&/g" /opt/warp-go/warp.conf
+    sleep 2
   else
     sed -i "s/^#//g; s/.*NonGlobal/#&/g" /opt/warp-go/warp.conf
     unset GLOBAL_TYPE
@@ -734,34 +772,26 @@ EOF
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
   [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1
   [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1
+  [ "$INET6" = 1 ] && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6
+  [ "$INET4" = 1 ] && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4
 
-  if [ "$STATUS" != 2 ]; then
-    [ "$INET6" = 1 ] && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
-    [ "$INET4" = 1 ] && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip4_info
-  else
-    if grep -qE "^AllowedIPs.*\:\:\/0" /opt/warp-go/warp.conf || [ "$INET6" = 1 ]; then
-      IPV6=1 && CDN=-6 && ip6_info
-    else
-      IPV6=0
-    fi
-    if grep -qE "^AllowedIPs.*0\.\0\/0|^#AllowedIPs" /opt/warp-go/warp.conf; then
-      INTERFACE='--interface WARP' && IPV4=1 && CDN=-4 && ip4_info
-    elif [ "$INET4" = 1 ]; then
-      IPV4=1 && CDN=-4 && ip4_info
-    else
-      IPV4=0
+  if [ "$STATUS" != 0 ]; then
+    if grep -qE "^AllowedIPs.*\.0/0,::/0|^#AllowedIPs" /opt/warp-go/warp.conf; then
+      INTERFACE4='--interface WARP'; INTERFACE6='--interface WARP'
+    elif grep -q '^AllowedIPs.*\.0/0$' /opt/warp-go/warp.conf; then
+      INTERFACE4='--interface WARP'; unset INTERFACE6
+    elif grep -q '^AllowedIPs.*::/0$' /opt/warp-go/warp.conf; then
+      INTERFACE6='--interface WARP'; unset INTERFACE4
     fi
   fi
 
-  [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
-  [[ "$L" = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
-
-  # 判断当前 IPv4 与 IPv6 ，IP归属
-  [ "$STATUS" = 2 ] && grep -qE "^AllowedIPs[ ]+=.*0\.\0\/0|#AllowedIPs" /opt/warp-go/warp.conf && INTERFACE='--interface WARP'
   [ "$IPV4" = 1 ] && ip4_info
   [ "$IPV6" = 1 ] && ip6_info
-  [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
-  [[ "$L" = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
+
+  if [ "$L" = C ]; then
+    [ -n "$COUNTRY4" ] && COUNTRY4=$(translate "$COUNTRY4")
+    [ -n "$COUNTRY6" ] && COUNTRY6=$(translate "$COUNTRY6")
+  fi
 }
 
 # 输入 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
@@ -785,7 +815,7 @@ update_license() {
     [ "$i" = 0 ] && error "$(text 39)" || reading " $(text_eval 43) " LICENSE
   done
   [[ -n "$LICENSE" && -z "$NAME" ]] && reading " $(text 41) " NAME
-  [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME="${NAME:-'warp-go'}"
+  [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME="${NAME:-warp-go}"
 }
 
 # 输入 Teams 账户 token（如有）,如果 TOKEN 以 com.cloudflare.warp 开头，将自动删除多余部分
@@ -797,7 +827,7 @@ input_token() {
     [ "$i" = 0 ] && error "$(text 39)" || reading " $(text_eval 45) " TOKEN
   done
   [[ -n "$TOKEN" && -z "$NAME" ]] && reading " $(text 41) " NAME
-  [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME="${NAME:-'warp-go'}"  
+  [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME="${NAME:-warp-go}"  
 }
 
 # 免费 WARP 账户升级 WARP+ 或 Teams 账户
@@ -833,15 +863,7 @@ update() {
           cp -f /opt/warp-go/warp.conf{,.tmp1}
           /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --remove >/dev/null 2>&1
           [ -e /opt/warp-go/warp.conf ] && rm -f /opt/warp-go/warp.conf
-          i=0; j=5
-          hint " $(text_eval 58) "
-          until [ -e /opt/warp-go/warp.conf ]; do
-            ((i++)) || true
-            [ "$i" -gt "$j" ] && rm -f /opt/warp-go/warp.conf.tmp && error " $(text_eval 50) "
-            hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --license=$LICENSE  --device-name=$NAME >/dev/null 2>&1
-            [[ "$?" != 0 && "$i" -lt "$j" ]] && sleep 30 || 
-            ( [ -n "$LICENSE" ] && echo "$LICENSE" > /opt/warp-go/License )
-          done
+          registe_api warp.conf 58 59
           head -n +6 /opt/warp-go/warp.conf > /opt/warp-go/warp.conf.tmp2
           tail -n +7 /opt/warp-go/warp.conf.tmp1 >> /opt/warp-go/warp.conf.tmp2
           rm -f /opt/warp-go/warp.conf.tmp1
@@ -852,14 +874,8 @@ update() {
     3 ) unset QUOTA
         input_token
         if [ -n "$TOKEN" ]; then
-          i=0; j=5; k=' teams'
-          hint " $(text_eval 58) "
-          until [ -e /opt/warp-go/warp.conf.tmp ]; do
-            ((i++)) || true
-            [ "$i" -gt "$j" ] && rm -f /opt/warp-go/warp.conf.tmp && error " $(text_eval 50) "
-            hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf.tmp --team-config=$TOKEN --device-name=$NAME >/dev/null 2>&1
-            [ "$?" != 0 ] && sleep 30
-          done
+          k=' teams'
+          registe_api warp.conf.tmp 58 59
           for a in {2..5}; do sed -i "${a}s#.*#$(sed -ne ${a}p /opt/warp-go/warp.conf.tmp)#" /opt/warp-go/warp.conf; done
           rm -f /opt/warp-go/warp.conf.tmp
         else
@@ -881,7 +897,7 @@ export_file() {
     PY=("python3" "python" "python2")
     for g in "${PY[@]}"; do [ $(type -p $g) ] && PYTHON=$g && break; done
     [ -z "$PYTHON" ] && PYTHON=python3 && ${PACKAGE_INSTALL[int]} $PYTHON
-    [ ! -e /opt/warp-go/warp.conf ] && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config=$TOKEN >/dev/null 2>&1
+    [ ! -e /opt/warp-go/warp.conf ] && registe_api warp.conf
     /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-wireguard=/opt/warp-go/wgcf.conf >/dev/null 2>&1
     /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-singbox=/opt/warp-go/singbox.json >/dev/null 2>&1
   else
@@ -948,11 +964,11 @@ install() {
     echo "$MTU" > /tmp/warp-go-mtu
 
     # 寻找最佳 Endpoint，根据 v4 / v6 情况下载 endpoint 库
-    wget $CDN -qO /tmp/endpoint https://raw.githubusercontent.com/fscarmen/warp/main/endpoint/warp-linux-"$ARCHITECTURE" && chmod +x /tmp/endpoint
+    wget $CDN -qO /tmp/endpoint https://raw.githubusercontent.com/fscarmen/warp/main/endpoint/warp-linux-${ARCHITECTURE//amd64*/amd64} && chmod +x /tmp/endpoint
     [ "$IPV4$IPV6" = 01 ] && wget $CDN -qO /tmp/ip https://raw.githubusercontent.com/fscarmen/warp/main/endpoint/ipv6 || wget $CDN -qO /tmp/ip https://raw.githubusercontent.com/fscarmen/warp/main/endpoint/ipv4
 
     if [[ -e /tmp/endpoint && -e /tmp/ip ]]; then
-      /tmp/endpoint -ipfile /tmp/ip -output /tmp/endpoint_result >/dev/null 2>&1
+      /tmp/endpoint -file /tmp/ip -output /tmp/endpoint_result >/dev/null 2>&1
       ENDPOINT=$(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $1}')
       rm -f /tmp/{endpoint,ip,endpoint_result}
     fi
@@ -965,7 +981,7 @@ install() {
     info "\n $(text 9) \n"
   }&
 
-  # 注册 WARP 账户 (将生成 warp 文件保存账户信息)
+  # 注册 Teams 账户 (将生成 warp 文件保存账户信息)
   {
     mkdir -p /opt/warp-go/ >/dev/null 2>&1
     wait
@@ -975,14 +991,8 @@ install() {
     # 注册用户自定义 token 的 Teams 账户
     if [ "$LICENSETYPE" = 2 ]; then
       if [ -n "$TOKEN" ]; then
-        i=0; j=5; k=' teams'
-        hint " $(text_eval 58) "
-        until [ -e /opt/warp-go/warp.conf ]; do
-          ((i++)) || true
-          [ "$i" -gt "$j" ] && error " $(text_eval 50) "
-          hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --team-config=$TOKEN --device-name=$NAME >/dev/null 2>&1
-          [[ "$?" != 0 && "$i" -lt "$j" ]] && sleep 30
-        done
+        k=' teams'
+        registe_api warp.conf 58
 
     # 注册公用 token 的 Teams 账户
       else
@@ -1007,19 +1017,14 @@ KeepAlive = 30
 #PostUp = 
 #PostDown =
 EOF
+
+cp /opt/warp-go/warp.conf /root/hahahah
       fi
 
     # 注册免费和 Plus 账户
     else
-      i=0; j=5
       [ -n "$LICENSE" ] && k='+' || k=' free'
-      hint " $(text_eval 58) "
-      until [ -e /opt/warp-go/warp.conf ]; do
-        ((i++)) || true
-        [ "$i" -gt "$j" ] && error " $(text_eval 50) "
-        hint " $(text_eval 59) " && /opt/warp-go/warp-go --register --config=/opt/warp-go/warp.conf --license=$LICENSE --device-name=$NAME >/dev/null 2>&1
-        [[ "$?" != 0 && "$i" -lt "$j" ]] && sleep 30
-      done
+      registe_api warp.conf 58 59
     fi
 
     # 如为 Plus 或 Team 账户，把设备名记录到文件 /opt/warp-go/Device_Name; Plus 账户的话，把 License 保存到 /opt/warp-go/License;
@@ -1029,14 +1034,19 @@ EOF
     # 生成非全局执行文件并赋权
     cat > /opt/warp-go/NonGlobalUp.sh << EOF
 sleep 5
-ip -4 rule add from 172.16.0.2 lookup 60000
+ip -4 rule add oif WARP lookup 60000
 ip -4 rule add table main suppress_prefixlength 0
 ip -4 route add default dev WARP table 60000
+ip -6 rule add oif WARP lookup 60000
+ip -6 rule add table main suppress_prefixlength 0
+ip -6 route add default dev WARP table 60000
 EOF
 
     cat > /opt/warp-go/NonGlobalDown.sh << EOF
-ip -4 rule delete from 172.16.0.2 lookup 60000
+ip -4 rule delete oif WARP lookup 60000
 ip -4 rule delete table main suppress_prefixlength 0
+ip -6 rule delete oif WARP lookup 60000
+ip -6 rule delete table main suppress_prefixlength 0
 EOF
 
     chmod +x /opt/warp-go/NonGlobalUp.sh /opt/warp-go/NonGlobalDown.sh
@@ -1066,28 +1076,28 @@ EOF
   wait
 
   # 如没有注册成功，脚本退出
-  [ ! -e /opt/warp-go/warp.conf ] && exit 1
+  [ ! -e /opt/warp-go/warp.conf ] && error " $(text 104) " 
 
   # warp-go 配置修改，其中用到的 162.159.193.10 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的 IP
   MTU=$(cat /tmp/warp-go-mtu) && rm -f /tmp/warp-go-mtu
   ENDPOINT=$(cat /tmp/warp-go-endpoint) && rm -f /tmp/warp-go-endpoint
-  MODIFY014="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
-  MODIFY016="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp   = ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
-  MODIFY01D="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
-  MODIFY104="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
-  MODIFY106="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
-  MODIFY10D="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
-  MODIFY114="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
-  MODIFY116="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
-  MODIFY11D="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
-  MODIFY11N4="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
-  MODIFY11N6="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = ::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
-  MODIFY11ND="/Endpoint6/d;/PreUp/d;s/162.159.*/$ENDPOINT/g;s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g;s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main; ip -6 rule add from $LAN6 lookup main#g;s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main; ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g;s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY014="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g; s#.*PostUp.*#PostUp = ip -6 rule add from $LAN6 lookup main#g; s#.*PostDown.*#PostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY016="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = ::/0#g; s#.*PostUp.*#PostUp   = ip -6 rule add from $LAN6 lookup main#g; s#.*PostDown.*#PostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY01D="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g; s#.*PostUp.*#PostUp = ip -6 rule add from $LAN6 lookup main#g; s#.*PostDown.*#PostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY104="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g; s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main#g; s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY106="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = ::/0#g; s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main#g; s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY10D="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g; s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main#g; s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY114="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g; s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main#g; s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY116="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = ::/0#g; s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main#g; s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY11D="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g; s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main#g; s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY11N4="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0#g; s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main#g; s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY11N6="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = ::/0#g; s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main#g; s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
+  MODIFY11ND="/Endpoint6/d; /PreUp/d; s/162.159.*/$ENDPOINT/g; s#.*AllowedIPs.*#AllowedIPs = 0.0.0.0/0,::/0#g; s#.*PostUp.*#PostUp = ip -4 rule add from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main#g; s#.*PostDown.*#PostDown = ip -4 rule delete from $LAN4 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\#PostUp = /opt/warp-go/NonGlobalUp.sh\n\#PostDown = /opt/warp-go/NonGlobalDown.sh#g; s#\(MTU.*\)1280#\1$MTU#g"
 
   sed -i "$(eval echo "\$MODIFY$CONF")" /opt/warp-go/warp.conf
 
   # 如为 WARP IPv4 非全局，修改配置文件，在路由表插入规则
-  [[ "$WARP_STACK" = 4 || "$OPTION" = n ]] && STATUS=3 && global_switch
+  [ "$OPTION" = n ] && STATUS=3 && global_switch
 
   # 创建 warp-go systemd 进程守护(Alpine 系统除外)
   if echo "$SYSTEM" | grep -qvE "Alpine|OpenWrt"; then
@@ -1099,6 +1109,7 @@ Documentation=https://github.com/fscarmen/warp
 Documentation=https://gitlab.com/ProjectWARP/warp-go
 
 [Service]
+RestartSec=2s
 WorkingDirectory=/opt/warp-go/
 ExecStart=/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf
 Environment="LOG_LEVEL=verbose"
@@ -1123,7 +1134,7 @@ EOF
   echo "$L" > /opt/warp-go/language
 
   # 结果提示，脚本运行时间，次数统计，IPv4 / IPv6 优先级别
-  [ "$(curl -ksm8 https://$IP_API)" = "$WAN6" ] && PRIO=6 || PRIO=4
+  [ "$(curl -ksm8 -A Mozilla $IP_API | grep 'ip=' | cut -d= -f2)" = "$WAN6" ] && PRIO=6 || PRIO=4
   end=$(date +%s)
   ACCOUNT_TYPE=$(grep "Type" /opt/warp-go/warp.conf | cut -d= -f2 | sed "s# ##g")
   [ "$ACCOUNT_TYPE" = 'plus' ] && check_quota
@@ -1182,8 +1193,8 @@ menu_setting() {
     ACTION[4]() { CONF=${CONF2[n]}; PRIORITY=2; install; }
     ACTION[5]() { CONF=${CONF3[n]}; PRIORITY=1; install; }
     ACTION[6]() { CONF=${CONF3[n]}; PRIORITY=2; install; }
-    ACTION[7]() { CONF=${CONF3[n]}; PRIORITY=1; WARP_STACK=4; install; }
-    ACTION[8]() { CONF=${CONF3[n]}; PRIORITY=2; WARP_STACK=4; install; }
+    ACTION[7]() { CONF=${CONF3[n]}; PRIORITY=1; OPTION=n; install; }
+    ACTION[8]() { CONF=${CONF3[n]}; PRIORITY=2; OPTION=n; install; }
   else
     [ "$NON_GLOBAL" = 1 ] || GLOBAL_AFTER="$(text 24)"
     [ "$STATUS" = 2 ] && ON_OFF="$(text 72)" || ON_OFF="$(text 73)"
