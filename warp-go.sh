@@ -3,12 +3,10 @@
 # 当前脚本版本号和新增功能
 VERSION=1.1.4
 
-# 选择 IP API 服务商
-IP_API=https://www.cloudflare.com/cdn-cgi/trace
-IP4_API=http://ip-api.com/json/; ISP4=isp
-IP6_API=https://api.ip.sb/geoip; ISP6=isp
-IP_API_BAK=https://ifconfig.co/json; ISP_BAK=asn_org
-#IP_API=https://ip.gs/json; ISP=asn_org
+# IP API 服务商
+IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.cloudflare.com/cdn-cgi/trace")
+ISP=("isp" "isp" "asn_org")
+IP=("query" "ip" "ip")
 
 # 判断 Teams token 最少字符数
 TOKEN_LENGTH=800
@@ -327,12 +325,12 @@ check_dependencies() {
     [ ! -e /opt/warp-go/warp-go ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash tar )
   else
     DEPS_CHECK=("ping" "wget" "curl" "systemctl" "ip")
-    DEPS_INSTALL=(" iputils-ping" " wget" " curl" " systemctl" " iproute2")
-    for ((c=0;c<${#DEPS_CHECK[@]};c++)); do [[ ! $(type -p ${DEPS_CHECK[c]}) ]] && DEPS+=${DEPS_INSTALL[c]}; done
-    if [ -n "$DEPS" ]; then
-      info "\n $(text 8) $DEPS \n"
+    DEPS_INSTALL=("iputils-ping" "wget" "curl" "systemctl" "iproute2")
+    for ((c=0;c<${#DEPS_CHECK[@]};c++)); do [ ! $(type -p ${DEPS_CHECK[c]}) ] && [[ ! "${DEPS[@]}" =~ "${DEPS_INSTALL[c]}" ]] && DEPS+=(${DEPS_INSTALL[c]}); done
+    if [ "${#DEPS[@]}" -ge 1 ]; then
+      info "\n $(text 8) ${DEPS[@]} \n"
       ${PACKAGE_UPDATE[int]} >/dev/null 2>&1
-      ${PACKAGE_INSTALL[int]} $DEPS >/dev/null 2>&1
+      ${PACKAGE_INSTALL[int]} ${DEPS[@]} >/dev/null 2>&1
     fi
   fi
   PING6='ping -6' && [ $(type -p ping6) ] && PING6='ping6'
@@ -359,30 +357,36 @@ check_install() {
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info() {
   unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4 ERROR4
-  IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE4)
-  until [[ ! "$IP4" =~ 'error code' || -z "$IP4" || "$ERROR4" = 10 ]]; do
+  IP4_API=${IP_API[0]} && ISP4=${ISP[0]} && IP4_KEY=${IP[0]}
+  TRACE4=$(curl -ks4m8 ${IP_API[3]} $INTERFACE4 | grep warp | sed "s/warp=//g")
+  if [ -n "$TRACE4" ]; then
     IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE4)
-    sleep 1
-    (( ERROR4++ )) && [ "$ERROR6" = 7 ] && IP4_API=$IP_API_BAK && ISP4=$ISP_BAK
-  done
-  WAN4=$(expr "$IP4" : '.*query\":[ ]*\"\([^"]*\).*')
-  COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
-  ASNORG4=$(expr "$IP4" : '.*'$ISP4'\":[ ]*\"\([^"]*\).*')
-  TRACE4=$(curl -ks4m8 $IP_API $INTERFACE4 | grep warp | sed "s/warp=//g")
+    until [[ -n "$IP4" || "$ERROR4" = 10 ]]; do
+      IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE4)
+      sleep 1
+      (( ERROR4++ )) && [ "$ERROR4" = 7 ] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]}
+    done
+    WAN4=$(expr "$IP4" : '.*'$IP4_KEY'\":[ ]*\"\([^"]*\).*')
+    COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
+    ASNORG4=$(expr "$IP4" : '.*'$ISP4'\":[ ]*\"\([^"]*\).*')
+  fi
 }
 
 ip6_info() {
   unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6 ERROR6
-  IP6=$(curl -ks6m8 -A Mozilla $IP6_API $INTERFACE6)
-  until [[ ! "$IP6" =~ 'error code' || -z "$IP6" || "$ERROR6" = 10 ]]; do
+  IP6_API=${IP_API[1]} && ISP6=${ISP[1]} && IP6_KEY=${IP[1]}
+  TRACE6=$(curl -ks6m8 ${IP_API[3]} $INTERFACE6 | grep warp | sed "s/warp=//g")
+  if [ -n "$TRACE6" ]; then
     IP6=$(curl -ks6m8 -A Mozilla $IP6_API $INTERFACE6)
-    sleep 1
-    (( ERROR6++ )) && [ "$ERROR6" = 7 ] && IP6_API=$IP_API_BAK && ISP6=$ISP_BAK
-  done
-  WAN6=$(expr "$IP6" : '.*ip\":[ ]*\"\([^"]*\).*')
-  COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
-  ASNORG6=$(expr "$IP6" : '.*'$ISP6'\":[ ]*\"\([^"]*\).*')
-  TRACE6=$(curl -ks6m8 $IP_API $INTERFACE6 | grep warp | sed "s/warp=//g")
+    until [[ -n "$IP6" || "$ERROR6" = 10 ]]; do
+      IP6=$(curl -ks6m8 -A Mozilla $IP6_API $INTERFACE6)
+      sleep 1
+      (( ERROR6++ )) && [ "$ERROR6" = 7 ] && IP6_API=${IP_API[2]} && ISP6=${ISP[2]} && IP6_KEY=${IP[2]}
+    done
+    WAN6=$(expr "$IP6" : '.*'$IP6_KEY'\":[ ]*\"\([^"]*\).*')
+    COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
+    ASNORG6=$(expr "$IP6" : '.*'$ISP6'\":[ ]*\"\([^"]*\).*')
+  fi
 }
 
 # 帮助说明
@@ -416,7 +420,7 @@ result_priority() {
   case "${PRIO[*]}" in
     '1 0' ) PRIO=4 ;;
     '0 1' ) PRIO=6 ;;
-    * ) [[ "$(curl -ksm8 -A Mozilla $IP_API | grep 'ip=' | cut -d= -f2)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
+    * ) [[ "$(curl -ksm8 -A Mozilla ${IP_API[3]} | grep 'ip=' | cut -d= -f2)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
   esac
   PRIORITY_NOW=$(text_eval 100)
 
@@ -543,10 +547,14 @@ uninstall() {
 
 # 同步脚本至最新版本
 ver() {
-  wget -N -P /opt/warp-go/ https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh
-  chmod +x /opt/warp-go/warp-go.sh
-  ln -sf /opt/warp-go/warp-go.sh /usr/bin/warp-go
-  info " $(text 18): $(grep ^VERSION /opt/warp-go/warp-go.sh | sed "s/.*=//g")  $(text 19): $(grep "${L}\[1\]" /opt/warp-go/warp-go.sh | cut -d \" -f2) "
+  mkdir -p /tmp; rm -f /tmp/warp-go.sh
+  wget -O /tmp/warp-go.sh https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh
+  if [ -s /tmp/warp-go.sh ]; then
+    mv /tmp/warp-go.sh /opt/warp-go/
+    chmod +x /opt/warp-go/warp-go.sh
+    ln -sf /opt/warp-go/warp-go.sh /usr/bin/warp-go
+    info " $(text 18): $(grep ^VERSION /opt/warp-go/warp-go.sh | sed "s/.*=//g")  $(text 19): $(grep "${L}\[1\]" /opt/warp-go/warp-go.sh | cut -d \" -f2) "
+  fi
   exit
 }
 
@@ -1135,7 +1143,7 @@ EOF
   echo "$L" > /opt/warp-go/language
 
   # 结果提示，脚本运行时间，次数统计，IPv4 / IPv6 优先级别
-  [ "$(curl -ksm8 -A Mozilla $IP_API | grep 'ip=' | cut -d= -f2)" = "$WAN6" ] && PRIO=6 || PRIO=4
+  [ "$(curl -ksm8 -A Mozilla ${IP_API[3]} | grep 'ip=' | cut -d= -f2)" = "$WAN6" ] && PRIO=6 || PRIO=4
   end=$(date +%s)
   ACCOUNT_TYPE=$(grep "Type" /opt/warp-go/warp.conf | cut -d= -f2 | sed "s# ##g")
   [ "$ACCOUNT_TYPE" = 'plus' ] && check_quota

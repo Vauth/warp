@@ -3,10 +3,10 @@
 # 当前脚本版本号
 VERSION=2.49
 
-# 选择 IP API 服务商
-IP_API=https://api.ip.sb/geoip; ISP=isp
-#IP_API=https://ifconfig.co/json; ISP=asn_org
-#IP_API=https://ip.gs/json; ISP=asn_org
+# IP API 服务商
+IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.cloudflare.com/cdn-cgi/trace")
+ISP=("isp" "isp" "asn_org")
+IP=("query" "ip" "ip")
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
@@ -309,6 +309,7 @@ C[148]="安装 wireproxy，让 WARP 在本地创建一个 socks5 代理 (bash me
 E[149]="Congratulations! WirePorxy is working. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
 C[149]="恭喜！WirePorxy 工作中, 总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数:\$TOTAL"
 E[150]="WGCF WARP, WARP Linux Client, WireProxy hasn't been installed yet. The script is aborted.\n"
+C[150]="WGCF WARP, WARP Linux Client, WireProxy 均未安装，脚本退出\n"
 E[151]="1. WARP Linux Client account\n 2. WireProxy account"
 C[151]="1. WARP Linux Client 账户\n 2. WireProxy 账户"
 E[152]="1. WGCF WARP account\n 2. WireProxy account"
@@ -452,12 +453,12 @@ check_dependencies() {
     [ ! -e /etc/wireguard/menu.sh ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash )
   else
     DEPS_CHECK=("ping" "wget" "curl" "systemctl" "ip")
-    DEPS_INSTALL=(" iputils-ping" " wget" " curl" " systemctl" " iproute2")
-    for ((g=0; g<${#DEPS_CHECK[@]}; g++)); do [ ! $(type -p ${DEPS_CHECK[g]}) ] && DEPS+=${DEPS_INSTALL[g]}; done
-    if [ -n "$DEPS" ]; then
-      info "\n $(text 7) $DEPS \n"
+    DEPS_INSTALL=("iputils-ping" "wget" "curl" "systemctl" "iproute2")
+    for ((g=0; g<${#DEPS_CHECK[@]}; g++)); do [ ! $(type -p ${DEPS_CHECK[g]}) ] && [[ ! "${DEPS[@]}" =~ "${DEPS_INSTALL[g]}" ]] && DEPS+=(${DEPS_INSTALL[g]}); done
+    if [ "${#DEPS[@]}" -ge 1 ]; then
+      info "\n $(text 7) ${DEPS[@]} \n"
       ${PACKAGE_UPDATE[int]} >/dev/null 2>&1
-      ${PACKAGE_INSTALL[int]} $DEPS >/dev/null 2>&1
+      ${PACKAGE_INSTALL[int]} ${DEPS[@]} >/dev/null 2>&1
     else
       info "\n $(text 8) \n"
     fi
@@ -467,43 +468,56 @@ check_dependencies() {
 
 # 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
 ip4_info() {
-  unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
-  IP4=$(curl -ks4m8 -A Mozilla $IP_API $INTERFACE)
-  WAN4=$(expr "$IP4" : '.*ip\":[ ]*\"\([^"]*\).*')
-  COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
-  ASNORG4=$(expr "$IP4" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
-  TRACE4=$(curl -ks4m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
-  if [ "$TRACE4" = plus ]; then
-    [[ -e /etc/wireguard/info.log || -e /etc/wireguard/info-temp.log ]] && PLUS4=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && PLUS4='+'
+  unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4 ERROR4
+  IP4_API=${IP_API[0]} && ISP4=${ISP[0]} && IP4_KEY=${IP[0]}
+  TRACE4=$(curl -ks4m8 ${IP_API[3]} $INTERFACE | grep warp | sed "s/warp=//g")
+  if [ -n "$TRACE4" ]; then
+    IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE)
+    until [[ -n "$IP4" || "$ERROR4" = 10 ]]; do
+      IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE)
+      sleep 1
+      (( ERROR4++ )) && [ "$ERROR4" = 7 ] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]}
+    done
+    WAN4=$(expr "$IP4" : '.*'$IP4_KEY'\":[ ]*\"\([^"]*\).*')
+    COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
+    ASNORG4=$(expr "$IP4" : '.*'$ISP4'\":[ ]*\"\([^"]*\).*')
   fi
-  [[ "$TRACE4" =~ on|plus ]] && WARPSTATUS4="( WARP$PLUS4 IPv4 )"
 }
 
 ip6_info() {
-  unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
-  IP6=$(curl -ks6m8 -A Mozilla $IP_API)
-  WAN6=$(expr "$IP6" : '.*ip\":[ ]*\"\([^"]*\).*')
-  COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
-  ASNORG6=$(expr "$IP6" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
-  TRACE6=$(curl -ks6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
-  if [ "$TRACE6" = plus ]; then
-    [[ -e /etc/wireguard/info.log || -e /etc/wireguard/info-temp.log ]] && PLUS6=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && PLUS6='+'
+  unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6 ERROR6
+  IP6_API=${IP_API[1]} && ISP6=${ISP[1]} && IP6_KEY=${IP[1]}
+  TRACE6=$(curl -ks6m8 ${IP_API[3]} | grep warp | sed "s/warp=//g")
+  if [ -n "$TRACE6" ]; then
+    IP6=$(curl -ks6m8 -A Mozilla $IP6_API)
+    until [[ -n "$IP6" || "$ERROR6" = 10 ]]; do
+      IP6=$(curl -ks6m8 -A Mozilla $IP6_API)
+      sleep 1
+      (( ERROR6++ )) && [ "$ERROR6" = 7 ] && IP6_API=${IP_API[2]} && ISP6=${ISP[2]} && IP6_KEY=${IP[2]}
+    done
+    WAN6=$(expr "$IP6" : '.*'$IP6_KEY'\":[ ]*\"\([^"]*\).*')
+    COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
+    ASNORG6=$(expr "$IP6" : '.*'$ISP6'\":[ ]*\"\([^"]*\).*')
   fi
-  [[ "$TRACE6" =~ on|plus ]] && WARPSTATUS6="( WARP$PLUS6 IPv6 )"
 }
 
 # 检测 Client 是否开启，free 还是 Plus 账户 和 IP 信息
 proxy_info() {
   unset PROXYSOCKS5 PROXYPORT PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC PROXYSOCKS52 PROXYPORT2 PROXYJASON2 PROXYIP2 PROXYCOUNTR2 PROXYASNORG2 ACCOUNT2 AC2 TRACE42
-
+  IP4_API=${IP_API[0]} && ISP4=${ISP[0]} && IP4_KEY=${IP[0]}
   if [ $(type -p warp-cli) ]; then
     PROXYSOCKS5=$(ss -nltp | grep 'warp' | awk '{print $(NF-2)}')
     PROXYPORT=$(echo "$PROXYSOCKS5" | cut -d: -f2)
-    PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT -A Mozilla $IP_API)
-    PROXYIP=$(expr "$PROXYJASON" : '.*ip\":[ ]*\"\([^"]*\).*')
+    PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT -A Mozilla $IP4_API)
+    until [[ -n "$PROXYJASON" || "$ERRORPROXY" = 10 ]]; do
+      PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT -A Mozilla $IP4_API)
+      sleep 1
+      (( ERRORPROXY++ )) && [ "$ERRORPROXY" = 7 ] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]}
+    done
+    PROXYIP=$(expr "$PROXYJASON" : '.*'$IP4_KEY'\":[ ]*\"\([^"]*\).*')
     PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":[ ]*\"\([^"]*\).*')
     [ "$L" = C ] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
-    PROXYASNORG=$(expr "$PROXYJASON" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
+    PROXYASNORG=$(expr "$PROXYJASON" : '.*'$ISP4'\":[ ]*\"\([^"]*\).*')
     ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
     [[ "$ACCOUNT" =~ Limited ]] && AC='+' && check_quota
   fi
@@ -511,11 +525,16 @@ proxy_info() {
   if [ $(type -p wireproxy) ]; then
     PROXYSOCKS52=$(ss -nltp | grep 'wireproxy' | awk '{print $(NF-2)}')
     PROXYPORT2=$(echo "$PROXYSOCKS52" | cut -d: -f2)
-    PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 -A Mozilla $IP_API)
-    PROXYIP2=$(expr "$PROXYJASON2" : '.*ip\":[ ]*\"\([^"]*\).*')
+    PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 -A Mozilla $IP4_API)
+    until [[ -n "$PROXYJASON2" || "$ERRORPROXY2" = 10 ]]; do
+      PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 -A Mozilla $IP4_API)
+      sleep 1
+      (( ERRORPROXY2++ )) && [ "$ERRORPROXY2" = 7 ] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]}
+    done
+    PROXYIP2=$(expr "$PROXYJASON2" : '.*'$IP4_KEY'\":[ ]*\"\([^"]*\).*')
     PROXYCOUNTRY2=$(expr "$PROXYJASON2" : '.*country\":[ ]*\"\([^"]*\).*')
     [ "$L" = C ] && PROXYCOUNTRY2=$(translate "$PROXYCOUNTRY2")
-    PROXYASNORG2=$(expr "$PROXYJASON2" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
+    PROXYASNORG2=$(expr "$PROXYJASON2" : '.*'$ISP4'\":[ ]*\"\([^"]*\).*')
     TRACE42=$(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | awk '{print $(NF-2)}'  | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)")
     AC2=' free' && [[ "$TRACE42" =~ plus ]] && [ -e /etc/wireguard/info.log ] && AC2=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && AC2='+' && check_quota
   fi
@@ -586,7 +605,7 @@ result_priority() {
   case "${PRIO[*]}" in
     '1 0' ) PRIO=4 ;;
     '0 1' ) PRIO=6 ;;
-    * ) [[ "$(curl -ksm8 -A Mozilla $IP_API | grep '"ip"' | sed 's/.*ip\":[ ]*\"\([^"]*\).*/\1/g')" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
+    * ) [[ "$(curl -ksm8 -A Mozilla ${IP_API[3]} | grep 'ip=' | cut -d= -f2)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
   esac
   PRIORITY_NOW=$(text_eval 97)
 
@@ -858,10 +877,16 @@ uninstall() {
         
 # 同步脚本至最新版本
 ver() {
-  wget -N -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh || error " $(text 65) "
-  chmod +x /etc/wireguard/menu.sh
-  ln -sf /etc/wireguard/menu.sh /usr/bin/warp
-  info " $(text 64):$(grep ^VERSION /etc/wireguard/menu.sh | sed "s/.*=//g")  $(text 18):$(grep "${L}\[1\]" /etc/wireguard/menu.sh | cut -d \" -f2) "
+  mkdir -p /tmp; rm -f /tmp/menu.sh
+  wget -O /tmp/menu.sh https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh
+  if [ -s /tmp/menu.sh ]; then
+    mv /tmp/menu.sh /etc/wireguard/
+    chmod +x /etc/wireguard/menu.sh
+    ln -sf /etc/wireguard/menu.sh /usr/bin/warp
+    info " $(text 64):$(grep ^VERSION /etc/wireguard/menu.sh | sed "s/.*=//g")  $(text 18):$(grep "${L}\[1\]" /etc/wireguard/menu.sh | cut -d \" -f2) "
+  else
+    error " $(text 65) "
+  fi
   exit
 }
 
@@ -1218,9 +1243,11 @@ server=/gstatic.com/1.1.1.1
 # > Custom Website
 ipset=/www.cloudflare.com/warp
 ipset=/openai.com/warp
+ipset=/ai.com/warp
 ipset=/ip.sb/warp
 ipset=/ip.gs/warp
 ipset=/ifconfig.co/warp
+ipset=/ip-api.com/warp
 ipset=/googlevideo.com/warp
 ipset=/youtube.com/warp
 ipset=/youtubei.googleapis.com/warp
