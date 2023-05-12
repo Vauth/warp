@@ -473,7 +473,7 @@ ip4_info() {
   TRACE4=$(curl -ks4m8 ${IP_API[3]} $INTERFACE | grep warp | sed "s/warp=//g")
   if [ -n "$TRACE4" ]; then
     IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE)
-    until [[ -n "$IP4" || "$ERROR4" = 10 ]]; do
+    until [[ ( -n "$IP4" && ! "$IP4" =~ 'error code' ) || "$ERROR4" = 10 ]]; do
       IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE)
       sleep 1
       (( ERROR4++ )) && [ "$ERROR4" = 7 ] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]}
@@ -490,7 +490,7 @@ ip6_info() {
   TRACE6=$(curl -ks6m8 ${IP_API[3]} | grep warp | sed "s/warp=//g")
   if [ -n "$TRACE6" ]; then
     IP6=$(curl -ks6m8 -A Mozilla $IP6_API)
-    until [[ -n "$IP6" || "$ERROR6" = 10 ]]; do
+    until [[ ( -n "$IP6" && ! "$IP6" =~ 'error code' ) || "$ERROR6" = 10 ]]; do
       IP6=$(curl -ks6m8 -A Mozilla $IP6_API)
       sleep 1
       (( ERROR6++ )) && [ "$ERROR6" = 7 ] && IP6_API=${IP_API[2]} && ISP6=${ISP[2]} && IP6_KEY=${IP[2]}
@@ -509,7 +509,7 @@ proxy_info() {
     PROXYSOCKS5=$(ss -nltp | grep 'warp' | awk '{print $(NF-2)}')
     PROXYPORT=$(echo "$PROXYSOCKS5" | cut -d: -f2)
     PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT -A Mozilla $IP4_API)
-    until [[ -n "$PROXYJASON" || "$ERRORPROXY" = 10 ]]; do
+    until [[ ( -n "$PROXYJASON" && ! "$PROXYJASON" =~ 'error code' ) || "$ERRORPROXY" = 10 ]]; do
       PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT -A Mozilla $IP4_API)
       sleep 1
       (( ERRORPROXY++ )) && [ "$ERRORPROXY" = 7 ] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]}
@@ -526,7 +526,7 @@ proxy_info() {
     PROXYSOCKS52=$(ss -nltp | grep 'wireproxy' | awk '{print $(NF-2)}')
     PROXYPORT2=$(echo "$PROXYSOCKS52" | cut -d: -f2)
     PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 -A Mozilla $IP4_API)
-    until [[ -n "$PROXYJASON2" || "$ERRORPROXY2" = 10 ]]; do
+    until [[ ( -n "$PROXYJASON2" && ! "$PROXYJASON2" =~ 'error code' ) || "$ERRORPROXY2" = 10 ]]; do
       PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 -A Mozilla $IP4_API)
       sleep 1
       (( ERRORPROXY2++ )) && [ "$ERRORPROXY2" = 7 ] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]}
@@ -1240,14 +1240,18 @@ server=/fonts.googleapis.com/1.1.1.1
 server=/yt3.ggpht.com/1.1.1.1
 server=/gstatic.com/1.1.1.1
 
-# > Custom Website
-ipset=/www.cloudflare.com/warp
+# > Custom ChatGPT
 ipset=/openai.com/warp
 ipset=/ai.com/warp
+
+# > IP api
 ipset=/ip.sb/warp
 ipset=/ip.gs/warp
 ipset=/ifconfig.co/warp
 ipset=/ip-api.com/warp
+
+# > Custom Website
+ipset=/www.cloudflare.com/warp
 ipset=/googlevideo.com/warp
 ipset=/youtube.com/warp
 ipset=/youtubei.googleapis.com/warp
@@ -1263,6 +1267,7 @@ ipset=/nflximg.com/warp
 ipset=/nflximg.net/warp
 ipset=/nflxso.net/warp
 ipset=/nflxvideo.net/warp
+ipset=/239.255.255.250/warp
 
 # > TVBAnywhere+
 ipset=/uapisfm.tvbanywhere.com.sg/warp
