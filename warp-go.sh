@@ -11,6 +11,9 @@ IP=("query" "ip" "ip")
 # 判断 Teams token 最少字符数
 TOKEN_LENGTH=800
 
+# 环境变量用于在Debian或Ubuntu操作系统中设置非交互式（noninteractive）安装模式
+export DEBIAN_FRONTEND=noninteractive
+
 trap "rm -f /tmp/warp-go*; exit 1" INT
 
 E[0]="Language:\n  1.English (default) \n  2.简体中文"
@@ -240,8 +243,11 @@ statistics_of_run-times() {
   TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
 }
 
-# 选择语言，先判断 /opt/warp-go/language 里的语言选择，没有的话再让用户选择，默认英语
+# 选择语言，先判断 /opt/warp-go/language 里的语言选择，没有的话再让用户选择，默认英语。处理中文显示的问题
 select_language() {
+  UTF8_LOCALE=$(locale -a 2>/dev/null | grep -iEm1 "UTF-8|utf8")
+  [ -n "$UTF8_LOCALE" ] && export LC_ALL="$UTF8_LOCALE" LANG="$UTF8_LOCALE" LANGUAGE="$UTF8_LOCALE"
+
   case $(cat /opt/warp-go/language 2>&1) in
     E ) L=E ;;
     C ) L=C ;;
@@ -358,34 +364,30 @@ check_install() {
 ip4_info() {
   unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4 ERROR4
   IP4_API=${IP_API[0]} && ISP4=${ISP[0]} && IP4_KEY=${IP[0]}
-  TRACE4=$(curl -ks4m8 ${IP_API[3]} $INTERFACE4 | grep warp | sed "s/warp=//g")
+  TRACE4=$(curl --retry 5 -ks4m5 ${IP_API[3]} $INTERFACE4 | grep warp | sed "s/warp=//g")
   if [ -n "$TRACE4" ]; then
-    IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE4)
-    until [[ ( -n "$IP4" && ! "$IP4" =~ 'error code' ) || "$ERROR4" = 10 ]]; do
-      IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE4)
-      sleep 1
-      (( ERROR4++ )) && [ "$ERROR4" = 7 ] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]}
-    done
-    WAN4=$(expr "$IP4" : '.*'$IP4_KEY'\":[ ]*\"\([^"]*\).*')
-    COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
-    ASNORG4=$(expr "$IP4" : '.*'$ISP4'\":[ ]*\"\([^"]*\).*')
+    IP4=$(curl --retry 7 -ks4m5 -A Mozilla $IP4_API $INTERFACE4)
+    [[ -z "$IP4" || "$IP4" =~ 'error code' ]] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]} && IP4=$(curl --retry 3 -ks4m5 -A Mozilla $IP4_API $INTERFACE4)
+    if [[ -n "$IP4" && ! "$IP4" =~ 'error code' ]]; then
+      WAN4=$(expr "$IP4" : '.*'$IP4_KEY'\":[ ]*\"\([^"]*\).*')
+      COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
+      ASNORG4=$(expr "$IP4" : '.*'$ISP4'\":[ ]*\"\([^"]*\).*')
+    fi
   fi
 }
 
 ip6_info() {
   unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6 ERROR6
   IP6_API=${IP_API[1]} && ISP6=${ISP[1]} && IP6_KEY=${IP[1]}
-  TRACE6=$(curl -ks6m8 ${IP_API[3]} $INTERFACE6 | grep warp | sed "s/warp=//g")
+  TRACE6=$(curl --retry 5 -ks6m5 ${IP_API[3]} $INTERFACE6 | grep warp | sed "s/warp=//g")
   if [ -n "$TRACE6" ]; then
-    IP6=$(curl -ks6m8 -A Mozilla $IP6_API $INTERFACE6)
-    until [[ ( -n "$IP6" && ! "$IP6" =~ 'error code' ) || "$ERROR6" = 10 ]]; do
-      IP6=$(curl -ks6m8 -A Mozilla $IP6_API $INTERFACE6)
-      sleep 1
-      (( ERROR6++ )) && [ "$ERROR6" = 7 ] && IP6_API=${IP_API[2]} && ISP6=${ISP[2]} && IP6_KEY=${IP[2]}
-    done
-    WAN6=$(expr "$IP6" : '.*'$IP6_KEY'\":[ ]*\"\([^"]*\).*')
-    COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
-    ASNORG6=$(expr "$IP6" : '.*'$ISP6'\":[ ]*\"\([^"]*\).*')
+    IP6=$(curl --retry 7 -ks6m5 -A Mozilla $IP6_API $INTERFACE6)
+    [[ -z "$IP6" || "$IP6" =~ 'error code' ]] && IP6_API=${IP_API[2]} && ISP6=${ISP[2]} && IP6_KEY=${IP[2]} && IP6=$(curl --retry 3 -ks6m5 -A Mozilla $IP6_API $INTERFACE6)
+    if [[ -n "$IP6" && ! "$IP6" =~ 'error code' ]]; then
+      WAN6=$(expr "$IP6" : '.*'$IP6_KEY'\":[ ]*\"\([^"]*\).*')
+      COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
+      ASNORG6=$(expr "$IP6" : '.*'$ISP6'\":[ ]*\"\([^"]*\).*')
+    fi
   fi
 }
 

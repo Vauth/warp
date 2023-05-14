@@ -8,6 +8,9 @@ IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co
 ISP=("isp" "isp" "asn_org")
 IP=("query" "ip" "ip")
 
+# 环境变量用于在Debian或Ubuntu操作系统中设置非交互式（noninteractive）安装模式
+export DEBIAN_FRONTEND=noninteractive
+
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
 E[1]="1. Change the best Warp endpoint to standard ports [500,1701,2408,4500]; 2. Upgrade the Netflix unlocking section"
@@ -98,8 +101,8 @@ E[43]="Run again with warp [option] [lisence], such as"
 C[43]="再次运行用 warp [option] [lisence]，如"
 E[44]="WARP installation failed. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[44]="WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[45]="WARP interface, Linux Client and WirePorxy have been completely deleted!"
-C[45]="WARP 网络接口、 Linux Client 和 WirePorxy 已彻底删除!"
+E[45]="WARP interface, Linux Client and Wireproxy have been completely deleted!"
+C[45]="WARP 网络接口、 Linux Client 和 Wireproxy 已彻底删除!"
 E[46]="Not cleaned up, please reboot and try again."
 C[46]="没有清除干净，请重启(reboot)后尝试再次删除"
 E[47]="Upgrade kernel, turn on BBR, change Linux system by other authors [ylx2016],[https://github.com/ylx2016/Linux-NetSpeed]"
@@ -204,8 +207,8 @@ E[96]="Client connecting failure. It may be a CloudFlare IPv4."
 C[96]="Client 连接失败，可能是 CloudFlare IPv4."
 E[97]="IPv\$PRIO priority"
 C[97]="IPv\$PRIO 优先"
-E[98]="Uninstall WirePorxy was complete."
-C[98]="WirePorxy 卸载成功"
+E[98]="Uninstall Wireproxy was complete."
+C[98]="Wireproxy 卸载成功"
 E[99]="WireProxy is connected"
 C[99]="WireProxy 已连接"
 E[100]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\${i} times remaining\): "
@@ -306,8 +309,8 @@ E[147]="Not available for IPv6 only VPS"
 C[147]="IPv6 only VPS 不能使用此方案"
 E[148]="Install wireproxy. Wireguard client that exposes itself as a socks5 proxy or tunnels (bash menu.sh w)"
 C[148]="安装 wireproxy，让 WARP 在本地创建一个 socks5 代理 (bash menu.sh w)"
-E[149]="Congratulations! WirePorxy is working. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
-C[149]="恭喜！WirePorxy 工作中, 总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数:\$TOTAL"
+E[149]="Congratulations! Wireproxy is working. Spend time:\$(( end - start )) seconds.\\\n The script runs on today: \$TODAY. Total:\$TOTAL"
+C[149]="恭喜！Wireproxy 工作中, 总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数:\$TOTAL"
 E[150]="WGCF WARP, WARP Linux Client, WireProxy hasn't been installed yet. The script is aborted.\n"
 C[150]="WGCF WARP, WARP Linux Client, WireProxy 均未安装，脚本退出\n"
 E[151]="1. WARP Linux Client account\n 2. WireProxy account"
@@ -325,7 +328,7 @@ C[156]="(!!! 只支持 AMD64，请勿选择)"
 E[157]="WireProxy has not been installed yet."
 C[157]="WireProxy 还未安装"
 E[158]="WireProxy is disconnected. It could be connect again by [warp y]"
-C[158]="已断开 WirePorxy，再次连接可以用 warp y"
+C[158]="已断开 Wireproxy，再次连接可以用 warp y"
 E[159]="WireProxy is on"
 C[159]="WireProxy 已开启"
 E[160]="WireProxy is not installed."
@@ -334,10 +337,10 @@ E[161]="WireProxy is installed and disconnected"
 C[161]="WireProxy 已安装，状态为断开连接"
 E[162]=""
 C[162]=""
-E[163]="Connect the WirePorxy (warp y)"
-C[163]="连接 WirePorxy (warp y)"
-E[164]="Disconnect the WirePorxy (warp y)"
-C[164]="断开 WirePorxy (warp y)"
+E[163]="Connect the Wireproxy (warp y)"
+C[163]="连接 Wireproxy (warp y)"
+E[164]="Disconnect the Wireproxy (warp y)"
+C[164]="断开 Wireproxy (warp y)"
 E[165]="WireProxy Solution. A wireguard client that exposes itself as a socks5 proxy or tunnels. Adapted from the mature works of [octeep],[https://github.com/octeep/wireproxy]"
 C[165]="WireProxy，让 WARP 在本地建议一个 socks5 代理。改编自 [octeep] 的成熟作品，地址[https://github.com/octeep/wireproxy]，请熟知"
 E[166]="WireProxy was installed.\n connect/disconnect by [warp y]\n uninstall by [warp u]"
@@ -346,8 +349,8 @@ E[167]="WARP iptable was installed.\n connect/disconnect by [warp o]\n uninstall
 C[167]="WARP iptable 已安装\n 连接/断开: warp o\n 卸载: warp u"
 E[168]="Install CloudFlare Client and set mode to WARP (bash menu.sh l)"
 C[168]="安装 CloudFlare Client 并设置为 WARP 模式 (bash menu.sh l)"
-E[169]="WARP\$AC IPv4: \$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
-C[169]="WARP\$AC IPv4: \$WAN4 \$WARPSTATUS4 \$COUNTRY4  \$ASNORG4"
+E[169]=""
+C[169]=""
 E[170]="Confirm all uninstallation please press [y], other keys do not uninstall by default:"
 C[170]="确认全部卸载请按 [y]，其他键默认不卸载:"
 E[171]="Uninstall dependencies were complete."
@@ -379,14 +382,15 @@ translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doct
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times() {
-COUNT=$(
-  curl -4 -ksm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1 ||
-  curl -6 -ksm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
+  COUNT=$(curl --retry 2 -ksm2 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
   TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
 }
         
-# 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语
+# 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语。处理中文显示的问题
 select_language() {
+  UTF8_LOCALE=$(locale -a 2>/dev/null | grep -iEm1 "UTF-8|utf8")
+  [ -n "$UTF8_LOCALE" ] && export LC_ALL="$UTF8_LOCALE" LANG="$UTF8_LOCALE" LANGUAGE="$UTF8_LOCALE"
+
   case $(cat /etc/wireguard/language 2>&1) in
     E ) L=E ;;
     C ) L=C ;;
@@ -466,77 +470,85 @@ check_dependencies() {
   PING6='ping -6' && [ $(type -p ping6) ] && PING6='ping6'
 }
 
-# 检测 IPv4 IPv6 信息，WARP Ineterface 开启，普通还是 Plus账户 和 IP 信息
-ip4_info() {
-  unset IP4 COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4 ERROR4
-  IP4_API=${IP_API[0]} && ISP4=${ISP[0]} && IP4_KEY=${IP[0]}
-  TRACE4=$(curl -ks4m8 ${IP_API[3]} $INTERFACE | grep warp | sed "s/warp=//g")
-  if [ -n "$TRACE4" ]; then
-    IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE)
-    until [[ ( -n "$IP4" && ! "$IP4" =~ 'error code' ) || "$ERROR4" = 10 ]]; do
-      IP4=$(curl -ks4m8 -A Mozilla $IP4_API $INTERFACE)
-      sleep 1
-      (( ERROR4++ )) && [ "$ERROR4" = 7 ] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]}
-    done
-    WAN4=$(expr "$IP4" : '.*'$IP4_KEY'\":[ ]*\"\([^"]*\).*')
-    COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
-    ASNORG4=$(expr "$IP4" : '.*'$ISP4'\":[ ]*\"\([^"]*\).*')
+# 聚合 IP api 函数
+ip_info() {
+  local CHECK_46="$1"
+  if [[ "$2" =~ ^[0-9]+$ ]]; then
+    local INTERFACE_SOCK5="-x socks5h://localhost:$2"
+  elif [[ $2 =~ ^[[:alnum:]]+$ ]]; then
+    local INTERFACE_SOCK5="--interface $2"
   fi
+
+  case "$CHECK_46" in
+    6 ) CHOOSE_IP_API=${IP_API[1]} && CHOOSE_IP_ISP=${ISP[1]} && CHOOSE_IP_KEY=${IP[1]} ;;
+    * ) CHOOSE_IP_API=${IP_API[0]} && CHOOSE_IP_ISP=${ISP[0]} && CHOOSE_IP_KEY=${IP[0]} ;;
+  esac
+
+  IP_TRACE=$(curl --retry 5 -ks${CHECK_46}m5 $INTERFACE_SOCK5 ${IP_API[3]} | grep warp | sed "s/warp=//g")
+  if [ -n "$IP_TRACE" ]; then
+    IP_JSON=$(curl --retry 7 -ks${CHECK_46}m5 $INTERFACE_SOCK5 -A Mozilla $CHOOSE_IP_API)
+    [[ -z "$IP_JSON" || "$IP_JSON" =~ 'error code' ]] && CHOOSE_IP_API=${IP_API[2]} && CHOOSE_IP_ISP=${ISP[2]} && CHOOSE_IP_KEY=${IP[2]} && IP_JSON=$(curl --retry 3 -ks${CHECK_46}m5 $INTERFACE_SOCK5 -A Mozilla $CHOOSE_IP_API)
+
+    if [[ -n "$IP_JSON" && ! "$IP_JSON" =~ 'error code' ]]; then
+      local WAN=$(expr "$IP_JSON" : '.*'$CHOOSE_IP_KEY'\":[ ]*\"\([^"]*\).*')
+      local COUNTRY=$(expr "$IP_JSON" : '.*country\":[ ]*\"\([^"]*\).*')
+      local ASNORG=$(expr "$IP_JSON" : '.*'$CHOOSE_IP_ISP'\":[ ]*\"\([^"]*\).*')
+    fi
+  fi
+
+  echo -e "trace=$IP_TRACE@\nip=$WAN@\ncountry=$COUNTRY@\nasnorg=$ASNORG\n"
 }
 
-ip6_info() {
-  unset IP6 COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6 ERROR6
-  IP6_API=${IP_API[1]} && ISP6=${ISP[1]} && IP6_KEY=${IP[1]}
-  TRACE6=$(curl -ks6m8 ${IP_API[3]} | grep warp | sed "s/warp=//g")
-  if [ -n "$TRACE6" ]; then
-    IP6=$(curl -ks6m8 -A Mozilla $IP6_API)
-    until [[ ( -n "$IP6" && ! "$IP6" =~ 'error code' ) || "$ERROR6" = 10 ]]; do
-      IP6=$(curl -ks6m8 -A Mozilla $IP6_API)
-      sleep 1
-      (( ERROR6++ )) && [ "$ERROR6" = 7 ] && IP6_API=${IP_API[2]} && ISP6=${ISP[2]} && IP6_KEY=${IP[2]}
-    done
-    WAN6=$(expr "$IP6" : '.*'$IP6_KEY'\":[ ]*\"\([^"]*\).*')
-    COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
-    ASNORG6=$(expr "$IP6" : '.*'$ISP6'\":[ ]*\"\([^"]*\).*')
-  fi
-}
 
-# 检测 Client 是否开启，free 还是 Plus 账户 和 IP 信息
-proxy_info() {
-  unset PROXYSOCKS5 PROXYPORT PROXYJASON PROXYIP PROXYCOUNTR PROXYASNORG ACCOUNT QUOTA AC PROXYSOCKS52 PROXYPORT2 PROXYJASON2 PROXYIP2 PROXYCOUNTR2 PROXYASNORG2 ACCOUNT2 AC2 TRACE42
-  IP4_API=${IP_API[0]} && ISP4=${ISP[0]} && IP4_KEY=${IP[0]}
-  if [ $(type -p warp-cli) ]; then
-    PROXYSOCKS5=$(ss -nltp | grep 'warp' | awk '{print $(NF-2)}')
-    PROXYPORT=$(echo "$PROXYSOCKS5" | cut -d: -f2)
-    PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT -A Mozilla $IP4_API)
-    until [[ ( -n "$PROXYJASON" && ! "$PROXYJASON" =~ 'error code' ) || "$ERRORPROXY" = 10 ]]; do
-      PROXYJASON=$(curl -sx socks5h://localhost:$PROXYPORT -A Mozilla $IP4_API)
-      sleep 1
-      (( ERRORPROXY++ )) && [ "$ERRORPROXY" = 7 ] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]}
-    done
-    PROXYIP=$(expr "$PROXYJASON" : '.*'$IP4_KEY'\":[ ]*\"\([^"]*\).*')
-    PROXYCOUNTRY=$(expr "$PROXYJASON" : '.*country\":[ ]*\"\([^"]*\).*')
-    [ "$L" = C ] && PROXYCOUNTRY=$(translate "$PROXYCOUNTRY")
-    PROXYASNORG=$(expr "$PROXYJASON" : '.*'$ISP4'\":[ ]*\"\([^"]*\).*')
-    ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-    [[ "$ACCOUNT" =~ Limited ]] && AC='+' && check_quota
-  fi
+# 根据场景传参调用自定义 IP api
+ip_case() {
+  local CHECK_46="$1"
+  [ -n "$2" ] && local CHECK_TYPE="$2"
+  
+  if [ "$CHECK_TYPE" = "wireproxy" ]; then
+    unset IP_RESULT WIREPROXY_SOCKS5 WIREPROXY_PORT WIREPROXY_TRACE4 WIREPROXY_WAN4 WIREPROXY_COUNTRY4 WIREPROXY_ASNORG4 ACCOUNT QUOTA AC
+    WIREPROXY_SOCKS5=$(ss -nltp | grep 'wireproxy' | awk '{print $(NF-2)}')
+    WIREPROXY_PORT=$(cut -d: -f2 <<< "$WIREPROXY_SOCKS5")
+    local IP_RESULT=$(ip_info "$CHECK_46" "$WIREPROXY_PORT")
+    WIREPROXY_TRACE4=$(expr "$IP_RESULT" : '.*trace=\([^@]*\).*')
+    WIREPROXY_WAN4=$(expr "$IP_RESULT" : '.*ip=\([^@]*\).*')
+    WIREPROXY_COUNTRY4=$(expr "$IP_RESULT" : '.*country=\([^@]*\).*')
+    [ "$L" = C ] && WIREPROXY_COUNTRY4=$(translate "$WIREPROXY_COUNTRY4")
+    WIREPROXY_ASNORG4=$(expr "$IP_RESULT" : '.*asnorg=\([^@]*\).*')
+    WIREPROXY_ACCOUNT=' free' && [ "$WIREPROXY_TRACE4" = plus ] && [ -e /etc/wireguard/info.log ] && WIREPROXY_ACCOUNT=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && WIREPROXY_ACCOUNT='+' && check_quota
 
-  if [ $(type -p wireproxy) ]; then
-    PROXYSOCKS52=$(ss -nltp | grep 'wireproxy' | awk '{print $(NF-2)}')
-    PROXYPORT2=$(echo "$PROXYSOCKS52" | cut -d: -f2)
-    PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 -A Mozilla $IP4_API)
-    until [[ ( -n "$PROXYJASON2" && ! "$PROXYJASON2" =~ 'error code' ) || "$ERRORPROXY2" = 10 ]]; do
-      PROXYJASON2=$(curl -sx socks5h://localhost:$PROXYPORT2 -A Mozilla $IP4_API)
-      sleep 1
-      (( ERRORPROXY2++ )) && [ "$ERRORPROXY2" = 7 ] && IP4_API=${IP_API[2]} && ISP4=${ISP[2]} && IP4_KEY=${IP[2]}
-    done
-    PROXYIP2=$(expr "$PROXYJASON2" : '.*'$IP4_KEY'\":[ ]*\"\([^"]*\).*')
-    PROXYCOUNTRY2=$(expr "$PROXYJASON2" : '.*country\":[ ]*\"\([^"]*\).*')
-    [ "$L" = C ] && PROXYCOUNTRY2=$(translate "$PROXYCOUNTRY2")
-    PROXYASNORG2=$(expr "$PROXYJASON2" : '.*'$ISP4'\":[ ]*\"\([^"]*\).*')
-    TRACE42=$(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | awk '{print $(NF-2)}'  | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)")
-    AC2=' free' && [[ "$TRACE42" =~ plus ]] && [ -e /etc/wireguard/info.log ] && AC2=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && AC2='+' && check_quota
+  elif [ "$CHECK_TYPE" = "client" ]; then
+    unset IP_RESULT CLIENT_SOCKS5 CLIENT_PORT CLIENT_TRACE4 CLIENT_WAN4 CLIENT_COUNTRY4 CLIENT_ASNORG4 CLIENT_ACCOUNT QUOTA AC
+    CLIENT_SOCKS5=$(ss -nltp | grep 'warp' | awk '{print $(NF-2)}')
+    CLIENT_PORT=$(cut -d: -f2 <<< "$CLIENT_SOCKS5")
+    local IP_RESULT=$(ip_info "$CHECK_46" "$CLIENT_PORT")
+    CLIENT_TRACE4=$(expr "$IP_RESULT" : '.*trace=\([^@]*\).*')
+    CLIENT_WAN4=$(expr "$IP_RESULT" : '.*ip=\([^@]*\).*')
+    CLIENT_COUNTRY4=$(expr "$IP_RESULT" : '.*country=\([^@]*\).*')
+    [ "$L" = C ] && CLIENT_COUNTRY4=$(translate "$CLIENT_COUNTRY4")
+    CLIENT_ASNORG4=$(expr "$IP_RESULT" : '.*asnorg=\([^@]*\).*')
+    CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+    [[ "$CLIENT_ACCOUNT" =~ Limited ]] && AC='+' && check_quota
+
+  elif [ "$CHECK_46" = 4 ]; then
+    unset IP_RESULT COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
+    [ "$CHECK_TYPE" = luban ] && local INTERFACE=CloudflareWARP
+    local IP_RESULT=$(ip_info "$CHECK_46" "$INTERFACE")
+    TRACE4=$(expr "$IP_RESULT" : '.*trace=\([^@]*\).*')
+    WAN4=$(expr "$IP_RESULT" : '.*ip=\([^@]*\).*')
+    COUNTRY4=$(expr "$IP_RESULT" : '.*country=\([^@]*\).*')
+    [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
+    ASNORG4=$(expr "$IP_RESULT" : '.*asnorg=\([^@]*\).*')
+
+  elif [ "$CHECK_46" = 6 ]; then
+    unset IP_RESULT COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
+    [ "$CHECK_TYPE" = luban ] && local INTERFACE=CloudflareWARP
+    local IP_RESULT=$(ip_info "$CHECK_46" "$INTERFACE")
+    TRACE6=$(expr "$IP_RESULT" : '.*trace=\([^@]*\).*')
+    WAN6=$(expr "$IP_RESULT" : '.*ip=\([^@]*\).*')
+    COUNTRY6=$(expr "$IP_RESULT" : '.*country=\([^@]*\).*')
+    [ "$L" = C ] && COUNTRY6=$(translate "$COUNTRY6")
+    ASNORG6=$(expr "$IP_RESULT" : '.*asnorg=\([^@]*\).*')
   fi
 }
 
@@ -616,7 +628,7 @@ result_priority() {
 # 更换 Netflix IP 时确认期望区域  
 input_region() {
   [ -n "$NF" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
-  [ -n "$PROXYPORT" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+  [ -n "$WIREPROXY_PORT" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$WIREPROXY_PORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
   [ -n "$INTERFACE" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
   REGION=${REGION:-'US'}
   reading " $(text_eval 56) " EXPECT
@@ -645,7 +657,7 @@ change_ip() {
     while true; do
       (( i++ )) || true
       ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
-      ip${NF}_info
+      ip_case "$NF"
       WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
       [ "$L" = C ] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
       unset RESULT REGION
@@ -675,21 +687,20 @@ change_ip() {
     }
 
     if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
-      PROXYPORT="$(ss -nltp | grep 'warp' | awk '{print $(NF-2)}'  | cut -d: -f2)"
       [ -z "$EXPECT" ] && input_region
       i=0; j=10
       while true; do
         (( i++ )) || true
         ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME %86400 % 3600 % 60 ))
-        proxy_info
-        WAN=$PROXYIP && ASNORG=$PROXYASNORG && NF=4 && COUNTRY=$PROXYCOUNTRY
+        ip_case 4 wireproxy
+        WAN=$WIREPROXY_WAN4 && ASNORG=$WIREPROXY_ASNORG4 && NF=4 && COUNTRY=$WIREPROXY_COUNTRY4
         unset RESULT REGION
         for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
-          RESULT[l]=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
+          RESULT[l]=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$WIREPROXY_PORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
           [ "${RESULT[l]}" = 200 ] && break
         done
         if [[ "${RESULT[@]}" =~ 200 ]]; then
-          REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+          REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$WIREPROXY_PORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
           REGION=${REGION:-'US'}
           echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || client_restart
         else
@@ -704,7 +715,7 @@ change_ip() {
       while true; do
         (( i++ )) || true
         ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
-        ip4_info
+        ip_case 4 luban
         WAN=$WAN4 && ASNORG=$ASNORG4 && NF=4
         [ "$L" = C ] && COUNTRY=$(translate "$COUNTRY4") || COUNTRY=$COUNTRY4
         unset RESULT REGION
@@ -727,21 +738,20 @@ change_ip() {
   change_wireproxy() {
     wireproxy_restart() { warning " $(text_eval 126) " && systemctl restart wireproxy; sleep $j; }
 
-    PROXYPORT="$(ss -nltp | grep 'wireproxy' | awk '{print $(NF-2)}'  | cut -d: -f2)"
     [ -z "$EXPECT" ] && input_region
     i=0; j=5
     while true; do
       (( i++ )) || true
       ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
-      proxy_info
-      WAN=$PROXYIP2 && ASNORG=$PROXYASNORG2 && COUNTRY=$PROXYCOUNTRY2
+      ip_case 4 wireproxy
+      WAN=$CLIENT_WAN4 && ASNORG=$CLIENT_COUNTRY4 && COUNTRY=$CLIENT_COUNTRY4
       unset RESULT REGION
       for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
-        RESULT[l]=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
+        RESULT[l]=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$WIREPROXY_PORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
         [ "${RESULT[l]}" = 200 ] && break
       done
       if [[ "${RESULT[@]}" =~ 200 ]]; then
-        REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$PROXYPORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+        REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$WIREPROXY_PORT -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
         REGION=${REGION:-'US'}
         echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || wireproxy_restart
       else
@@ -763,7 +773,7 @@ change_ip() {
   [[ ! ${RESULT_TITLE[1]} =~ ^[0-9]+$ ]] && RESULT_TITLE[1]='70143836'
   [[ ! "$REGION_TITLE" =~ ^[0-9]+$ ]] && REGION_TITLE='80018499'
 
-  # 根据 WARP interface 、 Client 和 WirePorxy 的安装情况判断刷 IP 的方式
+  # 根据 WARP interface 、 Client 和 Wireproxy 的安装情况判断刷 IP 的方式
   INSTALL_CHECK=("wg-quick" "warp-cli" "wireproxy")
   CASE_RESAULT=("0 0 0" "0 0 1" "0 1 0" "0 1 1" "1 0 0" "1 0 1" "1 1 0" "1 1 1")
   SHOW_CHOOSE=("$(text 150)" "" "" "$(text 151)" "" "$(text 152)" "$(text 153)" "$(text 154)")
@@ -833,7 +843,7 @@ uninstall() {
     rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /usr/bin/warp $HOME/.local/share/warp
   }
 
-  # 卸载 WirePorxy
+  # 卸载 Wireproxy
   uninstall_wireproxy() {
     systemctl disable --now wireproxy
     rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /usr/bin/warp /etc/dnsmasq.d/warp.conf /usr/bin/wireproxy /lib/systemd/system/wireproxy.service
@@ -870,8 +880,7 @@ uninstall() {
   [[ "$UNINSTALL_DEPENDENCIES_LIST" != '' && "$CONFIRM_UNINSTALL" = [Yy] ]] && ( ${PACKAGE_UNINSTALL[int]} $UNINSTALL_DEPENDENCIES_LIST 2>/dev/null; info " $(text 171) \n" )
 
   # 显示卸载结果
-  ip4_info; [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
-  ip6_info; [[ "$L" = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
+  ip_case 4; ip_case 6
   info " $(text 45)\n IPv4: $WAN4 $COUNTRY4 $ASNORG4\n IPv6: $WAN6 $COUNTRY6 $ASNORG6 "
 }
         
@@ -900,13 +909,13 @@ net() {
   ${SYSTEMCTL_START[int]} >/dev/null 2>&1
   wg-quick up wgcf >/dev/null 2>&1
   ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
-  ip4_info; ip6_info
+   ip_case 4; ip_case 6
   until [[ "$TRACE4$TRACE6" =~ on|plus ]]; do
     (( i++ )) || true
     hint " $(text_eval 12) "
     ${SYSTEMCTL_RESTART[int]} >/dev/null 2>&1
     ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
-    ip4_info; ip6_info
+    ip_case 4; ip_case 6
     if [[ "$i" = "$j" ]]; then
         if [ "$CHOOSE_TYPE" = 3 ]; then
           unset CHOOSE_TYPE && i=0 && info " $(text 129) "
@@ -924,8 +933,6 @@ net() {
   [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && TYPE='+' && check_quota
 
   info " $(text_eval 14) "
-  [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
-  [ "$L" = C ] && COUNTRY6=$(translate "$COUNTRY6")
   [[ $OPTION = [on] ]] && info " IPv4:$WAN4 $WARPSTATUS4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $WARPSTATUS6 $COUNTRY6 $ASNORG6 "
 }
 
@@ -943,18 +950,18 @@ proxy_onoff() {
     systemctl stop warp-svc
     info " $(text 91) " && exit 0
 
-  else  systemctl start warp-svc; sleep 2
+  else systemctl start warp-svc; sleep 2
     if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
-      proxy_info
+      ip_case 4 client
       ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
       [[ $ACCOUNT =~ Limited ]] && AC='+' && CHECK_TYPE=1 && check_quota
-      [[ $(ss -nltp) =~ warp-svc ]] && info " $(text 90)\n $(text 27): $PROXYSOCKS5\n WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG "
+      [[ $(ss -nltp) =~ warp-svc ]] && info " $(text 90)\n $(text 27): $WIREPROXY_SOCKS5\n WARP$AC IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4 "
       [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
       exit 0
 
-    else INTERFACE='--interface CloudflareWARP'
+    else
       rule_add >/dev/null 2>&1
-      ip4_info
+      ip_case 4 ludan
       [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
       ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
       [[ $ACCOUNT =~ Limited ]] && AC='+' && CHECK_TYPE=1 && check_quota
@@ -974,8 +981,8 @@ wireproxy_onoff() {
     [[ ! $(ss -nltp) =~ wireproxy ]] && info " $(text 158) "
   else
     systemctl start wireproxy
-    sleep 1 && proxy_info
-    [[ $(ss -nltp) =~ wireproxy ]] && info " $(text 99)\n $(text 27): $PROXYSOCKS52\n WARP$AC2 IPv4: $PROXYIP2 $PROXYCOUNTRY2 $PROXYASNORG2 "
+    sleep 1 && ip_case 4 wireproxy
+    [[ $(ss -nltp) =~ wireproxy ]] && info " $(text 99)\n $(text 27): $CLIENT_SOCKS5\n WARP$WIREPROXY_ACCOUNT IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_COUNTRY4 "
     [ -n "$QUOTA" ] && info " $(text 25): $(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $(text 63): $QUOTA "
   fi
 }
@@ -1064,10 +1071,8 @@ EOF
   IPV4=0; IPV6=0
   LAN4=$(ip route get 192.168.193.10 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
-  [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1 && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip6_info
-  [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip4_info
-  [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
-  [[ "$L" = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
+  [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1 && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip_case 6
+  [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip_case 4
 
   # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义:1=单栈  2=双栈  3=WARP已开启
   [[ "$TRACE4$TRACE6" =~ on|plus ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
@@ -1088,9 +1093,9 @@ EOF
     CLIENT=1 && CLIENT_INSTALLED="$(text 92)"
     [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
     if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
-      [ "$CLIENT" = 2 ] && CLIENT_MODE='Proxy' && [[ $(ss -nltp) =~ warp-svc ]] && CLIENT=3 && proxy_info
+      [ "$CLIENT" = 2 ] && CLIENT_MODE='Proxy' && [[ $(ss -nltp) =~ warp-svc ]] && CLIENT=3 && ip_case 4 client
     else
-      [ "$CLIENT" = 2 ] && CLIENT_MODE='WARP' && [[ $(ip a) =~ CloudflareWARP ]] && CLIENT=5 && INTERFACE='--interface CloudflareWARP' && ip4_info
+      [ "$CLIENT" = 2 ] && CLIENT_MODE='WARP' && [[ $(ip a) =~ CloudflareWARP ]] && CLIENT=5 && ip_case 4 ludan
     fi
   fi
 
@@ -1143,7 +1148,7 @@ input_license() {
 input_url() {
   [ -z "$URL" ] && reading " $(text 127) " URL
   URL=${URL:-'https://gist.githubusercontent.com/fscarmen/56aaf02d743551737c9973b8be7a3496/raw/61bf63e68e4e91152545679b8f11c72cac215128/2021.12.21'}
-  TEAMS=$(curl -sSL "$URL" | sed "s/\"/\&quot;/g")
+  TEAMS=$(curl --retry 2 -sSL "$URL" | sed "s/\"/\&quot;/g")
   PRIVATEKEY=$(expr "$TEAMS" : '.*private_key&quot;>\([^<]*\).*')
   ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*')
 
@@ -1570,19 +1575,19 @@ EOF
 
   wait
 
-  # WGCF 配置修改
-  MODIFY014="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;s/^.*\:\:\/0/#&/g"
-  MODIFY016="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;s/^.*0\.\0\/0/#&/g"
-  MODIFY01D="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/"
-  MODIFY104="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*\:\:\/0/#&/g"
-  MODIFY106="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*0\.\0\/0/#&/g"
-  MODIFY10D="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/"
-  MODIFY114="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*\:\:\/0/#&/g"
-  MODIFY116="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*0\.\0\/0/#&/g"
-  MODIFY11D="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/"
-  MODIFY11N4="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*\:\:\/0/#&/g"
-  MODIFY11N6="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/;s/^.*0\.\0\/0/#&/g"
-  MODIFY11ND="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostDown = ip -6 rule delete from $LAN6 lookup main\n/;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\n/;7 s/^/PostDown = ip -4 rule delete from $LAN4 lookup main\n/;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\n/"
+  # WARP 配置修改
+  MODIFY014="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY016="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY01D="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;\$a\PersistentKeepalive = 30"
+  MODIFY104="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY106="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY10D="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\n\n/;\$a\PersistentKeepalive = 30"
+  MODIFY114="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY116="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY11D="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;\$a\PersistentKeepalive = 30"
+  MODIFY11N4="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY11N6="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY11ND="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;\$a\PersistentKeepalive = 30"
 
   sed -i "$(eval echo "\$MODIFY$CONF")" /etc/wireguard/wgcf.conf
 
@@ -1593,7 +1598,7 @@ EOF
     PRIVATEKEY=${PRIVATEKEY:-"$(grep PrivateKey /etc/wireguard/wgcf.conf | sed "s/PrivateKey = //g")"}
     [ "$m" = 0 ] && DNS='2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4' || DNS='1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844'
 
-    # 创建 WirePorxy 配置文件
+    # 创建 Wireproxy 配置文件
     cat > /etc/wireguard/proxy.conf << EOF
 # The [Interface] and [Peer] configurations follow the same semantics and meaning
 # of a wg-quick configuration. To understand what these fields mean, please refer to:
@@ -1670,9 +1675,9 @@ EOF
     echo "$L" >/etc/wireguard/language
 
     # 结果提示，脚本运行时间，次数统计
-    proxy_info
+    ip_case 4 wireproxy
     end=$(date +%s)
-    info " $(text_eval 149)\n $(text 27): $PROXYSOCKS52\n WARP$AC2 IPv4: $PROXYIP2 $PROXYCOUNTRY2 $PROXYASNORG2 "
+    info " $(text_eval 149)\n $(text 27): $WIREPROXY_SOCKS5\n WARP$WIREPROXY_ACCOUNT IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4 "
     [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
     echo -e "\n==============================================================\n"
     hint " $(text 43) \n" && help
@@ -1748,8 +1753,8 @@ proxy() {
       warp-cli --accept-tos enable-always-on >/dev/null 2>&1
       sleep 5
       rule_add >/dev/null 2>&1
-      ip4_info
-      until [ -n "$IP4" ]; do
+      ip_case 4 luban
+      until [ -n "$WAN4" ]; do
         (( i++ )) || true
         hint " $(text_eval 12) "
         warp-cli --accept-tos disconnect >/dev/null 2>&1
@@ -1760,7 +1765,7 @@ proxy() {
         warp-cli --accept-tos enable-always-on >/dev/null 2>&1
         sleep 5
         rule_add >/dev/null 2>&1
-        ip4_info
+        ip_case 4 luban
         if [ "$i" = "$j" ]; then
           warp-cli --accept-tos disconnect >/dev/null 2>&1
           warp-cli --accept-tos disable-always-on >/dev/null 2>&1
@@ -1863,16 +1868,15 @@ proxy() {
   [[ "$ACCOUNT" =~ Limited ]] && CHECK_TYPE=1 && AC='+' && check_quota
 
   if [ "$LUBAN" = 1 ]; then
-    [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
     end=$(date +%s)
     echo -e "\n==============================================================\n"
-    info " $(text_eval 94)\n $(text_eval 169) "
+    info " $(text_eval 94)\n WARP$AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
 
   else
-    proxy_info
+    ip_case 4 client
     end=$(date +%s)
     echo -e "\n==============================================================\n"
-    info " $(text_eval 94)\n $(text 27): $PROXYSOCKS5\n WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG "
+    info " $(text_eval 94)\n $(text 27): $CLIENT_SOCKS5\n WARP$AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4 "
   fi
 
   [[ "$ACCOUNT" =~ Limited ]] && info " $(text 63): $QUOTA "
@@ -1950,12 +1954,12 @@ change_to_free() {
     sleep 2
     if [ "$CLIENT_PROXY" != 1 ]; then
       rule_add >/dev/null 2>&1
-      INTERFACE='--interface CloudflareWARP' && ip4_info
+      ip_case 4 luban
       [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
       info " $(text_eval 169)\n $(text_eval 62) "
     else
-      proxy_info
-      info " $(text 27): $PROXYSOCKS5\n WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG\n $(text_eval 62) "
+      ip_case 4 wireproxy
+      info " $(text 27): $WIREPROXY_SOCKS5\n WARP$AC IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4\n $(text_eval 62) "
     fi
     exit 0
   else
@@ -2010,14 +2014,14 @@ change_to_plus() {
     unset AC && TYPE=' free' && [[ "$ACCOUNT" =~ Limited ]] && AC='+' && TYPE='+' && echo "$LICENSE" > /etc/wireguard/license && CHECK_TYPE=1 && check_quota
     if [ "$CLIENT_PROXY" != 1 ]; then
       rule_add >/dev/null 2>&1
-      INTERFACE='--interface CloudflareWARP' && ip4_info
+      ip_case 4 luban
       [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
       [ "$TYPE" = '+' ] && CLIENT_PLUS="$(text 63): $QUOTA"
       info " $(text_eval 169)\n $(text_eval 62)\n $CLIENT_PLUS \n"
     else
-      proxy_info
+      ip_case 4 wireproxy
       [ "$TYPE" = '+' ] && CLIENT_PLUS="$(text 63): $QUOTA"
-      info " $(text 27): $PROXYSOCKS5\n WARP$TYPE IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG\n $(text_eval 62)\n $CLIENT_PLUS \n"
+      info " $(text 27): $WIREPROXY_SOCKS5\n WARP$TYPE IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4\n $(text_eval 62)\n $CLIENT_PLUS \n"
     fi
   else
     # 如现正使用着 WARP+ 账户，并且新输入的 License 也与现一样的话，脚本退出
@@ -2040,12 +2044,12 @@ change_to_plus() {
       if [ "$UPDATE_ACCOUNT" = wgcf ]; then
         OPTION=n && net
       else
-        proxy_info
-        TYPE=$AC2
+        ip_case 4 wireproxy
+        TYPE=$WIREPROXY_ACCOUNT
         if [ "$TYPE" = plus ]; then
-          info " $(text 27): $PROXYSOCKS52\n WARP$TYPE IPv4: $PROXYIP2 $PROXYCOUNTRY2 $PROXYASNORG2\n $(text_eval 62)\n $(text 25): $(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $(text 63): $QUOTA "
+          info " $(text 27): $WIREPROXY_SOCKS5\n WARP$TYPE IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_COUNTRY4\n $(text_eval 62)\n $(text 25): $(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $(text 63): $QUOTA "
         else
-          info " $(text 27): $PROXYSOCKS52\n WARP$TYPE IPv4: $PROXYIP2 $PROXYCOUNTRY2 $PROXYASNORG2\n $(text_eval 62) "
+          info " $(text 27): $WIREPROXY_SOCKS5\n WARP$TYPE IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_COUNTRY4\n $(text_eval 62) "
         fi
       fi
       exit 1
@@ -2167,7 +2171,7 @@ update() {
     fi
   }
 
-  # 根据 WARP interface 、 Client 和 WirePorxy 的安装情况判断升级的对象
+  # 根据 WARP interface 、 Client 和 Wireproxy 的安装情况判断升级的对象
   INSTALL_CHECK=("wg-quick" "warp-cli" "wireproxy")
   CASE_RESAULT=("0 0 0" "0 0 1" "0 1 0" "0 1 1" "1 0 0" "1 0 1" "1 1 0" "1 1 1")
   SHOW_CHOOSE=("$(text 150)" "" "" "$(text 151)" "" "$(text 152)" "$(text 153)" "$(text 154)")
@@ -2270,15 +2274,15 @@ menu() {
   case "$CLIENT" in
     0 ) info "\t $(text 112) " ;;
     1 ) info "\t $(text_eval 113) " ;;
-    3 ) info "\t WARP$AC $(text 24)\t $(text 27): $PROXYSOCKS5\n\t WARP$AC IPv4: $PROXYIP $PROXYCOUNTRY $PROXYASNORG " ;;
+    3 ) info "\t WARP$AC $(text 24)\t $(text 27): $WIREPROXY_SOCKS5\n\t WARP$AC IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4 " ;;
     5 ) info "\t WARP$AC $(text 24)\t $(text_eval 169) " ;;
   esac
   case "$WIREPROXY" in
     0 ) info "\t $(text 160) " ;;
     1 ) info "\t $(text 161) " ;;
-    2 ) info "\t WARP$AC2 $(text 159)\t $(text 27): $PROXYSOCKS52\n\t WARP$AC2 IPv4: $PROXYIP2 $PROXYCOUNTRY2 $PROXYASNORG2 " ;;
+    2 ) info "\t WARP$WIREPROXY_ACCOUNT $(text 159)\t $(text 27): $CLIENT_SOCKS5\n\t WARP$WIREPROXY_ACCOUNT IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_COUNTRY4 " ;;
   esac
-  grep -q '+' <<< $AC$AC2 && info "\t $(text 63): $QUOTA "
+  grep -q '+' <<< $AC$WIREPROXY_ACCOUNT && info "\t $(text 63): $QUOTA "
    echo -e "\n======================================================================================================================\n"
   for ((h=1; h<${#MENU_OPTION[*]}; h++)); do hint " ${MENU_OPTION[h]} "; done
   hint " ${MENU_OPTION[0]} "
