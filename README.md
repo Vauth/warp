@@ -9,6 +9,7 @@
 - [WARP好处](README.md#WARP好处)
 - [warp 运行脚本](README.md#warp-运行脚本)
 - [warp-go 运行脚本](README.md#warp-go-运行脚本)
+- [Cloudflare api 运行脚本](README.md#cloudflare-api-运行脚本)
 - [通过 warp 解锁 chatGPT 的方法](README.md#通过-warp-解锁-chatgpt-的方法)
 - [刷 Netflix 解锁 WARP IP 的方法](README.md#刷-Netflix-解锁-WARP-IP-的方法)
 - [Netflix 分流到 WARP Client Proxy、WireProxy 的方法](README.md#Netflix-分流到-WARP-Client-ProxyWireProxy-的方法)
@@ -22,6 +23,15 @@
 * * *
 
 ## 更新信息
+2023.5.15 Cloudflare api
+Thanks to badafans open source project and patient guidance. Now released in linux using the Cloudflare WARP api. badafans open source project link: https://github.com/badafans/warp-reg
+Use method
+感谢大神 badafans的开源项目及耐心指导，现发布在linux下使用的Cloudflare WARP api，badafans的开源项目链接：https://github.com/badafans/warp-reg 
+使用方法
+```
+wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.sh [option]
+```
+
 2023.5.10 warp-go V1.1.4 1. Docking the warp-go official account pool api, wiki: https://docs.zeroteam.top/apis/warp; 2. Change non-global from ipv4 only to dualstacks; 3. Fix the bug that the native IPv6 cannot login when using dualstacks; 4. Update the Best-enpoint app; 5. Change ip api; 1. 对接 warp-go 官方账户池 api，wiki: https://docs.zeroteam.top/apis/warp; 2. 非全局从ipv4 only 改为双栈; 3. 修复双栈时使用原生 IPv6 不能登陆的 bug; 4. 更新最佳 Endpoint 应用; 5. 更换 ip api
 
 2023.3.26 warp-go V1.1.3 / menu.sh 2.49 1. Change the best Warp endpoint to standard ports [500,1701,2408,4500]; 2. Upgrade the Netflix unlocking section; 1. warp endpoint 优选改为标准端口 [500,1701,2408,4500]; 2. 升级奈飞解锁部分
@@ -451,6 +461,25 @@ warp-go [option] [lisence]
   | v | 同步脚本至最新版本 |
   | 其他或空值| 菜单界面 |
 
+
+## Cloudflare api 运行脚本
+```
+wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.sh [option]
+```
+  | [option] 变量 | 具体动作说明 |
+  | -------------| ------------- |
+  | -h/--help    | 帮助 |
+  | -f/--file    | 保存账户注册信息的文件 (默认: warp-account.conf) |
+  | -r/--registe | 注册账户 |
+  | -d/--device  | 获取账户注册信息，包括 plus 流量等 |
+  | -a/--app     | 获取 app 信息 |
+  | -b/--bind    | 获取绑定设备信息，包括子设备 |
+  | -n/--name    | 修改设备名称 |
+  | -l/--license | 修改 license |
+  | -u/--unbind  | 解绑设备 |
+  | -c/--cancle  | 注销账户 |
+  | -i/--id      | 显示 cliend id 与 reserved |
+
 ## WARP+ License 及 ID 获取
 
 以下是使用WARP和Team后 Argo 2.0 的官方介绍:[Argo 2.0: Smart Routing Learns New Tricks](https://blog.cloudflare.com/argo-v2/)
@@ -532,6 +561,7 @@ https://github.com/acacia233/Project-WARP-Unlock
 * wangying202: https://blog.csdn.net/wangying202/article/details/113178159
 * LUBAN: https://github.com/HXHGTS/Cloudflare_WARP_Connect
 * valetzx: https://gitlab.com/valetzx/pubfile
+* badafans cf api: https://github.com/badafans/warp-reg 
 * 所有的热心网友们
 
 服务提供（排名不分先后）:
