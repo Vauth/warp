@@ -965,7 +965,7 @@ proxy_onoff() {
       [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
       ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
       [[ $ACCOUNT =~ Limited ]] && AC='+' && CHECK_TYPE=1 && check_quota
-      [[ $(ip a) =~ CloudflareWARP ]] && info " $(text 90)\n $(text_eval 169) "
+      [[ $(ip a) =~ CloudflareWARP ]] && info " $(text 90)\n WARP$AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
       [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
       exit 0
     fi
@@ -982,7 +982,7 @@ wireproxy_onoff() {
   else
     systemctl start wireproxy
     sleep 1 && ip_case 4 wireproxy
-    [[ $(ss -nltp) =~ wireproxy ]] && info " $(text 99)\n $(text 27): $CLIENT_SOCKS5\n WARP$WIREPROXY_ACCOUNT IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_COUNTRY4 "
+    [[ $(ss -nltp) =~ wireproxy ]] && info " $(text 99)\n $(text 27): $WIREPROXY_SOCKS5\n WARP$WIREPROXY_ACCOUNT IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 "
     [ -n "$QUOTA" ] && info " $(text 25): $(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $(text 63): $QUOTA "
   fi
 }
@@ -1103,7 +1103,7 @@ EOF
   WIREPROXY=0
   if [ $(type -p wireproxy) ]; then
     WIREPROXY=1
-    [ "$WIREPROXY" = 1 ] && WIREPROXY_INSTALLED="$(text 92)" && [[ $(ss -nltp) =~ wireproxy ]] && WIREPROXY=2 && proxy_info
+    [ "$WIREPROXY" = 1 ] && WIREPROXY_INSTALLED="$(text 92)" && [[ $(ss -nltp) =~ wireproxy ]] && WIREPROXY=2 && ip_case 4 wireproxy
   fi
 }
 
@@ -1956,7 +1956,7 @@ change_to_free() {
       rule_add >/dev/null 2>&1
       ip_case 4 luban
       [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
-      info " $(text_eval 169)\n $(text_eval 62) "
+      info " WARP$AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4\n $(text_eval 62) "
     else
       ip_case 4 wireproxy
       info " $(text 27): $WIREPROXY_SOCKS5\n WARP$AC IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4\n $(text_eval 62) "
@@ -2017,7 +2017,7 @@ change_to_plus() {
       ip_case 4 luban
       [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
       [ "$TYPE" = '+' ] && CLIENT_PLUS="$(text 63): $QUOTA"
-      info " $(text_eval 169)\n $(text_eval 62)\n $CLIENT_PLUS \n"
+      info " WARP$AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4\n $(text_eval 62)\n $CLIENT_PLUS \n"
     else
       ip_case 4 wireproxy
       [ "$TYPE" = '+' ] && CLIENT_PLUS="$(text 63): $QUOTA"
@@ -2201,10 +2201,10 @@ update() {
 # 判断当前 WARP 网络接口及 Client 的运行状态，并对应的给菜单和动作赋值
 menu_setting() {
   if [[ "$CLIENT" -gt 1 || "$WIREPROXY" -gt 0 ]]; then
-    [ "$CLIENT" -lt 3 ] && MENU_OPTION[1]="1. $(text 88)" || MENU_OPTION[1]="1. $(text 89)"
-    [ "$WIREPROXY" -lt 2 ] && MENU_OPTION[2]="2. $(text 163)" || MENU_OPTION[2]="2. $(text 164)"
-    MENU_OPTION[3]="3. $(text 143)"
-    MENU_OPTION[4]="4. $(text 78)"
+    [ "$CLIENT" -lt 3 ] && MENU_OPTION[1]="1.  $(text 88)" || MENU_OPTION[1]="1.  $(text 89)"
+    [ "$WIREPROXY" -lt 2 ] && MENU_OPTION[2]="2.  $(text 163)" || MENU_OPTION[2]="2.  $(text 164)"
+    MENU_OPTION[3]="3.  $(text 143)"
+    MENU_OPTION[4]="4.  $(text 78)"
 
     ACTION[1]() { proxy_onoff; }
     ACTION[2]() { wireproxy_onoff; }
@@ -2274,13 +2274,13 @@ menu() {
   case "$CLIENT" in
     0 ) info "\t $(text 112) " ;;
     1 ) info "\t $(text_eval 113) " ;;
-    3 ) info "\t WARP$AC $(text 24)\t $(text 27): $WIREPROXY_SOCKS5\n\t WARP$AC IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4 " ;;
-    5 ) info "\t WARP$AC $(text 24)\t $(text_eval 169) " ;;
+    3 ) info "\t WARP$AC $(text 24)\t $(text 27): $CLIENT_SOCKS5\n\t WARP$AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4 " ;;
+    5 ) info "\t WARP$AC $(text 24)\t WARP$AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 " ;;
   esac
   case "$WIREPROXY" in
     0 ) info "\t $(text 160) " ;;
     1 ) info "\t $(text 161) " ;;
-    2 ) info "\t WARP$WIREPROXY_ACCOUNT $(text 159)\t $(text 27): $CLIENT_SOCKS5\n\t WARP$WIREPROXY_ACCOUNT IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_COUNTRY4 " ;;
+    2 ) info "\t WARP$WIREPROXY_ACCOUNT $(text 159)\t $(text 27): $WIREPROXY_SOCKS5\n\t WARP$WIREPROXY_ACCOUNT IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_COUNTRY4 " ;;
   esac
   grep -q '+' <<< $AC$WIREPROXY_ACCOUNT && info "\t $(text 63): $QUOTA "
    echo -e "\n======================================================================================================================\n"
