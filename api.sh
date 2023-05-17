@@ -3,6 +3,11 @@
 # 只允许root运行
 [[ "$EUID" -ne '0' ]] && echo "Error:This script must be run as root!" && exit 1;
 
+# 帮助
+help() {
+  echo -ne " Usage:\n\tbash $(basename $0)\t-h/--help\t\thelp\n\t\t\t-f/--file string\tConfiguration file (default "warp-account.conf")\n\t\t\t-r/--registe\t\tRegiste an account\n\t\t\t-t/--token\t\tRegiste with a team token\n\t\t\t-d/--device\t\tGet the devices information and plus traffic quota\n\t\t\t-a/--app\t\tFetch App information\n\t\t\t-b/--bind\t\tGet the account blinding devices\n\t\t\t-n/--name\t\tChange the device name\n\t\t\t-l/--license\t\tChange the license\n\t\t\t-u/--unbind\t\tUnbine a device from the account\n\t\t\t-c/--cancle\t\tCancle the account (There will be no display back for successful cancel)\n\t\t\t-i/--id\t\t\tShow the client id and reserved\n\n"
+}
+
 # 获取账户信息
 fetch_account_information() {
   registe_path=${registe_path:-warp-account.conf}
@@ -27,6 +32,7 @@ registe_account() {
   --header 'User-Agent: okhttp/3.12.1' \
   --header 'CF-Client-Version: a-6.10-2158' \
   --header 'Content-Type: application/json' \
+  --header "Cf-Access-Jwt-Assertion: ${team_token}" \
   --data '{"key":"'${key}'","install_id":"'${install_id}'","fcm_token":"'${fcm_token}'","tos":"'$(date +"%Y-%m-%dT%H:%M:%S.%3NZ")'","model":"PC","serial_number":"'${install_id}'","locale":"zh_CN"}' \
   | python3 -m json.tool > $registe_path
 
@@ -140,6 +146,7 @@ decode_reserved() {
   echo -e "client id: $client_id\nreserved : $reserved"
 }
 
+[[ "$#" -eq '0' ]] && help && exit;
 
 while [[ $# -ge 1 ]]; do
   case $1 in
@@ -188,15 +195,21 @@ while [[ $# -ge 1 ]]; do
       do=decode_reserved
       shift
       ;;
+    -t|--token)
+      shift
+      team_token="$1"
+      shift
+      ;;
     -h|--help)
-      echo -ne " Usage:\n\tbash $(basename $0)\t-h/--help\t\thelp\n\t\t\t-f/--file string\tConfiguration file (default "warp-account.conf")\n\t\t\t-r/--registe\t\tRegiste an account\n\t\t\t-d/--device\t\tGet the devices information and plus traffic quota\n\t\t\t-a/--app\t\tFetch App information\n\t\t\t-b/--bind\t\tGet the account blinding devices\n\t\t\t-n/--name\t\tChange the device name\n\t\t\t-l/--license\t\tChange the license\n\t\t\t-u/--unbind\t\tUnbine a device from the account\n\t\t\t-c/--cancle\t\tCancle the account (There will be no display back for successful cancel)\n\t\t\t-i/--id\t\t\tShow the client id and reserved\n\n"
+      help
       exit
       ;;
     *) 
-      echo -ne "\nInvaild option: '$1'\nbash $(basename $0) -h for help\n\n"
-      exit 1
+      help
+      exit
       ;;
   esac
 done
 
+# 根据参数运行
 $do

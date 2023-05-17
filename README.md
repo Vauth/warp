@@ -471,6 +471,7 @@ wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.
   | -h/--help    | 帮助 |
   | -f/--file    | 保存账户注册信息的文件 (默认: warp-account.conf) |
   | -r/--registe | 注册账户 |
+  | -t/--token   | -r 注册时，使用 team token 注册，快速获取: https://web--public--warp-team-api--coia-mfs4.code.run |
   | -d/--device  | 获取账户注册信息，包括 plus 流量等 |
   | -a/--app     | 获取 app 信息 |
   | -b/--bind    | 获取绑定设备信息，包括子设备 |
@@ -580,7 +581,7 @@ https://github.com/acacia233/Project-WARP-Unlock
 https://ip.gs/  
 https://ip.sb/
 * 统计PV网:https://hits.seeyoufarm.com/
-* Coia 的网页版提出 Teams Token: https://warp-team-api.herokuapp.com/
+* Coia 的网页版提出 Teams Token: https://web--public--warp-team-api--coia-mfs4.code.run
 
 CloudFlare WARP 全球站点和服务状态:
 * Operational = 正常。Re-routed = 检修状态: https://www.cloudflarestatus.com/
