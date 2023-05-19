@@ -19,9 +19,18 @@ fetch_account_information() {
 
 # 注册warp账户
 registe_account() {
+  # 生成 wireguard 公私钥
+  if [ $(type -p wg) ]; then
+    private_key=$(wg genkey)
+    public_key=$(wg pubkey <<< "$private_key")
+  else
+    wg_api=$(curl -sSL https://wg.cloudflare.now.cc)
+    private_key=$(echo "$wg_api" | awk 'NR==2 {print $2}')
+    public_key=$(echo "$wg_api" | awk 'NR==1 {print $2}')
+  fi
+
   registe_path=${registe_path:-warp-account.conf}
   [[ "$(dirname "$registe_path")" != '.' ]] && mkdir -p $(dirname "$registe_path")
-  key=$(openssl rand -base64 32  | openssl sha512 -binary | head -c 32 | base64 -w 0)
   install_id=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 22)
   fcm_token="${install_id}:APA91b$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 134)"
   
@@ -33,10 +42,12 @@ registe_account() {
   --header 'CF-Client-Version: a-6.10-2158' \
   --header 'Content-Type: application/json' \
   --header "Cf-Access-Jwt-Assertion: ${team_token}" \
-  --data '{"key":"'${key}'","install_id":"'${install_id}'","fcm_token":"'${fcm_token}'","tos":"'$(date +"%Y-%m-%dT%H:%M:%S.%3NZ")'","model":"PC","serial_number":"'${install_id}'","locale":"zh_CN"}' \
+  --data '{"key":"'${public_key}'","install_id":"'${install_id}'","fcm_token":"'${fcm_token}'","tos":"'$(date +"%Y-%m-%dT%H:%M:%S.%3NZ")'","model":"PC","serial_number":"'${install_id}'","locale":"zh_CN"}' \
   | python3 -m json.tool > $registe_path
 
-  [ -e $registe_path ] && cat $registe_path && grep 'error code' $registe_path && rm -f $registe_path
+  # 补上 private key
+  sed -i "/\"account_type\"/i\        \"private_key\": \"$private_key\"" $registe_path
+  [ -e $registe_path ] && cat $registe_path && grep -q 'error code' $registe_path && rm -f $registe_path
 }
 
 # 获取设备信息
@@ -156,43 +167,43 @@ while [[ $# -ge 1 ]]; do
       shift
       ;;
     -r|--registe)
-      do=registe_account
+      run=registe_account
       shift
       ;;
     -d|--device)
-      do=device_information
+      run=device_information
       shift
       ;;
     -a|--app)
-      do=app_information
+      run=app_information
       shift
       ;;
     -b|--bind)
-      do=account_binding_devices
+      run=account_binding_devices
       shift
       ;;
     -n|--name)
       shift
       device_name="$1"
-      do=change_device_name
+      run=change_device_name
       shift
       ;;
     -l|--license)
       shift
       license="$1"
-      do=change_license
+      run=change_license
       shift
       ;;
     -u|--unbind)
-      do=unbind_devide
+      run=unbind_devide
       shift
       ;;
     -c|--cancle)
-      do=cancle_account
+      run=cancle_account
       shift
       ;;
     -i|--id)
-      do=decode_reserved
+      run=decode_reserved
       shift
       ;;
     -t|--token)
@@ -212,4 +223,4 @@ while [[ $# -ge 1 ]]; do
 done
 
 # 根据参数运行
-$do
+$run
