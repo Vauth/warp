@@ -23,6 +23,8 @@
 * * *
 
 ## 更新信息
+2023.5.20 1. Client supports IPv6 only VPS; 2. Support 4 ways to upgrade to teams account including token (Easily available at https://web--public--warp-team-api--coia-mfs4.code.run); 3. Use api to delete warp account while uninstalling; 1. Client 支持 IPv6 only VPS 安装; 2. 支持包括 token 等4种方式升级为 teams 账户 (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取); 3. 卸载的同时使用 api 删除 warp 账户
+
 2023.5.15 Cloudflare api
 Thanks to badafans open source project and patient guidance. Now released in linux using the Cloudflare WARP api. badafans open source project link: https://github.com/badafans/warp-reg
 Use method

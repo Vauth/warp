@@ -57,11 +57,11 @@ jobs:
           cp -f ${{ env.WORK_DIR }}/dist/*.tar.gz ${{ env.FILE_DIR }}
           rm -rf ${{ env.WORK_DIR }}
 
-      - name: Upload to repository
-        uses: stefanzweifel/git-auto-commit-action@v4.16.0
-        if: ${{ env.VERSION != '' }}
-        with:
-          commit_message: Sync wireguard-go to V${{ env.VERSION }} by Github Actions, ${{ env.DATE }}
+#      - name: Upload to repository
+#        uses: stefanzweifel/git-auto-commit-action@v4.16.0
+#        if: ${{ env.VERSION != '' }}
+#        with:
+#          commit_message: Sync wireguard-go to V${{ env.VERSION }} by Github Actions, ${{ env.DATE }}
   
       - name: Release binaries 
         uses: softprops/action-gh-release@v1
