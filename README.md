@@ -222,7 +222,7 @@ wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.
 
 首次运行
 ```
-wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && bash menu.sh [option] [lisence]
+wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && bash menu.sh [option] [lisence/url/token]
 ```
 再次运行
 ```

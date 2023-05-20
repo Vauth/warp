@@ -966,7 +966,7 @@ onoff() {
 }
 
 # Client 开关，先检查是否已安装，再根据当前状态转向相反状态
-clienty_onoff() {
+client_onoff() {
   [ ! $(type -p warp-cli) ] && error " $(text 93) "
   if systemctl is-active warp-svc >/dev/null 2>&1; then
     [[ ! "$(warp-cli --accept-tos settings)" =~ WarpProxy ]] && rule_del >/dev/null 2>&1
@@ -1205,7 +1205,7 @@ registe_token() {
 # 输入 Teams 账户 URL（如有）
 input_url_token() {
   if [ "$1" = 'url' ]; then
-    reading " url: " TEAM_URL
+    [ -z "$TEAM_URL" ] && reading " url: " TEAM_URL
     [ -n "$TEAM_URL" ] && TEAMS=$(curl --retry 2 -m5 -sSL "$TEAM_URL") || return
     if grep -q 'xml version' <<< "$TEAMS"; then
       ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*') &&
@@ -1216,7 +1216,7 @@ input_url_token() {
     fi
 
   elif [ "$1" = 'token' ]; then
-    reading " token: " TEAM_TOKEN
+    [ -z "$TEAM_TOKEN" ] && reading " token: " TEAM_TOKEN
     [ -z "$TEAM_TOKEN" ] && return
     PRIVATEKEY=$(wg genkey)
     local PUBLICKEY=$(wg pubkey <<< "$PRIVATEKEY")
@@ -1505,11 +1505,11 @@ install() {
   [ -z "$CHOOSE_TYPE" ] && hint "\n $(text 132) \n" && reading " $(text 50) " CHOOSE_TYPE
   case "$CHOOSE_TYPE" in
     2 ) INPUT_LICENSE=1 && input_license ;;
-    3 ) hint "\n $(text 127) \n" && reading " $(text 50) " CHOOSE_TEAMS
+    3 ) [ -z "$CHOOSE_TEAMS" ] && hint "\n $(text 127) \n" && reading " $(text 50) " CHOOSE_TEAMS
         case "$CHOOSE_TEAMS" in
           1 ) input_url_token url ;;
           2 ) : ;;
-          3 ) input_url_token input;;
+          3 ) input_url_token input ;;
           * ) input_url_token share ;;
         esac ;;
   esac
@@ -2197,11 +2197,11 @@ change_to_plus() {
 
 # 更换为 Teams 账户
 change_to_teams() {
-  hint "\n $(text 127) \n" && reading " $(text 50) " CHOOSE_TEAMS
+  [ -z "$CHOOSE_TEAMS" ] && hint "\n $(text 127) \n" && reading " $(text 50) " CHOOSE_TEAMS
   case "$CHOOSE_TEAMS" in
     1 ) input_url_token url ;;
     2 ) input_url_token token ;;
-    3 ) input_url_token input;;
+    3 ) input_url_token input ;;
     * ) input_url_token share ;;
   esac
 
@@ -2423,11 +2423,17 @@ menu() {
 
 # 参数选项 URL 或 License 或转换 WARP 单双栈
 if [ "$2" != '[lisence]' ]; then
-  if [[ "$2" =~ http ]]; then CHOOSE_TYPE=3 && URL_TOKEN=$2
-  elif [[ "$2" =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then CHOOSE_TYPE=2 && LICENSE=$2
-  elif [[ "$1" = s && "$2" = [46Dd] ]]; then PRIORITY_SWITCH=$(tr 'A-Z' 'a-z' <<< "$2")
-  elif [[ "$2" =~ ^[A-Za-z]{2}$ ]]; then EXPECT=$2
-  fi
+  case "$OPTION" in
+    a ) if [[ "$2" =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then
+          CHOOSE_TYPE=2 && LICENSE=$2
+        elif [[ "$2" =~ ^http ]]; then
+          CHOOSE_TYPE=3 && CHOOSE_TEAMS=1 && TEAM_URL=$2
+        elif [[ "$2" =~ ^ey && "${#2}" -gt 120 ]]; then
+          CHOOSE_TYPE=3 && CHOOSE_TEAMS=2 && TEAM_TOKEN=$2
+        fi ;;
+    s ) [[ "$2" = [46Dd] ]] && PRIORITY_SWITCH=$(tr 'A-Z' 'a-z' <<< "$2") ;;
+    i ) [[ "$2" =~ ^[A-Za-z]{2}$ ]] && EXPECT=$2 ;;
+  esac
 fi
 
 # 自定义 WARP+ 设备名
