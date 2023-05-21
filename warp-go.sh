@@ -598,7 +598,7 @@ net() {
   [ -n "$QUOTA" ] && info " $(text 26): $QUOTA "
 }
 
-# api 注册账户
+# api 注册账户,优先使用 warp-go 团队 api,后备使用官方 api 脚本
 registe_api() {
   local REGISTE_FILE="$1"
   local i=0; local j=5
@@ -608,6 +608,37 @@ registe_api() {
     [ "$i" -gt "$j" ] && rm -f /opt/warp-go/warp.conf.tmp* && error " $(text_eval 50) "
     [ -n "$3" ] && hint " $(text_eval $3) "
     curl -sm8 -Lo /opt/warp-go/$REGISTE_FILE "https://api.zeroteam.top/warp?format=warp-go"
+    if ! grep -sq 'PrivateKey' /opt/warp-go/$REGISTE_FILE; then
+      unset CF_API_REGISTE API_DEVICE_ID API_ACCESS_TOKEN API_PRIVATEKEY API_TYPE
+      rm -f /opt/warp-go/$REGISTE_FILE
+      CF_API_REGISTE="$(bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) -r)"
+      if grep -q 'private_key' <<< "$CF_API_REGISTE"; then
+        local API_DEVICE_ID=$(expr "$CF_API_REGISTE " | grep -m1 'id' | cut -d\" -f4)
+        local API_ACCESS_TOKEN=$(expr "$CF_API_REGISTE " | grep '"token' | cut -d\" -f4)
+        local API_PRIVATEKEY=$(expr "$CF_API_REGISTE " | grep 'private_key' | cut -d\" -f4)
+        local API_TYPE=$(expr "$CF_API_REGISTE " | grep 'account_type' | cut -d\" -f4)
+        cat > /opt/warp-go/$REGISTE_FILE << EOF
+[Account]
+Device = $API_DEVICE_ID
+PrivateKey = $API_PRIVATEKEY
+Token = $API_ACCESS_TOKEN
+Type = $API_TYPE
+
+[Device]
+Name = WARP
+MTU  = 1280
+
+[Peer]
+PublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
+Endpoint = 162.159.193.10:1701
+KeepAlive = 30
+# AllowedIPs = 0.0.0.0/0
+# AllowedIPs = ::/0
+
+EOF
+      fi
+    fi
+
     if grep -sq 'Account' /opt/warp-go/$REGISTE_FILE; then
       echo -e "\n[Script]\nPostUp =\nPostDown =" >> /opt/warp-go/$REGISTE_FILE && sed -i 's/\r//' /opt/warp-go/$REGISTE_FILE
       if [ -n "$LICENSE" ]; then
