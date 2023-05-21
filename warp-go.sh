@@ -769,7 +769,7 @@ EOF
     bash /opt/warp-go/tun.sh
     TUN=$(cat /dev/net/tun 2>&1 | tr 'A-Z' 'a-z')
     if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
-      rm -f /usr/bin/tun.sh && error "$(text 36)"
+      rm -f /opt/warp-go/tun.sh && error "$(text 36)"
     else
       chmod +x /opt/warp-go/tun.sh
       echo "$SYSTEM" | grep -qvE "Alpine|OpenWrt" && echo "@reboot root bash /opt/warp-go/tun.sh" >> /etc/crontab
@@ -1028,8 +1028,6 @@ KeepAlive = 30
 #PostUp = 
 #PostDown =
 EOF
-
-cp /opt/warp-go/warp.conf /root/hahahah
       fi
 
     # 注册免费和 Plus 账户

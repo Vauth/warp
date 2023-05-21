@@ -1527,8 +1527,7 @@ install() {
     latest=${latest:-'2.2.17'}
 
     # 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 githubusercontent，以更好的支持双栈。并添加执行权限
-    wget --no-check-certificate -T1 -t1 $CDN -O /usr/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE ||
-    wget --no-check-certificate $CDN -O /usr/bin/wgcf https://raw.githubusercontent.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_linux_$ARCHITECTURE
+    wget --no-check-certificate -T20 -t2 $CDN -O /usr/bin/wgcf https://raw.githubusercontent.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_linux_$ARCHITECTURE
     chmod +x /usr/bin/wgcf
 
     # 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 githubusercontent，以更好的支持双栈。并添加执行权限
@@ -1910,7 +1909,7 @@ client_install() {
   mkdir -p /etc/wireguard/ >/dev/null 2>&1
   if [ "$CLIENT" = 0 ]; then info " $(text 83) "
     if [ "$SYSTEM" = CentOS ]; then
-      { wget https://raw.githubusercontent.com/fscarmen/warp/main//Client/Client_CentOS_8.rpm; } &
+      { wget https://raw.githubusercontent.com/fscarmen/warp/main/Client/Client_CentOS_8.rpm; } &
       [ ! $(type -p desktop-file-install) ] && ${PACKAGE_INSTALL[int]} desktop-file-utils
       case "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" in
         7 ) #  CentOS 7，需要用 Cloudflare CentOS 8 的库以安装 Client，并在线编译升级 C 运行库 Glibc 2.28
@@ -1938,7 +1937,7 @@ client_install() {
       esac
       rm -f Client_CentOS_8.rpm
     else
-      { wget --no-check-certificate $CDN https://raw.githubusercontent.com/fscarmen/warp/main//Client/Client_${SYSTEM}_${VERSION_ID}.deb; }&
+      { wget --no-check-certificate $CDN https://raw.githubusercontent.com/fscarmen/warp/main/Client/Client_${SYSTEM}_${VERSION_ID}.deb; }&
       ${PACKAGE_UPDATE[int]}
       [[ "$SYSTEM" = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https) =~ installed ]] && ${PACKAGE_INSTALL[int]} apt-transport-https
       wait
@@ -2382,7 +2381,7 @@ menu_setting() {
 
 # 显示菜单
 menu() {
-#  clear
+  clear
   hint " $(text 16) "
   echo -e "======================================================================================================================\n"
   info " $(text 17):$VERSION\n $(text 18):$(text 1)\n $(text 19):\n\t $(text 20):$SYS\n\t $(text 21):$(uname -r)\n\t $(text 22):$ARCHITECTURE\n\t $(text 23):$VIRT "
