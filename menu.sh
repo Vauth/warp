@@ -475,7 +475,7 @@ ip_info() {
   local CHECK_46="$1"
   if [[ "$2" =~ ^[0-9]+$ ]]; then
     local INTERFACE_SOCK5="-x socks5h://localhost:$2"
-  elif [[ $2 =~ ^[[:alnum:]]+$ ]]; then
+  elif [[ "$2" =~ ^[[:alnum:]]+$ ]]; then
     local INTERFACE_SOCK5="--interface $2"
   fi
 
