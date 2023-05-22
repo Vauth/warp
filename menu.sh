@@ -978,17 +978,17 @@ client_onoff() {
       ip_case 4 client
       CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
       [[ $CLIENT_ACCOUNT =~ Limited ]] && CLIENT_AC='+' && check_quota client
-      [[ $(ss -nltp) =~ warp-svc ]] && info " $(text 90)\n $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4 "
+      [[ $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ warp-svc ]] && info " $(text 90)\n $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4 "
       [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
       exit 0
 
     else
       rule_add >/dev/null 2>&1
-      ip_case 4 ludan
+      ip_case 4 luban
       [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
       CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
       [[ $CLIENT_ACCOUNT =~ Limited ]] && CLIENT_AC='+' && check_quota client
-      [[ $(ip a) =~ CloudflareWARP ]] && info " $(text 90)\n WARP$CLIENT_AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
+      [[ $(ip link show | awk -F': ' '{print $2}') =~ CloudflareWARP ]] && info " $(text 90)\n WARP$CLIENT_AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
       [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
       exit 0
     fi
@@ -1001,11 +1001,11 @@ wireproxy_onoff() {
   [ ! $(type -p wireproxy) ] && error " $(text 157) " || OCTEEP=1
   if ss -nltp | grep wireproxy >/dev/null 2>&1; then
     systemctl stop wireproxy
-    [[ ! $(ss -nltp) =~ wireproxy ]] && info " $(text 158) "
+    [[ ! $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ wireproxy ]] && info " $(text 158) "
   else
     systemctl start wireproxy
     sleep 1 && ip_case 4 wireproxy
-    [[ $(ss -nltp) =~ wireproxy ]] && info " $(text 99)\n $(text 27): $WIREPROXY_SOCKS5\n WARP$WIREPROXY_ACCOUNT IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 "
+    [[ $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ wireproxy ]] && info " $(text 99)\n $(text 27): $WIREPROXY_SOCKS5\n WARP$WIREPROXY_ACCOUNT IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 "
     [ -n "$QUOTA" ] && info " $(text 25): $(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $(text 63): $QUOTA "
   fi
 }
@@ -1116,9 +1116,9 @@ EOF
     CLIENT=1 && CLIENT_INSTALLED="$(text 92)"
     [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
     if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
-      [ "$CLIENT" = 2 ] && CLIENT_MODE='Proxy' && [[ $(ss -nltp) =~ warp-svc ]] && CLIENT=3 && ip_case 4 client
+      [ "$CLIENT" = 2 ] && CLIENT_MODE='Proxy' && [[ $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ warp-svc ]] && CLIENT=3 && ip_case 4 client
     else
-      [ "$CLIENT" = 2 ] && CLIENT_MODE='WARP' && [[ $(ip a) =~ CloudflareWARP ]] && CLIENT=5 && ip_case 4 ludan
+      [ "$CLIENT" = 2 ] && CLIENT_MODE='WARP' && [[ $(ip link show | awk -F': ' '{print $2}') =~ CloudflareWARP ]] && CLIENT=5 && ip_case 4 luban
     fi
   fi
 
@@ -1126,7 +1126,7 @@ EOF
   WIREPROXY=0
   if [ $(type -p wireproxy) ]; then
     WIREPROXY=1
-    [ "$WIREPROXY" = 1 ] && WIREPROXY_INSTALLED="$(text 92)" && [[ $(ss -nltp) =~ wireproxy ]] && WIREPROXY=2 && ip_case 4 wireproxy
+    [ "$WIREPROXY" = 1 ] && WIREPROXY_INSTALLED="$(text 92)" && [[ $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ wireproxy ]] && WIREPROXY=2 && ip_case 4 wireproxy
   fi
 }
 
@@ -1208,8 +1208,9 @@ input_url_token() {
     [ -z "$TEAM_URL" ] && reading " url: " TEAM_URL
     [ -n "$TEAM_URL" ] && TEAMS=$(curl --retry 2 -m5 -sSL "$TEAM_URL") || return
     if grep -q 'xml version' <<< "$TEAMS"; then
-      ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*') &&
-      PRIVATEKEY=$(expr "$TEAMS" : '.*private_key&quot;>\([^<]*\).*' || expr "$TEAMS" : '.*private_key">\([^<]\+\).*')
+      ADDRESS6=$(expr "$TEAMS" : '.*v6&quot;:&quot;\([^[&]*\).*')
+      [ -n "$ADDRESS6" ] && PRIVATEKEY=$(expr "$TEAMS" : '.*private_key&quot;>\([^<]*\).*')
+      [[ -n "$ADDRESS6" && -z "$PRIVATEKEY" ]] && PRIVATEKEY=$(expr "$TEAMS" : '.*private_key">\([^<]\+\).*')
     else
       ADDRESS6=$(expr "$TEAMS" : '.*"v6":[ ]*"\([^["]\+\).*') &&
       PRIVATEKEY=$(expr "$TEAMS" : '.*"private_key":[ ]*"\([^"]\+\).*')     
@@ -1218,8 +1219,16 @@ input_url_token() {
   elif [ "$1" = 'token' ]; then
     [ -z "$TEAM_TOKEN" ] && reading " token: " TEAM_TOKEN
     [ -z "$TEAM_TOKEN" ] && return
-    PRIVATEKEY=$(wg genkey)
-    local PUBLICKEY=$(wg pubkey <<< "$PRIVATEKEY")
+
+    if [ $(type -p wg) ]; then
+      PRIVATEKEY=$(wg genkey)
+      local PUBLICKEY=$(wg pubkey <<< "$PRIVATEKEY")
+    else
+      local WG_API=$(curl -sSL https://wg.cloudflare.now.cc)
+      PRIVATEKEY=$(expr "$WG_API" | awk 'NR==2 {print $2}')
+      local PUBLICKEY=$(expr "$WG_API" | awk 'NR==1 {print $2}')
+    fi
+
     local INSTALL_ID=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 22)
     local FCM_TOKEN="${INSTALL_ID}:APA91b$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 134)"
     local ERROR_TIMES=0
@@ -1276,14 +1285,14 @@ update_license() {
 input_port() {
   i=5
   PORT=40000
-  ss -nltp | grep -q ":$PORT"[[:space:]] && reading " $(text_eval 103) " PORT || reading " $(text 104) " PORT
+  ss -nltp | awk '{print $4}' | awk -F: '{print $NF}' | grep -qw $PORT && reading " $(text_eval 103) " PORT || reading " $(text 104) " PORT
   PORT=${PORT:-'40000'}
   until grep -qE "^[1-9][0-9]{3,4}$" <<< $PORT && [[ "$PORT" -ge 1000 && "$PORT" -le 65535 ]] && [[ ! $(ss -nltp) =~ :"$PORT"[[:space:]] ]]; do
     (( i-- )) || true
     [ "$i" = 0 ] && error " $(text 29) "
     if grep -qwE "^[1-9][0-9]{3,4}$" <<< $PORT; then
       if [[ "$PORT" -ge 1000 && "$PORT" -le 65535 ]]; then
-        [[ $(ss -nltp) =~ :"$PORT"[[:space:]] ]] && reading " $(text_eval 103) " PORT
+        ss -nltp | awk '{print $4}' | awk -F: '{print $NF}' | grep -qw $PORT && reading " $(text_eval 103) " PORT
       else
         reading " $(text_eval 111) " PORT
         PORT=${PORT:-'40000'}
@@ -1892,7 +1901,7 @@ client_install() {
       warp-cli --accept-tos set-custom-endpoint "$ENDPOINT" >/dev/null 2>&1
       warp-cli --accept-tos connect >/dev/null 2>&1
       warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-      sleep 2 && [[ ! $(ss -nltp) =~ warp-svc ]] && error " $(text 87) " || info " $(text_eval 86) "
+      sleep 2 && [[ ! $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ warp-svc ]] && error " $(text 87) " || info " $(text_eval 86) "
     fi
   }
 

@@ -345,7 +345,7 @@ check_dependencies() {
 # 检测 warp-go 的安装状态。STATUS: 0-未安装; 1-已安装未启动; 2-已安装启动中; 3-脚本安装中
 check_install() {
   if [ -e /opt/warp-go/warp.conf ]; then
-    [[ "$(ip a)" =~ ": WARP:" ]] && STATUS=2 || STATUS=1
+    [[ "$(ip link show | awk -F': ' '{print $2}')" =~ "WARP" ]] && STATUS=2 || STATUS=1
   else
     STATUS=0
     {
