@@ -607,7 +607,7 @@ registe_api() {
     ((i++)) || true
     [ "$i" -gt "$j" ] && rm -f /opt/warp-go/warp.conf.tmp* && error " $(text_eval 50) "
     [ -n "$3" ] && hint " $(text_eval $3) "
-    curl -sm8 -Lo /opt/warp-go/$REGISTE_FILE "https://api.zeroteam.top/warp?format=warp-go"
+#    curl -sm8 -Lo /opt/warp-go/$REGISTE_FILE "https://api.zeroteam.top/warp?format=warp-go"
     if ! grep -sq 'PrivateKey' /opt/warp-go/$REGISTE_FILE; then
       unset CF_API_REGISTE API_DEVICE_ID API_ACCESS_TOKEN API_PRIVATEKEY API_TYPE
       rm -f /opt/warp-go/$REGISTE_FILE
