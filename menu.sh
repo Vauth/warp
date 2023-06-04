@@ -1180,28 +1180,6 @@ input_license() {
   fi
 }
 
-# 使用 teams token 注册账户
-registe_token() {
-  [ "$(type -p openssl)" ] || ${PACKAGE_INSTALL[int]} openssl || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} openssl )
-
-  KEY=$(openssl rand -base64 32  | openssl sha512 -binary | head -c 32 | base64 -w 0)
-  INSTALL_ID=$(openssl rand -hex 11)
-  FCM_TOKEN=$(openssl rand -hex 67)
-  
-  curl --request POST 'https://api.cloudflareclient.com/v0a2158/reg' \
-  --silent \
-  --location \
-  --tlsv1.3 \
-  --header 'User-Agent: okhttp/3.12.1' \
-  --header 'CF-Client-Version: a-6.10-2158' \
-  --header 'Content-Type: application/json' \
-  --header "Cf-Access-Jwt-Assertion: ${team_token}" \
-  --data '{"key":"'${KEY}'","install_id":"'${INSTALL_ID}'","fcm_token":"'${FCM_TOKEN}'","tos":"'$(date +"%Y-%m-%dT%H:%M:%S.%3NZ")'","model":"Linux","serial_number":"'${INSTALL_ID}'","locale":"zh_CN"}' \
-  > /tmp/registe_token
-
-  [ -e /tmp/registe_token ] && grep 'error code' /tmp/registe_token && rm -f /tmp/registe_token
-}
-
 # 输入 Teams 账户 URL（如有）
 input_url_token() {
   if [ "$1" = 'url' ]; then
