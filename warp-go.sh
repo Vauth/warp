@@ -330,8 +330,8 @@ check_dependencies() {
   if echo "$SYSTEM" | grep -qE "Alpine|OpenWrt"; then
     [ ! -e /opt/warp-go/warp-go ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash tar )
   else
-    DEPS_CHECK=("ping" "wget" "curl" "systemctl" "ip")
-    DEPS_INSTALL=("iputils-ping" "wget" "curl" "systemctl" "iproute2")
+    DEPS_CHECK=("ping" "wget" "curl" "systemctl" "ip" "python3")
+    DEPS_INSTALL=("iputils-ping" "wget" "curl" "systemctl" "iproute2" "python3")
     for ((c=0;c<${#DEPS_CHECK[@]};c++)); do [ ! $(type -p ${DEPS_CHECK[c]}) ] && [[ ! "${DEPS[@]}" =~ "${DEPS_INSTALL[c]}" ]] && DEPS+=(${DEPS_INSTALL[c]}); done
     if [ "${#DEPS[@]}" -ge 1 ]; then
       info "\n $(text 8) ${DEPS[@]} \n"
