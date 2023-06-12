@@ -1508,10 +1508,10 @@ install() {
   start=$(date +%s)
 
   # 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
-  # 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.17
+  # 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.18
   {     
     latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
-    latest=${latest:-'2.2.17'}
+    latest=${latest:-'2.2.18'}
 
     # 安装 wgcf，尽量下载官方的最新版本，如官方 wgcf 下载不成功，将使用 githubusercontent，以更好的支持双栈。并添加执行权限
     wget --no-check-certificate -T20 -t2 $CDN -O /usr/bin/wgcf https://raw.githubusercontent.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_linux_$ARCHITECTURE
