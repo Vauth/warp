@@ -23,7 +23,9 @@
 * * *
 
 ## 更新信息
-2023.5.20 1. Client supports IPv6 only VPS; 2. Support 4 ways to upgrade to teams account including token (Easily available at https://web--public--warp-team-api--coia-mfs4.code.run); 3. Use api to delete warp account while uninstalling; 1. Client 支持 IPv6 only VPS 安装; 2. 支持包括 token 等4种方式升级为 teams 账户 (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取); 3. 卸载的同时使用 api 删除 warp 账户
+2023.6.18 menu.sh V2.51 Client supports Debian 12 (bookworm); Client 支持 Debian 12 (bookworm)
+
+2023.5.20 menu.sh V2.50 1. Client supports IPv6 only VPS; 2. Support 4 ways to upgrade to teams account including token (Easily available at https://web--public--warp-team-api--coia-mfs4.code.run); 3. Use api to delete warp account while uninstalling; 1. Client 支持 IPv6 only VPS 安装; 2. 支持包括 token 等4种方式升级为 teams 账户 (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取); 3. 卸载的同时使用 api 删除 warp 账户
 
 2023.5.15 Cloudflare api
 Thanks to badafans open source project and patient guidance. Now released in linux using the Cloudflare WARP api. badafans open source project link: https://github.com/badafans/warp-reg
@@ -509,16 +511,12 @@ WireGuard 网络接口数据，查看 ```wg```
 
 ## WARP Teams 获取并用于 Linux 的方法
 
-* 感谢 TonyLCH 提供的资讯 [#26](https://github.com/fscarmen/warp/issues/26) ，由于Team是无限制的，省去了刷 WARP+ 流量。方法大体：
-    1.安装通安卓模拟器，并在上面安装 1.1.1.1 apk连上
-    2.连上 teams 后抓包，把获取到的信息替换到wgcf.conf配置文件里
+* 通过 Coia 的网站，填入 teams 的组织名、邮箱和验证码获取 token: `https://web--public--warp-team-api--coia-mfs4.code.run/`
 
-    具体原创文章:[Cloudflare for Teams Wireguard Config](https://parkercs.tech/cloudflare-for-teams-wireguard-config/)
-
-* Download 下载:   
-    1、 Android Studio: [MAC](https://redirector.gvt1.com/edgedl/android/studio/install/2020.3.1.26/android-studio-2020.3.1.26-mac.dmg)     [WIN](https://redirector.gvt1.com/edgedl/android/studio/install/2020.3.1.26/android-studio-2020.3.1.26-windows.exe)    
-    2、 Android platform-tools: [MAC](https://dl.google.com/android/repository/platform-tools-latest-darwin.zip)     [WIN](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)    
-    3、 1.1.1.1: Faster & Safer Internet V6.10: [Android](https://apkpure.com/cn/1-1-1-1-faster-safer-internet/com.cloudflare.onedotonedotonedotone/download/2158-APK-d58edfa7c40ff1891244c556b872f18d?from=versions%2Fversion)
+* 在 vps 里运行以下指令获取 teams 配置的全部信息，保存在文件 `warp-account.conf`
+```
+bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) -r -t <TOKEN>
+```
 
 ## WARP原理
 
@@ -560,7 +558,7 @@ EUserv是 LXC 非完整虚拟化 VPS 主机，共享宿主机内核，不能更�
 * 猫大: https://github.com/Oreomeow
 * Luminous: https://luotianyi.vc/5252.html
 * Hiram: https://hiram.wang/cloudflare-wrap-vps
-* Cloudflare: https://developers.cloudflare.com/warp-client/setting-up/linux  
+* Cloudflare: https://pkg.cloudflareclient.com/
 https://blog.cloudflare.com/announcing-warp-for-linux-and-proxy-mode/   
 https://blog.cloudflare.com/argo-v2/
 * WireGuard: https://lists.zx2c4.com/pipermail/wireguard/2017-December/002201.html

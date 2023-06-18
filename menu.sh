@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号
-VERSION=2.50
+VERSION=2.51
 
 # IP API 服务商
 IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.cloudflare.com/cdn-cgi/trace")
@@ -13,8 +13,8 @@ export DEBIAN_FRONTEND=noninteractive
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="1. Client supports IPv6 only VPS; 2. Support 4 ways to upgrade to teams account including token (Easily available at https://web--public--warp-team-api--coia-mfs4.code.run); 3. Use api to delete warp account while uninstalling"
-C[1]="1. Client 支持 IPv6 only VPS 安装; 2. 支持包括 token 等4种方式升级为 teams 账户 (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取); 3. 卸载的同时使用 api 删除 warp 账户"
+E[1]="Client supports Debian 12 (bookworm)"
+C[1]="Client 支持 Debian 12 (bookworm)"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -127,8 +127,8 @@ E[56]="The current Netflix region is \$REGION. Confirm press [y] . If you want a
 C[56]="当前 Netflix 地区是:\$REGION，需要解锁当前地区请按 [y], 如需其他地址请输入两位地区简写 \(如 hk ,sg，默认:\$REGION\):"
 E[57]="The target quota you want to get. The unit is GB, the default value is 10:"
 C[57]="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
-E[58]="Glibc 2.28 download failed. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues] "
-C[58]="Glibc 2.28 下载失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[58]=""
+C[58]=""
 E[59]="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License"
 C[59]="找不到账户文件:/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
 E[60]="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License"
@@ -214,7 +214,7 @@ C[99]="WireProxy 已连接"
 E[100]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\${i} times remaining\): "
 C[100]="License 应为26位字符,请重新输入 WARP+ License \(剩余\${i}次\): "
 E[101]="Client support amd64 only. Curren architecture \$ARCHITECTURE. Official Support List: [https://pkg.cloudflareclient.com/packages/cloudflare-warp]. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[101]="Client 只支持 amd64 架构，当前架构 \$ARCHITECTURE，官方支持列表: [https://pkg.cloudflareclient.com/packages/cloudflare-warp]。问题反馈:[https://github.com/fscarmen/warp/issues]"
+C[101]="Client 只支持 amd64 架构，当前架构 \$ARCHITECTURE，官方支持列表: [https://pkg.cloudflareclient.com/packages/cloudflare-warp]。脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[102]="Please customize the WARP+ device name (Default is [WARP] if left blank):"
 C[102]="请自定义 WARP+ 设备名 (如果不输入，默认为 [WARP]):"
 E[103]="Port \$PORT is in use. Please input another Port\(\${i} times remaining\):"
@@ -301,8 +301,8 @@ E[143]="Change Client or WireProxy port"
 C[143]="更改 Client 或 WireProxy 端口"
 E[144]="Install WARP IPv6 interface"
 C[144]="安装 WARP IPv6 网络接口"
-E[145]=""
-C[145]=""
+E[145]="Client is only supported on CentOS 8 and above. Official Support List: [https://pkg.cloudflareclient.com]. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
+C[145]="Client 只支持 CentOS 8 或以上系统，官方支持列表: [https://pkg.cloudflareclient.com]。脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[146]="Cannot switch to the same form as the current one."
 C[146]="不能切换为当前一样的形态"
 E[147]="Not available for IPv6 only VPS"
@@ -430,7 +430,7 @@ check_operating_system() {
 
   REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "amazon linux" "alpine" "arch linux")
   RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS" "Alpine" "Arch")
-  EXCLUDE=("bookworm")
+  EXCLUDE=("")
   COMPANY=("" "" "" "amazon" "" "")
   MAJOR=("9" "16" "7" "7" "3" "")
   PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "yum -y update" "apk update -f" "pacman -Sy")
@@ -858,7 +858,7 @@ uninstall() {
     rule_del >/dev/null 2>&1
     ${PACKAGE_UNINSTALL[int]} cloudflare-warp 2>/dev/null
     systemctl disable --now warp-svc >/dev/null 2>&1
-    rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /usr/bin/warp $HOME/.local/share/warp
+    rm -rf /usr/bin/wgcf /etc/wireguard /usr/bin/wireguard-go /usr/bin/warp $HOME/.local/share/warp /etc/apt/sources.list.d/cloudflare-client.list /etc/yum.repos.d/cloudflare-warp.repo
   }
 
   # 卸载 Wireproxy
@@ -1889,71 +1889,31 @@ client_install() {
 #  [ "$TRACE4" != off ] && error " $(text 95) "
 
   # 安装 WARP Linux Client
+  [[ "$SYSTEM" = 'CentOS' && "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" -le 7 ]] && error " $(text_eval 145) "
   input_license
   [ "$LUBAN" != 1 ] && input_port
   start=$(date +%s)
-  VERSION_ID=$(grep -i VERSION_ID /etc/os-release | cut -d \" -f2)
   mkdir -p /etc/wireguard/ >/dev/null 2>&1
-  if [ "$CLIENT" = 0 ]; then info " $(text 83) "
+  if [ "$CLIENT" = 0 ]; then
+    info " $(text 83) "
     if [ "$SYSTEM" = CentOS ]; then
-      { wget https://raw.githubusercontent.com/fscarmen/warp/main/Client/Client_CentOS_8.rpm; } &
-      [ ! $(type -p desktop-file-install) ] && ${PACKAGE_INSTALL[int]} desktop-file-utils
-      case "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" in
-        7 ) #  CentOS 7，需要用 Cloudflare CentOS 8 的库以安装 Client，并在线编译升级 C 运行库 Glibc 2.28
-            ${PACKAGE_INSTALL[int]} nftables
-            rpm -ivh Client_CentOS_8.rpm
-            if [[ ! $(strings /lib64/libc.so.6) =~ GLIBC_2.28 ]]; then
-              GLIBC=1
-              wget -O /usr/bin/make https://github.com/fscarmen/warp/releases/download/Glibc/make
-              wget https://github.com/fscarmen/warp/releases/download/Glibc/glibc-2.28.tar.gz
-              tar -xzvf glibc-2.28.tar.gz
-              [ $(type -p tar) ] || ${PACKAGE_INSTALL[int]} tar 2>/dev/null || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} tar 2>/dev/null )
-              ${PACKAGE_INSTALL[int]} gcc bison make centos-release-scl
-              ${PACKAGE_INSTALL[int]} devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-binutils
-              source /opt/rh/devtoolset-8/enable
-              wait
-              cd ./glibc-2.28/build || error " $(text 58) "
-              ../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin
-              make install
-              cd ../..
-              rm -rf glibc-2.28*
-              ! systemctl is-active warp-svc >/dev/null 2>&1 && systemctl enable --now warp-svc
-            fi ;;
-
-        8|9 ) rpm -ivh Client_CentOS_8.rpm ;;
-      esac
-      rm -f Client_CentOS_8.rpm
+      curl -fsSl https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo | tee /etc/yum.repos.d/cloudflare-warp.repo
     else
-      { wget --no-check-certificate $CDN https://raw.githubusercontent.com/fscarmen/warp/main/Client/Client_${SYSTEM}_${VERSION_ID}.deb; }&
-      ${PACKAGE_UPDATE[int]}
-      [[ "$SYSTEM" = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https) =~ installed ]] && ${PACKAGE_INSTALL[int]} apt-transport-https
-      wait
-      dpkg -i Client_${SYSTEM}_${VERSION_ID}.deb >/dev/null 2>&1
-      ${PACKAGE_INSTALL[int]} -f
-      ${PACKAGE_INSTALL[int]} gnupg2 desktop-file-utils
-      dpkg -i Client_${SYSTEM}_${VERSION_ID}.deb
-      rm -f Client_${SYSTEM}_${VERSION_ID}.deb
-      sleep 1
+      local VERSION_CODENAME=$(grep -i VERSION_CODENAME /etc/os-release | cut -d= -f2)
+      [[ "$SYSTEM" = Debian && ! $(type -P gpg 2>/dev/null) ]] && ${PACKAGE_INSTALL[int]} gnupg
+      [[ "$SYSTEM" = Debian && ! $(apt list 2>/dev/null | grep apt-transport-https ) =~ installed ]] && ${PACKAGE_INSTALL[int]} apt-transport-https
+      curl https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+      echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $VERSION_CODENAME main" | tee /etc/apt/sources.list.d/cloudflare-client.list
     fi
+    ${PACKAGE_UPDATE[int]}
+    ${PACKAGE_INSTALL[int]} cloudflare-warp
     [ "$(systemctl is-active warp-svc)" != active ] && ( systemctl start warp-svc; sleep 2 )
-
-    best_endpoint
     settings
-
-  elif [[ "$CLIENT" = 2 && "$(warp-cli --accept-tos status 2>/dev/null)" =~ 'Registration missing' ]]; then
-    best_endpoint
+  elif [[ "$CLIENT" = 2 && $(warp-cli --accept-tos status 2>/dev/null) =~ 'Registration missing' ]]; then
+    [ "$(systemctl is-active warp-svc)" != active ] && ( systemctl start warp-svc; sleep 2 )
     settings
-
   else
-    warning " $(text 85) "
-
-  fi
-
-  # 此处为处理 CentOS 7 安装 Glibc 2.28 之后 Running transaction test 不动的问题
-  if [ "$GLIBC" = 1 ]; then
-    rm -rf /var/lib/rpm/__db*
-    yum clean all
-    rpm --rebuilddb
+    warning " $(text 85) " 
   fi
 
   # 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言

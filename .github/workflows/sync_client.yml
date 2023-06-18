@@ -2,8 +2,8 @@ name: Synchronize client
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '18 2 * * *'
+#  schedule:
+#    - cron: '18 2 * * *'
 
 jobs:
   WireGuard-go:
@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
         with:
           fetch-depth: 0
 
