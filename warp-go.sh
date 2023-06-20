@@ -267,17 +267,12 @@ check_root_virt() {
 
 # 多方式判断操作系统，试到有值为止。只支持 Debian 9/10/11、Ubuntu 18.04/20.04/22.04 或 CentOS 7/8 ,如非上述操作系统，退出脚本
 check_operating_system() {
-  CMD=(	"$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
-        "$(hostnamectl 2>/dev/null | grep -i system | cut -d : -f2)"
-        "$(lsb_release -sd 2>/dev/null)"
-        "$(grep -i description /etc/lsb-release 2>/dev/null | cut -d \" -f2)"
-        "$(grep . /etc/redhat-release 2>/dev/null)"
-        "$(grep . /etc/issue 2>/dev/null | cut -d \\ -f1 | sed '/^[ ]*$/d')"
-      )
-
-  for i in "${CMD[@]}"; do
-    SYS="$i" && [ -n "$SYS" ] && break
-  done
+  [ -s /etc/os-release ] && SYS="$(grep -i pretty_name /etc/os-release | cut -d \" -f2)"
+  [[ -z "$SYS" && $(type -p hostnamectl) ]] && SYS="$(hostnamectl | grep -i system | cut -d : -f2)"
+  [[ -z "$SYS" && $(type -p lsb_release) ]] && SYS="$(lsb_release -sd)"
+  [[ -z "$SYS" && -s /etc/lsb-release ]] && SYS="$(grep -i description /etc/lsb-release | cut -d \" -f2)"
+  [[ -z "$SYS" && -s /etc/redhat-release ]] && SYS="$(grep . /etc/redhat-release)"
+  [[ -z "$SYS" && -s /etc/issue ]] && SYS="$(grep . /etc/issue | cut -d '\' -f1 | sed '/^[ ]*$/d')"
 
   # 自定义 Alpine 系统若干函数
   alpine_warp_restart() { kill -15 $(pgrep warp-go) 2>/dev/null; /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf; }
@@ -297,7 +292,7 @@ check_operating_system() {
   SYSTEMCTL_ENABLE=("systemctl enable --now warp-go" "systemctl enable --now warp-go" "systemctl enable --now warp-go" "alpine_wgcf_enable" "systemctl enable --now warp-go")
 
   for ((int=0; int<${#REGEX[@]}; int++)); do
-    [[ $(echo "$SYS" | tr 'A-Z' 'a-z') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && [ -n "$SYSTEM" ] && break
+    [[ $(echo "$SYS" | tr 'A-Z' 'a-z') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && break
   done
   [ -z "$SYSTEM" ] && error "$(text 6)"
   [ "$SYSTEM" = OpenWrt ] && [[ ! $(uci show network.wan.proto 2>/dev/null | cut -d \' -f2)$(uci show network.lan.proto 2>/dev/null | cut -d \' -f2) =~ 'static' ]] && error " $(text 102) "
