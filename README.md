@@ -12,8 +12,8 @@
 - [Cloudflare api 运行脚本](README.md#cloudflare-api-运行脚本)
 - [通过 warp 解锁 chatGPT 的方法](README.md#通过-warp-解锁-chatgpt-的方法)
 - [刷 Netflix 解锁 WARP IP 的方法](README.md#刷-Netflix-解锁-WARP-IP-的方法)
-- [Netflix 分流到 WARP Client Proxy、WireProxy 的方法](README.md#Netflix-分流到-WARP-Client-ProxyWireProxy-的方法)
-- [Netflix,Google 分流到 Client WARP 网络接口的方法](README.md#netflixgoogle-分流到-client-warp-网络接口的方法)
+- [指定网站分流到 "socks5" 的 xray 配置模板 (适用于 WARP Client Proxy 和 WireProxy)](README.md#指定网站分流到-socks5-的-xray-配置模板-适用于-warp-client-proxy-和-wireproxy)
+- [指定网站分流到 "interface" 的 xray 配置模板 (适用于 WARP Client Warp 和 warp-go 非全局)](README.md#指定网站分流到-interface-的-xray-配置模板适用于-warp-client-warp-和-warp-go-非全局)
 - [WARP+ License 及 ID 获取](README.md#warp-license-及-id-获取)
 - [WARP Teams 获取并用于 Linux 的方法](README.md#WARP-Teams-获取并用于-Linux-的方法)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
@@ -23,6 +23,9 @@
 * * *
 
 ## 更新信息
+2023.6.21 menu.sh V2.52 1. Client proxy mode supports warp dualstack; 2. Client warp mode supports warp dualstack; 3. Speed up script startup; Thanks to Bro ⑥, WordsWorthLess, us254 and chika0801 for the guidace on the xray template; 1. Client Proxy 模式支持 warp 双栈; 2. Client warp 模式支持 warp 双栈; 3. 加快脚本启动速度; 感谢网友 ⑥哥, WordsWorthLess, us254 and chika0801 关于 xray 模板的指导
+
+
 2023.6.18 menu.sh V2.51 Client supports Debian 12 (bookworm); Client 支持 Debian 12 (bookworm)
 
 2023.5.20 menu.sh V2.50 1. Client supports IPv6 only VPS; 2. Support 4 ways to upgrade to teams account including token (Easily available at https://web--public--warp-team-api--coia-mfs4.code.run); 3. Use api to delete warp account while uninstalling; 1. Client 支持 IPv6 only VPS 安装; 2. 支持包括 token 等4种方式升级为 teams 账户 (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取); 3. 卸载的同时使用 api 删除 warp 账户
@@ -40,20 +43,20 @@ wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.
 
 2023.3.26 warp-go V1.1.3 / menu.sh 2.49 1. Change the best Warp endpoint to standard ports [500,1701,2408,4500]; 2. Upgrade the Netflix unlocking section; 1. warp endpoint 优选改为标准端口 [500,1701,2408,4500]; 2. 升级奈飞解锁部分
 
-2023.3.14 warp-go V1.1.2 / menu.sh 2.48 To speed up WARP, automatically find the most suitable endpoint for local use and apply it to wgcf, warp-go and client. Thanks to an anonymous and enthusiastic user for the tool; 为了提速 WARP，自动寻找最适合本机使用的 endpoint，应用在 wgcf, warp-go 和 client，感谢匿名的热心网友提供的工具
-
-2023.3.2 warp-go V1.1.1 1. warp-go v1.0.8 is supported. Allowing custom MTU values in the configuration file /opt/warp-go/warp.conf; 2. Singbox configuration exports reseved using 3-numeric-array instead of a string; 1. 支持 warp-go v1.0.8 , 允许在配置文件 /opt/warp-go/warp.conf 自定义 MTU 值; 2. Singbox配置导出 reseved 使用三个数字的数组代替字符串
-
-2023.2.22 [Unlock chatGPT without installing warp; 不安装 warp 就能解锁 chatGPT 的方法](README.md#通过-warp-解锁-chatgpt-的方法)
-
-2023.2.7 menu.sh V2.47 Iptables + dnsmasq + ipset solution supports chatGPT. Install via the 12 option in the menu or `bash menu.sh e`; Iptables + dnsmasq + ipset 方案支持 chatGPT. 安装方式: 菜单 12 选项或者 `bash menu.sh e` 
-
-2022.12.17 warp-go V1.1.0 Support OpenWrt system; 支持 OpenWrt 系统
-
 <details>
     <summary>历史更新 history（点击即可展开或收起）</summary>
 <br>
 
+>2023.3.14 warp-go V1.1.2 / menu.sh 2.48 To speed up WARP, automatically find the most suitable endpoint for local use and apply it to wgcf, warp-go and client. Thanks to an anonymous and enthusiastic user for the tool; 为了提速 WARP，自动寻找最适合本机使用的 endpoint，应用在 wgcf, warp-go 和 client，感谢匿名的热心网友提供的工具
+>
+>2023.3.2 warp-go V1.1.1 1. warp-go v1.0.8 is supported. Allowing custom MTU values in the configuration file /opt/warp-go/warp.conf; 2. Singbox configuration exports reseved using 3-numeric-array instead of a string; 1. 支持 warp-go v1.0.8 , 允许在配置文件 /opt/warp-go/warp.conf 自定义 MTU 值; 2. Singbox配置导出 reseved 使用三个数字的数组代替字符串
+>
+>2023.2.22 [Unlock chatGPT without installing warp; 不安装 warp 就能解锁 chatGPT 的方法](README.md#通过-warp-解锁-chatgpt-的方法)
+>
+>2023.2.7 menu.sh V2.47 Iptables + dnsmasq + ipset solution supports chatGPT. Install via the 12 option in the menu or `bash menu.sh e`; Iptables + dnsmasq + ipset 方案支持 chatGPT. 安装方式: 菜单 12 选项或者 `bash menu.sh e` 
+>
+>2022.12.17 warp-go V1.1.0 Support OpenWrt system; 支持 OpenWrt 系统
+>
 >2022.12.10 warp-go V1.0.9 1.Export wireguard and sing-box config file with [warp-go e]; 2.Teams token website change to https://web--public--warp-team-api--coia-mfs4.code.run 1. 使用 [warp-go e] 导出 wireguard 和 sing-box 配置文件; 2.获取 teams token 网站更换为: https://web--public--warp-team-api--coia-mfs4.code.run
 >
 >2022.10.19 menu V2.46 / warp-go V1.0.8 Switch the IPv4 / IPv6 priority by [warp s 4/6/d] or [warp-go s 4/6/d]; 通过 [warp s 4/6/d] 或者 [warp-go 4/6/d]来切换 IPv4 / IPv6 的优先级别
@@ -273,10 +276,6 @@ warp i jp
 {
     "outbounds":[
         {
-            "protocol":"freedom"
-        },
-        {
-            "tag":"WARP",
             "protocol":"wireguard",
             "settings":{
                 "secretKey":"YFYOAdbw1bKTHlNNi+aEjBM3BO7unuFC5rOkMRAz9XY=",
@@ -291,12 +290,37 @@ warp i jp
                             "0.0.0.0/0",
                             "::/0"
                         ],
-                        "endpoint":"engage.cloudflareclient.com:2408"
+                        "endpoint":"162.159.192.1:2408"
                     }
                 ],
                 "reserved":[78, 135, 76],
                 "mtu":1280
-            }
+            },
+            "tag":"wireguard"
+        },
+        {
+            "protocol":"freedom",
+            "tag":"direct"
+        },
+        {
+            "protocol":"freedom",
+            "settings":{
+                "domainStrategy":"UseIPv4"
+            },
+            "proxySettings":{
+                "tag":"wireguard"
+            },
+            "tag":"warp-IPv4"
+        },
+        {
+            "protocol":"freedom",
+            "settings":{
+                "domainStrategy":"UseIPv6"
+            },
+            "proxySettings":{
+                "tag":"wireguard"
+            },
+            "tag":"warp-IPv6"
         }
     ],
     "routing":{
@@ -305,10 +329,9 @@ warp i jp
             {
                 "type":"field",
                 "domain":[
-                    "domain:openai.com",
-                    "domain:ai.com"
+                    "geosite:openai"
                 ],
-                "outboundTag":"WARP"
+                "outboundTag":"warp-IPv4" // 若需使用 Cloudflare 的 IPv6，改为 "warp-IPv6"
             }
         ]
     }
@@ -354,50 +377,72 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 
 * 如果长时间仍然未刷出解锁IP，可以查查 CloudFlare 当地是否在维护调路由：https://www.cloudflarestatus.com/
     
-## Netflix 分流到 WARP Client Proxy、WireProxy 的方法
+## 指定网站分流到 socks5 的 xray 配置模板 (适用于 WARP Client Proxy 和 WireProxy)
 
-感谢 vpsxb admin 原创教程: [继续解锁奈飞（七）-WARP socks5 client分流](https://vpsxb.net/1069/)
-
-先安装 WARP Client，假设使用默认的 40000 端口
+本地 socks5://127.0.0.1:40000
 并安装 [mack-a 八合一脚本](https://github.com/mack-a/v2ray-agent) 为例。编辑  ```/etc/v2ray-agent/xray/conf/10_ipv4_outbounds.json```
 
 ```
 {
-    "outbounds": [
+    "outbounds":[
         {
-            "protocol": "freedom"
-        },
-        {
-            "tag": "media-unlock",
-            "protocol": "socks",
-            "settings": {
-                "servers": [
+            "tag":"warp",
+            "protocol":"socks",
+            "settings":{
+                "servers":[
                     {
-                        "address": "127.0.0.1",
-                        "port": 40000,
-                        "users": []
+                        "address":"127.0.0.1",
+                        "port":40000
                     }
                 ]
             }
+        },
+        {
+            "tag":"WARP-socks5-v4",
+            "protocol":"freedom",
+            "settings":{
+                "domainStrategy":"UseIPv4"
+            },
+            "proxySettings":{
+                "tag":"warp"
+            }
+        },
+        {
+            "tag":"WARP-socks5-v6",
+            "protocol":"freedom",
+            "settings":{
+                "domainStrategy":"UseIPv6"
+            },
+            "proxySettings":{
+                "tag":"warp"
+            }
         }
     ],
-    "routing": {
-        "domainStrategy": "AsIs",
-        "rules": [
+    "routing":{
+        "rules":[
             {
-                "type": "field",
-                "domain": [
-                    "geosite:netflix",
-                    "domain:ip.gs"
+                "type":"field",
+                "domain":[
+                    "openai",
+                    "ai.com",
+                    "ip.gs"
                 ],
-                "outboundTag": "media-unlock"
+                "outboundTag":"WARP-socks5-v4"
+            },
+            {
+                "type":"field",
+                "domain":[
+                    "p3terx.com",
+                    "netflix"
+                ],
+                "outboundTag":"WARP-socks5-v6"
             }
         ]
     }
 }
 ```
 
-## Netflix,Google 分流到 Client WARP 网络接口的方法
+## 指定网站分流到 "interface" 的 xray 配置模板（适用于 WARP Client Warp 和 warp-go 非全局）
 
 感谢 LUDAN 老师提供的网络接口分流配置模板，注意：172.16.0.2 为 CloudFlareWARP 网络接口的 IP
 
@@ -405,47 +450,59 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 {
     "outbounds":[
         {
-            "tag":"INTERNET_OUT",
-            "protocol":"freedom",
-            "settings":{
-                "domainStrategy":"UseIP"
-            }
+            "protocol":"freedom"
         },
         {
-            "tag":"CLI_OUT",
+            "tag":"CloudflareWARP-v4",
             "protocol":"freedom",
             "settings":{
                 "domainStrategy":"UseIPv4"
             },
-            "sendThrough":"172.16.0.2"
+            "streamSettings":{
+                "sockopt":{
+                    "interface":"CloudflareWARP",
+                    "tcpFastOpen":true
+                }
+            }
+        },
+        {
+            "tag":"CloudflareWARP-v6",
+            "protocol":"freedom",
+            "settings":{
+                "domainStrategy":"UseIPv6"
+            },
+            "streamSettings":{
+                "sockopt":{
+                    "interface":"CloudflareWARP",
+                    "tcpFastOpen":true
+                }
+            }
         }
     ],
     "routing":{
+        "domainStrategy":"AsIs",
         "rules":[
             {
                 "type":"field",
-                "outboundTag":"CLI_OUT",
                 "domain":[
                     "geosite:google",
-                    "geosite:netflix",
-                    "domain:ip.gs"
-                ]
+                    "domain:ip.gs",
+                    "domain:openai.com",
+                    "domain:ai.com"
+                ],
+                "outboundTag":"CloudflareWARP-v4"
             },
             {
                 "type":"field",
-                "outboundTag":"INTERNET_OUT",
-                "network":"udp,tcp"
+                "domain":[
+                    "geosite:netflix",
+                    "domain:p3terx.com"
+                ],
+                "outboundTag":"CloudflareWARP-v6"
             }
-        ]
-    },
-    "dns":{
-        "servers":[
-            "1.1.1.1",
-            "1.0.0.1"
         ]
     }
 }
-
 ```
 
 ## warp-go 运行脚本
@@ -568,7 +625,8 @@ https://github.com/acacia233/Project-WARP-Unlock
 * wangying202: https://blog.csdn.net/wangying202/article/details/113178159
 * LUBAN: https://github.com/HXHGTS/Cloudflare_WARP_Connect
 * valetzx: https://gitlab.com/valetzx/pubfile
-* badafans cf api: https://github.com/badafans/warp-reg 
+* badafans cf api: https://github.com/badafans/warp-reg
+* chika0801: https://github.com/chika0801/Xray-examples/
 * 所有的热心网友们
 
 服务提供（排名不分先后）:

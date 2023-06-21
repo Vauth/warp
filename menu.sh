@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号
-VERSION=2.51
+VERSION=2.52
 
 # IP API 服务商
 IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.cloudflare.com/cdn-cgi/trace")
@@ -13,8 +13,8 @@ export DEBIAN_FRONTEND=noninteractive
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="Client supports Debian 12 (bookworm)"
-C[1]="Client 支持 Debian 12 (bookworm)"
+E[1]="1. Client proxy mode supports warp dualstack; 2. Client warp mode supports warp dualstack; 3. Speed up script startup; Thanks to Bro ⑥, WordsWorthLess, us254 and chika0801 for the guidace on the xray template."
+C[1]="1. Client Proxy 模式支持 warp 双栈; 2. Client warp 模式支持 warp 双栈; 3. 加快脚本启动速度; 感谢网友 ⑥哥, WordsWorthLess, us254 and chika0801 关于 xray 模板的指导"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -127,8 +127,8 @@ E[56]="The current Netflix region is \$REGION. Confirm press [y] . If you want a
 C[56]="当前 Netflix 地区是:\$REGION，需要解锁当前地区请按 [y], 如需其他地址请输入两位地区简写 \(如 hk ,sg，默认:\$REGION\):"
 E[57]="The target quota you want to get. The unit is GB, the default value is 10:"
 C[57]="你希望获取的目标流量值，单位为 GB，输入数字即可，默认值为10:"
-E[58]=""
-C[58]=""
+E[58]="Local network interface: CloudflareWARP"
+C[58]="本地网络接口: CloudflareWARP"
 E[59]="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License"
 C[59]="找不到账户文件:/etc/wireguard/wgcf-account.toml，可以卸载后重装，输入 WARP+ License"
 E[60]="Cannot find the configuration file: /etc/wireguard/wgcf.conf, you can reinstall with the WARP+ License"
@@ -469,7 +469,7 @@ check_dependencies() {
 ip_info() {
   local CHECK_46="$1"
   if [[ "$2" =~ ^[0-9]+$ ]]; then
-    local INTERFACE_SOCK5="-x socks5h://localhost:$2"
+    local INTERFACE_SOCK5="-x socks5://127.0.0.1:$2"
   elif [[ "$2" =~ ^[[:alnum:]]+$ ]]; then
     local INTERFACE_SOCK5="--interface $2"
   fi
@@ -514,40 +514,125 @@ ip_case() {
     WIREPROXY_ACCOUNT=' free' && [ "$WIREPROXY_TRACE4" = plus ] && [ -e /etc/wireguard/info.log ] && WIREPROXY_ACCOUNT=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && WIREPROXY_ACCOUNT='+' && check_quota warp
 
   elif [ "$CHECK_TYPE" = "client" ]; then
-    unset IP_RESULT CLIENT_SOCKS5 CLIENT_PORT CLIENT_TRACE4 CLIENT_WAN4 CLIENT_COUNTRY4 CLIENT_ASNORG4 CLIENT_ACCOUNT QUOTA AC
+    unset CLIENT_SOCKS5 CLIENT_PORT
     CLIENT_SOCKS5=$(ss -nltp | grep 'warp' | awk '{print $(NF-2)}')
     CLIENT_PORT=$(cut -d: -f2 <<< "$CLIENT_SOCKS5")
-    local IP_RESULT=$(ip_info "$CHECK_46" "$CLIENT_PORT")
-    CLIENT_TRACE4=$(expr "$IP_RESULT" : '.*trace=\([^@]*\).*')
-    CLIENT_WAN4=$(expr "$IP_RESULT" : '.*ip=\([^@]*\).*')
-    CLIENT_COUNTRY4=$(expr "$IP_RESULT" : '.*country=\([^@]*\).*')
-    [ "$L" = C ] && CLIENT_COUNTRY4_ZH=$(translate "$CLIENT_COUNTRY4")
-    [ -n "$CLIENT_COUNTRY4_ZH" ] && CLIENT_COUNTRY4="$CLIENT_COUNTRY4_ZH"
-    CLIENT_ASNORG4=$(expr "$IP_RESULT" : '.*asnorg=\([^@]*\).*')
-    CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
-    [[ "$CLIENT_ACCOUNT" =~ Limited ]] && CLIENT_AC='+' && check_quota client
-
-  elif [ "$CHECK_46" = 4 ]; then
-    unset IP_RESULT COUNTRY4 ASNORG4 TRACE4 PLUS4 WARPSTATUS4
-    [ "$CHECK_TYPE" = luban ] && local INTERFACE=CloudflareWARP
-    local IP_RESULT=$(ip_info "$CHECK_46" "$INTERFACE")
-    TRACE4=$(expr "$IP_RESULT" : '.*trace=\([^@]*\).*')
-    WAN4=$(expr "$IP_RESULT" : '.*ip=\([^@]*\).*')
-    COUNTRY4=$(expr "$IP_RESULT" : '.*country=\([^@]*\).*')
-    [ "$L" = C ] && COUNTRY4_ZH=$(translate "$COUNTRY4")
-    [ -n "$COUNTRY4_ZH" ] && COUNTRY4="$COUNTRY4_ZH"
-    ASNORG4=$(expr "$IP_RESULT" : '.*asnorg=\([^@]*\).*')
-
-  elif [ "$CHECK_46" = 6 ]; then
-    unset IP_RESULT COUNTRY6 ASNORG6 TRACE6 PLUS6 WARPSTATUS6
-    [ "$CHECK_TYPE" = luban ] && local INTERFACE=CloudflareWARP
-    local IP_RESULT=$(ip_info "$CHECK_46" "$INTERFACE")
-    TRACE6=$(expr "$IP_RESULT" : '.*trace=\([^@]*\).*')
-    WAN6=$(expr "$IP_RESULT" : '.*ip=\([^@]*\).*')
-    COUNTRY6=$(expr "$IP_RESULT" : '.*country=\([^@]*\).*')
-    [ "$L" = C ] && COUNTRY6_ZH=$(translate "$COUNTRY6")
-    [ -n "$COUNTRY6_ZH" ] && COUNTRY6="$COUNTRY6_ZH"
-    ASNORG6=$(expr "$IP_RESULT" : '.*asnorg=\([^@]*\).*')
+    case "$CHECK_46" in
+      4 ) unset IP_RESULT4 CLIENT_TRACE4 CLIENT_WAN4 CLIENT_COUNTRY4 CLIENT_ASNORG4 CLIENT_ACCOUNT QUOTA AC
+          local IP_RESULT4=$(ip_info 4 "$CLIENT_PORT")
+          CLIENT_TRACE4=$(expr "$IP_RESULT4" : '.*trace=\([^@]*\).*')
+          CLIENT_WAN4=$(expr "$IP_RESULT4" : '.*ip=\([^@]*\).*')
+          CLIENT_COUNTRY4=$(expr "$IP_RESULT4" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && CLIENT_COUNTRY4_ZH=$(translate "$CLIENT_COUNTRY4")
+          [ -n "$CLIENT_COUNTRY4_ZH" ] && CLIENT_COUNTRY4="$CLIENT_COUNTRY4_ZH"
+          CLIENT_ASNORG4=$(expr "$IP_RESULT4" : '.*asnorg=\([^@]*\).*')
+          CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+          [[ "$CLIENT_ACCOUNT" =~ Limited ]] && CLIENT_AC='+' && check_quota client
+          ;;
+      6 ) unset IP_RESULT6 CLIENT_TRACE6 CLIENT_WAN6 CLIENT_COUNTRY6 CLIENT_ASNORG6 CLIENT_ACCOUNT QUOTA AC
+          local IP_RESULT6=$(ip_info 6 "$CLIENT_PORT")
+          CLIENT_TRACE6=$(expr "$IP_RESULT6" : '.*trace=\([^@]*\).*')
+          CLIENT_WAN6=$(expr "$IP_RESULT6" : '.*ip=\([^@]*\).*')
+          CLIENT_COUNTRY6=$(expr "$IP_RESULT6" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && CLIENT_COUNTRY6_ZH=$(translate "$CLIENT_COUNTRY6")
+          [ -n "$CLIENT_COUNTRY6_ZH" ] && CLIENT_COUNTRY6="$CLIENT_COUNTRY6_ZH"
+          CLIENT_ASNORG6=$(expr "$IP_RESULT6" : '.*asnorg=\([^@]*\).*')
+          CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+          [[ "$CLIENT_ACCOUNT" =~ Limited ]] && CLIENT_AC='+' && check_quota client
+          ;;
+      d ) unset IP_RESULT4 CLIENT_TRACE4 CLIENT_WAN4 CLIENT_COUNTRY4 CLIENT_ASNORG4 IP_RESULT6 CLIENT_TRACE6 CLIENT_WAN6 CLIENT_COUNTRY6 CLIENT_ASNORG6 CLIENT_ACCOUNT QUOTA AC
+          local IP_RESULT4=$(ip_info 4 "$CLIENT_PORT")
+          CLIENT_TRACE4=$(expr "$IP_RESULT4" : '.*trace=\([^@]*\).*')
+          CLIENT_WAN4=$(expr "$IP_RESULT4" : '.*ip=\([^@]*\).*')
+          CLIENT_COUNTRY4=$(expr "$IP_RESULT4" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && CLIENT_COUNTRY4_ZH=$(translate "$CLIENT_COUNTRY4")
+          [ -n "$CLIENT_COUNTRY4_ZH" ] && CLIENT_COUNTRY4="$CLIENT_COUNTRY4_ZH"
+          CLIENT_ASNORG4=$(expr "$IP_RESULT4" : '.*asnorg=\([^@]*\).*')
+          local IP_RESULT6=$(ip_info 6 "$CLIENT_PORT")
+          CLIENT_TRACE6=$(expr "$IP_RESULT6" : '.*trace=\([^@]*\).*')
+          CLIENT_WAN6=$(expr "$IP_RESULT6" : '.*ip=\([^@]*\).*')
+          CLIENT_COUNTRY6=$(expr "$IP_RESULT6" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && CLIENT_COUNTRY6_ZH=$(translate "$CLIENT_COUNTRY6")
+          [ -n "$CLIENT_COUNTRY6_ZH" ] && CLIENT_COUNTRY6="$CLIENT_COUNTRY6_ZH"
+          CLIENT_ASNORG6=$(expr "$IP_RESULT6" : '.*asnorg=\([^@]*\).*')
+          CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
+          [[ "$CLIENT_ACCOUNT" =~ Limited ]] && CLIENT_AC='+' && check_quota client
+          ;;
+    esac
+  elif [ "$CHECK_TYPE" = "luban" ]; then
+    case "$CHECK_46" in
+      4 ) unset IP_RESULT4 CFWARP_COUNTRY4 CFWARP_ASNORG4 CFWARP_TRACE4 CFWARP_WAN4 
+          local IP_RESULT4=$(ip_info 4 CloudflareWARP)
+          CFWARP_TRACE4=$(expr "$IP_RESULT4" : '.*trace=\([^@]*\).*')
+          CFWARP_WAN4=$(expr "$IP_RESULT4" : '.*ip=\([^@]*\).*')
+          CFWARP_COUNTRY4=$(expr "$IP_RESULT4" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && CFWARP_COUNTRY4_ZH=$(translate "$CFWARP_COUNTRY4")
+          [ -n "$CFWARP_COUNTRY4_ZH" ] && CFWARP_COUNTRY4="$CFWARP_COUNTRY4_ZH"
+          CFWARP_ASNORG4=$(expr "$IP_RESULT4" : '.*asnorg=\([^@]*\).*')
+          ;;
+      6 ) unset IP_RESULT6 CFWARP_COUNTRY6 CFWARP_ASNORG6 CFWARP_TRACE6 CFWARP_WAN6
+          local IP_RESULT6=$(ip_info 6 CloudflareWARP)
+          CFWARP_TRACE6=$(expr "$IP_RESULT6" : '.*trace=\([^@]*\).*')
+          CFWARP_WAN6=$(expr "$IP_RESULT6" : '.*ip=\([^@]*\).*')
+          CFWARP_COUNTRY6=$(expr "$IP_RESULT6" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && CFWARP_COUNTRY6_ZH=$(translate "$CFWARP_COUNTRY6")
+          [ -n "$CFWARP_COUNTRY6_ZH" ] && CFWARP_COUNTRY6="$CFWARP_COUNTRY6_ZH"
+          CFWARP_ASNORG6=$(expr "$IP_RESULT6" : '.*asnorg=\([^@]*\).*')
+          ;;
+      d ) unset IP_RESULT4 CFWARP_COUNTRY4 CFWARP_ASNORG4 CFWARP_TRACE4 CFWARP_WAN4 IP_RESULT6 CFWARP_COUNTRY6 CFWARP_ASNORG6 CFWARP_TRACE6 CFWARP_WAN6
+          local IP_RESULT4=$(ip_info 4 CloudflareWARP)
+          CFWARP_TRACE4=$(expr "$IP_RESULT4" : '.*trace=\([^@]*\).*')
+          CFWARP_WAN4=$(expr "$IP_RESULT4" : '.*ip=\([^@]*\).*')
+          CFWARP_COUNTRY4=$(expr "$IP_RESULT4" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && CFWARP_COUNTRY4_ZH=$(translate "$CFWARP_COUNTRY4")
+          [ -n "$CFWARP_COUNTRY4_ZH" ] && CFWARP_COUNTRY4="$CFWARP_COUNTRY4_ZH"
+          CFWARP_ASNORG4=$(expr "$IP_RESULT4" : '.*asnorg=\([^@]*\).*')
+          local IP_RESULT6=$(ip_info 6 CloudflareWARP)
+          CFWARP_TRACE6=$(expr "$IP_RESULT6" : '.*trace=\([^@]*\).*')
+          CFWARP_WAN6=$(expr "$IP_RESULT6" : '.*ip=\([^@]*\).*')
+          CFWARP_COUNTRY6=$(expr "$IP_RESULT6" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && CFWARP_COUNTRY6_ZH=$(translate "$CFWARP_COUNTRY6")
+          [ -n "$CFWARP_COUNTRY6_ZH" ] && CFWARP_COUNTRY6="$CFWARP_COUNTRY6_ZH"
+          CFWARP_ASNORG6=$(expr "$IP_RESULT6" : '.*asnorg=\([^@]*\).*')
+          ;;
+    esac
+  elif [ -z "$CHECK_TYPE" ]; then
+    case "$CHECK_46" in
+      4 ) unset IP_RESULT4 COUNTRY4 ASNORG4 TRACE4 
+          local IP_RESULT4=$(ip_info 4)
+          TRACE4=$(expr "$IP_RESULT4" : '.*trace=\([^@]*\).*')
+          WAN4=$(expr "$IP_RESULT4" : '.*ip=\([^@]*\).*')
+          COUNTRY4=$(expr "$IP_RESULT4" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && COUNTRY4_ZH=$(translate "$COUNTRY4")
+          [ -n "$COUNTRY4_ZH" ] && COUNTRY4="$COUNTRY4_ZH"
+          ASNORG4=$(expr "$IP_RESULT4" : '.*asnorg=\([^@]*\).*')
+          ;;
+      6 ) unset IP_RESULT6 COUNTRY6 ASNORG6 TRACE6
+          local IP_RESULT6=$(ip_info 6)
+          TRACE6=$(expr "$IP_RESULT6" : '.*trace=\([^@]*\).*')
+          WAN6=$(expr "$IP_RESULT6" : '.*ip=\([^@]*\).*')
+          COUNTRY6=$(expr "$IP_RESULT6" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && COUNTRY6_ZH=$(translate "$COUNTRY6")
+          [ -n "$COUNTRY6_ZH" ] && COUNTRY6="$COUNTRY6_ZH"
+          ASNORG6=$(expr "$IP_RESULT6" : '.*asnorg=\([^@]*\).*')
+          ;;
+      d ) unset IP_RESULT4 COUNTRY4 ASNORG4 TRACE4 IP_RESULT6 COUNTRY6 ASNORG6 TRACE6
+          local IP_RESULT4=$(ip_info 4)
+          TRACE4=$(expr "$IP_RESULT4" : '.*trace=\([^@]*\).*')
+          WAN4=$(expr "$IP_RESULT4" : '.*ip=\([^@]*\).*')
+          COUNTRY4=$(expr "$IP_RESULT4" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && COUNTRY4_ZH=$(translate "$COUNTRY4")
+          [ -n "$COUNTRY4_ZH" ] && COUNTRY4="$COUNTRY4_ZH"
+          ASNORG4=$(expr "$IP_RESULT4" : '.*asnorg=\([^@]*\).*')
+          local IP_RESULT6=$(ip_info 6)
+          TRACE6=$(expr "$IP_RESULT6" : '.*trace=\([^@]*\).*')
+          WAN6=$(expr "$IP_RESULT6" : '.*ip=\([^@]*\).*')
+          COUNTRY6=$(expr "$IP_RESULT6" : '.*country=\([^@]*\).*')
+          [ "$L" = C ] && COUNTRY6_ZH=$(translate "$COUNTRY6")
+          [ -n "$COUNTRY6_ZH" ] && COUNTRY6="$COUNTRY6_ZH"
+          ASNORG6=$(expr "$IP_RESULT6" : '.*asnorg=\([^@]*\).*')
+          ;;
+    esac
   fi
 }
 
@@ -627,7 +712,7 @@ result_priority() {
 # 更换 Netflix IP 时确认期望区域  
 input_region() {
   [ -n "$NF" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
-  [ -n "$WIREPROXY_PORT" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$WIREPROXY_PORT -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+  [ -n "$WIREPROXY_PORT" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5://127.0.0.1:$WIREPROXY_PORT -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
   [ -n "$INTERFACE" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
   REGION=${REGION:-'US'}
   reading " $(text_eval 56) " EXPECT
@@ -639,6 +724,11 @@ input_region() {
 
 # 更换支持 Netflix WARP IP 改编自 [luoxue-bot] 的成熟作品，地址[https://github.com/luoxue-bot/warp_auto_change_ip]
 change_ip() {
+  change_stack() {
+    hint "\n $(text 124) \n" && reading " $(text 50) " NETFLIX
+    NF='4' && [ "$NETFLIX" = 2 ] && NF='6'
+  }
+
   change_wgcf() {
     wgcf_restart() { warning " $(text_eval 126) " && ${SYSTEMCTL_RESTART[int]}; ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1; sleep $j; }
     unset T4 T6
@@ -647,8 +737,7 @@ change_ip() {
     case "$T4$T6" in
       01 ) NF='6' ;;
       10 ) NF='4' ;;
-      11 ) hint "\n $(text 124) \n" && reading " $(text 50) " NETFLIX
-           NF='4' && [ "$NETFLIX" = 2 ] && NF='6' ;;
+      11 ) change_stack ;;
     esac
 
     [ -z "$EXPECT" ] && input_region
@@ -657,8 +746,7 @@ change_ip() {
       (( i++ )) || true
       ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
       ip_case "$NF"
-      WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
-      [ "$L" = C ] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
+      WAN=$(eval echo \$WAN$NF) && COUNTRY=$(eval echo \$COUNTRY$NF) && ASNORG=$(eval echo \$ASNORG$NF)
       unset RESULT REGION
       for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
         RESULT[l]=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
@@ -684,22 +772,24 @@ change_ip() {
       sleep $j
       [ "$CLIENT_PROXY" != 1 ] && rule_add >/dev/null 2>&1
     }
-
+    
+    change_stack
+    
     if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
       [ -z "$EXPECT" ] && input_region
       i=0; j=10
       while true; do
         (( i++ )) || true
         ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME %86400 % 3600 % 60 ))
-        ip_case 4 client
-        WAN=$CLIENT_WAN4 && ASNORG=$CLIENT_ASNORG4 && NF=4 && COUNTRY=$CLIENT_COUNTRY4
+        ip_case "$NF" client
+        WAN=$(eval echo "\$CLIENT_WAN$NF") && ASNORG=$(eval echo "\$CLIENT_ASNORG$NF") && COUNTRY=$(eval echo "\$CLIENT_COUNTRY$NF")
         unset RESULT REGION
         for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
-          RESULT[l]=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$CLIENT_PORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
+          RESULT[l]=$(curl --user-agent "${UA_Browser}" -"$NF" -sx socks5://127.0.0.1:$CLIENT_PORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
           [ "${RESULT[l]}" = 200 ] && break
         done
         if [[ "${RESULT[@]}" =~ 200 ]]; then
-          REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$CLIENT_PORT -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+          REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -"$NF" -sx socks5://127.0.0.1:$CLIENT_PORT -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
           REGION=${REGION:-'US'}
           echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || client_restart
         else
@@ -708,15 +798,13 @@ change_ip() {
       done
 
     else
-      INTERFACE='--interface CloudflareWARP'
       [ -z "$EXPECT" ] && input_region
       i=0; j=10
       while true; do
         (( i++ )) || true
         ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
-        ip_case 4 luban
-        WAN=$WAN4 && ASNORG=$ASNORG4 && NF=4
-        [ "$L" = C ] && COUNTRY=$(translate "$COUNTRY4") || COUNTRY=$COUNTRY4
+        ip_case "$NF" luban
+        WAN=$(eval echo "\$CFWARP_WAN$NF") && COUNTRY=$(eval echo "\$CFWARP_COUNTRY$NF") && ASNORG=$(eval echo "\$CFWARP_ASNORG$NF")
         unset RESULT REGION
         for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
           RESULT[l]=$(curl --user-agent "${UA_Browser}" $INTERFACE -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
@@ -746,11 +834,11 @@ change_ip() {
       WAN=$CLIENT_WAN4 && ASNORG=$CLIENT_COUNTRY4 && COUNTRY=$CLIENT_COUNTRY4
       unset RESULT REGION
       for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
-        RESULT[l]=$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$WIREPROXY_PORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
+        RESULT[l]=$(curl --user-agent "${UA_Browser}" -sx socks5://127.0.0.1:$WIREPROXY_PORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
         [ "${RESULT[l]}" = 200 ] && break
       done
       if [[ "${RESULT[@]}" =~ 200 ]]; then
-        REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://localhost:$WIREPROXY_PORT -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+        REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5://127.0.0.1:$WIREPROXY_PORT -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
         REGION=${REGION:-'US'}
         echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || wireproxy_restart
       else
@@ -895,7 +983,7 @@ uninstall() {
 
   # 显示卸载结果
   systemctl restart systemd-resolved >/dev/null 2>&1; sleep 3
-  ip_case 4; ip_case 6
+  ip_case d
   info " $(text 45)\n IPv4: $WAN4 $COUNTRY4 $ASNORG4\n IPv6: $WAN6 $COUNTRY6 $ASNORG6 "
 }
         
@@ -924,13 +1012,13 @@ net() {
   ${SYSTEMCTL_START[int]} >/dev/null 2>&1
   wg-quick up wgcf >/dev/null 2>&1
   ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
-  ip_case 4; ip_case 6
+  ip_case d
   until [[ "$TRACE4$TRACE6" =~ on|plus && -z "$CONFIRM_TEAMS_INFO" ]]; do
     (( i++ )) || true
     hint " $(text_eval 12) "
     ${SYSTEMCTL_RESTART[int]} >/dev/null 2>&1
     ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
-    ip_case 4; ip_case 6
+    ip_case d
     # 如果 teams 升级状态，但多次未成功获取 warp IP ，将换回普通账户，如果成功，删除临时文件
     if [[ "$CONFIRM_TEAMS_INFO" = [Yy] ]]; then
       if [[ "$TRACE4$TRACE6" =~ plus ]]; then
@@ -951,7 +1039,7 @@ net() {
   [ -e /etc/wireguard/wgcf.conf.bak ] && rm -f /etc/wireguard/wgcf.conf.bak
   [[ "$TRACE4$TRACE6" =~ on|plus ]] && [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && TYPE='+' && check_quota warp
   info " $(text_eval 14) "
-  [[ $OPTION = [on] ]] && info " IPv4:$WAN4 $WARPSTATUS4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $WARPSTATUS6 $COUNTRY6 $ASNORG6 "
+  [[ $OPTION = [on] ]] && info " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 "
 }
 
 # WARP 开关，先检查是否已安装，再根据当前状态转向相反状态
@@ -970,20 +1058,19 @@ client_onoff() {
 
   else systemctl start warp-svc; sleep 2
     if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
-      ip_case 4 client
+      ip_case d client
       CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
       [[ $CLIENT_ACCOUNT =~ Limited ]] && CLIENT_AC='+' && check_quota client
-      [[ $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ warp-svc ]] && info " $(text 90)\n $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4 "
+      [[ $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ warp-svc ]] && info " $(text 90)\n $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4\n WARP$CLIENT_AC IPv6: $CLIENT_WAN6 $CLIENT_COUNTRY6 $CLIENT_ASNORG6 "
       [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
       exit 0
 
     else
       rule_add >/dev/null 2>&1
-      ip_case 4 luban
-      [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
+      ip_case d luban
       CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null)
       [[ $CLIENT_ACCOUNT =~ Limited ]] && CLIENT_AC='+' && check_quota client
-      [[ $(ip link show | awk -F': ' '{print $2}') =~ CloudflareWARP ]] && info " $(text 90)\n WARP$CLIENT_AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
+      [[ $(ip link show | awk -F': ' '{print $2}') =~ CloudflareWARP ]] && info " $(text 90)\n WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6 "
       [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
       exit 0
     fi
@@ -1000,7 +1087,7 @@ wireproxy_onoff() {
   else
     systemctl start wireproxy
     sleep 1 && ip_case 4 wireproxy
-    [[ $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ wireproxy ]] && info " $(text 99)\n $(text 27): $WIREPROXY_SOCKS5\n WARP$WIREPROXY_ACCOUNT IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 "
+    [[ $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ wireproxy ]] && info " $(text 99)\n $(text 27): $WIREPROXY_SOCKS5\n WARP$WIREPROXY_ACCOUNT IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4"
     [ -n "$QUOTA" ] && info " $(text 25): $(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $(text 63): $QUOTA "
   fi
 }
@@ -1111,9 +1198,9 @@ EOF
     CLIENT=1 && CLIENT_INSTALLED="$(text 92)"
     [[ $(systemctl is-active warp-svc 2>/dev/null) = active || $(systemctl is-enabled warp-svc 2>/dev/null) = enabled ]] && CLIENT=2
     if [[ $(warp-cli --accept-tos settings) =~ WarpProxy ]]; then
-      [ "$CLIENT" = 2 ] && CLIENT_MODE='Proxy' && [[ $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ warp-svc ]] && CLIENT=3 && ip_case 4 client
+      [ "$CLIENT" = 2 ] && CLIENT_MODE='Proxy' && [[ $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ warp-svc ]] && CLIENT=3 && ip_case d client
     else
-      [ "$CLIENT" = 2 ] && CLIENT_MODE='WARP' && [[ $(ip link show | awk -F': ' '{print $2}') =~ CloudflareWARP ]] && CLIENT=5 && ip_case 4 luban
+      [ "$CLIENT" = 2 ] && CLIENT_MODE='WARP' && [[ $(ip link show | awk -F': ' '{print $2}') =~ CloudflareWARP ]] && CLIENT=5 && ip_case d luban
     fi
   fi
 
@@ -1129,11 +1216,16 @@ rule_add() {
   ip -4 rule add from 172.16.0.2 lookup 51820
   ip -4 route add default dev CloudflareWARP table 51820
   ip -4 rule add table main suppress_prefixlength 0
+  ip -6 rule add oif CloudflareWARP lookup 51820
+  ip -6 route add default dev CloudflareWARP table 51820
+  ip -6 rule add table main suppress_prefixlength 0
 }
 
 rule_del() {
   ip -4 rule delete from 172.16.0.2 lookup 51820
   ip -4 rule delete table main suppress_prefixlength 0
+  ip -6 rule delete oif CloudflareWARP lookup 51820
+  ip -6 rule delete table main suppress_prefixlength 0
 }
 
 # 替换为 Teams 账户信息， 升级为 teams 的标志为 CONFIRM_TEAMS_INFO = [Yy]
@@ -1815,8 +1907,8 @@ EOF
     # 结果提示，脚本运行时间，次数统计
     end=$(date +%s)
     echo -e "\n==============================================================\n"
-    info " IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
-    info " IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
+    info " IPv4: $WAN4 $COUNTRY4  $ASNORG4 "
+    info " IPv6: $WAN6 $COUNTRY6  $ASNORG6 "
     info " $(text_eval 41) " && [ -n "$QUOTA" ] && info " $(text_eval 133) "
     info " $PRIORITY_NOW "
     echo -e "\n==============================================================\n"
@@ -1837,7 +1929,7 @@ client_install() {
     [[ "$CLIENT_ACCOUNT" =~ Limited ]] && TYPE='+' && echo "$LICENSE" > /etc/wireguard/license && info " $(text_eval 62) " ||
     warning " $(text_eval 36) " )
     if [ "$LUBAN" = 1 ]; then
-      i=1; j=5; INTERFACE='--interface CloudflareWARP'
+      i=1; j=5
       hint " $(text_eval 11)\n $(text_eval 12) "
       warp-cli --accept-tos add-excluded-route 0.0.0.0/0 >/dev/null 2>&1
       warp-cli --accept-tos add-excluded-route ::0/0 >/dev/null 2>&1
@@ -1847,8 +1939,8 @@ client_install() {
       warp-cli --accept-tos enable-always-on >/dev/null 2>&1
       sleep 5
       rule_add >/dev/null 2>&1
-      ip_case 4 luban
-      until [ -n "$WAN4" ]; do
+      ip_case d luban
+      until [[ -n "$CFWARP_WAN4" && -n "$CFWARP_WAN6" ]]; do
         (( i++ )) || true
         hint " $(text_eval 12) "
         warp-cli --accept-tos disconnect >/dev/null 2>&1
@@ -1859,7 +1951,7 @@ client_install() {
         warp-cli --accept-tos enable-always-on >/dev/null 2>&1
         sleep 5
         rule_add >/dev/null 2>&1
-        ip_case 4 luban
+        ip_case d luban
         if [ "$i" = "$j" ]; then
           warp-cli --accept-tos disconnect >/dev/null 2>&1
           warp-cli --accept-tos disable-always-on >/dev/null 2>&1
@@ -1881,7 +1973,6 @@ client_install() {
   # 禁止安装的情况。重复安装，非 AMD64 CPU 架构
   [ "$CLIENT" -ge 2 ] && error " $(text 85) "
   [ "$ARCHITECTURE" != amd64 ] && error " $(text_eval 101) "
-#  [ "$TRACE4" != off ] && error " $(text 95) "
 
   # 安装 WARP Linux Client
   [[ "$SYSTEM" = 'CentOS' && "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" -le 7 ]] && error " $(text_eval 145) "
@@ -1924,13 +2015,13 @@ client_install() {
   if [ "$LUBAN" = 1 ]; then
     end=$(date +%s)
     echo -e "\n==============================================================\n"
-    info " $(text_eval 94)\n WARP$CLIENT_AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
+    info " $(text_eval 94)\n WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6 "
 
   else
-    ip_case 4 client
+    ip_case d client
     end=$(date +%s)
     echo -e "\n==============================================================\n"
-    info " $(text_eval 94)\n $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4 "
+    info " $(text_eval 94)\n $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4\n WARP$CLIENT_AC IPv6: $CLIENT_WAN6 $CLIENT_COUNTRY6 $CLIENT_ASNORG6 "
   fi
 
   [[ "$CLIENT_ACCOUNT" =~ Limited ]] && info " $(text 63): $QUOTA "
@@ -2010,9 +2101,8 @@ change_to_free() {
     sleep 2
     if [ "$CLIENT_PROXY" != 1 ]; then
       rule_add >/dev/null 2>&1
-      ip_case 4 luban
-      [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
-      info " WARP$CLIENT_AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4\n $(text_eval 62) "
+      ip_case d luban
+      info " WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\nWARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6\n $(text_eval 62) "
     else
       ip_case 4 wireproxy
       info " $(text 27): $WIREPROXY_SOCKS5\n WARP$CLIENT_AC IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4\n $(text_eval 62) "
@@ -2070,10 +2160,9 @@ change_to_plus() {
     unset AC && TYPE=' free' && [[ "$CLIENT_ACCOUNT" =~ Limited ]] && CLIENT_AC='+' && TYPE='+' && echo "$LICENSE" > /etc/wireguard/license && check_quota client
     if [ "$CLIENT_PROXY" != 1 ]; then
       rule_add >/dev/null 2>&1
-      ip_case 4 luban
-      [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
+      ip_case d luban
       [ "$TYPE" = '+' ] && CLIENT_PLUS="$(text 63): $QUOTA"
-      info " WARP$CLIENT_AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4\n $(text_eval 62)\n $CLIENT_PLUS \n"
+      info " WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6\n $(text_eval 62)\n $CLIENT_PLUS \n"
     else
       ip_case 4 wireproxy
       [ "$TYPE" = '+' ] && CLIENT_PLUS="$(text 63): $QUOTA"
@@ -2160,7 +2249,7 @@ change_to_teams() {
       sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g" /etc/wireguard/proxy.conf
       [ -e /etc/wireguard/info-temp.log ] && mv -f /etc/wireguard/info-temp.log /etc/wireguard/info.log
       wireproxy_onoff
-      [[ $(eval echo "\$(curl -sx socks5h://localhost:$(ss -nltp | grep wireproxy | awk '{print $(NF-2)}'  | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && rm -f /etc/wireguard/wgcf.conf.bak && TYPE=' teams' && info " $(text_eval 62) "
+      [[ $(eval echo "\$(curl -sx socks5://127.0.0.1:$(ss -nltp | grep wireproxy | awk '{print $(NF-2)}'  | cut -d: -f2) https://www.cloudflare.com/cdn-cgi/trace)") =~ plus ]] && rm -f /etc/wireguard/wgcf.conf.bak && TYPE=' teams' && info " $(text_eval 62) "
     fi
   fi
 }
@@ -2327,8 +2416,8 @@ menu() {
   hint " $(text 16) "
   echo -e "======================================================================================================================\n"
   info " $(text 17):$VERSION\n $(text 18):$(text 1)\n $(text 19):\n\t $(text 20):$SYS\n\t $(text 21):$(uname -r)\n\t $(text 22):$ARCHITECTURE\n\t $(text 23):$VIRT "
-  info "\t IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
-  info "\t IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
+  info "\t IPv4: $WAN4 $COUNTRY4  $ASNORG4 "
+  info "\t IPv6: $WAN6 $COUNTRY6  $ASNORG6 "
   case "$TRACE4$TRACE6" in
     *plus* ) info "\t $(text_eval 114)\t $PLUSINFO " ;;
     *on* ) info "\t $(text 115) " ;;
@@ -2337,13 +2426,13 @@ menu() {
   case "$CLIENT" in
     0 ) info "\t $(text 112) " ;;
     1 ) info "\t $(text_eval 113) " ;;
-    3 ) info "\t WARP$CLIENT_AC $(text 24)\t $(text 27): $CLIENT_SOCKS5\n\t WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4 " ;;
-    5 ) info "\t WARP$CLIENT_AC $(text 24)\t WARP$CLIENT_AC IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 " ;;
+    3 ) info "\t WARP$CLIENT_AC $(text 24)\t $(text 27): $CLIENT_SOCKS5\n\t WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4\n\t WARP$CLIENT_AC IPv6: $CLIENT_WAN6 $CLIENT_COUNTRY6 $CLIENT_ASNORG6 " ;;
+    5 ) info "\t WARP$CLIENT_AC $(text 24)\t $(text 58)\n\t WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n\t WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6 " ;;
   esac
   case "$WIREPROXY" in
     0 ) info "\t $(text 160) " ;;
     1 ) info "\t $(text 161) " ;;
-    2 ) info "\t WARP$WIREPROXY_ACCOUNT $(text 159)\t $(text 27): $WIREPROXY_SOCKS5\n\t WARP$WIREPROXY_ACCOUNT IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_COUNTRY4 " ;;
+    2 ) info "\t WARP$WIREPROXY_ACCOUNT $(text 159)\t $(text 27): $WIREPROXY_SOCKS5\n\t WARP$WIREPROXY_ACCOUNT IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4 " ;;
   esac
   grep -q '+' <<< $AC$WIREPROXY_ACCOUNT && info "\t $(text 63): $QUOTA "
    echo -e "\n======================================================================================================================\n"
