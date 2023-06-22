@@ -276,9 +276,12 @@ warp i jp
 {
     "outbounds":[
         {
+            "protocol":"freedom",
+        },
+        {
             "protocol":"wireguard",
             "settings":{
-                "secretKey":"YFYOAdbw1bKTHlNNi+aEjBM3BO7unuFC5rOkMRAz9XY=",
+                "secretKey":"YFYOAdbw1bKTHlNNi+aEjBM3BO7unuFC5rOkMRAz9XY=", // 粘贴你的 "private_key" 值
                 "address":[
                     "172.16.0.2/32",
                     "2606:4700:110:8a36:df92:102a:9602:fa18/128"
@@ -290,17 +293,13 @@ warp i jp
                             "0.0.0.0/0",
                             "::/0"
                         ],
-                        "endpoint":"162.159.192.1:2408"
+                        "endpoint":"engage.cloudflareclient.com:2408" // 或填写 162.159.193.10:2408 或 [2606:4700:d0::a29f:c001]:2408
                     }
                 ],
-                "reserved":[78, 135, 76],
+                "reserved":[78, 135, 76], // 粘贴你的 "reserved" 值
                 "mtu":1280
             },
             "tag":"wireguard"
-        },
-        {
-            "protocol":"freedom",
-            "tag":"direct"
         },
         {
             "protocol":"freedom",
@@ -329,9 +328,18 @@ warp i jp
             {
                 "type":"field",
                 "domain":[
-                    "geosite:openai"
+                    "geosite:openai",
+                    "ip.gs"
                 ],
-                "outboundTag":"warp-IPv4" // 若需使用 Cloudflare 的 IPv6，改为 "warp-IPv6"
+                "outboundTag":"warp-IPv4"
+            },
+            {
+                "type":"field",
+                "domain":[
+                    "geosite:netflix",
+                    "p3terx.com"
+                ],
+                "outboundTag":"warp-IPv6"
             }
         ]
     }
@@ -386,13 +394,16 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 {
     "outbounds":[
         {
+            "protocol":"freedom"
+        },
+        {
             "tag":"warp",
             "protocol":"socks",
             "settings":{
                 "servers":[
                     {
                         "address":"127.0.0.1",
-                        "port":40000
+                        "port":40000 // 填写你的 socks5 端口
                     }
                 ]
             }
@@ -423,8 +434,7 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
             {
                 "type":"field",
                 "domain":[
-                    "openai",
-                    "ai.com",
+                    "geosite:openai",
                     "ip.gs"
                 ],
                 "outboundTag":"WARP-socks5-v4"
@@ -432,8 +442,9 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
             {
                 "type":"field",
                 "domain":[
-                    "p3terx.com",
-                    "netflix"
+                    "geosite:google",
+                    "geosite:netflix",
+                    "p3terx.com"
                 ],
                 "outboundTag":"WARP-socks5-v6"
             }
@@ -444,8 +455,6 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 
 ## 指定网站分流到 "interface" 的 xray 配置模板（适用于 WARP Client Warp 和 warp-go 非全局）
 
-感谢 LUDAN 老师提供的网络接口分流配置模板，注意：172.16.0.2 为 CloudFlareWARP 网络接口的 IP
-
 ```
 {
     "outbounds":[
@@ -453,20 +462,20 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
             "protocol":"freedom"
         },
         {
-            "tag":"CloudflareWARP-v4",
+            "tag":"WARP-interface-v4",
             "protocol":"freedom",
             "settings":{
                 "domainStrategy":"UseIPv4"
             },
             "streamSettings":{
                 "sockopt":{
-                    "interface":"CloudflareWARP",
+                    "interface":"CloudflareWARP", // Client 的 Proxy 模式填 CloudflareWARP 或者  warp-go 填 WARP
                     "tcpFastOpen":true
                 }
             }
         },
         {
-            "tag":"CloudflareWARP-v6",
+            "tag":"WARP-interface-v6",
             "protocol":"freedom",
             "settings":{
                 "domainStrategy":"UseIPv6"
@@ -486,19 +495,18 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
                 "type":"field",
                 "domain":[
                     "geosite:google",
-                    "domain:ip.gs",
-                    "domain:openai.com",
-                    "domain:ai.com"
+                    "geosite:openai",
+                    "ip.gs"
                 ],
-                "outboundTag":"CloudflareWARP-v4"
+                "outboundTag":"WARP-interface-v4"
             },
             {
                 "type":"field",
                 "domain":[
                     "geosite:netflix",
-                    "domain:p3terx.com"
+                    "p3terx.com"
                 ],
-                "outboundTag":"CloudflareWARP-v6"
+                "outboundTag":"WARP-interface-v6"
             }
         ]
     }

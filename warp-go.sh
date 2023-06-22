@@ -606,7 +606,7 @@ registe_api() {
     if ! grep -sq 'PrivateKey' /opt/warp-go/$REGISTE_FILE; then
       unset CF_API_REGISTE API_DEVICE_ID API_ACCESS_TOKEN API_PRIVATEKEY API_TYPE
       rm -f /opt/warp-go/$REGISTE_FILE
-      CF_API_REGISTE="$(bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) -r)"
+      CF_API_REGISTE="$(bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) -r 2>/dev/null)"
       rm -f warp-account.conf
       if grep -q 'private_key' <<< "$CF_API_REGISTE"; then
         local API_DEVICE_ID=$(expr "$CF_API_REGISTE " | grep -m1 'id' | cut -d\" -f4)
