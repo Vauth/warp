@@ -320,12 +320,19 @@ esac
 
 # 多方式判断操作系统，试到有值为止。只支持 Debian 10/11、Ubuntu 18.04/20.04 或 CentOS 7/8 ,如非上述操作系统，退出脚本
 # 感谢猫大的技术指导优化重复的命令。https://github.com/Oreomeow
-[ -s /etc/os-release ] && SYS="$(grep -i pretty_name /etc/os-release | cut -d \" -f2)"
-[[ -z "$SYS" && $(type -p hostnamectl) ]] && SYS="$(hostnamectl | grep -i system | cut -d : -f2)"
-[[ -z "$SYS" && $(type -p lsb_release) ]] && SYS="$(lsb_release -sd)"
-[[ -z "$SYS" && -s /etc/lsb-release ]] && SYS="$(grep -i description /etc/lsb-release | cut -d \" -f2)"
-[[ -z "$SYS" && -s /etc/redhat-release ]] && SYS="$(grep . /etc/redhat-release)"
-[[ -z "$SYS" && -s /etc/issue ]] && SYS="$(grep . /etc/issue | cut -d '\' -f1 | sed '/^[ ]*$/d')"
+if [ -s /etc/os-release ]; then
+  SYS="$(grep -i pretty_name /etc/os-release | cut -d \" -f2)"
+elif [ $(type -p hostnamectl) ]; then
+  SYS="$(hostnamectl | grep -i system | cut -d : -f2)"
+elif [ $(type -p lsb_release) ]; then
+  SYS="$(lsb_release -sd)"
+elif [ -s /etc/lsb-release ]; then
+  SYS="$(grep -i description /etc/lsb-release | cut -d \" -f2)"
+elif [ -s /etc/redhat-release ]; then
+  SYS="$(grep . /etc/redhat-release)"
+elif [ -s /etc/issue ]; then
+  SYS="$(grep . /etc/issue | cut -d '\' -f1 | sed '/^[ ]*$/d')"
+fi
 
 # 自定义 Alpine 系统若干函数
 alpine_wgcf_restart(){ wg-quick down wgcf >/dev/null 2>&1; wg-quick up wgcf >/dev/null 2>&1; }

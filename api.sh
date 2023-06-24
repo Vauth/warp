@@ -5,16 +5,48 @@
 
 # 帮助
 help() {
-  echo -ne " Usage:\n\tbash api.sh\t-h/--help\t\thelp\n\t\t\t-f/--file string\tConfiguration file (default "warp-account.conf")\n\t\t\t-r/--registe\t\tRegiste an account\n\t\t\t-t/--token\t\tRegiste with a team token\n\t\t\t-d/--device\t\tGet the devices information and plus traffic quota\n\t\t\t-a/--app\t\tFetch App information\n\t\t\t-b/--bind\t\tGet the account blinding devices\n\t\t\t-n/--name\t\tChange the device name\n\t\t\t-l/--license\t\tChange the license\n\t\t\t-u/--unbind\t\tUnbine a device from the account\n\t\t\t-c/--cancle\t\tCancle the account (There will be no display back for successful cancel)\n\t\t\t-i/--id\t\t\tShow the client id and reserved\n\n"
+  echo -ne " Usage:\n\tbash api.sh\t-h/--help\t\thelp\n\t\t\t-f/--file string\tConfiguration file (default "warp-account.conf")\n\t\t\t-r/--registe\t\tRegiste an account\n\t\t\t-t/--token\t\tRegiste with a team token\n\t\t\t-d/--device\t\tGet the devices information and plus traffic quota\n\t\t\t-a/--app\t\tFetch App information\n\t\t\t-b/--bind\t\tGet the account blinding devices\n\t\t\t-n/--name\t\tChange the device name\n\t\t\t-l/--license\t\tChange the license\n\t\t\t-u/--unbind\t\tUnbine a device from the account\n\t\t\t-c/--cancle\t\tCancle the account\n\t\t\t-i/--id\t\t\tShow the client id and reserved\n\n"
 }
 
 # 获取账户信息
 fetch_account_information() {
-  registe_path=${registe_path:-warp-account.conf}
-  [ ! -e "$registe_path" ] && echo "Error:$registe_path: No such file!" && exit 1
-  id=$(grep -m1 '"id' "$registe_path" | cut -d\" -f4)
-  token=$(grep '"token' "$registe_path" | cut -d\" -f4)
-  client_id=$(grep 'client_id' "$registe_path" | cut -d\" -f4)
+  # 如不使用账户信息文件，则手动填写 Device id 和 Api token
+  if [ -s "$registe_path" ]; then
+    # 官方 api 文件
+    if grep -q 'client_id' $registe_path; then
+      id=$(grep -m1 '"id' "$registe_path" | cut -d\" -f4)
+      token=$(grep '"token' "$registe_path" | cut -d\" -f4)
+      client_id=$(grep 'client_id' "$registe_path" | cut -d\" -f4)
+    # client 文件，默认存放路径为 /var/lib/cloudflare-warp/reg.json
+    elif grep -q 'registration_id' $registe_path; then
+      id=$(cut -d\" -f4 "$registe_path")
+      token=$(cut -d\" -f8 "$registe_path")
+    # wgcf 文件，默认存放路径为 /etc/wireguard/wgcf-account.toml
+    elif grep -q 'access_token' $registe_path; then
+      id=$(grep 'device_id' "$registe_path" | cut -d\' -f2)
+      token=$(grep 'access_token' "$registe_path" | cut -d\' -f2)
+    # warp-go 文件，默认存放路径为 /opt/warp-go/warp.conf
+    elif grep -q 'PrivateKey' $registe_path; then
+      id=$(awk -F' *= *' '/^Device/{print $2}' "$registe_path")
+      token=$(awk -F' *= *' '/^Token/{print $2}' "$registe_path")
+    else
+      echo " There is no registered account information, please check the content. " && exit 1
+    fi
+  else
+    read -rp " Input device id: " id
+    local i=5
+    until [[ "$id" =~ ^[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}$ ]]; do
+      (( i-- )) || true
+      [ "$i" = 0 ] && echo " Input errors up to 5 times. The script is aborted. " && exit 1 || read -rp " Device id should be 36 characters, please re-enter (${i} times remaining): " id
+    done
+
+    read -rp " Input api token: " token
+    local i=5
+    until [[ "$token" =~ ^[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}$ ]]; do
+      (( i-- )) || true
+      [ "$i" = 0 ] && echo " Input errors up to 5 times. The script is aborted. " && exit 1 || read -rp " Api token should be 36 characters, please re-enter (${i} times remaining): " token
+    done
+  fi
 }
 
 # 注册warp账户
@@ -52,7 +84,7 @@ registe_account() {
 
 # 获取设备信息
 device_information() {
-  fetch_account_information
+  [[ -z "$id" && -z "$token" ]] && fetch_account_information
 
   curl --request GET "https://api.cloudflareclient.com/v0a2158/reg/${id}" \
   --silent \
@@ -66,7 +98,7 @@ device_information() {
 
 # 获取账户APP信息
 app_information() {
-  fetch_account_information
+  [[ -z "$id" && -z "$token" ]] && fetch_account_information
 
   curl --request GET "https://api.cloudflareclient.com/v0a2158/client_config" \
   --silent \
@@ -80,7 +112,7 @@ app_information() {
 
 # 查看账户绑定设备
 account_binding_devices() {
-  fetch_account_information
+  [[ -z "$id" && -z "$token" ]] && fetch_account_information
 
   curl --request GET "https://api.cloudflareclient.com/v0a2158/reg/${id}/account/devices" \
   --silent \
@@ -94,7 +126,7 @@ account_binding_devices() {
 
 # 添加或者更改设备名
 change_device_name() {
-  fetch_account_information
+  [[ -z "$id" && -z "$token" ]] && fetch_account_information
   
   curl --request PATCH "https://api.cloudflareclient.com/v0a2158/reg/${id}/account/reg/${id}" \
   --silent \
@@ -109,7 +141,7 @@ change_device_name() {
 
 # 更换 license
 change_license() {
-  fetch_account_information
+  [[ -z "$id" && -z "$token" ]] && fetch_account_information
 
   curl --request PUT "https://api.cloudflareclient.com/v0a2158/reg/${id}/account" \
   --silent \
@@ -124,7 +156,7 @@ change_license() {
 
 # 删除绑定设备
 unbind_devide() {
-  fetch_account_information
+  [[ -z "$id" && -z "$token" ]] && fetch_account_information
 
   curl --request PATCH "https://api.cloudflareclient.com/v0a2158/reg/${id}/account/reg/${id}" \
   --silent \
@@ -139,20 +171,23 @@ unbind_devide() {
 
 # 删除账户
 cancle_account() {
-  fetch_account_information
+  [[ -z "$id" && -z "$token" ]] && fetch_account_information
 
-  curl --request DELETE "https://api.cloudflareclient.com/v0a2158/reg/${id}" \
+  local result=$(curl --request DELETE "https://api.cloudflareclient.com/v0a2158/reg/${id}" \
   --silent \
   --location \
   --header 'User-Agent: okhttp/3.12.1' \
   --header 'CF-Client-Version: a-6.10-2158' \
   --header 'Content-Type: application/json' \
-  --header "Authorization: Bearer ${token}"
+  --header "Authorization: Bearer ${token}")
+
+  [ -z "$result" ] && echo " Success. The account has been cancelled. " || echo " Failure. The account is not available. "
 }
 
 # reserved 解码
 decode_reserved() {
-  fetch_account_information
+  [[ -z "$id" && -z "$token" ]] && fetch_account_information
+  [ -z "$client_id" ] && { fetch_client_id=$(device_information); client_id=$(expr " $fetch_client_id" | awk -F'"' '/client_id/{print $4}'); }
   reserved=$(echo "$client_id" | base64 -d | xxd -p | fold -w2 | while read HEX; do printf '%d ' "0x${HEX}"; done | awk '{print "["$1", "$2", "$3"]"}')
   echo -e "client id: $client_id\nreserved : $reserved"
 }
@@ -215,7 +250,7 @@ while [[ $# -ge 1 ]]; do
       help
       exit
       ;;
-    *) 
+    *)
       help
       exit
       ;;

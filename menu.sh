@@ -371,10 +371,10 @@ E[178]="1. Change to free account.\n 2. Change to another WARP+ account."
 C[178]="1. 变更为 free 账户\n 2. 变更为另一个 WARP+ 账户"
 
 # 自定义字体彩色，read 函数，友道翻译函数
-warning() { echo -e "\033[31m\033[01m$*\033[0m"; }
-error() { echo -e "\033[31m\033[01m$*\033[0m" && exit 1; }
-info() { echo -e "\033[32m\033[01m$*\033[0m"; }
-hint() { echo -e "\033[33m\033[01m$*\033[0m"; }
+warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
+error() { echo -e "\033[31m\033[01m$*\033[0m" && exit 1; }  # 红色
+info() { echo -e "\033[32m\033[01m$*\033[0m"; }   # 绿色
+hint() { echo -e "\033[33m\033[01m$*\033[0m"; }   # 黄色
 reading() { read -rp "$(info "$1")" "$2"; }
 text() { eval echo "\${${L}[$*]}"; }
 text_eval() { eval echo "\$(eval echo "\${${L}[$*]}")"; }
@@ -412,12 +412,19 @@ check_root_virt() {
 # 多方式判断操作系统，试到有值为止。只支持 Debian 10/11、Ubuntu 18.04/20.04 或 CentOS 7/8 ,如非上述操作系统，退出脚本
 # 感谢猫大的技术指导优化重复的命令。https://github.com/Oreomeow
 check_operating_system() {
-  [ -s /etc/os-release ] && SYS="$(grep -i pretty_name /etc/os-release | cut -d \" -f2)"
-  [[ -z "$SYS" && $(type -p hostnamectl) ]] && SYS="$(hostnamectl | grep -i system | cut -d : -f2)"
-  [[ -z "$SYS" && $(type -p lsb_release) ]] && SYS="$(lsb_release -sd)"
-  [[ -z "$SYS" && -s /etc/lsb-release ]] && SYS="$(grep -i description /etc/lsb-release | cut -d \" -f2)"
-  [[ -z "$SYS" && -s /etc/redhat-release ]] && SYS="$(grep . /etc/redhat-release)"
-  [[ -z "$SYS" && -s /etc/issue ]] && SYS="$(grep . /etc/issue | cut -d '\' -f1 | sed '/^[ ]*$/d')"
+  if [ -s /etc/os-release ]; then
+    SYS="$(grep -i pretty_name /etc/os-release | cut -d \" -f2)"
+  elif [ $(type -p hostnamectl) ]; then
+    SYS="$(hostnamectl | grep -i system | cut -d : -f2)"
+  elif [ $(type -p lsb_release) ]; then
+    SYS="$(lsb_release -sd)"
+  elif [ -s /etc/lsb-release ]; then
+    SYS="$(grep -i description /etc/lsb-release | cut -d \" -f2)"
+  elif [ -s /etc/redhat-release ]; then
+    SYS="$(grep . /etc/redhat-release)"
+  elif [ -s /etc/issue ]; then
+    SYS="$(grep . /etc/issue | cut -d '\' -f1 | sed '/^[ ]*$/d')"
+  fi
 
   # 自定义 Alpine 系统若干函数
   alpine_wgcf_restart() { wg-quick down wgcf >/dev/null 2>&1; wg-quick up wgcf >/dev/null 2>&1; }

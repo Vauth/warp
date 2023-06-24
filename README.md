@@ -544,7 +544,7 @@ wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.
   | [option] 变量 | 具体动作说明 |
   | -------------| ------------- |
   | -h/--help    | 帮助 |
-  | -f/--file    | 保存账户注册信息的文件 (默认: warp-account.conf) |
+  | -f/--file    | 保存账户注册信息的文件，支持官方api，client，wgcf 和 warp-go ，不填则手动输入 device id 和 api token |
   | -r/--registe | 注册账户 |
   | -t/--token   | -r 注册时，使用 team token 注册，快速获取: https://web--public--warp-team-api--coia-mfs4.code.run |
   | -d/--device  | 获取账户注册信息，包括 plus 流量等 |
