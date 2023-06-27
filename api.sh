@@ -51,7 +51,7 @@ fetch_account_information() {
 
 # 注册warp账户
 registe_account() {
-  # 生成 wireguard 公私钥
+  # 生成 wireguard 公私钥，并且补上 private key
   if [ $(type -p wg) ]; then
     private_key=$(wg genkey)
     public_key=$(wg pubkey <<< "$private_key")
@@ -75,11 +75,9 @@ registe_account() {
   --header 'Content-Type: application/json' \
   --header "Cf-Access-Jwt-Assertion: ${team_token}" \
   --data '{"key":"'${public_key}'","install_id":"'${install_id}'","fcm_token":"'${fcm_token}'","tos":"'$(date +"%Y-%m-%dT%H:%M:%S.%3NZ")'","model":"PC","serial_number":"'${install_id}'","locale":"zh_CN"}' \
-  | python3 -m json.tool > $registe_path
+  | python3 -m json.tool | sed "/\"account_type\"/i\        \"private_key\": \"$private_key\"" > $registe_path
 
-  # 补上 private key
-  sed -i "/\"account_type\"/i\        \"private_key\": \"$private_key\"" $registe_path
-  [ -e $registe_path ] && cat $registe_path && grep -q 'error code' $registe_path && rm -f $registe_path
+  [ -s $registe_path ] && cat $registe_path && grep -q 'error code' $registe_path && rm -f $registe_path
 }
 
 # 获取设备信息

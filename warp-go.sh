@@ -604,14 +604,6 @@ net() {
   [ -n "$QUOTA" ] && info " $(text 26): $QUOTA "
 }
 
-# 提取注册账户信息
-copy_config() {
-  local REGISTE_FILE="$1"
-  local UPDATE_DEVICE_ID=$(awk -F' *= *' '/^Device/{print $2}' /opt/warp-go/$REGISTE_FILE)
-  local UPDATE_DEVICE_TOKEN=$(awk -F' *= *' '/^Token/{print $2}' /opt/warp-go/$REGISTE_FILE)
-  echo -e "\"id\": \"$UPDATE_DEVICE_ID\"\n\"token\": \"$UPDATE_DEVICE_TOKEN\"" > /opt/warp-go/warp.conf.tmp
-}
-
 # api 注册账户, 使用官方 api 脚本
 registe_api() {
   local REGISTE_FILE="$1"
@@ -658,10 +650,9 @@ EOF
     if grep -sq 'Account' /opt/warp-go/$REGISTE_FILE; then
       echo -e "\n[Script]\nPostUp =\nPostDown =" >> /opt/warp-go/$REGISTE_FILE && sed -i 's/\r//' /opt/warp-go/$REGISTE_FILE
       if [ -n "$LICENSE" ]; then
-        copy_config $REGISTE_FILE
-        local RESULT=$(bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/warp.conf.tmp --license $LICENSE)
+        local RESULT=$(bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --license $LICENSE)
         if [[ "$RESULT" =~ '"warp_plus": true' ]]; then
-          bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/warp.conf.tmp --name $NAME >/dev/null 2>&1
+          bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --name $NAME >/dev/null 2>&1
           echo "$LICENSE" > /opt/warp-go/License
           echo "$NAME" > /opt/warp-go/Device_Name
           sed -i "s/Type =.*/Type = plus/g" /opt/warp-go/$REGISTE_FILE
@@ -669,13 +660,10 @@ EOF
         else
           warning "\n License: $LICENSE $(text_eval 106) \n"
         fi
-        rm -f /opt/warp-go/warp.conf.tmp
       elif [[ -s /opt/warp-go/License && -s /opt/warp-go/Device_Name ]]; then
         if [ -s /opt/warp-go/warp.conf.tmp ]; then
-          copy_config $REGISTE_FILE
-          bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/warp.conf.tmp --license $(cat /opt/warp-go/License 2>/dev/null) >/dev/null 2>&1
-          bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/warp.conf.tmp --name $(cat /opt/warp-go/Device_Name 2>/dev/null) >/dev/null 2>&1
-          rm -f /opt/warp-go/warp.conf.tmp
+          bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --license $(cat /opt/warp-go/License 2>/dev/null) >/dev/null 2>&1
+          bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --name $(cat /opt/warp-go/Device_Name 2>/dev/null) >/dev/null 2>&1
         fi
       fi
     else
