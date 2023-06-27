@@ -23,8 +23,9 @@
 * * *
 
 ## 更新信息
-2023.6.21 menu.sh V2.52 1. Client proxy mode supports warp dualstack; 2. Client warp mode supports warp dualstack; 3. Speed up script startup; Thanks to Bro ⑥, WordsWorthLess, us254 and chika0801 for the guidace on the xray template; 1. Client Proxy 模式支持 warp 双栈; 2. Client warp 模式支持 warp 双栈; 3. 加快脚本启动速度; 感谢网友 ⑥哥, WordsWorthLess, us254 and chika0801 关于 xray 模板的指导
+2023.6.27 menu.sh V2.53 Wireproxy proxy mode supports warp dualstack. From now on wgcf / wireproxy / client all support dual stack; Client Proxy 模式支持 warp 双栈， 从此之后 wgcf / wireproxy / client 通通支持双栈
 
+2023.6.21 menu.sh V2.52 1. Client proxy mode supports warp dualstack; 2. Client warp mode supports warp dualstack; 3. Speed up script startup; Thanks to Bro ⑥, WordsWorthLess, us254 and chika0801 for the guidace on the xray template; 1. Client Proxy 模式支持 warp 双栈; 2. Client warp 模式支持 warp 双栈; 3. 加快脚本启动速度; 感谢网友 ⑥哥, WordsWorthLess, us254 and chika0801 关于 xray 模板的指导
 
 2023.6.18 menu.sh V2.51 Client supports Debian 12 (bookworm); Client 支持 Debian 12 (bookworm)
 
