@@ -243,8 +243,9 @@ translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doct
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times() {
-  COUNT=$(curl -ksm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffscarmen%2Fwarp%2Fmain%2Fwarp-go.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" 2>&1) &&
-  TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
+  local COUNT=$(curl --retry 2 -ksm2 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffscarmen%2Fwarp%2Fmain%2Fwarp-go.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" 2>&1 | grep -m1 -oE "[0-9]+[ ]+/[ ]+[0-9]+") &&
+  TODAY=$(cut -d " " -f1 <<< "$COUNT") &&
+  TOTAL=$(cut -d " " -f3 <<< "$COUNT")
 }
 
 # 选择语言，先判断 /opt/warp-go/language 里的语言选择，没有的话再让用户选择，默认英语。处理中文显示的问题
@@ -252,11 +253,16 @@ select_language() {
   UTF8_LOCALE=$(locale -a 2>/dev/null | grep -iEm1 "UTF-8|utf8")
   [ -n "$UTF8_LOCALE" ] && export LC_ALL="$UTF8_LOCALE" LANG="$UTF8_LOCALE" LANGUAGE="$UTF8_LOCALE"
 
-  case $(cat /opt/warp-go/language 2>&1) in
-    E ) L=E ;;
-    C ) L=C ;;
-    * ) L=E && [[ -z "$OPTION" || "$OPTION" = [ahvi46d] ]] && hint "\n $(text 0) \n" && reading " $(text 4) " LANGUAGE
-        [ "$LANGUAGE" = 2 ] && L=C ;;
+  case "$(cat /opt/warp-go/language 2>&1)" in
+    E )
+      L=E
+      ;;
+    C )
+      L=C
+      ;;
+    * )
+      L=E && [[ -z "$OPTION" || "$OPTION" = [ahvi46d] ]] && hint "\n $(text 0) \n" && reading " $(text 4) " LANGUAGE
+      [ "$LANGUAGE" = 2 ] && L=C
   esac
 }
 
@@ -315,18 +321,34 @@ check_operating_system() {
 
 check_arch() {
   # 判断处理器架构
-  case $(uname -m) in
-    aarch64 ) ARCHITECTURE=arm64 ;;
-    x86)      ARCHITECTURE=386 ;;
-    x86_64 )  CPU_FLAGS=$(cat /proc/cpuinfo | grep flags | head -n 1 | cut -d: -f2)
-              case "$CPU_FLAGS" in
-                *avx512* ) ARCHITECTURE=amd64v4 ;;
-                *avx2* )   ARCHITECTURE=amd64v3 ;;
-                *sse3* )   ARCHITECTURE=amd64v2 ;;
-                * )        ARCHITECTURE=amd64 ;;
-              esac ;;
-    s390x )   ARCHITECTURE=s390x ;;
-    * ) error " $(text_eval 37) " ;;
+  case "$(uname -m)" in
+    aarch64 )
+      ARCHITECTURE=arm64
+      ;;
+    x86)
+      ARCHITECTURE=386
+      ;;
+    x86_64 )
+      CPU_FLAGS=$(cat /proc/cpuinfo | grep flags | head -n 1 | cut -d: -f2)
+      case "$CPU_FLAGS" in
+        *avx512* )
+          ARCHITECTURE=amd64v4
+          ;;
+        *avx2* )
+          ARCHITECTURE=amd64v3
+          ;;
+        *sse3* )
+          ARCHITECTURE=amd64v2
+          ;;
+        * )
+          ARCHITECTURE=amd64
+      esac
+      ;;
+    s390x )
+      ARCHITECTURE=s390x
+      ;;
+    * )
+      error " $(text_eval 37) "
   esac
 }
 
@@ -404,16 +426,26 @@ help() { hint " $(text 2) "; }
 stack_priority() {
   if [ "$SYSTEM" != OpenWrt ]; then
     [ "$OPTION" = s ] && case "$PRIORITY_SWITCH" in
-      4 ) PRIORITY=1 ;;
-      6 ) PRIORITY=2 ;;
-      d ) : ;;
-      * ) hint "\n $(text 55) \n" && reading " $(text 4) " PRIORITY ;;
+      4 )
+        PRIORITY=1
+        ;;
+      6 )
+        PRIORITY=2
+        ;;
+      d )
+        :
+        ;;
+      * )
+        hint "\n $(text 55) \n" && reading " $(text 4) " PRIORITY
     esac
 
     [ -s /etc/gai.conf ] && sed -i '/^precedence \:\:ffff\:0\:0/d;/^label 2002\:\:\/16/d' /etc/gai.conf
     case "$PRIORITY" in
-      1 ) echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf ;;
-      2 )	echo "label 2002::/16   2" >> /etc/gai.conf ;;
+      1 )
+        echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf
+        ;;
+      2 )
+        echo "label 2002::/16   2" >> /etc/gai.conf
     esac
   fi
 }
@@ -426,9 +458,14 @@ result_priority() {
     grep -qsE "^label[ ]+2002::/16[ ]+2" /etc/gai.conf && PRIO[1]=1
   fi
   case "${PRIO[*]}" in
-    '1 0' ) PRIO=4 ;;
-    '0 1' ) PRIO=6 ;;
-    * ) [[ "$(curl -ksm8 -A Mozilla ${IP_API[3]} | grep 'ip=' | cut -d= -f2)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6 ;;
+    '1 0' )
+      PRIO=4
+      ;;
+    '0 1' )
+      PRIO=6
+      ;;
+    * )
+      [[ "$(curl -ksm8 -A Mozilla ${IP_API[3]} | grep 'ip=' | cut -d= -f2)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6
   esac
   PRIORITY_NOW=$(text_eval 100)
 
@@ -462,10 +499,12 @@ change_ip() {
   if grep -qE 'Type[ ]+=[ ]+team' /opt/warp-go/warp.conf; then
     hint "\n $(text 97) \n" && reading " $(text 4) " CHANGE_ACCOUNT
     case "$CHANGE_ACCOUNT" in
-      2 ) update_license
-          echo "$LICENSE" > /opt/warp-go/License
-          echo "$NAME" > /opt/warp-go/Device_Name;;
-      3 ) exit 0;;
+      2 ) 
+        update_license
+        echo "$LICENSE" > /opt/warp-go/License
+        echo "$NAME" > /opt/warp-go/Device_Name
+        ;;
+      3 ) exit 0
     esac
   fi
 
@@ -475,11 +514,11 @@ change_ip() {
   UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
   # 根据 lmc999 脚本检测 Netflix Title，如获取不到，使用兜底默认值
-  LMC999=$(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh)
-  RESULT_TITLE=($(echo "$LMC999" | grep "result.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/"))
-  REGION_TITLE=$(echo "$LMC999" | grep "region.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
-  [[ ! ${RESULT_TITLE[0]} =~ ^[0-9]+$ ]] && RESULT_TITLE[0]='81280792'
-  [[ ! ${RESULT_TITLE[1]} =~ ^[0-9]+$ ]] && RESULT_TITLE[1]='70143836'
+  local LMC999=($(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh | awk -F 'title/' '/netflix.com\/title/{print $2'}  | cut -d\" -f1))
+  RESULT_TITLE=(${LMC999[*]:0:2})
+  REGION_TITLE=${LMC999[2]}
+  [[ ! "${RESULT_TITLE[0]}" =~ ^[0-9]+$ ]] && RESULT_TITLE[0]='81280792'
+  [[ ! "${RESULT_TITLE[1]}" =~ ^[0-9]+$ ]] && RESULT_TITLE[1]='70143836'
   [[ ! "$REGION_TITLE" =~ ^[0-9]+$ ]] && REGION_TITLE='80018499'
 
   # 检测 WARP 单双栈服务
@@ -491,10 +530,15 @@ change_ip() {
     grep -q "\:\:\/0" /opt/warp-go/warp.conf && T6=1 || T6=0
   fi
   case "$T4$T6" in
-    01 ) NF='6';;
-    10 ) NF='4';;
-    11 ) hint "\n $(text 14) \n" && reading " $(text 4) " NETFLIX
-         NF='4' && [ "$NETFLIX" = 2 ] && NF='6';;
+    01 )
+      NF='6'
+      ;;
+    10 )
+      NF='4'
+      ;;
+    11 )
+      hint "\n $(text 14) \n" && reading " $(text 4) " NETFLIX
+      NF='4' && [ "$NETFLIX" = 2 ] && NF='6'
   esac
 
   # 输入解锁区域
@@ -675,9 +719,14 @@ EOF
 # WARP 开关，先检查是否已安装，再根据当前状态转向相反状态
 onoff() {
   case "$STATUS" in
-    0 ) need_install ;;
-    1 ) net ;;
-    2 ) ${SYSTEMCTL_STOP[int]}; info " $(text 27) " ;;
+    0 )
+      need_install
+      ;;
+    1 )
+      net
+      ;;
+    2 )
+      ${SYSTEMCTL_STOP[int]}; info " $(text 27) "
   esac
 }
 
@@ -691,8 +740,20 @@ check_stack() {
       grep -q ".*\:\:\/0" /opt/warp-go/warp.conf && T6=1 || T6=0
     fi
   else
-    case "$TRACE4" in off ) T4='0';; 'on'|'plus' ) T4='1';; esac
-    case "$TRACE6" in off ) T6='0';; 'on'|'plus' ) T6='1';; esac
+    case "$TRACE4" in
+      off )
+        T4='0'
+        ;;
+      'on'|'plus' )
+        T4='1'
+    esac
+    case "$TRACE6" in
+      off )
+        T6='0'
+        ;;
+      'on'|'plus' )
+        T6='1'
+    esac
   fi
   CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1" "2@")
   for ((m=0;m<${#CASE[@]};m++)); do [[ "$T4@$T6" = "${CASE[m]}" ]] && break; done
@@ -761,18 +822,30 @@ stack_switch() {
     STACK_OPTION[1]="$(text_eval 31)"; STACK_OPTION[2]="$(text_eval 32)"
     hint "\n $(text_eval 33) \n" && reading " $(text 4) " SWITCHTO
     case "$SWITCHTO" in
-      1 ) TO=${TO1[m]};;
-      2 ) TO=${TO2[m]};;
-      0 ) exit;;
-      * ) warning " $(text 34) [0-2] "; sleep 1; stack_switch;;
+      1 )
+        TO=${TO1[m]}
+        ;;
+      2 )
+        TO=${TO2[m]}
+        ;;
+      0 )
+        exit
+        ;;
+      * )
+        warning " $(text 34) [0-2] "; sleep 1; stack_switch
     esac
   fi
 
   [ "${#TO}" != 3 ] && error " $(text 10) " || sed -i "$(eval echo "\$SWITCH$TO")" /opt/warp-go/warp.conf
   case "$TO" in
-    014|114 ) INTERFACE4='--interface WARP'; unset INTERFACE6 ;;
-    106|116 ) INTERFACE6='--interface WARP'; unset INTERFACE4 ;;
-    01D|10D ) INTERFACE4='--interface WARP'; INTERFACE6='--interface WARP' ;;
+    014|114 )
+      INTERFACE4='--interface WARP'; unset INTERFACE6
+      ;;
+    106|116 )
+      INTERFACE6='--interface WARP'; unset INTERFACE4
+      ;;
+    01D|10D )
+      INTERFACE4='--interface WARP'; INTERFACE6='--interface WARP'
   esac
 
   OPTION=o && net
@@ -896,56 +969,68 @@ update() {
 
   ACCOUNT_TYPE=$(grep "Type" /opt/warp-go/warp.conf | cut -d= -f2 | sed "s# ##g")
   case "$ACCOUNT_TYPE" in
-    free ) CHANGE_TYPE=$(text 47) ;;
-    team ) CHANGE_TYPE=$(text 48) ;;
-    plus ) CHANGE_TYPE=$(text 49)
-           check_quota
-           [[ "$QUOTA" =~ '.' ]] && PLUS_QUOTA="\\n $(text 26): $QUOTA" ;;
+    free )
+      CHANGE_TYPE=$(text 47)
+      ;;
+    team )
+      CHANGE_TYPE=$(text 48)
+      ;;
+    plus )
+      CHANGE_TYPE=$(text 49)
+      check_quota
+      [[ "$QUOTA" =~ '.' ]] && PLUS_QUOTA="\\n $(text 26): $QUOTA"
   esac
 
   [ -z "$LICENSETYPE" ] && hint "\n $(text_eval 46) \n" && reading " $(text 4) " LICENSETYPE
   case "$LICENSETYPE" in
-    1|2 ) unset QUOTA
-          case "$LICENSETYPE" in
-            1 ) k=' free'
-                [ "$ACCOUNT_TYPE" = free ] && KEEP_FREE='1'
-                [ -s /opt/warp-go/Device_Name ] && rm -f /opt/warp-go/Device_Name
-                if [ "$ACCOUNT_TYPE" = free ]; then
-                  OPTION=o && net
-                  exit 0
-                fi
-                ;;
-            2 ) k='+'
-                update_license
-                ;;
-          esac
-          cp -f /opt/warp-go/warp.conf{,.tmp1}
-          bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/warp.conf --cancle >/dev/null 2>&1
-          [ -s /opt/warp-go/warp.conf ] && rm -f /opt/warp-go/warp.conf
-          registe_api warp.conf 58 59
-          head -n +6 /opt/warp-go/warp.conf > /opt/warp-go/warp.conf.tmp2
-          tail -n +7 /opt/warp-go/warp.conf.tmp1 >> /opt/warp-go/warp.conf.tmp2
-          rm -f /opt/warp-go/warp.conf.tmp1
-          mv -f /opt/warp-go/warp.conf.tmp2 /opt/warp-go/warp.conf
-          OPTION=o && net
+    1|2 )
+      unset QUOTA
+      case "$LICENSETYPE" in
+        1 )
+          k=' free'
+          [ "$ACCOUNT_TYPE" = free ] && KEEP_FREE='1'
+          [ -s /opt/warp-go/Device_Name ] && rm -f /opt/warp-go/Device_Name
+          if [ "$ACCOUNT_TYPE" = free ]; then
+            OPTION=o && net
+            exit 0
+          fi
           ;;
-    3 ) unset QUOTA
-        input_token
-        if [ -n "$TOKEN" ]; then
-          k=' teams'
-          registe_api warp.conf.tmp 58 59
-          for a in {2..5}; do sed -i "${a}s#.*#$(sed -ne ${a}p /opt/warp-go/warp.conf.tmp)#" /opt/warp-go/warp.conf; done
-          rm -f /opt/warp-go/warp.conf.tmp
-        else
-          sed -i "s#^Device.*#Device = FSCARMEN-WARP-SHARE-TEAM#g; s#.*PrivateKey.*#PrivateKey = SHVqHEGI7k2+OQ/oWMmWY2EQObbRQjRBdDPimh0h1WY=#g; s#.*Token.*#Token = PROTECTED_PLACEHOLDER#g; s#.*Type.*#Type = team#g" /opt/warp-go/warp.conf
-        fi
-        grep -qE 'Type[ ]+=[ ]+team' /opt/warp-go/warp.conf && echo "$NAME" > /opt/warp-go/Device_Name
-        OPTION=o && net
-        ;;
-    0 ) unset LICENSETYPE
-        menu
-        ;;
-    * ) warning " $(text 34) [0-3] "; sleep 1; unset LICENSETYPE; update;;
+        2 )
+          k='+'
+          update_license
+      esac
+      cp -f /opt/warp-go/warp.conf{,.tmp1}
+      bash <(curl -m8 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/warp.conf --cancle >/dev/null 2>&1
+      [ -s /opt/warp-go/warp.conf ] && rm -f /opt/warp-go/warp.conf
+      registe_api warp.conf 58 59
+      head -n +6 /opt/warp-go/warp.conf > /opt/warp-go/warp.conf.tmp2
+      tail -n +7 /opt/warp-go/warp.conf.tmp1 >> /opt/warp-go/warp.conf.tmp2
+      rm -f /opt/warp-go/warp.conf.tmp1
+      mv -f /opt/warp-go/warp.conf.tmp2 /opt/warp-go/warp.conf
+      OPTION=o && net
+      ;;
+    3 )
+      unset QUOTA
+      input_token
+      if [ -n "$TOKEN" ]; then
+        k=' teams'
+        registe_api warp.conf.tmp 58 59
+        for a in {2..5}; do
+          sed -i "${a}s#.*#$(sed -ne ${a}p /opt/warp-go/warp.conf.tmp)#" /opt/warp-go/warp.conf
+        done
+        rm -f /opt/warp-go/warp.conf.tmp
+      else
+        sed -i "s#^Device.*#Device = FSCARMEN-WARP-SHARE-TEAM#g; s#.*PrivateKey.*#PrivateKey = SHVqHEGI7k2+OQ/oWMmWY2EQObbRQjRBdDPimh0h1WY=#g; s#.*Token.*#Token = PROTECTED_PLACEHOLDER#g; s#.*Type.*#Type = team#g" /opt/warp-go/warp.conf
+      fi
+      grep -qE 'Type[ ]+=[ ]+team' /opt/warp-go/warp.conf && echo "$NAME" > /opt/warp-go/Device_Name
+      OPTION=o && net
+      ;;
+    0 ) 
+      unset LICENSETYPE
+      menu
+      ;;
+    * )
+      warning " $(text 34) [0-3] "; sleep 1; unset LICENSETYPE; update
   esac
 }
 
@@ -985,8 +1070,11 @@ install() {
   # 询问是否有 WARP+ 或 Teams 账户
   [ -z "$LICENSETYPE" ] && hint "\n $(text 54) \n" && reading " $(text 4) " LICENSETYPE
   case "$LICENSETYPE" in
-    1 ) input_license ;;
-    2 ) input_token ;;
+    1 )
+      input_license
+      ;;
+    2 )
+      input_token
   esac
 
   # 选择优先使用 IPv4 /IPv6 网络
@@ -1126,8 +1214,11 @@ EOF
   info "\n $(text 60) \n"
 
   case "$SYSTEM" in
-    Alpine ) ${PACKAGE_INSTALL[int]} openrc ;;
-    Arch ) ${PACKAGE_INSTALL[int]} openresolv ;;
+    Alpine )
+      ${PACKAGE_INSTALL[int]} openrc
+      ;;
+    Arch )
+      ${PACKAGE_INSTALL[int]} openresolv
   esac
 
   wait
@@ -1338,10 +1429,17 @@ check_install
 
 # 设置部分后缀 1/3
 case "$OPTION" in
-  h ) help; exit 0 ;;
-  i ) change_ip; exit 0 ;;
-  e ) export_file; exit 0 ;;
-  s ) stack_priority; result_priority; exit 0 ;;
+  h )
+    help; exit 0
+    ;;
+  i )
+    change_ip; exit 0
+    ;;
+  e )
+    export_file; exit 0
+    ;;
+  s )
+    stack_priority; result_priority; exit 0
 esac
 
 # 主程序运行 2/3
@@ -1349,10 +1447,17 @@ check_root_virt
 
 # 设置部分后缀 2/3
 case "$OPTION" in
-  u ) uninstall; exit 0 ;;
-  v ) ver; exit 0 ;;
-  o ) onoff; exit 0 ;;
-  g ) global_switch; exit 0 ;;
+  u )
+    uninstall; exit 0
+    ;;
+  v )
+    ver; exit 0
+    ;;
+  o )
+    onoff; exit 0
+    ;;
+  g )
+    global_switch; exit 0
 esac
 
 # 主程序运行 3/3
@@ -1376,7 +1481,8 @@ case "$OPTION" in
       install
     fi
     ;;
-  a ) update ;;
-
-  * ) menu ;;
+  a )
+    update
+    ;;
+  * ) menu
 esac

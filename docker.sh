@@ -308,8 +308,8 @@ T[E136]="( mismatch X )"
 T[C136]="( 不符合 X )"
 
 # 脚本当天及累计运行次数统计
-COUNT=$(curl -sm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fdocker.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
-TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
+COUNT=$(curl --retry 2 -ksm2 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fdocker.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1 | grep -m1 -oE "[0-9]+[ ]+/[ ]+[0-9]+") &&
+TODAY=$(cut -d " " -f1 <<< "$COUNT") && TOTAL=$(cut -d " " -f3 <<< "$COUNT")
 	
 # 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语
 case $(cat /etc/wireguard/language-docker 2>&1) in

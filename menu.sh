@@ -382,8 +382,9 @@ translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doct
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times() {
-  COUNT=$(curl --retry 2 -ksm2 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
-  TODAY=$(expr "$COUNT" : '.*\s\([0-9]\{1,\}\)\s/.*') && TOTAL=$(expr "$COUNT" : '.*/\s\([0-9]\{1,\}\)\s.*')
+  local COUNT=$(curl --retry 2 -ksm2 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1 | grep -m1 -oE "[0-9]+[ ]+/[ ]+[0-9]+") &&
+  TODAY=$(cut -d " " -f1 <<< "$COUNT") &&
+  TOTAL=$(cut -d " " -f3 <<< "$COUNT")
 }
         
 # 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语。处理中文显示的问题
@@ -948,11 +949,11 @@ change_ip() {
   UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
   # 根据 lmc999 脚本检测 Netflix Title，如获取不到，使用兜底默认值
-  LMC999=$(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh)
-  RESULT_TITLE=($(echo "$LMC999" | grep "result.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/"))
-  REGION_TITLE=$(echo "$LMC999" | grep "region.*netflix.com/title/" | sed "s/.*title\/\([^\"]*\).*/\1/")
-  [[ ! ${RESULT_TITLE[0]} =~ ^[0-9]+$ ]] && RESULT_TITLE[0]='81280792'
-  [[ ! ${RESULT_TITLE[1]} =~ ^[0-9]+$ ]] && RESULT_TITLE[1]='70143836'
+  local LMC999=($(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh | awk -F 'title/' '/netflix.com\/title/{print $2'}  | cut -d\" -f1))
+  RESULT_TITLE=(${LMC999[*]:0:2})
+  REGION_TITLE=${LMC999[2]}
+  [[ ! "${RESULT_TITLE[0]}" =~ ^[0-9]+$ ]] && RESULT_TITLE[0]='81280792'
+  [[ ! "${RESULT_TITLE[1]}" =~ ^[0-9]+$ ]] && RESULT_TITLE[1]='70143836'
   [[ ! "$REGION_TITLE" =~ ^[0-9]+$ ]] && REGION_TITLE='80018499'
 
   # 根据 WARP interface 、 Client 和 Wireproxy 的安装情况判断刷 IP 的方式
@@ -1322,10 +1323,11 @@ EOF
   # 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义:0=未安装  1=已安装未激活  2=状态激活  3=Client proxy 已开启  5=Client warp 已开启
   CLIENT=0
   if [ $(type -p warp-cli) ]; then
-    [ "$CLIENT_ACCOUNT" = Limited ] && CLIENT_AC='+' && check_quota client
     CLIENT=1 && CLIENT_INSTALLED="$(text 92)"
     [ "$(systemctl is-enabled warp-svc)" = enabled ] && CLIENT=2
     if [[ "$CLIENT" = 2 && "$(systemctl is-active warp-svc)" = 'active' ]]; then
+      local CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null | awk  '/type/{print $3}')
+      [ "$CLIENT_ACCOUNT" = Limited ] && CLIENT_AC='+' && check_quota client
       local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/^Mode/{print $2}')
       case "$CLIENT_MODE" in
         WarpProxy )
@@ -2166,7 +2168,6 @@ client_install() {
     end=$(date +%s)
     echo -e "\n==============================================================\n"
     info " $(text_eval 94)\n WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6 "
-
   else
     ip_case d client
     end=$(date +%s)
@@ -2174,7 +2175,7 @@ client_install() {
     info " $(text_eval 94)\n $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4\n WARP$CLIENT_AC IPv6: $CLIENT_WAN6 $CLIENT_COUNTRY6 $CLIENT_ASNORG6 "
   fi
 
-  [[ "$CLIENT_ACCOUNT" =~ Limited ]] && info " $(text 63): $QUOTA "
+  [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
   echo -e "\n==============================================================\n"
   hint " $(text 43)\n " && help
 }
@@ -2228,7 +2229,7 @@ check_quota() {
   local CHECK_TYPE="$1"
 
   if [ "$CHECK_TYPE" = 'client' ]; then
-    QUOTA=$(grep -s 'Quota' <<< "$CLIENT_ACCOUNT" | cut -d ' ' -f2)
+    QUOTA=$(warp-cli --accept-tos account 2>/dev/null | awk -F' ' '/Quota/{print $NF}')
   elif [ -e /etc/wireguard/wgcf-account.toml ]; then
     ACCESS_TOKEN=$(grep 'access_token' /etc/wireguard/wgcf-account.toml | cut -d \' -f2)
     DEVICE_ID=$(grep 'device_id' /etc/wireguard/wgcf-account.toml | cut -d \' -f2)
@@ -2610,9 +2611,11 @@ menu() {
       ;;
     3 )
       info "\t WARP$CLIENT_AC $(text 24)\t $(text 27): $CLIENT_SOCKS5\n\t WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4\n\t WARP$CLIENT_AC IPv6: $CLIENT_WAN6 $CLIENT_COUNTRY6 $CLIENT_ASNORG6 "
+      [ -n "$QUOTA" ] && info "\t $(text 63): $QUOTA "
       ;;
     5 )
       info "\t WARP$CLIENT_AC $(text 24)\t $(text 58)\n\t WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n\t WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6 "
+      [ -n "$QUOTA" ] && info "\t $(text 63): $QUOTA "
   esac
   case "$WIREPROXY" in
     0 )
