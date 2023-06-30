@@ -23,6 +23,8 @@
 * * *
 
 ## 更新信息
+2023.6.30 menu.sh V3.00 beta IMPORTANT: 1. Use Cloudflare official warp api to replace wgcf; 2. Use wireguard-go with reserved to replace kernel. Make Hong Kong, Los Angeles and other restricted areas use warp; The above are the works of Badafans, I would like to thank Badafans and warp-go author coia for their contributions on behalf of all users of this script; 3. Since the changes are too big, please ask users to reinstall, if you have any problems, please feedback, I will deal with it as soon as possible; 重要更新: 1. 全面用 Cloudflare 官方 warp api 替代 wgcf; 2. 使用 wireguard-go with reserved 替代内核。使香港，洛杉矶等受限地区使用 warp; 以上均是大神 badafans 的作品，我谨代表本脚本的所有用户感谢 badafans 和 warp-go 作者 coia 的贡献; 3.由于改动太大，请用户重新安装，如有问题请反馈，我将会尽快处理
+
 2023.6.27 menu.sh V2.53 Wireproxy proxy mode supports warp dualstack. From now on wgcf / wireproxy / client all support dual stack; Client Proxy 模式支持 warp 双栈， 从此之后 wgcf / wireproxy / client 通通支持双栈
 
 2023.6.21 menu.sh V2.52 1. Client proxy mode supports warp dualstack; 2. Client warp mode supports warp dualstack; 3. Speed up script startup; Thanks to Bro ⑥, WordsWorthLess, us254 and chika0801 for the guidace on the xray template; 1. Client Proxy 模式支持 warp 双栈; 2. Client warp 模式支持 warp 双栈; 3. 加快脚本启动速度; 感谢网友 ⑥哥, WordsWorthLess, us254 and chika0801 关于 xray 模板的指导
@@ -643,6 +645,7 @@ https://github.com/acacia233/Project-WARP-Unlock
 * WGCF 项目原作者: https://github.com/ViRb3/wgcf/
 * Coia 和 warp-go 团队: https://gitlab.com/ProjectWARP/warp-go
 * warp-go api wiki: https://docs.zeroteam.top/apis/warp
+* wireguard-go reserved 作者 badafans: https://github.com/badafans/
 * WireGuard-GO 官方: https://git.zx2c4.com/wireguard-go/
 * ylx2016 的成熟作品: https://github.com/ylx2016/Linux-NetSpeed
 * ALIILAPRO 的成熟作品: https://github.com/ALIILAPRO/warp-plus-cloudflare
