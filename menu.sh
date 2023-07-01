@@ -1242,12 +1242,12 @@ check_stack() {
 # 单双栈在线互换。先看菜单是否有选择，再看传参数值，再没有显示2个可选项
 stack_switch() {
   # WARP 单双栈切换选项
-  SWITCH014="s/#//g;s/^.*\:\:\/0/#&/g"
-  SWITCH01D="s/#//g"
-  SWITCH106="s/#//g;s/^.*0\.\0\/0/#&/g"
-  SWITCH10D="s/#//g"
-  SWITCH114="s/^.*\:\:\/0/#&/g"
-  SWITCH116="s/^.*0\.\0\/0/#&/g"
+  SWITCH014="/AllowedIPs/s/#//g;s/^.*\:\:\/0/#&/g"
+  SWITCH01D="/AllowedIPs/s/#//g"
+  SWITCH106="/AllowedIPs/s/#//g;s/^.*0\.\0\/0/#&/g"
+  SWITCH10D="/AllowedIPs/s/#//g"
+  SWITCH114="/AllowedIPs/s/^.*\:\:\/0/#&/g"
+  SWITCH116="/AllowedIPs/s/^.*0\.\0\/0/#&/g"
 
   [[ "$CLIENT" = [35] && "$SWITCHCHOOSE" = [4D] ]] && error " $(text 109) "
   check_stack
