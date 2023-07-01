@@ -13,8 +13,8 @@ export DEBIAN_FRONTEND=noninteractive
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="IMPORTANT: 1. Use Cloudflare official warp api to replace wgcf; 2. Use wireguard-go with reserved to replace kernel. Make Hong Kong, Los Angeles and other restricted areas use warp; The above are the works of Badafans, I would like to thank Badafans and warp-go author coia for their contributions on behalf of all users of this script; 3. Since the changes are too big, please ask users to reinstall, if you have any problems, please feedback, I will deal with it as soon as possible."
-C[1]="重要更新: 1. 全面用 Cloudflare 官方 warp api 替代 wgcf; 2. 使用 wireguard-go with reserved 替代内核。使香港，洛杉矶等受限地区使用 warp; 以上均是大神 badafans 的作品，我谨代表本脚本的所有用户感谢 badafans 和 warp-go 作者 coia 的贡献; 3.由于改动太大，请用户重新安装，如有问题请反馈，我将会尽快处理"
+E[1]="IMPORTANT: 1. Use Cloudflare official warp api to replace wgcf; 2. Use wireguard-go with reserved to replace kernel. Make Hong Kong, Los Angeles and other restricted areas use warp; The above are the works of enthusiastic user, I would like to thank this guy and warp-go author coia for their contributions on behalf of all users of this script; 3. Since the changes are too big, please ask users to reinstall, if you have any problems, please feedback, I will deal with it as soon as possible."
+C[1]="重要更新: 1. 全面用 Cloudflare 官方 warp api 替代 wgcf; 2. 使用 wireguard-go with reserved 替代内核。使香港，洛杉矶等受限地区使用 warp; 以上均是热心网友的作品，我谨代表本脚本的所有用户感谢这位网友和 warp-go 作者 coia 的贡献; 3.由于改动太大，请用户重新安装，如有问题请反馈，我将会尽快处理"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -1736,9 +1736,6 @@ install() {
 
   # 注册 WARP 账户 (将生成 warp-account.conf 文件保存账户信息)
   {
-    # 下载 wireguard-go reserved 版本，将文件的可执行权限打开
-     wget --no-check-certificate $CDN -O /usr/bin/wireguard-go https://raw.githubusercontent.com/fscarmen/Render/main/w/wireguard-go-linux-$ARCHITECTURE && chmod +x /usr/bin/wireguard-go
-
     # 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 githubusercontent，以更好的支持双栈。并添加执行权限
     if [ "$OCTEEP" = 1 ]; then
       wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
@@ -1835,9 +1832,6 @@ EOF
       # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
       ${PACKAGE_INSTALL[int]} --no-install-recommends net-tools openresolv dnsutils iptables
       [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
-
-      # 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-      [ "$WG" = 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends linux-headers-$(uname -r) && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-dkms
       ;;
 
     Ubuntu )
@@ -1855,12 +1849,6 @@ EOF
       ${PACKAGE_INSTALL[int]} epel-release
       ${PACKAGE_INSTALL[int]} net-tools iptables
       [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
-
-      # 如 Linux 版本低于5.6并且是 kvm，则安装 wireguard 内核模块
-      VERSION_ID=$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')
-      [ "$ARCHITECTURE" != s390x ] && [ "$WG" = 1 ] && curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-"$VERSION_ID"/jdoss-wireguard-epel-"$VERSION_ID".repo &&
-
-      ${PACKAGE_INSTALL[int]} wireguard-dkms
 
       # 升级所有包同时也升级软件和系统内核
       ${PACKAGE_UPDATE[int]}
@@ -1888,6 +1876,11 @@ EOF
 
   # 修改 wg-quick 文件，以使用 wireguard-go reserved 版
   grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick || sed -i '/add_if$/ {s/^/# /; N; s/\n/&        wireguard-go "$INTERFACE"\n/}' /usr/bin/wg-quick
+
+  # 根据 wireguard-tools 版本判断下载 wireguard-go reserved 版本: wg < v1.0.20210223 , wg-go-reserved = v0.0.20201118-reserved; wg >= v1.0.20210223 , wg-go-reserved = v0.0.20230223-reserved
+  local WIREGUARD_TOOLS_VERSION=$(wg --version | sed "s#.* v1\.0\.\([0-9]\+\) .*#\1#g")
+  [[ "$WIREGUARD_TOOLS_VERSION" -lt 20210223 ]] && local WIREGUARD_GO_VERSION=20201118 || local WIREGUARD_GO_VERSION=20230223
+  wget --no-check-certificate $CDN -O /usr/bin/wireguard-go https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go-linux-$ARCHITECTURE-$WIREGUARD_GO_VERSION && chmod +x /usr/bin/wireguard-go
 
   wait
 
