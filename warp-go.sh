@@ -878,6 +878,9 @@ global_switch() {
 check_system_info() {
   info " $(text 35) "
 
+  # 由于 warp-go 内置了 wireguard-go ，而 wireguard-go 运行时会先判断 tun 设备，如果文件不存在，则马上退出
+  [ ! -e /dev/net/tun ] && error "$(text 36)"
+
   # 必须加载 TUN 模块，先尝试在线打开 TUN。尝试成功放到启动项，失败作提示并退出脚本
   TUN=$(cat /dev/net/tun 2>&1 | tr 'A-Z' 'a-z')
   if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then

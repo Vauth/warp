@@ -433,7 +433,7 @@ check_operating_system() {
 
   # 自定义 Alpine 系统若干函数
   alpine_warp_restart() { wg-quick down warp >/dev/null 2>&1; wg-quick up warp >/dev/null 2>&1; }
-  alpine_warp_enable() { echo -e "/usr/bin/tun.sh\nwg-quick up warp" > /etc/local.d/warp.start; chmod +x /etc/local.d/warp.start; rc-update add local; }
+  alpine_warp_enable() { echo -e "/usr/bin/tun.sh\nwg-quick up warp" > /etc/local.d/warp.start; chmod +x /etc/local.d/warp.start; rc-update add local; wg-quick up warp >/dev/null 2>&1; }
 
   REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "amazon linux" "alpine" "arch linux")
   RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS" "Alpine" "Arch")
@@ -1266,22 +1266,28 @@ stack_switch() {
   info " $(text 37) "
 
   # 必须加载 TUN 模块，先尝试在线打开 TUN。尝试成功放到启动项，失败作提示并退出脚本
-  TUN=$(cat /dev/net/tun 2>&1)
-  if [[ ! "$TUN" =~ 'No such file or directory' ]] && [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
-    cat >/usr/bin/tun.sh << EOF
+  if [ -e /dev/net/tun ]; then
+    TUN=$(cat /dev/net/tun 2>&1)
+    if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
+      cat >/usr/bin/tun.sh << EOF
 #!/usr/bin/env bash
 mkdir -p /dev/net
 mknod /dev/net/tun c 10 200
 chmod 0666 /dev/net/tun
 EOF
-    bash /usr/bin/tun.sh
-    TUN=$(cat /dev/net/tun 2>&1)
-    if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
-      rm -f /usr/bin/tun.sh && error " $(text 3) "
-    else
-      chmod +x /usr/bin/tun.sh
-      [ "$SYSTEM" != Alpine ] && echo "@reboot root bash /usr/bin/tun.sh" >> /etc/crontab
+      bash /usr/bin/tun.sh
+      TUN=$(cat /dev/net/tun 2>&1)
+      if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
+        rm -f /usr/bin/tun.sh && error " $(text 3) "
+      else
+        chmod +x /usr/bin/tun.sh
+        [ "$SYSTEM" != Alpine ] && echo "@reboot root bash /usr/bin/tun.sh" >> /etc/crontab
+      fi
     fi
+  elif lsmod | grep -q wireguard; then
+    KERNEL_ONLY=1
+  else
+    error " $(text 3) "
   fi
 
   # 判断机器原生状态类型
@@ -1759,6 +1765,7 @@ install() {
         if grep -q '"warp_plus": true' <<< $UPDATE_RESULT; then
           [ -n "$NAME" ] && bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /etc/wireguard/warp-account.conf --name $NAME >/dev/null 2>&1
           sed -i "s#\([ ]\+\"license\": \"\).*#\1$LICENSE\"#g; s#\"account_type\".*#\"account_type\": \"limFSADFAited\",#g; s#\([ ]\+\"name\": \"\).*#\1$NAME\"#g" /etc/wireguard/warp-account.conf
+          echo "$LICENSE" > /etc/wireguard/license
           echo -e "Device name   : $NAME\nAccount type  : limited" > /etc/wireguard/info.log
         elif grep -q 'Invalid license' <<< $UPDATE_RESULT; then
           warning " $(text_eval 169) "
@@ -1874,13 +1881,16 @@ EOF
 
   esac
 
-  # 修改 wg-quick 文件，以使用 wireguard-go reserved 版
-  grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick || sed -i '/add_if$/ {s/^/# /; N; s/\n/&        wireguard-go "$INTERFACE"\n/}' /usr/bin/wg-quick
+  # 先判断是否一定要用 wireguard kernel，如果不是，修改 wg-quick 文件，以使用 wireguard-go reserved 版
+  if [ "$KERNEL_ONLY" != 1 ]; then
+    grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick || sed -i '/add_if$/ {s/^/# /; N; s/\n/&        wireguard-go "$INTERFACE"\n/}' /usr/bin/wg-quick
 
-  # 根据 wireguard-tools 版本判断下载 wireguard-go reserved 版本: wg < v1.0.20210223 , wg-go-reserved = v0.0.20201118-reserved; wg >= v1.0.20210223 , wg-go-reserved = v0.0.20230223-reserved
-  local WIREGUARD_TOOLS_VERSION=$(wg --version | sed "s#.* v1\.0\.\([0-9]\+\) .*#\1#g")
-  [[ "$WIREGUARD_TOOLS_VERSION" -lt 20210223 ]] && local WIREGUARD_GO_VERSION=20201118 || local WIREGUARD_GO_VERSION=20230223
-  wget --no-check-certificate $CDN -O /usr/bin/wireguard-go https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go-linux-$ARCHITECTURE-$WIREGUARD_GO_VERSION && chmod +x /usr/bin/wireguard-go
+    # 则根据 wireguard-tools 版本判断下载 wireguard-go reserved 版本: wg < v1.0.20210223 , wg-go-reserved = v0.0.20201118-reserved; wg >= v1.0.20210223 , wg-go-reserved = v0.0.20230223-reserved
+
+    local WIREGUARD_TOOLS_VERSION=$(wg --version | sed "s#.* v1\.0\.\([0-9]\+\) .*#\1#g")
+    [[ "$WIREGUARD_TOOLS_VERSION" -lt 20210223 ]] && local WIREGUARD_GO_VERSION=20201118 || local WIREGUARD_GO_VERSION=20230223
+    wget --no-check-certificate $CDN -O /usr/bin/wireguard-go https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go-linux-$ARCHITECTURE-$WIREGUARD_GO_VERSION && chmod +x /usr/bin/wireguard-go
+  fi
 
   wait
 
@@ -2001,8 +2011,6 @@ EOF
     # 经过确认的 teams private key 和 address6，改为 Teams 账户信息，不确认则不升级
     [ "$CHOOSE_TEAMS" = '2' ] && input_url_token token
     [[ "$CONFIRM_TEAMS_INFO" = [Yy] ]] && teams_change_do
-
-    [[ $(systemctl is-active wg-quick@warp) != active || $(systemctl is-enabled wg-quick@warp) != enabled ]] && ${SYSTEMCTL_ENABLE[int]} >/dev/null 2>&1
 
     # 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
     mv -f menu.sh /etc/wireguard >/dev/null 2>&1
