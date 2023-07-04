@@ -74,7 +74,7 @@ registe_account() {
   --header 'CF-Client-Version: a-6.10-2158' \
   --header 'Content-Type: application/json' \
   --header "Cf-Access-Jwt-Assertion: ${team_token}" \
-  --data '{"key":"'${public_key}'","install_id":"'${install_id}'","fcm_token":"'${fcm_token}'","tos":"'$(date +"%Y-%m-%dT%H:%M:%S.%3NZ")'","model":"PC","serial_number":"'${install_id}'","locale":"zh_CN"}' \
+  --data '{"key":"'${public_key}'","install_id":"'${install_id}'","fcm_token":"'${fcm_token}'","tos":"'$(date +"%Y-%m-%dT%H:%M:%S.000Z")'","model":"PC","serial_number":"'${install_id}'","locale":"zh_CN"}' \
   | python3 -m json.tool | sed "/\"account_type\"/i\        \"private_key\": \"$private_key\"" > $registe_path
 
   [ -s $registe_path ] && cat $registe_path && grep -q 'error code' $registe_path && rm -f $registe_path

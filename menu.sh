@@ -461,7 +461,7 @@ check_operating_system() {
 check_dependencies() {
   # 对于 alpine 系统，升级库并重新安装依赖
   if [ "$SYSTEM" = Alpine ]; then
-    [ ! -e /etc/wireguard/menu.sh ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash )
+    [ ! -e /etc/wireguard/menu.sh ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash python3 )
   else
     DEPS_CHECK=("ping" "wget" "curl" "systemctl" "ip" "python3")
     DEPS_INSTALL=("iputils-ping" "wget" "curl" "systemctl" "iproute2" "python3")
