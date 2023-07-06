@@ -1426,7 +1426,7 @@ input_url_token() {
       [ -z "$TEAM_TOKEN" ] && return
 
       unset TEAMS ADDRESS6 PRIVATEKEY RESERVED
-      TEAMS=$(bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's# > $registe_path##') --registe --token $TEAM_TOKEN)
+      TEAMS=$(bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's# > $registe_path##; /cat $registe_path/d') --registe --token $TEAM_TOKEN)
       ADDRESS6=$(expr "$TEAMS" : '.*"v6":[ ]*"\([^"]*\).*')
       PRIVATEKEY=$(expr "$TEAMS" : '.*"private_key":[ ]*"\([^"]*\).*')
       RESERVED=$(reserved_and_clientid $(expr "$TEAMS" : '.*"client_id":[ ]*"\([^"]*\).*') reserved)
