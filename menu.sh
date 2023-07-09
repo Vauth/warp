@@ -780,7 +780,7 @@ change_ip() {
       wg-quick down warp >/dev/null 2>&1
       [ -s /etc/wireguard/info.log ] && grep -q 'Device name' /etc/wireguard/info.log && local LICENSE=$(cat /etc/wireguard/license) && local NAME=$(awk '{print $NF}' /etc/wireguard/info.log)
       bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --cancle --file /etc/wireguard/warp-account.conf >/dev/null 2>&1
-      bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's#&& cat $registe_path ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null
+      bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's#cat $registe_path; ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null
       # 如原来是 plus 账户，以相同的 license 升级，并修改账户和 warp 配置文件
       if [[ -n "$LICENSE" && -n "$NAME" ]]; then
         [ -n "$LICENSE" ] && bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /etc/wireguard/warp-account.conf --license $LICENSE >/dev/null 2>&1
@@ -1756,7 +1756,7 @@ install() {
     mkdir -p /etc/wireguard/ >/dev/null 2>&1
     local REGISTE_TIME=0
     until [[ -e /etc/wireguard/warp-account.conf || "$REGISTE_TIME" = 100 ]]; do
-      bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's#&& cat $registe_path ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null && break
+      bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's#cat $registe_path; ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null && break
       (( REGISTE_TIME++ ))
     done
     if [ -n "$LICENSE" ]; then
@@ -2256,7 +2256,7 @@ change_to_free() {
     # 流程: 1.先停止服务; 2.注销旧账户; 3.注册新账户; 4.成功后根据新账户信息修改配置文件
     [ "$UPDATE_ACCOUNT" = warp ] && wg-quick down warp >/dev/null 2>&1 || ( systemctl stop wireproxy; sleep 2 )
     bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --cancle --file /etc/wireguard/warp-account.conf >/dev/null 2>&1
-    bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's#&& cat $registe_path ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null
+    bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's#cat $registe_path; ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null
     local PRIVATEKEY="$(grep 'private_key' /etc/wireguard/warp-account.conf | cut -d\" -f4)"
     local ADDRESS6="$(grep '"v6.*"$' /etc/wireguard/warp-account.conf | cut -d\" -f4)"
     local RESERVED="$(reserved_and_clientid /etc/wireguard/warp-account.conf file)"
@@ -2311,7 +2311,7 @@ change_to_plus() {
     rm -f /etc/wireguard/info.log
 
     bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --cancle --file /etc/wireguard/warp-account.conf >/dev/null 2>&1
-    bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's#&& cat $registe_path ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null
+    bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's#cat $registe_path; ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null
     local UPDATE_RESULT=$(bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /etc/wireguard/warp-account.conf --license $LICENSE)
     if grep -q '"warp_plus": true' <<< $UPDATE_RESULT; then
       [ -n "$NAME" ] && bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /etc/wireguard/warp-account.conf --name $NAME >/dev/null 2>&1
