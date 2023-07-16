@@ -883,17 +883,18 @@ check_system_info() {
 
   # 必须加载 TUN 模块，先尝试在线打开 TUN。尝试成功放到启动项，失败作提示并退出脚本
   TUN=$(cat /dev/net/tun 2>&1 | tr 'A-Z' 'a-z')
-  if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
+  if [[ ! "$TUN" =~ 'in bad state'|'处于错误状态' ]]; then
     mkdir -p /opt/warp-go/ >/dev/null 2>&1
     cat >/opt/warp-go/tun.sh << EOF
 #!/usr/bin/env bash
 mkdir -p /dev/net
-mknod /dev/net/tun c 10 200
+mknod /dev/net/tun c 10 200 2>/dev/null
+[ ! -e /dev/net/tun ] && exit 1
 chmod 0666 /dev/net/tun
 EOF
     bash /opt/warp-go/tun.sh
     TUN=$(cat /dev/net/tun 2>&1 | tr 'A-Z' 'a-z')
-    if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
+    if [[ ! "$TUN" =~ 'in bad state'|'处于错误状态' ]]; then
       rm -f /opt/warp-go/tun.sh && error "$(text 36)"
     else
       chmod +x /opt/warp-go/tun.sh

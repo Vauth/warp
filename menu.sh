@@ -1266,28 +1266,29 @@ stack_switch() {
   info " $(text 37) "
 
   # 必须加载 TUN 模块，先尝试在线打开 TUN。尝试成功放到启动项，失败作提示并退出脚本
-  if [ -e /dev/net/tun ]; then
-    TUN=$(cat /dev/net/tun 2>&1)
-    if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
-      cat >/usr/bin/tun.sh << EOF
+  TUN=$(cat /dev/net/tun 2>&1)
+  if [[ ! "$TUN" =~ 'in bad state'|'处于错误状态' ]]; then
+    cat >/usr/bin/tun.sh << EOF
 #!/usr/bin/env bash
 mkdir -p /dev/net
-mknod /dev/net/tun c 10 200
+mknod /dev/net/tun c 10 200 2>/dev/null
+[ ! -e /dev/net/tun ] && exit 1
 chmod 0666 /dev/net/tun
 EOF
-      bash /usr/bin/tun.sh
+    bash /usr/bin/tun.sh
+    if [ -e /dev/net/tun ]; then
       TUN=$(cat /dev/net/tun 2>&1)
-      if [[ ! "$TUN" =~ 'in bad state' ]] && [[ ! "$TUN" =~ '处于错误状态' ]] && [[ ! "$TUN" =~ 'Die Dateizugriffsnummer ist in schlechter Verfassung' ]]; then
+      if [[ ! "$TUN" =~ 'in bad state'|'处于错误状态' ]]; then
         rm -f /usr/bin/tun.sh && error " $(text 3) "
       else
         chmod +x /usr/bin/tun.sh
         [ "$SYSTEM" != Alpine ] && echo "@reboot root bash /usr/bin/tun.sh" >> /etc/crontab
       fi
+    elif lsmod | grep -q wireguard; then
+      KERNEL_ONLY=1
+    else
+      error " $(text 3) "
     fi
-  elif lsmod | grep -q wireguard; then
-    KERNEL_ONLY=1
-  else
-    error " $(text 3) "
   fi
 
   # 判断机器原生状态类型
