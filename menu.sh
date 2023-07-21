@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号
-VERSION='3.00 beta'
+VERSION='3.00 bet2'
 
 # IP API 服务商
 IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.cloudflare.com/cdn-cgi/trace")
@@ -13,16 +13,16 @@ export DEBIAN_FRONTEND=noninteractive
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="IMPORTANT: 1. Use Cloudflare official warp api to replace wgcf; 2. Use wireguard-go with reserved to replace kernel. Make Hong Kong, Los Angeles and other restricted areas use warp; The above are the works of enthusiastic user, I would like to thank this guy and warp-go author coia for their contributions on behalf of all users of this script; 3. Since the changes are too big, please ask users to reinstall, if you have any problems, please feedback, I will deal with it as soon as possible."
-C[1]="重要更新: 1. 全面用 Cloudflare 官方 warp api 替代 wgcf; 2. 使用 wireguard-go with reserved 替代内核。使香港，洛杉矶等受限地区使用 warp; 以上均是热心网友的作品，我谨代表本脚本的所有用户感谢这位网友和 warp-go 作者 coia 的贡献; 3.由于改动太大，请用户重新安装，如有问题请反馈，我将会尽快处理"
+E[1]="1. If the system supports wireguard kernel and wireguard-go-reserved, it can be switched use [warp k], which requires a script reinstallation; 2. Support Fedora system; 3. Fix switch error caused by client version 2023.7.40-1"
+C[1]="1. 如果系统支持 wireguard kernel 和 wireguard-go-reserved，可以通过 [warp k] 切换，需要重装脚本; 2. 支持 Fedora 系统; 3. 修复 client 2023.7.40-1 版本导致的开关错误"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[3]="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[4]="The WARP server cannot be connected. It may be a China Mainland VPS. You can manually ping 162.159.193.10 or ping -6 2606:4700:d0::a29f:c001.You can run the script again if the connect is successful. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[4]="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.193.10 或 ping -6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[5]="The script supports Debian, Ubuntu, CentOS, Arch or Alpine systems only. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[5]="本脚本只支持 Debian、Ubuntu、CentOS、Arch 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[5]="The script supports Debian, Ubuntu, CentOS, Fedora, Arch or Alpine systems only. Feedback: [https://github.com/fscarmen/warp/issues]"
+C[5]="本脚本只支持 Debian、Ubuntu、CentOS、Fedora、Arch 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[6]="warp h (help)\n warp n (Get the WARP IP)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Change account to Free, WARP+ or Teams)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n warp s 4/6/d (Set stack proiority: IPv4 / IPv6 / VPS default)\n"
 C[6]="warp h (帮助菜单）\n warp n (获取 WARP IP)\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (更换账户为 Free，WARP+ 或 Teams)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n warp s 4/6/d (优先级: IPv4 / IPv6 / VPS default)\n"
 E[7]="Install dependence-list:"
@@ -369,6 +369,12 @@ E[177]="1. Continue using the free account without changing.\n 2. Change to WARP
 C[177]="1. 继续使用 free 账户，不变更\n 2. 变更为 WARP+ 账户"
 E[178]="1. Change to free account.\n 2. Change to another WARP+ account."
 C[178]="1. 变更为 free 账户\n 2. 变更为另一个 WARP+ 账户"
+E[179]="Can only be run using \$KERNEL_OR_WIREGUARD_GO ."
+C[179]="只能使用 \$KERNEL_OR_WIREGUARD_GO 运行"
+E[180]="Install using:\n 1. wireguard kernel (default) \n 2. wireguard-go with reserved"
+C[180]="请选择 wireguard 方式:\n 1. wireguard 内核 (默认) \n 2. wireguard-go with reserved"
+E[181]="\${WIREGUARD_BEFORE} ---\> \${WIREGUARD_AFTER} . Confirm press [y] :"
+C[181]="\${WIREGUARD_BEFORE} ---\> \${WIREGUARD_AFTER} . 确认请按 [y] :"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
@@ -435,17 +441,17 @@ check_operating_system() {
   alpine_warp_restart() { wg-quick down warp >/dev/null 2>&1; wg-quick up warp >/dev/null 2>&1; }
   alpine_warp_enable() { echo -e "/usr/bin/tun.sh\nwg-quick up warp" > /etc/local.d/warp.start; chmod +x /etc/local.d/warp.start; rc-update add local; wg-quick up warp >/dev/null 2>&1; }
 
-  REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "amazon linux" "alpine" "arch linux")
-  RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS" "Alpine" "Arch")
+  REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "amazon linux" "alpine" "arch linux" "fedora")
+  RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS" "Alpine" "Arch" "Fedora")
   EXCLUDE=("")
   COMPANY=("" "" "" "amazon" "" "")
-  MAJOR=("9" "16" "7" "7" "3" "")
-  PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "yum -y update" "apk update -f" "pacman -Sy")
-  PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm")
-  PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "yum -y autoremove" "apk del -f" "pacman -Rcnsu --noconfirm")
-  SYSTEMCTL_START=("systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "wg-quick up warp" "systemctl start wg-quick@warp")
-  SYSTEMCTL_RESTART=("systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "alpine_warp_restart" "systemctl restart wg-quick@warp")
-  SYSTEMCTL_ENABLE=("systemctl enable --now wg-quick@warp" "systemctl enable --now wg-quick@warp" "systemctl enable --now wg-quick@warp" "systemctl enable --now wg-quick@warp" "alpine_warp_enable" "systemctl enable --now wg-quick@warp")
+  MAJOR=("9" "16" "7" "7" "3" "" "37")
+  PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "yum -y update" "apk update -f" "pacman -Sy" "dnf -y update")
+  PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm" "dnf -y install")
+  PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "yum -y autoremove" "apk del -f" "pacman -Rcnsu --noconfirm" "dnf -y autoremove")
+  SYSTEMCTL_START=("systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "wg-quick up warp" "systemctl start wg-quick@warp" "systemctl start wg-quick@warp")
+  SYSTEMCTL_RESTART=("systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "alpine_warp_restart" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp")
+  SYSTEMCTL_ENABLE=("systemctl enable --now wg-quick@warp" "systemctl enable --now wg-quick@warp" "systemctl enable --now wg-quick@warp" "systemctl enable --now wg-quick@warp" "alpine_warp_enable" "systemctl enable --now wg-quick@warp" "systemctl enable --now wg-quick@warp")
 
   for ((int=0; int<${#REGEX[@]}; int++)); do
     [[ $(tr 'A-Z' 'a-z' <<< "$SYS") =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && break
@@ -463,8 +469,8 @@ check_dependencies() {
   if [ "$SYSTEM" = Alpine ]; then
     [ ! -e /etc/wireguard/menu.sh ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash python3 )
   else
-    DEPS_CHECK=("ping" "wget" "curl" "systemctl" "ip" "python3")
-    DEPS_INSTALL=("iputils-ping" "wget" "curl" "systemctl" "iproute2" "python3")
+    DEPS_CHECK=("ping" "xxd" "wget" "curl" "systemctl" "ip" "python3")
+    DEPS_INSTALL=("iputils-ping" "xxd" "wget" "curl" "systemctl" "iproute2" "python3")
     for ((g=0; g<${#DEPS_CHECK[@]}; g++)); do [ ! $(type -p ${DEPS_CHECK[g]}) ] && [[ ! "${DEPS[@]}" =~ "${DEPS_INSTALL[g]}" ]] && DEPS+=(${DEPS_INSTALL[g]}); done
     if [ "${#DEPS[@]}" -ge 1 ]; then
       info "\n $(text 7) ${DEPS[@]} \n"
@@ -800,7 +806,7 @@ change_ip() {
     if [ -e /etc/wireguard/info.log ] && ! grep -q 'Device name' /etc/wireguard/info.log; then
       hint "\n $(text 95) \n" && reading " $(text 50) " CHANGE_ACCOUNT
       case "$CHANGE_ACCOUNT" in
-        2 ) 
+        2 )
           UPDATE_ACCOUNT=warp
           change_to_plus
           ;;
@@ -851,7 +857,7 @@ change_ip() {
 
   change_client() {
     client_restart() {
-      local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/^Mode/{print $2}')
+      local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/Mode:/{for (i=0; i<NF; i++) if ($i=="Mode:") {print $(i+1)}}')
       case "$CLIENT_MODE" in
         Warp )
           warning " $(text_eval 126) " && warp-cli --accept-tos delete >/dev/null 2>&1
@@ -872,7 +878,7 @@ change_ip() {
 
     change_stack
 
-    if [ "$(warp-cli --accept-tos settings | awk '/^Mode/{print $2}')" = WarpProxy ]; then
+    if [ "$(warp-cli --accept-tos settings | awk '/Mode:/{for (i=0; i<NF; i++) if ($i=="Mode:") {print $(i+1)}}')" = 'WarpProxy' ]; then
       [ -z "$EXPECT" ] && input_region
       i=0; j=10
       while true; do
@@ -1078,6 +1084,7 @@ uninstall() {
   done
 
   # 删除本脚本安装在 /etc/wireguard/ 下的所有文件，如果删除后目录为空，一并把目录删除
+  rm -f /usr/bin/wg-quick.{origin,reserved}
   rm -f /etc/wireguard/{wgcf-account.conf,wgcf.conf.bak,wgcf.conf,warp-temp.conf,warp-account.conf,warp_unlock.sh,warp.conf.bak,warp.conf,up,proxy.conf.bak,proxy.conf,menu.sh,license,language,info-temp.log,info.log,down,account-temp.conf}
   [[ -e /etc/wireguard && -z "$(ls -A /etc/wireguard/)" ]] && rmdir /etc/wireguard
 
@@ -1155,13 +1162,13 @@ onoff() {
 client_onoff() {
   [ ! $(type -p warp-cli) ] && error " $(text 93) "
   if [ "$(systemctl is-active warp-svc)" = 'active' ]; then
-    local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/^Mode/{print $2}')
-    [ "$(warp-cli --accept-tos settings | awk '/^Mode/{print $2}')" = 'Warp' ] && rule_del >/dev/null 2>&1
+    local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/Mode:/{for (i=0; i<NF; i++) if ($i=="Mode:") {print $(i+1)}}')
+    [ "$CLIENT_MODE" = 'Warp' ] && rule_del >/dev/null 2>&1
     systemctl stop warp-svc
     info " $(text 91) " && exit 0
   else
     systemctl start warp-svc; sleep 2
-    local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/^Mode/{print $2}')
+    local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/Mode:/{for (i=0; i<NF; i++) if ($i=="Mode:") {print $(i+1)}}')
     if [ "$CLIENT_MODE" = 'WarpProxy' ]; then
       ip_case d client
       local CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null | awk  '/type/{print $3}')
@@ -1261,13 +1268,46 @@ stack_switch() {
   OPTION=n && net
 }
 
-  # 检测系统信息
-  check_system_info() {
+# 内核 / wireguard-go with reserved 在线互换
+kernel_reserved_switch() {
+  # 先判断是否可以转换
+  case "$KERNEL_ENABLE@$WIREGUARD_GO_ENABLE" in
+    0@1 )
+      KERNEL_OR_WIREGUARD_GO='wireguard-go with reserved' && error "\n $(text_eval 179) \n"
+      ;;
+    1@0 )
+      KERNEL_OR_WIREGUARD_GO='wireguard kernel' && error "\n $(text_eval 179) \n"
+      ;;
+    1@1 )
+      if grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick; then
+        WIREGUARD_BEFORE='wireguard-go with reserved'; WIREGUARD_AFTER='wireguard kernel'; local CP_FILE=origin
+      else
+        WIREGUARD_BEFORE='wireguard kernel'; WIREGUARD_AFTER='wireguard-go with reserved'; local CP_FILE=reserved
+      fi
+
+      reading "\n $(text_eval 181) " CONFIRM_WIREGUARD_CHANGE
+      if [[ "$CONFIRM_WIREGUARD_CHANGE" = [Yy] ]]; then
+        wg-quick down warp >/dev/null 2>&1
+        cp -f /usr/bin/wg-quick.$CP_FILE /usr/bin/wg-quick
+        OPTION=o && net
+      else
+        exit
+      fi
+  esac
+}
+
+# 检测系统信息
+check_system_info() {
   info " $(text 37) "
+
+  # 判断是否有 wireguard 内核
+  [ -e /sys/module/wireguard ] && KERNEL_ENABLE=1 || KERNEL_ENABLE=0
 
   # 必须加载 TUN 模块，先尝试在线打开 TUN。尝试成功放到启动项，失败作提示并退出脚本
   TUN=$(cat /dev/net/tun 2>&1)
-  if [[ ! "$TUN" =~ 'in bad state'|'处于错误状态' ]]; then
+  if [[ "$TUN" =~ 'in bad state'|'处于错误状态' ]]; then
+    WIREGUARD_GO_ENABLE=1
+  else
     cat >/usr/bin/tun.sh << EOF
 #!/usr/bin/env bash
 mkdir -p /dev/net
@@ -1276,18 +1316,14 @@ mknod /dev/net/tun c 10 200 2>/dev/null
 chmod 0666 /dev/net/tun
 EOF
     bash /usr/bin/tun.sh
-    if [ -e /dev/net/tun ]; then
-      TUN=$(cat /dev/net/tun 2>&1)
-      if [[ ! "$TUN" =~ 'in bad state'|'处于错误状态' ]]; then
-        rm -f /usr/bin/tun.sh && error " $(text 3) "
-      else
-        chmod +x /usr/bin/tun.sh
-        [ "$SYSTEM" != Alpine ] && echo "@reboot root bash /usr/bin/tun.sh" >> /etc/crontab
-      fi
-    elif lsmod | grep -q wireguard; then
-      KERNEL_ONLY=1
+    TUN=$(cat /dev/net/tun 2>&1)
+    if [[ "$TUN" =~ 'in bad state'|'处于错误状态' ]]; then
+      WIREGUARD_GO_ENABLE=1
+      chmod +x /usr/bin/tun.sh
+      [ "$SYSTEM" != Alpine ] && echo "@reboot root bash /usr/bin/tun.sh" >> /etc/crontab
     else
-      error " $(text 3) "
+      WIREGUARD_GO_ENABLE=0
+      rm -f /usr/bin/tun.sh
     fi
   fi
 
@@ -1324,7 +1360,7 @@ EOF
     if [[ "$CLIENT" = 2 && "$(systemctl is-active warp-svc)" = 'active' ]]; then
       local CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null | awk  '/type/{print $3}')
       [ "$CLIENT_ACCOUNT" = Limited ] && CLIENT_AC='+' && check_quota client
-      local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/^Mode/{print $2}')
+      local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/Mode:/{for (i=0; i<NF; i++) if ($i=="Mode:") {print $(i+1)}}')
       case "$CLIENT_MODE" in
         WarpProxy )
           [[ "$(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}')" =~ warp-svc ]] && CLIENT=3 && ip_case d client
@@ -1696,6 +1732,22 @@ reserved_and_clientid() {
 
 # WARP 或 WireProxy 安装
 install() {
+  # 根据之前判断的情况，让用户选择使用 wireguard 内核还是 wireguard-go serverd
+  case "$KERNEL_ENABLE@$WIREGUARD_GO_ENABLE" in
+    0@0 )
+      error " $(text 3) "
+      ;;
+    0@1 )
+      KERNEL_OR_WIREGUARD_GO='wireguard-go with reserved' && info "\n $(text_eval 179) "
+      ;;
+    1@0 )
+      KERNEL_OR_WIREGUARD_GO='wireguard kernel' && info "\n $(text_eval 179) "
+      ;;
+    1@1 )
+      hint "\n $(text 180) \n" && reading " $(text 50) " KERNEL_OR_WIREGUARD_GO_CHOOSE
+      KERNEL_OR_WIREGUARD_GO='wireguard kernel' && [ "$KERNEL_OR_WIREGUARD_GO_CHOOSE" = 2 ] && KERNEL_OR_WIREGUARD_GO='wireguard-go with reserved'
+  esac
+
   # WireProxy 禁止重复安装，自定义 Port
   if [ "$OCTEEP" = 1 ]; then
     ss -nltp | grep -q wireproxy && error " $(text 166) " || input_port
@@ -1851,10 +1903,10 @@ EOF
       [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
       ;;
 
-    CentOS )
+    CentOS|Fedora )
       # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
       [ "$COMPANY" = amazon ] && ${PACKAGE_UPDATE[int]} && amazon-linux-extras install -y epel
-      ${PACKAGE_INSTALL[int]} epel-release
+      [ "$SYSTEM" = 'CentOS' ] && ${PACKAGE_INSTALL[int]} epel-release
       ${PACKAGE_INSTALL[int]} net-tools iptables
       [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
 
@@ -1879,18 +1931,23 @@ EOF
       # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
       ${PACKAGE_INSTALL[int]} openresolv
       [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
-
   esac
 
   # 先判断是否一定要用 wireguard kernel，如果不是，修改 wg-quick 文件，以使用 wireguard-go reserved 版
-  if [ "$KERNEL_ONLY" != 1 ]; then
-    grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick || sed -i '/add_if$/ {s/^/# /; N; s/\n/&        wireguard-go "$INTERFACE"\n/}' /usr/bin/wg-quick
-
+  if [ "$WIREGUARD_GO_ENABLE" = '1' ]; then
     # 则根据 wireguard-tools 版本判断下载 wireguard-go reserved 版本: wg < v1.0.20210223 , wg-go-reserved = v0.0.20201118-reserved; wg >= v1.0.20210223 , wg-go-reserved = v0.0.20230223-reserved
-
     local WIREGUARD_TOOLS_VERSION=$(wg --version | sed "s#.* v1\.0\.\([0-9]\+\) .*#\1#g")
     [[ "$WIREGUARD_TOOLS_VERSION" -lt 20210223 ]] && local WIREGUARD_GO_VERSION=20201118 || local WIREGUARD_GO_VERSION=20230223
     wget --no-check-certificate $CDN -O /usr/bin/wireguard-go https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go-linux-$ARCHITECTURE-$WIREGUARD_GO_VERSION && chmod +x /usr/bin/wireguard-go
+
+    if [ "$KERNEL_ENABLE" = '1' ]; then
+      cp -f /usr/bin/wg-quick{,.origin}
+      cp -f /usr/bin/wg-quick{,.reserved}
+      grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick.reserved || sed -i '/add_if$/ {s/^/# /; N; s/\n/&\twireguard-go "$INTERFACE"\n/}' /usr/bin/wg-quick.reserved
+      [ "$KERNEL_OR_WIREGUARD_GO" = 'wireguard-go with reserved' ] && cp -f /usr/bin/wg-quick.reserved /usr/bin/wg-quick
+    else
+      grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick || sed -i '/add_if$/ {s/^/# /; N; s/\n/&\twireguard-go "$INTERFACE"\n/}' /usr/bin/wg-quick
+    fi
   fi
 
   wait
@@ -2109,7 +2166,7 @@ client_install() {
   mkdir -p /etc/wireguard/ >/dev/null 2>&1
   if [ "$CLIENT" = 0 ]; then
     info " $(text 83) "
-    if [ "$SYSTEM" = CentOS ]; then
+    if grep -q "CentOS\|Fedora" <<< "$SYSTEM"; then
       curl -fsSl https://pkg.cloudflareclient.com/cloudflare-warp-ascii.repo | tee /etc/yum.repos.d/cloudflare-warp.repo
     else
       local VERSION_CODENAME=$(grep -i VERSION_CODENAME /etc/os-release | cut -d= -f2)
@@ -2226,7 +2283,7 @@ check_quota() {
 # 更换为免费账户
 change_to_free() {
   if [ "$UPDATE_ACCOUNT" = client ]; then
-    local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/^Mode/{print $2}')
+    local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/Mode:/{for (i=0; i<NF; i++) if ($i=="Mode:") {print $(i+1)}}')
     warp-cli --accept-tos delete >/dev/null 2>&1
     [ "$CLIENT_MODE" = 'Warp' ] && rule_del >/dev/null 2>&1
     warp-cli --accept-tos register >/dev/null 2>&1
@@ -2281,7 +2338,7 @@ change_to_plus() {
   update_license
   if [ "$UPDATE_ACCOUNT" = client ]; then
     [[ "$CLIENT_ACCOUNT" =~ $LICENSE ]] && KEY_LICENSE='License' && error " $(text_eval 31) "
-    local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/^Mode/{print $2}')
+    local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/Mode:/{for (i=0; i<NF; i++) if ($i=="Mode:") {print $(i+1)}}')
     hint "\n $(text 35) \n"
     warp-cli --accept-tos delete >/dev/null 2>&1
     [ "$CLIENT_MODE" = 'Warp' ] && rule_del >/dev/null 2>&1
@@ -2717,6 +2774,9 @@ e )
   ;;
 w )
   wireproxy_solution
+  ;;
+k )
+  kernel_reserved_switch
   ;;
 * )
   menu

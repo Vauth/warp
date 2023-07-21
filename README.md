@@ -23,6 +23,8 @@
 * * *
 
 ## 更新信息
+2023.7.21 menu.sh V3.00 beta2 1. If the system supports wireguard kernel and wireguard-go-reserved, it can be switched use [warp k], which requires a script reinstallation; 2. Support Fedora system; 3. Fix switch error caused by client version 2023.7.40-1; 1. 如果系统支持 wireguard kernel 和 wireguard-go-reserved，可以通过 [warp k] 切换，需要重装脚本; 2. 支持 Fedora 系统; 3. 修复 client 2023.7.40-1 版本导致的开关错误
+
 2023.6.30 menu.sh V3.00 beta IMPORTANT: 1. Use Cloudflare official warp api to replace wgcf; 2. Use wireguard-go with reserved to replace kernel. Make Hong Kong, Los Angeles and other restricted areas use warp; The above are the works of enthusiastic user, I would like to thank this guy and warp-go author coia for their contributions on behalf of all users of this script; 3. Since the changes are too big, please ask users to reinstall, if you have any problems, please feedback, I will deal with it as soon as possible; 重要更新: 1. 全面用 Cloudflare 官方 warp api 替代 wgcf; 2. 使用 wireguard-go with reserved 替代内核。使香港，洛杉矶等受限地区使用 warp; 以上均是热心网友的作品，我谨代表本脚本的所有用户感谢这位网友和 warp-go 作者 coia 的贡献; 3.由于改动太大，请用户重新安装，如有问题请反馈，我将会尽快处理
 
 2023.6.27 menu.sh V2.53 Wireproxy proxy mode supports warp dualstack. From now on wgcf / wireproxy / client all support dual stack; Client Proxy 模式支持 warp 双栈， 从此之后 wgcf / wireproxy / client 通通支持双栈
@@ -34,9 +36,9 @@
 2023.5.20 menu.sh V2.50 1. Client supports IPv6 only VPS; 2. Support 4 ways to upgrade to teams account including token (Easily available at https://web--public--warp-team-api--coia-mfs4.code.run); 3. Use api to delete warp account while uninstalling; 1. Client 支持 IPv6 only VPS 安装; 2. 支持包括 token 等4种方式升级为 teams 账户 (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取); 3. 卸载的同时使用 api 删除 warp 账户
 
 2023.5.15 Cloudflare api
-Thanks to badafans open source project and patient guidance. Now released in linux using the Cloudflare WARP api. badafans open source project link: https://github.com/badafans/warp-reg
+Thanks to badafans open source project and patient guidance. Now released in linux using the Cloudflare WARP api. [badafans open source project](https://github.com/badafans/warp-reg)
 Use method
-感谢大神 badafans的开源项目及耐心指导，现发布在linux下使用的Cloudflare WARP api，badafans的开源项目链接：https://github.com/badafans/warp-reg 
+感谢大神 badafans的开源项目及耐心指导，现发布在linux下使用的Cloudflare WARP api，[badafans的开源项目](https://github.com/badafans/warp-reg) 
 使用方法
 ```
 wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.sh [option]
