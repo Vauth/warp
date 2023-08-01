@@ -282,6 +282,7 @@ warp i jp
     "outbounds":[
         {
             "protocol":"freedom",
+            "tag": "direct"
         },
         {
             "protocol":"wireguard",
