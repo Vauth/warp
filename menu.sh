@@ -1,20 +1,17 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号
-VERSION='3.00 bet2'
+VERSION='3.00'
 
 # IP API 服务商
 IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.cloudflare.com/cdn-cgi/trace")
 ISP=("isp" "isp" "asn_org")
 IP=("query" "ip" "ip")
 
-# 环境变量用于在Debian或Ubuntu操作系统中设置非交互式（noninteractive）安装模式
-export DEBIAN_FRONTEND=noninteractive
-
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="1. If the system supports wireguard kernel and wireguard-go-reserved, it can be switched use [warp k], which requires a script reinstallation; 2. Support Fedora system; 3. Fix switch error caused by client version 2023.7.40-1"
-C[1]="1. 如果系统支持 wireguard kernel 和 wireguard-go-reserved，可以通过 [warp k] 切换，需要重装脚本; 2. 支持 Fedora 系统; 3. 修复 client 2023.7.40-1 版本导致的开关错误"
+E[1]="Add a non-global working mode, it can be switched use [warp g], which requires a script reinstallation"
+C[1]="增加warp的非全局工作模式，可以通过 [warp g] 切换，需要重装脚本"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -23,8 +20,8 @@ E[4]="The WARP server cannot be connected. It may be a China Mainland VPS. You c
 C[4]="与 WARP 的服务器不能连接,可能是大陆 VPS，可手动 ping 162.159.193.10 或 ping -6 2606:4700:d0::a29f:c001，如能连通可再次运行脚本，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[5]="The script supports Debian, Ubuntu, CentOS, Fedora, Arch or Alpine systems only. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[5]="本脚本只支持 Debian、Ubuntu、CentOS、Fedora、Arch 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[6]="warp h (help)\n warp n (Get the WARP IP)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Change account to Free, WARP+ or Teams)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n warp s 4/6/d (Set stack proiority: IPv4 / IPv6 / VPS default)\n"
-C[6]="warp h (帮助菜单）\n warp n (获取 WARP IP)\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (更换账户为 Free，WARP+ 或 Teams)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n warp s 4/6/d (优先级: IPv4 / IPv6 / VPS default)\n"
+E[6]="warp h (help)\n warp n (Get the WARP IP)\n warp o (Turn off WARP temporarily)\n warp u (Turn off and uninstall WARP interface and Socks5 Linux Client)\n warp b (Upgrade kernel, turn on BBR, change Linux system)\n warp a (Change account to Free, WARP+ or Teams)\n warp p (Getting WARP+ quota by scripts)\n warp v (Sync the latest version)\n warp r (Connect/Disconnect WARP Linux Client)\n warp 4/6 (Add WARP IPv4/IPv6 interface)\n warp d (Add WARP dualstack interface IPv4 + IPv6)\n warp c (Install WARP Linux Client and set to proxy mode)\n warp l (Install WARP Linux Client and set to WARP mode)\n warp i (Change the WARP IP to support Netflix)\n warp e (Install Iptables + dnsmasq + ipset solution)\n warp w (Install WireProxy solution)\n warp y (Connect/Disconnect WireProxy socks5)\n warp k (Switch between kernel and wireguard-go-reserved)\n warp g (Switch between warp global and non-global)\n warp s 4/6/d (Set stack proiority: IPv4 / IPv6 / VPS default)\n"
+C[6]="warp h (帮助菜单）\n warp n (获取 WARP IP)\n warp o (临时warp开关)\n warp u (卸载 WARP 网络接口和 Socks5 Client)\n warp b (升级内核、开启BBR及DD)\n warp a (更换账户为 Free，WARP+ 或 Teams)\n warp p (刷WARP+流量)\n warp v (同步脚本至最新版本)\n warp r (WARP Linux Client 开关)\n warp 4/6 (WARP IPv4/IPv6 单栈)\n warp d (WARP 双栈)\n warp c (安装 WARP Linux Client，开启 Socks5 代理模式)\n warp l (安装 WARP Linux Client，开启 WARP 模式)\n warp i (更换支持 Netflix 的IP)\n warp e (安装 Iptables + dnsmasq + ipset 解决方案)\n warp w (安装 WireProxy 解决方案)\n warp y (WireProxy socks5 开关)\n warp k (切换 wireguard 内核 / wireguard-go-reserved)\n warp g (切换 warp 全局 / 非全局)\n warp s 4/6/d (优先级: IPv4 / IPv6 / VPS default)\n"
 E[7]="Install dependence-list:"
 C[7]="安装依赖列表:"
 E[8]="All dependencies already exist and do not need to be installed additionally."
@@ -371,10 +368,20 @@ E[178]="1. Change to free account.\n 2. Change to another WARP+ account."
 C[178]="1. 变更为 free 账户\n 2. 变更为另一个 WARP+ 账户"
 E[179]="Can only be run using \$KERNEL_OR_WIREGUARD_GO ."
 C[179]="只能使用 \$KERNEL_OR_WIREGUARD_GO 运行"
-E[180]="Install using:\n 1. wireguard kernel (default) \n 2. wireguard-go with reserved"
-C[180]="请选择 wireguard 方式:\n 1. wireguard 内核 (默认) \n 2. wireguard-go with reserved"
-E[181]="\${WIREGUARD_BEFORE} ---\> \${WIREGUARD_AFTER} . Confirm press [y] :"
-C[181]="\${WIREGUARD_BEFORE} ---\> \${WIREGUARD_AFTER} . 确认请按 [y] :"
+E[180]="Install using:\n 1. wireguard kernel (default)\n 2. wireguard-go with reserved"
+C[180]="请选择 wireguard 方式:\n 1. wireguard 内核 (默认)\n 2. wireguard-go with reserved"
+E[181]="\${WIREGUARD_BEFORE} ---\> \${WIREGUARD_AFTER}. Confirm press [y] :"
+C[181]="\${WIREGUARD_BEFORE} ---\> \${WIREGUARD_AFTER}， 确认请按 [y] :"
+E[182]="Working mode:\n 1. Global (default)\n 2. Non-global"
+C[182]="工作模式:\n 1. 全局 (默认)\n 2. 非全局"
+E[183]="\${MODE_BEFORE} ---\> \${MODE_AFTER}, Confirm press [y] :"
+C[183]="\${MODE_BEFORE} ---\> \${MODE_AFTER}， 确认请按 [y] :"
+E[184]="Global"
+C[184]="全局"
+E[185]="Non-global"
+C[185]="非全局"
+E[186]="Working mode: \$GLOBAL_OR_NOT"
+C[186]="工作模式: \$GLOBAL_OR_NOT"
 
 # 自定义字体彩色，read 函数，友道翻译函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
@@ -447,7 +454,7 @@ check_operating_system() {
   COMPANY=("" "" "" "amazon" "" "")
   MAJOR=("9" "16" "7" "7" "3" "" "37")
   PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "yum -y update" "apk update -f" "pacman -Sy" "dnf -y update")
-  PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm" "dnf -y install")
+  PACKAGE_INSTALL=("apt-get install -o Dpkg::Options::="--force-confnew" -y" "apt-get install -o Dpkg::Options::="--force-confnew" -y" "yum -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm" "dnf -y install")
   PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "yum -y autoremove" "apk del -f" "pacman -Rcnsu --noconfirm" "dnf -y autoremove")
   SYSTEMCTL_START=("systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "wg-quick up warp" "systemctl start wg-quick@warp" "systemctl start wg-quick@warp")
   SYSTEMCTL_RESTART=("systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "alpine_warp_restart" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp")
@@ -515,16 +522,16 @@ ip_info() {
   echo -e "trace=$IP_TRACE@\nip=$WAN@\ncountry=$COUNTRY@\nasnorg=$ASNORG\n"
 }
 
-
 # 根据场景传参调用自定义 IP api
 ip_case() {
   local CHECK_46="$1"
   [ -n "$2" ] && local CHECK_TYPE="$2"
+  [ "$3" = 'non-global' ] && local CHECK_NONGLOBAL='warp'
 
   if [ "$CHECK_TYPE" = "warp" ]; then
     fetch_4() {
       unset IP_RESULT4 COUNTRY4 ASNORG4 TRACE4
-      local IP_RESULT4=$(ip_info 4)
+      local IP_RESULT4=$(ip_info 4 $CHECK_NONGLOBAL)
       TRACE4=$(expr "$IP_RESULT4" : '.*trace=\([^@]*\).*')
       WAN4=$(expr "$IP_RESULT4" : '.*ip=\([^@]*\).*')
       COUNTRY4=$(expr "$IP_RESULT4" : '.*country=\([^@]*\).*')
@@ -535,7 +542,7 @@ ip_case() {
 
     fetch_6() {
       unset IP_RESULT6 COUNTRY6 ASNORG6 TRACE6
-      local IP_RESULT6=$(ip_info 6)
+      local IP_RESULT6=$(ip_info 6 $CHECK_NONGLOBAL)
       TRACE6=$(expr "$IP_RESULT6" : '.*trace=\([^@]*\).*')
       WAN6=$(expr "$IP_RESULT6" : '.*ip=\([^@]*\).*')
       COUNTRY6=$(expr "$IP_RESULT6" : '.*country=\([^@]*\).*')
@@ -549,8 +556,14 @@ ip_case() {
         fetch_$CHECK_46
         ;;
       d )
-        fetch_4
-        fetch_6
+        # 如在非全局模式，根据 AllowedIPs 的 v4、v6 情况再查 ip 信息；如在全局模式下则全部查
+        if [ -e /etc/wireguard/warp.conf ] && grep -q '^Table' /etc/wireguard/warp.conf; then
+          grep -q "^#.*0\.\0\/0" /etc/wireguard/warp.conf || fetch_4
+          grep -q "^#.*\:\:\/0" /etc/wireguard/warp.conf || fetch_6
+        else
+          fetch_4
+          fetch_6
+        fi
     esac
   elif [ "$CHECK_TYPE" = "wireproxy" ]; then
     fetch_4() {
@@ -762,7 +775,7 @@ result_priority() {
 
 # 更换 Netflix IP 时确认期望区域
 input_region() {
-  [ -n "$NF" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -$NF -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+  [ -n "$NF" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -$NF $GLOBAL -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
   [ -n "$WIREPROXY_PORT" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://127.0.0.1:$WIREPROXY_PORT -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
   [ -n "$INTERFACE" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
   REGION=${REGION:-'US'}
@@ -833,20 +846,23 @@ change_ip() {
         change_stack
     esac
 
+    # 检测[全局]或[非全局]
+    grep -q '^Table' /etc/wireguard/warp.conf && GLOBAL='--interface warp'
+
     [ -z "$EXPECT" ] && input_region
     i=0; j=10
     while true; do
       (( i++ )) || true
       ip_now=$(date +%s); RUNTIME=$((ip_now - ip_start)); DAY=$(( RUNTIME / 86400 )); HOUR=$(( (RUNTIME % 86400 ) / 3600 )); MIN=$(( (RUNTIME % 86400 % 3600) / 60 )); SEC=$(( RUNTIME % 86400 % 3600 % 60 ))
-      ip_case "$NF" warp
+      [ "$GLOBAL" = '--interface warp' ] && ip_case "$NF" warp non-global || ip_case "$NF" warp
       WAN=$(eval echo \$WAN$NF) && COUNTRY=$(eval echo \$COUNTRY$NF) && ASNORG=$(eval echo \$ASNORG$NF)
       unset RESULT REGION
       for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
-        RESULT[l]=$(curl --user-agent "${UA_Browser}" -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
+        RESULT[l]=$(curl --user-agent "${UA_Browser}" -$NF $GLOBAL -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
         [ "${RESULT[l]}" = 200 ] && break
       done
       if [[ "${RESULT[@]}" =~ 200 ]]; then
-        REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -"$NF" -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
+        REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -"$NF" $GLOBAL -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
         REGION=${REGION:-'US'}
         echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || warp_restart
       else
@@ -1085,7 +1101,7 @@ uninstall() {
 
   # 删除本脚本安装在 /etc/wireguard/ 下的所有文件，如果删除后目录为空，一并把目录删除
   rm -f /usr/bin/wg-quick.{origin,reserved}
-  rm -f /etc/wireguard/{wgcf-account.conf,wgcf.conf.bak,wgcf.conf,warp-temp.conf,warp-account.conf,warp_unlock.sh,warp.conf.bak,warp.conf,up,proxy.conf.bak,proxy.conf,menu.sh,license,language,info-temp.log,info.log,down,account-temp.conf}
+  rm -f /etc/wireguard/{wgcf-account.conf,wgcf.conf.bak,wgcf.conf,warp-temp.conf,warp-account.conf,warp_unlock.sh,warp.conf.bak,warp.conf,up,proxy.conf.bak,proxy.conf,menu.sh,license,language,info-temp.log,info.log,down,account-temp.conf,NonGlobalUp.sh,NonGlobalDown.sh}
   [[ -e /etc/wireguard && -z "$(ls -A /etc/wireguard/)" ]] && rmdir /etc/wireguard
 
   # 选择自动卸载依赖执行以下
@@ -1122,7 +1138,14 @@ net() {
   ${SYSTEMCTL_START[int]} >/dev/null 2>&1
   wg-quick up warp >/dev/null 2>&1
   ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
-  ip_case d warp
+  if grep -q '#Table' /etc/wireguard/warp.conf; then
+    GLOBAL_OR_NOT="$(text 184)"
+    ip_case d warp
+  else
+    GLOBAL_OR_NOT="$(text 185)"
+    ip_case d warp non-global
+  fi
+  grep -q '#Table' /etc/wireguard/warp.conf && ip_case d warp || ip_case d warp non-global
   until [[ "$TRACE4$TRACE6" =~ on|plus && -z "$CONFIRM_TEAMS_INFO" ]]; do
     (( i++ )) || true
     hint " $(text_eval 12) "
@@ -1148,7 +1171,7 @@ net() {
   # 删除临时文件，判断账户类型，如果是 plus，检测剩余流量
   [ -e /etc/wireguard/warp.conf.bak ] && ( bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --cancle --file /etc/wireguard/warp.conf.bak >/dev/null 2>&1 ; rm -f /etc/wireguard/warp.conf.bak )
   [[ "$TRACE4$TRACE6" =~ on|plus ]] && [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && TYPE='+' && check_quota warp
-  info " $(text_eval 14) "
+  info " $(text_eval 14), $(text_eval 186) "
   [[ $OPTION = [on] ]] && info " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 " && [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
 }
 
@@ -1296,6 +1319,25 @@ kernel_reserved_switch() {
   esac
 }
 
+# 全局 / 非全局 在线互换
+working_mode_switch() {
+  # 先判断当前工作模式
+  if grep -q '#Table' /etc/wireguard/warp.conf; then
+    MODE_BEFORE="$(text 184)"; MODE_AFTER="$(text 185)"
+  else
+    MODE_BEFORE="$(text 185)"; MODE_AFTER="$(text 184)"
+  fi
+
+  reading "\n $(text_eval 183) " CONFIRM_MODE_CHANGE
+  if [[ "$CONFIRM_MODE_CHANGE" = [Yy] ]]; then
+    wg-quick down warp >/dev/null 2>&1
+    [ "$MODE_AFTER" = "$(text 185)" ] && sed -i "/Table/s/#//g;/NonGlobal/s/#//g" /etc/wireguard/warp.conf || sed -i "s/^Table/#Table/g; /NonGlobal/s/^/#&/g" /etc/wireguard/warp.conf
+    OPTION=o && net
+  else
+    exit
+  fi
+}
+
 # 检测系统信息
 check_system_info() {
   info " $(text 37) "
@@ -1331,8 +1373,13 @@ EOF
   IPV4=0; IPV6=0
   LAN4=$(ip route get 192.168.193.10 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
-  [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1 && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip_case 6 warp
-  [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip_case 4 warp
+  if [[ $(ip link show | awk -F': ' '{print $2}') =~ warp ]]; then
+    GLOBAL_OR_NOT="$(text 185)"
+    ip_case d warp non-global
+  else
+    [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1 && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip_case 6 warp
+    [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip_case 4 warp
+  fi
 
   # 判断当前 WARP 状态，决定变量 PLAN，变量 PLAN 含义:1=单栈  2=双栈  3=WARP已开启
   [[ "$TRACE4$TRACE6" =~ on|plus ]] && PLAN=3 || PLAN=$((IPV4+IPV6))
@@ -1671,8 +1718,7 @@ EOF
   chmod +x /etc/wireguard/up /etc/wireguard/down
 
   # 修改 warp.conf 和 warp.conf 文件
-  sed -i "s/^Post.*/#&/g;/MTU/a\Table = off\nPostUp = /etc/wireguard/up\nPredown = /etc/wireguard/down" /etc/wireguard/warp.conf
-  sed -i "\$a PersistentKeepalive = 5" /etc/wireguard/warp.conf
+  sed -i "s/^Post.*/#&/g; /Table/s/#//g; /Table/a\PostUp = /etc/wireguard/up\nPredown = /etc/wireguard/down" /etc/wireguard/warp.conf
   [ "$m" = 0 ] && sed -i "2i server=2606:4700:4700::1111\nserver=2001:4860:4860::8888\nserver=2001:4860:4860::8844" /etc/dnsmasq.d/warp.conf
   ! grep -q 'warp' /etc/iproute2/rt_tables && echo '250   warp' >>/etc/iproute2/rt_tables
   systemctl disable systemd-resolved --now >/dev/null 2>&1 && sleep 2
@@ -1747,6 +1793,12 @@ install() {
       hint "\n $(text 180) \n" && reading " $(text 50) " KERNEL_OR_WIREGUARD_GO_CHOOSE
       KERNEL_OR_WIREGUARD_GO='wireguard kernel' && [ "$KERNEL_OR_WIREGUARD_GO_CHOOSE" = 2 ] && KERNEL_OR_WIREGUARD_GO='wireguard-go with reserved'
   esac
+
+  # Warp 工作模式: 全局或非全局，在 dnsmasq / wireproxy 方案下不选择
+  if [[ ! $ANEMONE$OCTEEP =~ '1' ]]; then
+    hint "\n $(text 182) \n" && reading " $(text 50) " GLOBAL_OR_NOT_CHOOSE
+    GLOBAL_OR_NOT="$(text 184)" && [ "$GLOBAL_OR_NOT_CHOOSE" = 2 ] && GLOBAL_OR_NOT="$(text 185)"
+  fi
 
   # WireProxy 禁止重复安装，自定义 Port
   if [ "$OCTEEP" = 1 ]; then
@@ -1842,6 +1894,9 @@ Address = $(grep '"v6.*"$' /etc/wireguard/warp-account.conf | cut -d\" -f4)/128
 DNS = 1.1.1.1
 MTU = 1280
 #Reserved = $(reserved_and_clientid /etc/wireguard/warp-account.conf file)
+#Table = off
+#PostUp = /etc/wireguard/NonGlobalUp.sh
+#PostDown = /etc/wireguard/NonGlobalDown.sh
 
 [Peer]
 PublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
@@ -1849,6 +1904,25 @@ AllowedIPs = 0.0.0.0/0
 AllowedIPs = ::/0
 Endpoint = engage.cloudflareclient.com:2408
 EOF
+
+      cat > /etc/wireguard/NonGlobalUp.sh <<EOF
+sleep 5
+ip -4 rule add from 172.16.0.2 lookup 51820
+ip -4 rule add table main suppress_prefixlength 0
+ip -4 route add default dev warp table 51820
+ip -6 rule add oif warp lookup 51820
+ip -6 rule add table main suppress_prefixlength 0
+ip -6 route add default dev warp table 51820
+EOF
+
+      cat > /etc/wireguard/NonGlobalDown.sh <<EOF
+ip -4 rule delete oif warp lookup 51820
+ip -4 rule delete table main suppress_prefixlength 0
+ip -6 rule delete oif warp lookup 51820
+ip -6 rule delete table main suppress_prefixlength 0
+EOF
+      
+      chmod +x /etc/wireguard/NonGlobal*.sh
       info "\n $(text 33) \n"
     fi
 
@@ -1859,6 +1933,7 @@ EOF
     best_endpoint
 
     # 修改配置文件
+    [ "$GLOBAL_OR_NOT" = "$(text 185)" ] && sed -i "/Table/s/#//g;/NonGlobal/s/#//g" /etc/wireguard/warp.conf
     [ -e /etc/wireguard/warp.conf ] && sed -i "s/MTU.*/MTU = $MTU/g; s/engage.*/$ENDPOINT/g" /etc/wireguard/warp.conf && info "\n $(text 81) \n"
   }&
 
@@ -1933,20 +2008,22 @@ EOF
       [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
   esac
 
-  # 先判断是否一定要用 wireguard kernel，如果不是，修改 wg-quick 文件，以使用 wireguard-go reserved 版
-  if [ "$WIREGUARD_GO_ENABLE" = '1' ]; then
-    # 则根据 wireguard-tools 版本判断下载 wireguard-go reserved 版本: wg < v1.0.20210223 , wg-go-reserved = v0.0.20201118-reserved; wg >= v1.0.20210223 , wg-go-reserved = v0.0.20230223-reserved
-    local WIREGUARD_TOOLS_VERSION=$(wg --version | sed "s#.* v1\.0\.\([0-9]\+\) .*#\1#g")
-    [[ "$WIREGUARD_TOOLS_VERSION" -lt 20210223 ]] && local WIREGUARD_GO_VERSION=20201118 || local WIREGUARD_GO_VERSION=20230223
-    wget --no-check-certificate $CDN -O /usr/bin/wireguard-go https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go-linux-$ARCHITECTURE-$WIREGUARD_GO_VERSION && chmod +x /usr/bin/wireguard-go
+  # 在不是 wireproxy 方案的前提下，先判断是否一定要用 wireguard kernel，如果不是，修改 wg-quick 文件，以使用 wireguard-go reserved 版
+  if [ "$OCTEEP" != 1 ]; then
+    if [ "$WIREGUARD_GO_ENABLE" = '1' ]; then
+      # 则根据 wireguard-tools 版本判断下载 wireguard-go reserved 版本: wg < v1.0.20210223 , wg-go-reserved = v0.0.20201118-reserved; wg >= v1.0.20210223 , wg-go-reserved = v0.0.20230223-reserved
+      local WIREGUARD_TOOLS_VERSION=$(wg --version | sed "s#.* v1\.0\.\([0-9]\+\) .*#\1#g")
+      [[ "$WIREGUARD_TOOLS_VERSION" -lt 20210223 ]] && local WIREGUARD_GO_VERSION=20201118 || local WIREGUARD_GO_VERSION=20230223
+      wget --no-check-certificate $CDN -O /usr/bin/wireguard-go https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go-linux-$ARCHITECTURE-$WIREGUARD_GO_VERSION && chmod +x /usr/bin/wireguard-go
 
-    if [ "$KERNEL_ENABLE" = '1' ]; then
-      cp -f /usr/bin/wg-quick{,.origin}
-      cp -f /usr/bin/wg-quick{,.reserved}
-      grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick.reserved || sed -i '/add_if$/ {s/^/# /; N; s/\n/&\twireguard-go "$INTERFACE"\n/}' /usr/bin/wg-quick.reserved
-      [ "$KERNEL_OR_WIREGUARD_GO" = 'wireguard-go with reserved' ] && cp -f /usr/bin/wg-quick.reserved /usr/bin/wg-quick
-    else
-      grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick || sed -i '/add_if$/ {s/^/# /; N; s/\n/&\twireguard-go "$INTERFACE"\n/}' /usr/bin/wg-quick
+      if [ "$KERNEL_ENABLE" = '1' ]; then
+        cp -f /usr/bin/wg-quick{,.origin}
+        cp -f /usr/bin/wg-quick{,.reserved}
+        grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick.reserved || sed -i '/add_if$/ {s/^/# /; N; s/\n/&\twireguard-go "$INTERFACE"\n/}' /usr/bin/wg-quick.reserved
+        [ "$KERNEL_OR_WIREGUARD_GO" = 'wireguard-go with reserved' ] && cp -f /usr/bin/wg-quick.reserved /usr/bin/wg-quick
+      else
+        grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick || sed -i '/add_if$/ {s/^/# /; N; s/\n/&\twireguard-go "$INTERFACE"\n/}' /usr/bin/wg-quick
+      fi
     fi
   fi
 
@@ -2094,7 +2171,7 @@ EOF
     info " IPv4: $WAN4 $COUNTRY4  $ASNORG4 "
     info " IPv6: $WAN6 $COUNTRY6  $ASNORG6 "
     info " $(text_eval 41) " && [ -n "$QUOTA" ] && info " $(text_eval 133) "
-    info " $PRIORITY_NOW "
+    info " $PRIORITY_NOW , $(text_eval 186) "
     echo -e "\n==============================================================\n"
     hint " $(text 43)\n " && help
     [[ "$TRACE4$TRACE6" = offoff ]] && warning " $(text 44) "
@@ -2579,6 +2656,9 @@ menu_setting() {
 
   [ -e /etc/dnsmasq.d/warp.conf ] && IPTABLE_INSTALLED="$(text 92)"
   [ -n "$(wg 2>/dev/null)" ] && MENU_OPTION[4]="4.  $(text 77)" || MENU_OPTION[4]="4.  $(text 71)"
+  if [ -e /etc/wireguard/warp.conf ]; then
+    grep -q '#Table' /etc/wireguard/warp.conf && GLOBAL_OR_NOT="$(text 184)" || GLOBAL_OR_NOT="$(text 185)"
+  fi
 
   MENU_OPTION[5]="5.  $CLIENT_INSTALLED$AMD64_ONLY$(text 82)"
   MENU_OPTION[6]="6.  $(text 123)"
@@ -2613,10 +2693,10 @@ menu() {
   info "\t IPv6: $WAN6 $COUNTRY6  $ASNORG6 "
   case "$TRACE4$TRACE6" in
     *plus* )
-      info "\t $(text_eval 114)\t $PLUSINFO "
+      info "\t $(text_eval 114)\t $PLUSINFO\n\t $(text_eval 186) "
       ;;
     *on* )
-      info "\t $(text 115) "
+      info "\t $(text 115)\n\t $(text_eval 186) "
   esac
   [ "$PLAN" != 3 ] && info "\t $(text 116) "
   case "$CLIENT" in
@@ -2777,6 +2857,9 @@ w )
   ;;
 k )
   kernel_reserved_switch
+  ;;
+g )
+  working_mode_switch
   ;;
 * )
   menu

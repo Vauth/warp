@@ -23,6 +23,8 @@
 * * *
 
 ## 更新信息
+2023.8.15 menu.sh V3.00 Add a non-global working mode, it can be switched use [warp g], which requires a script reinstallation; 增加warp的非全局工作模式，可以通过 [warp g] 切换，需要重装脚本
+
 2023.7.21 menu.sh V3.00 beta2 1. If the system supports wireguard kernel and wireguard-go-reserved, it can be switched use [warp k], which requires a script reinstallation; 2. Support Fedora system; 3. Fix switch error caused by client version 2023.7.40-1; 1. 如果系统支持 wireguard kernel 和 wireguard-go-reserved，可以通过 [warp k] 切换，需要重装脚本; 2. 支持 Fedora 系统; 3. 修复 client 2023.7.40-1 版本导致的开关错误
 
 2023.6.30 menu.sh V3.00 beta IMPORTANT: 1. Use Cloudflare official warp api to replace wgcf; 2. Use wireguard-go with reserved to replace kernel. Make Hong Kong, Los Angeles and other restricted areas use warp; The above are the works of enthusiastic user, I would like to thank this guy and warp-go author coia for their contributions on behalf of all users of this script; 3. Since the changes are too big, please ask users to reinstall, if you have any problems, please feedback, I will deal with it as soon as possible; 重要更新: 1. 全面用 Cloudflare 官方 warp api 替代 wgcf; 2. 使用 wireguard-go with reserved 替代内核。使香港，洛杉矶等受限地区使用 warp; 以上均是热心网友的作品，我谨代表本脚本的所有用户感谢这位网友和 warp-go 作者 coia 的贡献; 3.由于改动太大，请用户重新安装，如有问题请反馈，我将会尽快处理
@@ -44,14 +46,14 @@ Use method
 wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.sh [option]
 ```
 
-2023.5.10 warp-go V1.1.4 1. Docking the warp-go official account pool api, wiki: https://docs.zeroteam.top/apis/warp; 2. Change non-global from ipv4 only to dualstacks; 3. Fix the bug that the native IPv6 cannot login when using dualstacks; 4. Update the Best-enpoint app; 5. Change ip api; 1. 对接 warp-go 官方账户池 api，wiki: https://docs.zeroteam.top/apis/warp; 2. 非全局从ipv4 only 改为双栈; 3. 修复双栈时使用原生 IPv6 不能登陆的 bug; 4. 更新最佳 Endpoint 应用; 5. 更换 ip api
-
-2023.3.26 warp-go V1.1.3 / menu.sh 2.49 1. Change the best Warp endpoint to standard ports [500,1701,2408,4500]; 2. Upgrade the Netflix unlocking section; 1. warp endpoint 优选改为标准端口 [500,1701,2408,4500]; 2. 升级奈飞解锁部分
-
 <details>
     <summary>历史更新 history（点击即可展开或收起）</summary>
 <br>
 
+>2023.5.10 warp-go V1.1.4 1. Docking the warp-go official account pool api, wiki: https://docs.zeroteam.top/apis/warp; 2. Change non-global from ipv4 only to dualstacks; 3. Fix the bug that the native IPv6 cannot login when using dualstacks; 4. Update the Best-enpoint app; 5. Change ip api; 1. 对接 warp-go 官方账户池 api，wiki: https://docs.zeroteam.top/apis/warp; 2. 非全局从ipv4 only 改为双栈; 3. 修复双栈时使用原生 IPv6 不能登陆的 bug; 4. 更新最佳 Endpoint 应用; 5. 更换 ip api
+>
+>2023.3.26 warp-go V1.1.3 / menu.sh 2.49 1. Change the best Warp endpoint to standard ports [500,1701,2408,4500]; 2. Upgrade the Netflix unlocking section; 1. warp endpoint 优选改为标准端口 [500,1701,2408,4500]; 2. 升级奈飞解锁部分
+>
 >2023.3.14 warp-go V1.1.2 / menu.sh 2.48 To speed up WARP, automatically find the most suitable endpoint for local use and apply it to wgcf, warp-go and client. Thanks to an anonymous and enthusiastic user for the tool; 为了提速 WARP，自动寻找最适合本机使用的 endpoint，应用在 wgcf, warp-go 和 client，感谢匿名的热心网友提供的工具
 >
 >2023.3.2 warp-go V1.1.1 1. warp-go v1.0.8 is supported. Allowing custom MTU values in the configuration file /opt/warp-go/warp.conf; 2. Singbox configuration exports reseved using 3-numeric-array instead of a string; 1. 支持 warp-go v1.0.8 , 允许在配置文件 /opt/warp-go/warp.conf 自定义 MTU 值; 2. Singbox配置导出 reseved 使用三个数字的数组代替字符串
@@ -260,7 +262,10 @@ warp [option] [lisence]
   | i | 更换 WARP IP |
   | e | 安装 iptables + dnsmasq + ipset 分流流媒体方案 |
   | w | 安装 WireProxy 解决方案 |
-  | y | WireProxy 开关 | 
+  | y | WireProxy 开关 |
+  | k | 切换 wireguard 内核 / wireguard-go-reserved |
+  | g | 切换 warp 全局 / 非全局 |
+  | s | s 4/6/d，切换优先级 warp IPv4 / IPv6 / 默认  |
   | 其他或空值| 菜单界面 |
 
 举例：想为 IPv4 的甲骨文添加 Warp 双栈，首次运行
@@ -475,7 +480,7 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
             },
             "streamSettings":{
                 "sockopt":{
-                    "interface":"CloudflareWARP", // Client 的 Proxy 模式填 CloudflareWARP 或者  warp-go 填 WARP
+                    "interface":"CloudflareWARP", // warp 非全局模式填 warp; Client 的 Proxy 模式填 CloudflareWARP; warp-go 填 WARP
                     "tcpFastOpen":true
                 }
             }
