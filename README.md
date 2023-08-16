@@ -13,7 +13,7 @@
 - [通过 warp 解锁 chatGPT 的方法](README.md#通过-warp-解锁-chatgpt-的方法)
 - [刷 Netflix 解锁 WARP IP 的方法](README.md#刷-Netflix-解锁-WARP-IP-的方法)
 - [指定网站分流到 "socks5" 的 xray 配置模板 (适用于 WARP Client Proxy 和 WireProxy)](README.md#指定网站分流到-socks5-的-xray-配置模板-适用于-warp-client-proxy-和-wireproxy)
-- [指定网站分流到 "interface" 的 xray 配置模板 (适用于 WARP Client Warp 和 warp-go 非全局)](README.md#指定网站分流到-interface-的-xray-配置模板适用于-warp-client-warp-和-warp-go-非全局)
+- [指定网站分流到 "interface" 的 xray 配置模板 (适用于 WARP Client Warp 和 warp / warp-go 非全局)](README.md#指定网站分流到-interface-的-xray-配置模板适用于-warp-client-warp-和-warp--warp-go-非全局)
 - [WARP+ License 及 ID 获取](README.md#warp-license-及-id-获取)
 - [WARP Teams 获取并用于 Linux 的方法](README.md#WARP-Teams-获取并用于-Linux-的方法)
 - [WARP 网络接口数据，临时、永久关闭和开启](README.md#warp-网络接口数据临时永久关闭和开启)
@@ -23,7 +23,7 @@
 * * *
 
 ## 更新信息
-2023.8.15 menu.sh V3.00 Add a non-global working mode, it can be switched use [warp g], which requires a script reinstallation; 增加warp的非全局工作模式，可以通过 [warp g] 切换，需要重装脚本
+2023.8.15 menu.sh V3.00 1. Add a non-global working mode, it can be switched use [warp g], which requires a script reinstallation; 2. Support regions sanctioned by Cloudflare, such as Russia, with a shared account; 3. IPv6 only uses the preset nat64 and restores the original nameserver file when uninstalled; 1. 增加warp的非全局工作模式，可以通过 [warp g] 切换，需要重装脚本; 2. 支持被Cloudflare制裁地区，如俄罗斯，使用共享账户; 3. IPv6 only 使用预设 nat64，卸载时恢复原始 nameserver 文件
 
 2023.7.21 menu.sh V3.00 beta2 1. If the system supports wireguard kernel and wireguard-go-reserved, it can be switched use [warp k], which requires a script reinstallation; 2. Support Fedora system; 3. Fix switch error caused by client version 2023.7.40-1; 1. 如果系统支持 wireguard kernel 和 wireguard-go-reserved，可以通过 [warp k] 切换，需要重装脚本; 2. 支持 Fedora 系统; 3. 修复 client 2023.7.40-1 版本导致的开关错误
 
@@ -464,7 +464,7 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 }
 ```
 
-## 指定网站分流到 "interface" 的 xray 配置模板（适用于 WARP Client Warp 和 warp-go 非全局）
+## 指定网站分流到 "interface" 的 xray 配置模板（适用于 WARP Client Warp 和 warp / warp-go 非全局）
 
 ```
 {

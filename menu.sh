@@ -10,8 +10,8 @@ IP=("query" "ip" "ip")
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="Add a non-global working mode, it can be switched use [warp g], which requires a script reinstallation"
-C[1]="增加warp的非全局工作模式，可以通过 [warp g] 切换，需要重装脚本"
+E[1]="1. Add a non-global working mode, it can be switched use [warp g], which requires a script reinstallation; 2. Support regions sanctioned by Cloudflare, such as Russia, with a shared account; 3. IPv6 only uses the preset nat64 and restores the original nameserver file when uninstalled."
+C[1]="1. 增加warp的非全局工作模式，可以通过 [warp g] 切换，需要重装脚本; 2. 支持被Cloudflare制裁地区，如俄罗斯，使用共享账户; 3. IPv6 only 使用预设 nat64，卸载时恢复原始 nameserver 文件"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -222,8 +222,8 @@ E[105]="Please choose the priority:\n 1. IPv4\n 2. IPv6\n 3. Use initial setting
 C[105]="请选择优先级别:\n 1. IPv4\n 2. IPv6\n 3. 使用 VPS 初始设置 (默认)"
 E[106]="Shared free accounts cannot be upgraded to WARP+ accounts."
 C[106]="共享免费账户不能升级为 WARP+ 账户"
-E[107]="Failed to register Client account. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[107]="注册 Client 账户失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[107]="Failed registration, using a preset free account."
+C[107]="注册失败，使用预设的免费账户"
 E[108]="\n 1. WARP Linux Client IP\n 2. WARP WARP IP ( Only IPv6 can be brushed when WARP and Client exist at the same time )\n"
 C[108]="\n 1. WARP Linux Client IP\n 2. WARP WARP IP ( WARP 和 Client 并存时只能刷 IPv6)\n"
 E[109]="Socks5 Proxy Client is working now. WARP IPv4 and dualstack interface could not be switch to. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
@@ -1052,6 +1052,7 @@ uninstall() {
     [ -e /usr/bin/tun.sh ] && rm -f /usr/bin/tun.sh
     [ -e /etc/crontab ] && sed -i '/tun.sh/d' /etc/crontab
     sed -i "/250   warp/d" /etc/iproute2/rt_tables
+    [ -e /etc/resolv.conf.origin ] && mv -f /etc/resolv.conf.origin /etc/resolv.conf
   }
 
   # 卸载 Linux Client
@@ -1845,6 +1846,9 @@ install() {
   # 脚本开始时间
   start=$(date +%s)
 
+  # 如果是 IPv6 only 机器，备份原 dns 文件，再使用 nat64
+  [ "$m" = 0 ] && cp -f /etc/resolv.conf{,.origin} && echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a01:4f9:c010:3f02::1\nnameserver 2a01:4f8:c2c:123f::1\nnameserver 2a00:1098:2c::1" > /etc/resolv.conf
+
   # 注册 WARP 账户 (将生成 warp-account.conf 文件保存账户信息)
   {
     # 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 githubusercontent，以更好的支持双栈。并添加执行权限
@@ -1860,11 +1864,36 @@ install() {
     # 注册 WARP 账户 ( warp-account.conf 使用默认值加快速度)。如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
     mkdir -p /etc/wireguard/ >/dev/null 2>&1
     local REGISTE_TIME=0
-    until [[ -e /etc/wireguard/warp-account.conf || "$REGISTE_TIME" = 100 ]]; do
+    until [[ -e /etc/wireguard/warp-account.conf || "$REGISTE_TIME" -eq 100 ]]; do
       bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's#cat $registe_path; ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null && break
       (( REGISTE_TIME++ ))
     done
-    if [ -n "$LICENSE" ]; then
+
+    # 注册失败达 100 次，给予一个免费账户。否则根据是否有 License 来升级
+    if [ "$REGISTE_TIME" -eq 100 ]; then
+      [ ! -d /etc/wireguard ] && mkdir -p /etc/wireguard
+      cat > /etc/wireguard/warp-account.conf <<EOF
+{
+    "id":"317b5a76-3da1-469f-88d6-c3b261da9f10",
+    "name":"",
+    "account":{
+        "private_key":"CNUysnWWJmFGTkqYtg/wpDfURUWvHB8+U1FLlVAIB0Q=",
+        "account_type":"free",
+        "license":"n01H3Cf4-3Za40C7b-5qOs0c42"
+    },
+    "config":{
+        "client_id":"9URL",
+        "interface":{
+            "addresses":{
+                "v4":"172.16.0.2",
+                "v6":"2606:4700:110:8d4e:cef9:30c2:6d4a:f97b"
+            }
+        }
+    }
+}
+EOF
+      [ -s /etc/wireguard/warp-account.conf ] && warning "\n $(text 107) \n"
+    elif [ -n "$LICENSE" ]; then
       if [ -s /etc/wireguard/warp-account.conf ]; then
         local UPDATE_RESULT=$(bash <(curl -m5 -sSL https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /etc/wireguard/warp-account.conf --license $LICENSE)
         if grep -q '"warp_plus": true' <<< $UPDATE_RESULT; then
@@ -2183,12 +2212,20 @@ client_install() {
     # 设置为代理模式，如有 WARP+ 账户，修改 license 并升级
     info " $(text 84) "
     warp-cli --accept-tos register >/dev/null 2>&1
-    [[ $(warp-cli --accept-tos account) =~ 'Error: Missing registration' ]] && error "\n $(text 107) \n"
-    [ -n "$LICENSE" ] && ( hint " $(text 35) " &&
-    warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1 && sleep 1 &&
-    local CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null | awk  '/type/{print $3}') &&
-    [ "$CLIENT_ACCOUNT" = Limited ] && TYPE='+' && echo "$LICENSE" > /etc/wireguard/license && info " $(text_eval 62) " ||
-    warning " $(text_eval 36) " )
+    # 注册失败，给予一个免费账户。否则根据是否有 License 来升级
+    if [[ $(warp-cli --accept-tos account) =~ 'Error: Missing registration' ]]; then
+      [ ! -d /var/lib/cloudflare-warp ] && mkdir -p /var/lib/cloudflare-warp
+      echo '{"registration_id":"317b5a76-3da1-469f-88d6-c3b261da9f10","api_token":"11111111-1111-1111-1111-111111111111","secret_key":"CNUysnWWJmFGTkqYtg/wpDfURUWvHB8+U1FLlVAIB0Q=","public_key":"DuOi83pAIsbJMP3CJpxq6r3LVGHtqLlzybEIvbczRjo=","override_codes":null}' > /var/lib/cloudflare-warp/reg.json 
+      echo '{"own_public_key":"DuOi83pAIsbJMP3CJpxq6r3LVGHtqLlzybEIvbczRjo=","registration_id":"317b5a76-3da1-469f-88d6-c3b261da9f10","time_created":{"secs_since_epoch":1692163041,"nanos_since_epoch":81073202},"interface":{"v4":"172.16.0.2","v6":"2606:4700:110:8d4e:cef9:30c2:6d4a:f97b"},"endpoints":[{"v4":"162.159.192.7:2408","v6":"[2606:4700:d0::a29f:c007]:2408"},{"v4":"162.159.192.7:500","v6":"[2606:4700:d0::a29f:c007]:500"},{"v4":"162.159.192.7:1701","v6":"[2606:4700:d0::a29f:c007]:1701"},{"v4":"162.159.192.7:4500","v6":"[2606:4700:d0::a29f:c007]:4500"}],"public_key":"bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=","account":{"account_type":"free","id":"7e0e6c80-24c5-49ba-ba3d-087f45fcd1e9","license":"n01H3Cf4-3Za40C7b-5qOs0c42"},"policy":null,"valid_until":"2023-08-17T05:17:21.081073724Z","alternate_networks":null,"dex_tests":null,"custom_cert_settings":null}' > /var/lib/cloudflare-warp/conf.json
+      systemctl restart warp-svc
+      sleep 1
+      [[ $(warp-cli --accept-tos account) =~ 'Free' ]] && warning "\n $(text 107) \n"
+    elif [ -n "$LICENSE" ]; then
+      hint " $(text 35) " && warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1 && sleep 1 &&
+      local CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null | awk  '/type/{print $3}') &&
+      [ "$CLIENT_ACCOUNT" = Limited ] && TYPE='+' && echo "$LICENSE" > /etc/wireguard/license && info " $(text_eval 62) " ||
+      warning " $(text_eval 36) "
+    fi
     if [ "$LUBAN" = 1 ]; then
       i=1; j=5
       hint " $(text_eval 11)\n $(text_eval 12) "
@@ -2397,7 +2434,6 @@ change_to_free() {
     local RESERVED="$(reserved_and_clientid /etc/wireguard/warp-account.conf file)"
     sed -i "s#\(PrivateKey[ ]\+=[ ]\+\).*#\1$PRIVATEKEY#g; s#\(Address[ ]\+=[ ]\+\).*\(/128\)#\1$ADDRESS6\2#g; s#\(.*Reserved[ ]\+=[ ]\+\).*#\1$RESERVED#g" /etc/wireguard/warp.conf
     rm -f /etc/wireguard/{info.log,license}
-
 
     if [ "$UPDATE_ACCOUNT" = warp ]; then
       OPTION=n && net
