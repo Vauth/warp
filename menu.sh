@@ -8,6 +8,9 @@ IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co
 ISP=("isp" "isp" "asn_org")
 IP=("query" "ip" "ip")
 
+# 环境变量用于在Debian或Ubuntu操作系统中设置非交互式（noninteractive）安装模式
+export DEBIAN_FRONTEND=noninteractive
+
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
 E[1]="1. Add a non-global working mode, it can be switched use [warp g], which requires a script reinstallation; 2. Support regions sanctioned by Cloudflare, such as Russia, with a shared account; 3. IPv6 only uses the preset nat64 and restores the original nameserver file when uninstalled."
@@ -454,7 +457,7 @@ check_operating_system() {
   COMPANY=("" "" "" "amazon" "" "")
   MAJOR=("9" "16" "7" "7" "3" "" "37")
   PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "yum -y update" "apk update -f" "pacman -Sy" "dnf -y update")
-  PACKAGE_INSTALL=("apt-get install -o Dpkg::Options::="--force-confnew" -y" "apt-get install -o Dpkg::Options::="--force-confnew" -y" "yum -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm" "dnf -y install")
+  PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm" "dnf -y install")
   PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "yum -y autoremove" "apk del -f" "pacman -Rcnsu --noconfirm" "dnf -y autoremove")
   SYSTEMCTL_START=("systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "systemctl start wg-quick@warp" "wg-quick up warp" "systemctl start wg-quick@warp" "systemctl start wg-quick@warp")
   SYSTEMCTL_RESTART=("systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "alpine_warp_restart" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp")
@@ -1139,14 +1142,27 @@ net() {
   ${SYSTEMCTL_START[int]} >/dev/null 2>&1
   wg-quick up warp >/dev/null 2>&1
   ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
-  if grep -q '#Table' /etc/wireguard/warp.conf; then
-    GLOBAL_OR_NOT="$(text 184)"
-    ip_case d warp
+
+  PING6='ping -6' && [ $(type -p ping6) ] && PING6='ping6'
+  LAN4=$(ip route get 192.168.193.10 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
+  LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
+  if [[ $(ip link show | awk -F': ' '{print $2}') =~ warp ]]; then
+    grep -q '#Table' /etc/wireguard/warp.conf && GLOBAL_OR_NOT="$(text 184)" || GLOBAL_OR_NOT="$(text 185)"
+    if grep -q '^AllowedIPs.*:\:\/0' /etc/wireguard/warp.conf; then
+      ip_case 6 warp non-global
+    else
+      [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && ip_case 6 warp
+    fi
+    if grep -q '^AllowedIPs.*0\.\0\/0' /etc/wireguard/warp.conf; then
+      ip_case 4 warp non-global
+    else
+      [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && ip_case 4 warp
+    fi
   else
-    GLOBAL_OR_NOT="$(text 185)"
-    ip_case d warp non-global
+    [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1 && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip_case 6 warp
+    [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip_case 4 warp
   fi
-  grep -q '#Table' /etc/wireguard/warp.conf && ip_case d warp || ip_case d warp non-global
+
   until [[ "$TRACE4$TRACE6" =~ on|plus && -z "$CONFIRM_TEAMS_INFO" ]]; do
     (( i++ )) || true
     hint " $(text_eval 12) "
@@ -1374,9 +1390,20 @@ EOF
   IPV4=0; IPV6=0
   LAN4=$(ip route get 192.168.193.10 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
+
+  # 先查是否非局，优先 warp IP，再原生 IP
   if [[ $(ip link show | awk -F': ' '{print $2}') =~ warp ]]; then
     GLOBAL_OR_NOT="$(text 185)"
-    ip_case d warp non-global
+    if grep -q '^AllowedIPs.*:\:\/0' /etc/wireguard/warp.conf; then
+      CDN=-6 && ip_case 6 warp non-global
+    else
+      [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1 && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip_case 6 warp
+    fi
+    if grep -q '^AllowedIPs.*0\.\0\/0' /etc/wireguard/warp.conf; then
+      CDN=-4 && ip_case 4 warp non-global
+    else
+      [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip_case 4 warp
+    fi
   else
     [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1 && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && CDN=-6 && ip_case 6 warp
     [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && CDN=-4 && ip_case 4 warp
