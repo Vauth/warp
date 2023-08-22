@@ -8,8 +8,8 @@ IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co
 ISP=("isp" "isp" "asn_org")
 IP=("query" "ip" "ip")
 
-# 自建 github cdn 反代网，用于不能直连 github 的机器。先直连 github，若部分大陆机器不能连接，寻找 github CDN
-CDN_URL=("" "cdn1.cloudflare.now.cc/proxy/" "cdn2.cloudflare.now.cc/https://")
+# 自建 github cdn 反代网，用于不能直连 github 的机器
+CDN_URL=("cdn1.cloudflare.now.cc/proxy/" "cdn2.cloudflare.now.cc/https://" "cdn3.cloudflare.now.cc?url=https://" "cdn4.cloudflare.now.cc/proxy/https://" "cdn5.cloudflare.now.cc/" "cdn.spiritlhl.workers.dev/" "ghproxy.com/")
 
 # 环境变量用于在Debian或Ubuntu操作系统中设置非交互式（noninteractive）安装模式
 export DEBIAN_FRONTEND=noninteractive
@@ -433,10 +433,11 @@ check_root_virt() {
   [ -n "$VIRT" ] || VIRT=$(hostnamectl 2>/dev/null | tr 'A-Z' 'a-z' | grep virtualization | sed "s/.*://g")
 }
 
-# 寻找 github CDN
+# 随机使用 cdn 网址，以负载均衡
 check_github_cdn() {
-  for CDN in "${CDN_URL[@]}"; do
-    wget -qO- https://${CDN}api.github.com/repos/fscarmen/warp/releases/latest | grep -q "tag_name" && break || unset CDN
+  RANDOM_CDN=($(shuf -e "${CDN_URL[@]}"))
+  for CDN in "${RANDOM_CDN[@]}"; do
+    wget -T2 -qO- https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh | grep -q '#!/usr/bin/env' && break || unset CDN
   done
 }
 
@@ -1890,7 +1891,7 @@ install() {
   {
     # 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 github cdn，以更好的支持双栈和大陆 VPS。并添加执行权限
     if [ "$OCTEEP" = 1 ]; then
-      wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $STACK "https://${CDN}api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
+      wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $STACK "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
       wireproxy_latest=${wireproxy_latest:-'1.0.6'}
       wget --no-check-certificate -T1 -t1 $STACK -N https://${CDN}github.com/octeep/wireproxy/releases/download/v"$wireproxy_latest"/wireproxy_linux_$ARCHITECTURE.tar.gz ||
       wget --no-check-certificate $STACK -N https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz

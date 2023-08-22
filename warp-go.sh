@@ -9,7 +9,7 @@ ISP=("isp" "isp" "asn_org")
 IP=("query" "ip" "ip")
 
 # 自建 github cdn 反代网，用于不能直连 github 的机器。先直连 github，若部分大陆机器不能连接，寻找 github CDN
-CDN_URL=("" "cdn1.cloudflare.now.cc/proxy/" "cdn2.cloudflare.now.cc/https://")
+CDN_URL=("cdn1.cloudflare.now.cc/proxy/" "cdn2.cloudflare.now.cc/https://" "cdn3.cloudflare.now.cc?url=https://" "cdn4.cloudflare.now.cc/proxy/https://" "cdn5.cloudflare.now.cc/" "cdn.spiritlhl.workers.dev/" "ghproxy.com/")
 
 # 判断 Teams token 最少字符数
 TOKEN_LENGTH=800
@@ -278,10 +278,11 @@ check_root_virt() {
   [ -z "$VIRT" ] && VIRT=$(hostnamectl 2>/dev/null | tr 'A-Z' 'a-z' | grep virtualization | sed "s/.*://g")
 }
 
-# 寻找 github CDN
+# 随机使用 cdn 网址，以负载均衡
 check_github_cdn() {
-  for CDN in "${CDN_URL[@]}"; do
-    wget -qO- https://${CDN}api.github.com/repos/fscarmen/warp/releases/latest | grep -q "tag_name" && break || unset CDN
+  RANDOM_CDN=($(shuf -e "${CDN_URL[@]}"))
+  for CDN in "${RANDOM_CDN[@]}"; do
+    wget -T2 -qO- https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh | grep -q '#!/usr/bin/env' && break || unset CDN
   done
 }
 
@@ -1437,6 +1438,7 @@ NAME="$3"
 statistics_of_run-times
 select_language
 check_operating_system
+check_github_cdn
 check_arch
 check_dependencies
 check_install
@@ -1458,7 +1460,6 @@ esac
 
 # 主程序运行 2/3
 check_root_virt
-check_github_cdn
 
 # 设置部分后缀 2/3
 case "$OPTION" in
