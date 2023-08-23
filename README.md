@@ -661,7 +661,7 @@ https://github.com/acacia233/Project-WARP-Unlock
 * mixool 的成熟作品: https://github.com/azples/across/tree/main/wireguard
 * luoxue-bot 的成熟作品:https://github.com/luoxue-bot/warp_auto_change_ip
 * lmc999 的成熟作品: https://github.com/lmc999/RegionRestrictionCheck
-* WireProxy 作者: https://github.com/octeep/wireproxy
+* WireProxy 作者: https://github.com/pufferffish/wireproxy
 * 获取公网 IP 及归属地查询: https://ifconfig.co/  
 https://ip.gs/  
 https://ip.sb/

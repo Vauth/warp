@@ -344,8 +344,8 @@ E[163]="Connect the Wireproxy (warp y)"
 C[163]="连接 Wireproxy (warp y)"
 E[164]="Disconnect the Wireproxy (warp y)"
 C[164]="断开 Wireproxy (warp y)"
-E[165]="WireProxy Solution. A wireguard client that exposes itself as a socks5 proxy or tunnels. Adapted from the mature works of [octeep],[https://github.com/octeep/wireproxy]"
-C[165]="WireProxy，让 WARP 在本地建议一个 socks5 代理。改编自 [octeep] 的成熟作品，地址[https://github.com/octeep/wireproxy]，请熟知"
+E[165]="WireProxy Solution. A wireguard client that exposes itself as a socks5 proxy or tunnels. Adapted from the mature works of [pufferffish],[https://github.com/pufferffish/wireproxy]"
+C[165]="WireProxy，让 WARP 在本地建议一个 socks5 代理。改编自 [pufferffish] 的成熟作品，地址[https://github.com/pufferffish/wireproxy]，请熟知"
 E[166]="WireProxy was installed.\n connect/disconnect by [warp y]\n uninstall by [warp u]"
 C[166]="WireProxy 已安装\n 连接/断开: warp y\n 卸载: warp u"
 E[167]="WARP iptable was installed.\n connect/disconnect by [warp o]\n uninstall by [warp u]"
@@ -988,7 +988,7 @@ change_ip() {
   UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
   # 根据 lmc999 脚本检测 Netflix Title，如获取不到，使用兜底默认值
-  local LMC999=($(curl -sSLm4 https://${CDN}raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh | awk -F 'title/' '/netflix.com\/title/{print $2'}  | cut -d\" -f1))
+  local LMC999=($(curl -sSLm4 https://${CDN}raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh | awk -F 'title/' '/netflix.com\/title/{print $2}' | cut -d\" -f1))
   RESULT_TITLE=(${LMC999[*]:0:2})
   REGION_TITLE=${LMC999[2]}
   [[ ! "${RESULT_TITLE[0]}" =~ ^[0-9]+$ ]] && RESULT_TITLE[0]='81280792'
@@ -1243,7 +1243,7 @@ client_onoff() {
 # WireProxy 开关，先检查是否已安装，再根据当前状态转向相反状态
 wireproxy_onoff() {
   unset QUOTA
-  [ ! $(type -p wireproxy) ] && error " $(text 157) " || OCTEEP=1
+  [ ! $(type -p wireproxy) ] && error " $(text 157) " || PUFFERFFISH=1
   if ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}' | grep -q wireproxy; then
     systemctl stop wireproxy
     [[ ! $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ wireproxy ]] && info " $(text 158) "
@@ -1483,9 +1483,9 @@ rule_del() {
 
 # 替换为 Teams 账户信息， 升级为 teams 的标志为 CONFIRM_TEAMS_INFO = [Yy]
 teams_change_do() {
-  if [ "$OCTEEP" = 1 ]; then
+  if [ "$PUFFERFFISH" = 1 ]; then
     if grep -q 'xml version' <<< "$TEAMS"; then
-      [ "$OCTEEP" != 1 ] && expr "$TEAMS" > /etc/wireguard/info.log
+      [ "$PUFFERFFISH" != 1 ] && expr "$TEAMS" > /etc/wireguard/info.log
     elif grep -q 'private_key' <<< "$TEAMS"; then
       expr "$TEAMS" > /etc/wireguard/info.log
     fi
@@ -1493,7 +1493,7 @@ teams_change_do() {
     [ -s /etc/wireguard/proxy.conf ] && cp -f /etc/wireguard/proxy.conf{,.bak}
     [ -s /etc/wireguard/warp.conf ] && cp -f /etc/wireguard/warp.conf{,.bak}
     if grep -q 'xml version' <<< "$TEAMS"; then
-      [ "$OCTEEP" != 1 ] && expr "$TEAMS" > /etc/wireguard/info-temp.log
+      [ "$PUFFERFFISH" != 1 ] && expr "$TEAMS" > /etc/wireguard/info-temp.log
     elif grep -q 'private_key' <<< "$TEAMS"; then
       expr "$TEAMS" > /etc/wireguard/info-temp.log
     fi
@@ -1834,13 +1834,13 @@ install() {
   esac
 
   # Warp 工作模式: 全局或非全局，在 dnsmasq / wireproxy 方案下不选择
-  if [[ ! $ANEMONE$OCTEEP =~ '1' ]]; then
+  if [[ ! $ANEMONE$PUFFERFFISH =~ '1' ]]; then
     hint "\n $(text 182) \n" && reading " $(text 50) " GLOBAL_OR_NOT_CHOOSE
     GLOBAL_OR_NOT="$(text 184)" && [ "$GLOBAL_OR_NOT_CHOOSE" = 2 ] && GLOBAL_OR_NOT="$(text 185)"
   fi
 
   # WireProxy 禁止重复安装，自定义 Port
-  if [ "$OCTEEP" = 1 ]; then
+  if [ "$PUFFERFFISH" = 1 ]; then
     ss -nltp | grep -q wireproxy && error " $(text 166) " || input_port
 
   # iptables 禁止重复安装，不适用于 IPv6 only VPS
@@ -1850,7 +1850,7 @@ install() {
   fi
 
   # CONF 参数如果不是3位或4位， 即检测不出正确的配置参数， 脚本退出
-  [[ "$OCTEEP" != 1 && "${#CONF}" != [34] ]] && error " $(text 172) "
+  [[ "$PUFFERFFISH" != 1 && "${#CONF}" != [34] ]] && error " $(text 172) "
 
   # 先删除之前安装，可能导致失败的文件
   rm -rf /usr/bin/wireguard-go /etc/wireguard/warp-account.conf
@@ -1879,7 +1879,7 @@ install() {
   esac
 
   # 选择优先使用 IPv4 /IPv6 网络
-  [ "$OCTEEP" != 1 ] && hint "\n $(text 105) \n" && reading " $(text 50) " PRIORITY
+  [ "$PUFFERFFISH" != 1 ] && hint "\n $(text 105) \n" && reading " $(text 50) " PRIORITY
 
   # 脚本开始时间
   start=$(date +%s)
@@ -1890,10 +1890,10 @@ install() {
   # 注册 WARP 账户 (将生成 warp-account.conf 文件保存账户信息)
   {
     # 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 github cdn，以更好的支持双栈和大陆 VPS。并添加执行权限
-    if [ "$OCTEEP" = 1 ]; then
-      wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $STACK "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
+    if [ "$PUFFERFFISH" = 1 ]; then
+      wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $STACK "https://api.github.com/repos/pufferffish/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
       wireproxy_latest=${wireproxy_latest:-'1.0.6'}
-      wget --no-check-certificate -T1 -t1 $STACK -N https://${CDN}github.com/octeep/wireproxy/releases/download/v"$wireproxy_latest"/wireproxy_linux_$ARCHITECTURE.tar.gz ||
+      wget --no-check-certificate -T1 -t1 $STACK -N https://${CDN}github.com/pufferffish/wireproxy/releases/download/v"$wireproxy_latest"/wireproxy_linux_$ARCHITECTURE.tar.gz ||
       wget --no-check-certificate $STACK -N https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
       [ $(type -p tar) ] || ${PACKAGE_INSTALL[int]} tar 2>/dev/null || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} tar 2>/dev/null )
       tar xzf wireproxy_linux_$ARCHITECTURE.tar.gz -C /usr/bin/; rm -f wireproxy_linux*
@@ -2033,7 +2033,7 @@ EOF
 
       # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
       ${PACKAGE_INSTALL[int]} --no-install-recommends net-tools openresolv dnsutils iptables
-      [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
+      [ "$PUFFERFFISH" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
       ;;
 
     Ubuntu )
@@ -2042,7 +2042,7 @@ EOF
 
       # 安装一些必要的网络工具包和 wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
       ${PACKAGE_INSTALL[int]} --no-install-recommends net-tools openresolv dnsutils iptables
-      [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
+      [ "$PUFFERFFISH" != 1 ] && ${PACKAGE_INSTALL[int]} --no-install-recommends wireguard-tools
       ;;
 
     CentOS|Fedora )
@@ -2050,7 +2050,7 @@ EOF
       [ "$COMPANY" = amazon ] && ${PACKAGE_UPDATE[int]} && amazon-linux-extras install -y epel
       [ "$SYSTEM" = 'CentOS' ] && ${PACKAGE_INSTALL[int]} epel-release
       ${PACKAGE_INSTALL[int]} net-tools iptables
-      [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
+      [ "$PUFFERFFISH" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
 
       # 升级所有包同时也升级软件和系统内核
       ${PACKAGE_UPDATE[int]}
@@ -2066,17 +2066,17 @@ EOF
     Alpine )
       # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
       ${PACKAGE_INSTALL[int]} net-tools iproute2 openresolv openrc iptables ip6tables
-      [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
+      [ "$PUFFERFFISH" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
       ;;
 
     Arch )
       # 安装一些必要的网络工具包和wireguard-tools (Wire-Guard 配置工具:wg、wg-quick)
       ${PACKAGE_INSTALL[int]} openresolv
-      [ "$OCTEEP" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
+      [ "$PUFFERFFISH" != 1 ] && ${PACKAGE_INSTALL[int]} wireguard-tools
   esac
 
   # 在不是 wireproxy 方案的前提下，先判断是否一定要用 wireguard kernel，如果不是，修改 wg-quick 文件，以使用 wireguard-go reserved 版
-  if [ "$OCTEEP" != 1 ]; then
+  if [ "$PUFFERFFISH" != 1 ]; then
     if [ "$WIREGUARD_GO_ENABLE" = '1' ]; then
       # 则根据 wireguard-tools 版本判断下载 wireguard-go reserved 版本: wg < v1.0.20210223 , wg-go-reserved = v0.0.20201118-reserved; wg >= v1.0.20210223 , wg-go-reserved = v0.0.20230223-reserved
       local WIREGUARD_TOOLS_VERSION=$(wg --version | sed "s#.* v1\.0\.\([0-9]\+\) .*#\1#g")
@@ -2112,7 +2112,7 @@ EOF
 
   sed -i "$(eval echo "\$MODIFY$CONF")" /etc/wireguard/warp.conf
 
-  if [ "$OCTEEP" = 1 ]; then
+  if [ "$PUFFERFFISH" = 1 ]; then
     # 默认 Endpoint 和 DNS 默认 IPv4 和 双栈的，如是 IPv6 修改默认值
     local ENDPOINT=$(awk -F ' *= *' '/^Endpoint/{print $2}' /etc/wireguard/warp.conf)
     local MTU=$(awk -F ' *= *' '/^MTU/{print $2}' /etc/wireguard/warp.conf)
@@ -2173,7 +2173,7 @@ EOF
 Description=WireProxy for WARP
 After=network.target
 Documentation=https://github.com/fscarmen/warp
-Documentation=https://github.com/octeep/wireproxy
+Documentation=https://github.com/pufferffish/wireproxy
 
 [Service]
 ExecStart=/usr/bin/wireproxy -c /etc/wireguard/proxy.conf
@@ -2398,7 +2398,7 @@ wireproxy_solution() {
   reading " $(text 50) " WIREPROXY_CHOOSE
   case "$WIREPROXY_CHOOSE" in
     1 )
-      OCTEEP=1; install
+      PUFFERFFISH=1; install
       ;;
     0 )
       [ "$OPTION" != w ] && menu || exit
@@ -2750,7 +2750,7 @@ menu_setting() {
   ACTION[5]() { client_install; }; ACTION[6]() { change_ip; }; ACTION[7]() { uninstall; }; ACTION[8]() { plus; }; ACTION[9]() { bbrInstall; }; ACTION[10]() { ver; };
   ACTION[11]() { bash <(curl -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -$L; };
   ACTION[12]() { ANEMONE=1 ;install; };
-  ACTION[13]() { OCTEEP=1; install; };
+  ACTION[13]() { PUFFERFFISH=1; install; };
   ACTION[14]() { LUBAN=1; client_install; };
   ACTION[0]() { exit; }
 
