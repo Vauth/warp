@@ -42,7 +42,7 @@ E[12]="Try \${i}"
 C[12]="第\${i}次尝试"
 E[13]="There have been more than \${j} failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
 C[13]="失败已超过\${j}次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[14]="Got the WARP\$TYPE IP successfully."
+E[14]="Got the WARP\$TYPE IP successfully"
 C[14]="已成功获取 WARP\$TYPE 网络"
 E[15]="WARP is turned off. It could be turned on again by [warp o]"
 C[15]="已暂停 WARP，再次开启可以用 warp o"
@@ -521,9 +521,9 @@ ip_info() {
       CHOOSE_IP_API=${IP_API[0]} && CHOOSE_IP_ISP=${ISP[0]} && CHOOSE_IP_KEY=${IP[0]}
   esac
 
-  IP_TRACE=$(curl --retry 5 -ks${CHECK_46}m5 $INTERFACE_SOCK5 ${IP_API[3]} | grep warp | sed "s/warp=//g")
+  IP_TRACE=$(curl --retry 2 -ks${CHECK_46}m5 $INTERFACE_SOCK5 ${IP_API[3]} | grep warp | sed "s/warp=//g")
   if [ -n "$IP_TRACE" ]; then
-    IP_JSON=$(curl --retry 7 -ks${CHECK_46}m5 $INTERFACE_SOCK5 -A Mozilla $CHOOSE_IP_API)
+    IP_JSON=$(curl --retry 2 -ks${CHECK_46}m5 $INTERFACE_SOCK5 -A Mozilla $CHOOSE_IP_API)
     [[ -z "$IP_JSON" || "$IP_JSON" =~ 'error code' ]] && CHOOSE_IP_API=${IP_API[2]} && CHOOSE_IP_ISP=${ISP[2]} && CHOOSE_IP_KEY=${IP[2]} && IP_JSON=$(curl --retry 3 -ks${CHECK_46}m5 $INTERFACE_SOCK5 -A Mozilla $CHOOSE_IP_API)
 
     if [[ -n "$IP_JSON" && ! "$IP_JSON" =~ 'error code' ]]; then
@@ -1160,44 +1160,61 @@ net() {
   if [[ $(ip link show | awk -F': ' '{print $2}') =~ warp ]]; then
     grep -q '#Table' /etc/wireguard/warp.conf && GLOBAL_OR_NOT="$(text 184)" || GLOBAL_OR_NOT="$(text 185)"
     if grep -q '^AllowedIPs.*:\:\/0' /etc/wireguard/warp.conf; then
+      local NET_6_NONGLOBAL=1
       ip_case 6 warp non-global
     else
-      [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && ip_case 6 warp
+      [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && local NET_6_NONGLOBAL=0 && ip_case 6 warp
     fi
     if grep -q '^AllowedIPs.*0\.\0\/0' /etc/wireguard/warp.conf; then
+      local NET_4_NONGLOBAL=1
       ip_case 4 warp non-global
     else
-      [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && ip_case 4 warp
+      [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && local NET_4_NONGLOBAL=0 && ip_case 4 warp
     fi
   else
-    [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1 && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && STACK=-6 && ip_case 6 warp
-    [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && STACK=-4 && ip_case 4 warp
+    [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1 && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && local NET_6_NONGLOBAL=0 && ip_case 6 warp
+    [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && local NET_4_NONGLOBAL=0 && ip_case 4 warp
   fi
 
-  until [[ "$TRACE4$TRACE6" =~ on|plus && -z "$CONFIRM_TEAMS_INFO" ]]; do
+  until [[ "$TRACE4$TRACE6" =~ on|plus ]]; do
     (( i++ )) || true
     hint " $(text_eval 12) "
     ${SYSTEMCTL_RESTART[int]} >/dev/null 2>&1
     ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
-    ip_case d warp
-    # 如果 teams 升级状态，但多次未成功获取 warp IP ，将换回普通账户，如果成功，删除临时文件
-    if [[ "$CONFIRM_TEAMS_INFO" = [Yy] ]]; then
-      if [[ "$TRACE4$TRACE6" =~ plus ]]; then
-        [ -e /etc/wireguard/info-temp.log ] && mv -f /etc/wireguard/info-temp.log /etc/wireguard/info.log && TYPE=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && TYPE='+' && check_quota warp
-        break
-      elif [[ "$i" = "$j" ]]; then
+
+    case "$NET_6_NONGLOBAL" in
+      0 )
+        ip_case 6 warp
+        ;;
+      1 )
+        ip_case 6 warp non-global
+    esac
+
+    case "$NET_4_NONGLOBAL" in
+      0 )
+        ip_case 4 warp
+        ;;
+      1 )
+        ip_case 4 warp non-global
+    esac
+
+    if [ "$i" = "$j" ]; then
+      # 如果 teams 升级状态，但多次未成功获取 warp IP ，将换回普通账户，如果成功，删除临时文件
+      if [[ "$CONFIRM_TEAMS_INFO" = [Yy] ]]; then
         unset CONFIRM_TEAMS_INFO && i=0 && info " $(text 129) "
         [ -e /etc/wireguard/warp.conf.bak ] && mv -f /etc/wireguard/warp.conf.bak /etc/wireguard/warp.conf
         [ -e /etc/wireguard/proxy.conf.bak ] && mv -f /etc/wireguard/proxy.conf.bak /etc/wireguard/proxy.conf
         rm -f /etc/wireguard/info-temp.log
+      else
+        wg-quick down warp >/dev/null 2>&1
+        error " $(text_eval 13) "
       fi
     fi
-
-    [[ "$i" = "$j" && -z "$CONFIRM_TEAMS_INFO" ]] && error " $(text_eval 13) " && wg-quick down warp >/dev/null 2>&1
   done
 
   # 删除临时文件，判断账户类型，如果是 plus，检测剩余流量
   [ -e /etc/wireguard/warp.conf.bak ] && ( bash <(curl -m5 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh) --cancle --file /etc/wireguard/warp.conf.bak >/dev/null 2>&1 ; rm -f /etc/wireguard/warp.conf.bak )
+  [[ "$TRACE4$TRACE6" =~ plus ]] && [ -e /etc/wireguard/info-temp.log ] && mv -f /etc/wireguard/info-temp.log /etc/wireguard/info.log
   [[ "$TRACE4$TRACE6" =~ on|plus ]] && [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && TYPE='+' && check_quota warp
   info " $(text_eval 14), $(text_eval 186) "
   [[ $OPTION = [on] ]] && info " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 " && [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
@@ -1893,8 +1910,8 @@ install() {
     if [ "$PUFFERFFISH" = 1 ]; then
       wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $STACK "https://api.github.com/repos/pufferffish/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
       wireproxy_latest=${wireproxy_latest:-'1.0.6'}
-      wget --no-check-certificate -T1 -t1 $STACK -N https://${CDN}github.com/pufferffish/wireproxy/releases/download/v"$wireproxy_latest"/wireproxy_linux_$ARCHITECTURE.tar.gz ||
-      wget --no-check-certificate $STACK -N https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/wireproxy/wireproxy_linux_$ARCHITECTURE.tar.gz
+      wget --no-check-certificate -T10 -t1 $STACK -N https://${CDN}github.com/pufferffish/wireproxy/releases/download/v"$wireproxy_latest"/wireproxy_linux_"$ARCHITECTURE".tar.gz ||
+      wget --no-check-certificate $STACK -N https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/wireproxy/wireproxy_linux_"$ARCHITECTURE".tar.gz
       [ $(type -p tar) ] || ${PACKAGE_INSTALL[int]} tar 2>/dev/null || ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} tar 2>/dev/null )
       tar xzf wireproxy_linux_$ARCHITECTURE.tar.gz -C /usr/bin/; rm -f wireproxy_linux*
     fi
@@ -1988,7 +2005,7 @@ ip -4 rule delete table main suppress_prefixlength 0
 ip -6 rule delete oif warp lookup 51820
 ip -6 rule delete table main suppress_prefixlength 0
 EOF
-      
+
       chmod +x /etc/wireguard/NonGlobal*.sh
       info "\n $(text 33) \n"
     fi
@@ -2253,7 +2270,7 @@ client_install() {
     # 注册失败，给予一个免费账户。否则根据是否有 License 来升级
     if [[ $(warp-cli --accept-tos account) =~ 'Error: Missing registration' ]]; then
       [ ! -d /var/lib/cloudflare-warp ] && mkdir -p /var/lib/cloudflare-warp
-      echo '{"registration_id":"317b5a76-3da1-469f-88d6-c3b261da9f10","api_token":"11111111-1111-1111-1111-111111111111","secret_key":"CNUysnWWJmFGTkqYtg/wpDfURUWvHB8+U1FLlVAIB0Q=","public_key":"DuOi83pAIsbJMP3CJpxq6r3LVGHtqLlzybEIvbczRjo=","override_codes":null}' > /var/lib/cloudflare-warp/reg.json 
+      echo '{"registration_id":"317b5a76-3da1-469f-88d6-c3b261da9f10","api_token":"11111111-1111-1111-1111-111111111111","secret_key":"CNUysnWWJmFGTkqYtg/wpDfURUWvHB8+U1FLlVAIB0Q=","public_key":"DuOi83pAIsbJMP3CJpxq6r3LVGHtqLlzybEIvbczRjo=","override_codes":null}' > /var/lib/cloudflare-warp/reg.json
       echo '{"own_public_key":"DuOi83pAIsbJMP3CJpxq6r3LVGHtqLlzybEIvbczRjo=","registration_id":"317b5a76-3da1-469f-88d6-c3b261da9f10","time_created":{"secs_since_epoch":1692163041,"nanos_since_epoch":81073202},"interface":{"v4":"172.16.0.2","v6":"2606:4700:110:8d4e:cef9:30c2:6d4a:f97b"},"endpoints":[{"v4":"162.159.192.7:2408","v6":"[2606:4700:d0::a29f:c007]:2408"},{"v4":"162.159.192.7:500","v6":"[2606:4700:d0::a29f:c007]:500"},{"v4":"162.159.192.7:1701","v6":"[2606:4700:d0::a29f:c007]:1701"},{"v4":"162.159.192.7:4500","v6":"[2606:4700:d0::a29f:c007]:4500"}],"public_key":"bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=","account":{"account_type":"free","id":"7e0e6c80-24c5-49ba-ba3d-087f45fcd1e9","license":"n01H3Cf4-3Za40C7b-5qOs0c42"},"policy":null,"valid_until":"2023-08-17T05:17:21.081073724Z","alternate_networks":null,"dex_tests":null,"custom_cert_settings":null}' > /var/lib/cloudflare-warp/conf.json
       systemctl restart warp-svc
       sleep 1
