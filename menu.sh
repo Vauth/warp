@@ -811,7 +811,7 @@ change_ip() {
     warp_restart() {
       warning " $(text_eval 126) "
       wg-quick down warp >/dev/null 2>&1
-      [ -s /etc/wireguard/info.log ] && grep -q 'Device name' /etc/wireguard/info.log && local LICENSE=$(cat /etc/wireguard/license) && local NAME=$(awk '{print $NF}' /etc/wireguard/info.log)
+      [ -s /etc/wireguard/info.log ] && grep -q 'Device name' /etc/wireguard/info.log && local LICENSE=$(cat /etc/wireguard/license) && local NAME=$(awk '/Device name/{print $NF}' /etc/wireguard/info.log)
       bash <(curl -m5 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh) --cancle --file /etc/wireguard/warp-account.conf >/dev/null 2>&1
       bash <(curl -m5 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's#cat $registe_path; ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null
       # 如原来是 plus 账户，以相同的 license 升级，并修改账户和 warp 配置文件
@@ -1268,7 +1268,7 @@ wireproxy_onoff() {
     systemctl start wireproxy
     sleep 1 && ip_case d wireproxy
     [[ $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ wireproxy ]] && info " $(text 99)\n $(text 27): $WIREPROXY_SOCKS5\n WARP$WIREPROXY_ACCOUNT\n IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4\n IPv6: $WIREPROXY_WAN6 $WIREPROXY_COUNTRY6 $WIREPROXY_ASNORG6"
-    [ -n "$QUOTA" ] && info " $(text 25): $(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $(text 63): $QUOTA "
+    [ -n "$QUOTA" ] && info " $(text 25): $(awk '/Device name/{print $NF}' /etc/wireguard/info.log)\n $(text 63): $QUOTA "
   fi
 }
 
@@ -1953,9 +1953,9 @@ EOF
         local UPDATE_RESULT=$(bash <(curl -m5 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /etc/wireguard/warp-account.conf --license $LICENSE)
         if grep -q '"warp_plus": true' <<< $UPDATE_RESULT; then
           [ -n "$NAME" ] && bash <(curl -m5 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /etc/wireguard/warp-account.conf --name $NAME >/dev/null 2>&1
-          sed -i "s#\([ ]\+\"license\": \"\).*#\1$LICENSE\"#g; s#\"account_type\".*#\"account_type\": \"limFSADFAited\",#g; s#\([ ]\+\"name\": \"\).*#\1$NAME\"#g" /etc/wireguard/warp-account.conf
+          sed -i "s#\([ ]\+\"license\": \"\).*#\1$LICENSE\"#g; s#\"account_type\".*#\"account_type\": \"limited\",#g; s#\([ ]\+\"name\": \"\).*#\1$NAME\"#g" /etc/wireguard/warp-account.conf
           echo "$LICENSE" > /etc/wireguard/license
-          echo -e "Device name   : $NAME\nAccount type  : limited" > /etc/wireguard/info.log
+          echo -e "Device name   : $NAME" > /etc/wireguard/info.log
         elif grep -q 'Invalid license' <<< $UPDATE_RESULT; then
           warning " $(text_eval 169) "
         elif grep -q 'Too many connected devices.' <<< $UPDATE_RESULT; then
@@ -2550,12 +2550,12 @@ change_to_plus() {
       echo "$LICENSE" > /etc/wireguard/license
       if [ "$UPDATE_ACCOUNT" = 'warp' ]; then
         OPTION=n && net
-        info " $(text_eval 62)\n $(text 25): $(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $(text 63): $QUOTA "
+        info " $(text_eval 62)\n $(text 25): $(awk '/Device name/{print $NF}' /etc/wireguard/info.log)\n $(text 63): $QUOTA "
       elif [ "$UPDATE_ACCOUNT" = 'wireproxy' ]; then
         wireproxy_onoff
         ip_case d wireproxy
         if [ "$WIREPROXY_ACCOUNT" = '+' ]; then
-          info " $(text 27): $WIREPROXY_SOCKS5\n WARP$$WIREPROXY_ACCOUNT\n IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_COUNTRY4\n IPv6: $WIREPROXY_WAN6 $WIREPROXY_COUNTRY6 $WIREPROXY_COUNTRY6\n $(text_eval 62)\n $(text 25): $(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n $(text 63): $QUOTA "
+          info " $(text 27): $WIREPROXY_SOCKS5\n WARP$$WIREPROXY_ACCOUNT\n IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_COUNTRY4\n IPv6: $WIREPROXY_WAN6 $WIREPROXY_COUNTRY6 $WIREPROXY_COUNTRY6\n $(text_eval 62)\n $(text 25): $(awk '/Device name/{print $NF}' /etc/wireguard/info.log)\n $(text 63): $QUOTA "
         else
           info " $(text 27): $WIREPROXY_SOCKS5\n WARP$$WIREPROXY_ACCOUNT\n IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_COUNTRY4\n IPv6: $WIREPROXY_WAN6 $WIREPROXY_COUNTRY6 $WIREPROXY_COUNTRY6\n $(text_eval 62) "
         fi
@@ -2771,7 +2771,7 @@ menu_setting() {
   ACTION[14]() { LUBAN=1; client_install; };
   ACTION[0]() { exit; }
 
-  [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && check_quota warp && TYPE='+' && PLUSINFO="$(text 25): $(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')\t $(text 63): $QUOTA"
+  [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && check_quota warp && TYPE='+' && PLUSINFO="$(text 25): $(awk '/Device name/{print $NF}' /etc/wireguard/info.log)\t $(text 63): $QUOTA"
   }
 
 # 显示菜单
