@@ -266,7 +266,7 @@ warp [option] [lisence]
   | w | 安装 WireProxy 解决方案 |
   | y | WireProxy 开关 |
   | k | 切换 wireguard 内核 / wireguard-go-reserved |
-  | g | 切换 warp 全局 / 非全局 |
+  | g | 切换 warp 全局 / 非全局 或首次以 非全局 模式安装 |
   | s | s 4/6/d，切换优先级 warp IPv4 / IPv6 / 默认  |
   | 其他或空值| 菜单界面 |
 

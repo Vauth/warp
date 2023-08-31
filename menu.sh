@@ -419,7 +419,7 @@ select_language() {
       L=C
       ;;
     * )
-      L=E && [[ -z "$OPTION" || "$OPTION" = [aclehdpbviw46s] ]] && hint " $(text 0) " && reading " $(text 50) " LANGUAGE
+      L=E && [[ -z "$OPTION" || "$OPTION" = [aclehdpbviw46sg] ]] && hint " $(text 0) " && reading " $(text 50) " LANGUAGE
     [ "$LANGUAGE" = 2 ] && L=C
   esac
 }
@@ -488,7 +488,7 @@ check_operating_system() {
 check_dependencies() {
   # 对于 alpine 系统，升级库并重新安装依赖
   if [ "$SYSTEM" = Alpine ]; then
-    [ ! -e /etc/wireguard/menu.sh ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash python3 )
+    [ -e /etc/wireguard/menu.sh ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash xxd python3 )
   else
     DEPS_CHECK=("ping" "xxd" "wget" "curl" "systemctl" "ip" "python3")
     DEPS_INSTALL=("iputils-ping" "xxd" "wget" "curl" "systemctl" "iproute2" "python3")
@@ -572,8 +572,8 @@ ip_case() {
       d )
         # 如在非全局模式，根据 AllowedIPs 的 v4、v6 情况再查 ip 信息；如在全局模式下则全部查
         if [ -e /etc/wireguard/warp.conf ] && grep -q '^Table' /etc/wireguard/warp.conf; then
-          grep -q "^#.*0\.\0\/0" /etc/wireguard/warp.conf || fetch_4
-          grep -q "^#.*\:\:\/0" /etc/wireguard/warp.conf || fetch_6
+          grep -q "^#.*0\.\0\/0" 2>/dev/null /etc/wireguard/warp.conf || fetch_4
+          grep -q "^#.*\:\:\/0" 2>/dev/null /etc/wireguard/warp.conf || fetch_6
         else
           fetch_4
           fetch_6
@@ -847,8 +847,8 @@ change_ip() {
     fi
 
     unset T4 T6
-    grep -q "^#.*0\.\0\/0" /etc/wireguard/warp.conf && T4=0 || T4=1
-    grep -q "^#.*\:\:\/0" /etc/wireguard/warp.conf && T6=0 || T6=1
+    grep -q "^#.*0\.\0\/0" 2>/dev/null /etc/wireguard/warp.conf && T4=0 || T4=1
+    grep -q "^#.*\:\:\/0" 2>/dev/null /etc/wireguard/warp.conf && T6=0 || T6=1
     case "$T4$T6" in
       01 )
         NF='6'
@@ -1159,13 +1159,13 @@ net() {
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
   if [[ $(ip link show | awk -F': ' '{print $2}') =~ warp ]]; then
     grep -q '#Table' /etc/wireguard/warp.conf && GLOBAL_OR_NOT="$(text 184)" || GLOBAL_OR_NOT="$(text 185)"
-    if grep -q '^AllowedIPs.*:\:\/0' /etc/wireguard/warp.conf; then
+    if grep -q '^AllowedIPs.*:\:\/0' 2>/dev/null /etc/wireguard/warp.conf; then
       local NET_6_NONGLOBAL=1
       ip_case 6 warp non-global
     else
       [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && local NET_6_NONGLOBAL=0 && ip_case 6 warp
     fi
-    if grep -q '^AllowedIPs.*0\.\0\/0' /etc/wireguard/warp.conf; then
+    if grep -q '^AllowedIPs.*0\.\0\/0' 2>/dev/null /etc/wireguard/warp.conf; then
       local NET_4_NONGLOBAL=1
       ip_case 4 warp non-global
     else
@@ -1275,8 +1275,8 @@ wireproxy_onoff() {
 # 检查系统 WARP 单双栈情况。为了速度，先检查 warp 配置文件里的情况，再判断 trace
 check_stack() {
   if [ -e /etc/wireguard/warp.conf ]; then
-    grep -q "^#.*0\.\0\/0" /etc/wireguard/warp.conf && T4=0 || T4=1
-    grep -q "^#.*\:\:\/0" /etc/wireguard/warp.conf && T6=0 || T6=1
+    grep -q "^#.*0\.\0\/0" 2>/dev/null /etc/wireguard/warp.conf && T4=0 || T4=1
+    grep -q "^#.*\:\:\/0" 2>/dev/null /etc/wireguard/warp.conf && T6=0 || T6=1
   else
     case "$TRACE4" in
       off )
@@ -1422,12 +1422,12 @@ EOF
   # 先查是否非局，优先 warp IP，再原生 IP
   if [[ $(ip link show | awk -F': ' '{print $2}') =~ warp ]]; then
     GLOBAL_OR_NOT="$(text 185)"
-    if grep -q '^AllowedIPs.*:\:\/0' /etc/wireguard/warp.conf; then
+    if grep -q '^AllowedIPs.*:\:\/0' 2>/dev/null /etc/wireguard/warp.conf; then
       STACK=-6 && ip_case 6 warp non-global
     else
       [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1 && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && STACK=-6 && ip_case 6 warp
     fi
-    if grep -q '^AllowedIPs.*0\.\0\/0' /etc/wireguard/warp.conf; then
+    if grep -q '^AllowedIPs.*0\.\0\/0' 2>/dev/null /etc/wireguard/warp.conf; then
       STACK=-4 && ip_case 4 warp non-global
     else
       [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1 && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && STACK=-4 && ip_case 4 warp
@@ -1852,7 +1852,7 @@ install() {
 
   # Warp 工作模式: 全局或非全局，在 dnsmasq / wireproxy 方案下不选择
   if [[ ! $ANEMONE$PUFFERFFISH =~ '1' ]]; then
-    hint "\n $(text 182) \n" && reading " $(text 50) " GLOBAL_OR_NOT_CHOOSE
+    [ -z "$GLOBAL_OR_NOT_CHOOSE" ] && hint "\n $(text 182) \n" && reading " $(text 50) " GLOBAL_OR_NOT_CHOOSE
     GLOBAL_OR_NOT="$(text 184)" && [ "$GLOBAL_OR_NOT_CHOOSE" = 2 ] && GLOBAL_OR_NOT="$(text 185)"
   fi
 
@@ -2919,14 +2919,14 @@ a )
   else
     case "$OPTION" in
       4 )
-        [[ $CLIENT = [35] ]] && error " $(text 110) "
+        [[ "$CLIENT" = [35] ]] && error " $(text 110) "
         CONF=${CONF1[n]}
         ;;
       6 )
         CONF=${CONF2[n]}
         ;;
       d )
-        [[ $CLIENT = [35] ]] && error " $(text 110) "
+        [[ "$CLIENT" = [35] ]] && error " $(text 110) "
         CONF=${CONF3[n]}
     esac
     install
@@ -2951,7 +2951,7 @@ k )
   kernel_reserved_switch
   ;;
 g )
-  working_mode_switch
+  [ ! -e /etc/wireguard/warp.conf ] && ( GLOBAL_OR_NOT_CHOOSE=2 && CONF=${CONF3[n]} && install; true ) || working_mode_switch
   ;;
 * )
   menu

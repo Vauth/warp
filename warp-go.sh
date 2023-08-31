@@ -303,8 +303,11 @@ check_operating_system() {
   fi
 
   # 自定义 Alpine 系统若干函数
-  alpine_warp_restart() { kill -15 $(pgrep warp-go) 2>/dev/null; /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf; }
-  alpine_wgcf_enable() { echo -e "/opt/warp-go/tun.sh\n/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf" > /etc/local.d/warp-go.start; chmod +x /etc/local.d/warp-go.start; rc-update add local; }
+  alpine_warp_restart() {
+    kill -15 $(pgrep warp-go) 2>/dev/null
+    /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf 2>&1 &
+  }
+  alpine_wgcf_enable() { echo -e "/opt/warp-go/tun.sh\n/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf 2>&1 &" > /etc/local.d/warp-go.start; chmod +x /etc/local.d/warp-go.start; rc-update add local; }
   openwrt_wgcf_enable() { echo -e "@reboot /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf" >> /etc/crontabs/root; }
 
   REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky|amazon linux" "alpine" "arch linux" "openwrt")
@@ -367,7 +370,7 @@ check_arch() {
 check_dependencies() {
   # 对于 Alpine 和 OpenWrt 系统，升级库并重新安装依赖
   if echo "$SYSTEM" | grep -qE "Alpine|OpenWrt"; then
-    [ ! -s /opt/warp-go/warp-go ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash tar )
+    [ ! -s /opt/warp-go/warp-go ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash xxd python3 tar )
   else
     DEPS_CHECK=("ping" "xxd" "wget" "curl" "systemctl" "ip" "python3")
     DEPS_INSTALL=("iputils-ping" "xxd" "wget" "curl" "systemctl" "iproute2" "python3")
@@ -510,7 +513,7 @@ change_ip() {
   if grep -qE 'Type[ ]+=[ ]+team' /opt/warp-go/warp.conf; then
     hint "\n $(text 97) \n" && reading " $(text 4) " CHANGE_ACCOUNT
     case "$CHANGE_ACCOUNT" in
-      2 ) 
+      2 )
         update_license
         echo "$LICENSE" > /opt/warp-go/License
         echo "$NAME" > /opt/warp-go/Device_Name
@@ -537,8 +540,8 @@ change_ip() {
   if grep -q "#AllowedIPs" /opt/warp-go/warp.conf; then
     T4=1; T6=1
   else
-    grep -q "0\.\0\/0" /opt/warp-go/warp.conf && T4=1 || T4=0
-    grep -q "\:\:\/0" /opt/warp-go/warp.conf && T6=1 || T6=0
+    grep -q "0\.\0\/0" 2>/dev/null /opt/warp-go/warp.conf && T4=1 || T4=0
+    grep -q "\:\:\/0" 2>/dev/null /opt/warp-go/warp.conf && T6=1 || T6=0
   fi
   case "$T4$T6" in
     01 )
@@ -577,7 +580,7 @@ change_ip() {
       RESULT[p]=$(curl --user-agent "${UA_Browser}" --interface WARP -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[p]}")
       [ "${RESULT[p]}" = 200 ] && break
     done
-    
+
     if [[ "${RESULT[@]}" =~ 200 ]]; then
       REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" --interface WARP -$NF -fs --max-time 10 --write-out %{redirect_url} --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
       REGION=${REGION:-'US'}
@@ -625,8 +628,8 @@ ver() {
 net() {
   unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 WARPSTATUS4 WARPSTATUS6
   i=1; j=5
-  grep -qE "^AllowedIPs[ ]+=.*0\.\0\/0|#AllowedIPs" /opt/warp-go/warp.conf && INTERFACE4='--interface WARP'
-  grep -qE "^AllowedIPs[ ]+=.*\:\:\/0|#AllowedIPs" /opt/warp-go/warp.conf && INTERFACE6='--interface WARP'
+  grep -qE "^AllowedIPs[ ]+=.*0\.\0\/0|#AllowedIPs" 2>/dev/null /opt/warp-go/warp.conf && INTERFACE4='--interface WARP'
+  grep -qE "^AllowedIPs[ ]+=.*\:\:\/0|#AllowedIPs" 2>/dev/null /opt/warp-go/warp.conf && INTERFACE6='--interface WARP'
   hint " $(text_eval 20)\n $(text_eval 59) "
   [ "$KEEP_FREE" != 1 ] && ${SYSTEMCTL_RESTART[int]}
   grep -q "#AllowedIPs" /opt/warp-go/warp.conf && sleep 8 || sleep 1
@@ -638,7 +641,7 @@ net() {
     grep -q "#AllowedIPs" /opt/warp-go/warp.conf && sleep 8 || sleep 1
     ip4_info; ip6_info
       if [[ "$i" = "$j" ]]; then
-        if [ -s /opt/warp-go/warp.conf.tmp1 ]; then 
+        if [ -s /opt/warp-go/warp.conf.tmp1 ]; then
           i=0 && info " $(text 22) " &&
           mv -f /opt/warp-go/warp.conf.tmp1 /opt/warp-go/warp.conf
       else
@@ -747,8 +750,8 @@ check_stack() {
     if grep -q "^#AllowedIPs" /opt/warp-go/warp.conf; then
       T4=2
     else
-      grep -q ".*0\.\0\/0" /opt/warp-go/warp.conf && T4=1 || T4=0 
-      grep -q ".*\:\:\/0" /opt/warp-go/warp.conf && T6=1 || T6=0
+      grep -q ".*0\.\0\/0" 2>/dev/null /opt/warp-go/warp.conf && T4=1 || T4=0
+      grep -q ".*\:\:\/0" 2>/dev/null /opt/warp-go/warp.conf && T6=1 || T6=0
     fi
   else
     case "$TRACE4" in
@@ -774,7 +777,7 @@ check_stack() {
   TO1=("" "" "" "014" "014" "106" "106" "114" "014")
   TO2=("" "" "" "01D" "01D" "10D" "10D" "116" "01D")
   SHORTCUT1=("" "" "" "(warp-go 4)" "(warp-go 4)" "(warp-go 6)" "(warp-go 6)" "(warp-go 4)" "(warp-go 4)")
-  SHORTCUT2=("" "" "" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go 6)" "(warp-go d)") 
+  SHORTCUT2=("" "" "" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go d)" "(warp-go 6)" "(warp-go d)")
 
   # 判断用于检测 NAT VSP，以选择正确配置文件
   if [ "$m" -le 3 ]; then
@@ -820,7 +823,7 @@ stack_switch() {
   elif [[ "$SWITCHCHOOSE" = [46D] ]]; then
     if [[ "$TO_GLOBAL" = [Yy] ]]; then
       if [[ "$T4@$T6@$SWITCHCHOOSE" =~ '1@0@4'|'0@1@6'|'1@1@D' ]]; then
-        grep -q "^AllowedIPs.*0\.\0\/0" /opt/warp-go/warp.conf || unset INTERFACE4 INTERFACE6
+        grep -q "^AllowedIPs.*0\.\0\/0" 2>/dev/null /opt/warp-go/warp.conf || unset INTERFACE4 INTERFACE6
         OPTION=o && net
         exit 0
       else
@@ -923,11 +926,11 @@ EOF
   [ "$INET4" = 1 ] && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && STACK=-4
 
   if [ "$STATUS" != 0 ]; then
-    if grep -qE "^AllowedIPs.*\.0/0,::/0|^#AllowedIPs" /opt/warp-go/warp.conf; then
+    if grep -qE "^AllowedIPs.*\.0/0,::/0|^#AllowedIPs" 2>/dev/null /opt/warp-go/warp.conf; then
       INTERFACE4='--interface WARP'; INTERFACE6='--interface WARP'
-    elif grep -q '^AllowedIPs.*\.0/0$' /opt/warp-go/warp.conf; then
+    elif grep -q '^AllowedIPs.*\.0/0$' 2>/dev/null /opt/warp-go/warp.conf; then
       INTERFACE4='--interface WARP'; unset INTERFACE6
-    elif grep -q '^AllowedIPs.*::/0$' /opt/warp-go/warp.conf; then
+    elif grep -q '^AllowedIPs.*::/0$' 2>/dev/null /opt/warp-go/warp.conf; then
       INTERFACE6='--interface WARP'; unset INTERFACE4
     fi
   fi
@@ -974,7 +977,7 @@ input_token() {
     [ "$i" = 0 ] && error "$(text 39)" || reading " $(text_eval 45) " TOKEN
   done
   [[ -n "$TOKEN" && -z "$NAME" ]] && reading " $(text 41) " NAME
-  [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME="${NAME:-warp-go}"  
+  [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME="${NAME:-warp-go}"
 }
 
 # 免费 WARP 账户升级 WARP+ 或 Teams 账户
@@ -1040,7 +1043,7 @@ update() {
       grep -qE 'Type[ ]+=[ ]+team' /opt/warp-go/warp.conf && echo "$NAME" > /opt/warp-go/Device_Name
       OPTION=o && net
       ;;
-    0 ) 
+    0 )
       unset LICENSETYPE
       menu
       ;;
@@ -1176,7 +1179,7 @@ KeepAlive = 30
 # AllowedIPs = ::/0
 
 [Script]
-#PostUp = 
+#PostUp =
 #PostDown =
 EOF
       fi
@@ -1239,7 +1242,7 @@ EOF
   wait
 
   # 如没有注册成功，脚本退出
-  [ ! -s /opt/warp-go/warp.conf ] && error " $(text 104) " 
+  [ ! -s /opt/warp-go/warp.conf ] && error " $(text 104) "
 
   # warp-go 配置修改，其中用到的 162.159.193.10 和 2606:4700:d0::a29f:c001 均是 engage.cloudflareclient.com 的 IP
   MTU=$(cat /tmp/warp-go-mtu) && rm -f /tmp/warp-go-mtu
@@ -1326,7 +1329,7 @@ check_quota() {
   fi
 
   # 部分系统没有依赖 bc，所以两个小数不能用 $(echo "scale=2; $QUOTA/1000000000000000" | bc)，改为从右往左数字符数的方法
-  if [[ "$QUOTA" != 0 && "$QUOTA" =~ ^[0-9]+$ && "$QUOTA" -ge 1000000000 ]]; then  
+  if [[ "$QUOTA" != 0 && "$QUOTA" =~ ^[0-9]+$ && "$QUOTA" -ge 1000000000 ]]; then
     CONVERSION=("1000000000000000000" "1000000000000000" "1000000000000" "1000000000")
     UNIT=("EB" "PB" "TB" "GB")
     for ((o=0; o<${#CONVERSION[*]}; o++)); do
@@ -1484,13 +1487,13 @@ menu_setting
 
 # 设置部分后缀 3/3
 case "$OPTION" in
-  [46dn] )	
+  [46dn] )
     if [[ $STATUS != 0 ]]; then
       SWITCHCHOOSE="$(tr 'a-z' 'A-Z' <<< "$OPTION")"
       stack_switch
     else
       case "$OPTION" in
-        4 ) CONF=${CONF1[n]} ;; 
+        4 ) CONF=${CONF1[n]} ;;
         6 ) CONF=${CONF2[n]} ;;
         d|n ) CONF=${CONF3[n]} ;;
       esac
