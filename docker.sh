@@ -10,12 +10,19 @@ IP_API=https://api.ip.sb/geoip; ISP=isp
 #IP_API=https://ifconfig.co/json; ISP=asn_org
 #IP_API=https://ip.gs/json; ISP=asn_org
 
-# 自定义字体彩色，read 函数，友道翻译函数
+# 自定义字体彩色，read 函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
 green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
 yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
-translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
+
+# 自定义友道或谷歌翻译函数
+# translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
+translate() {
+  [ -n "$@" ] && EN="$@"
+  ZH=$(curl -km8 -sSL "https://translate.google.com/translate_a/t?client=any_client_id_works&sl=en&tl=zh&q=${EN//[[:space:]]/}")
+  [[ "$ZH" =~ ^\[\".+\"\]$ ]] && cut -d \" -f2 <<< "$ZH"
+}
 
 # 传参选项 OPTION：1=为 IPv4 或者 IPv6 补全另一栈 WARP; u=卸载 WARP; o=WARP开关; 其他或空值=菜单界面
 [[ $1 != '[option]' ]] && OPTION=$(tr '[:upper:]' '[:lower:]' <<< "$1")
@@ -286,7 +293,7 @@ T[E125]=""
 T[C125]=""
 T[E126]=""
 T[C126]=""
-T[E127]="Please input Teams file URL (To use the one provided by the script if left blank):" 
+T[E127]="Please input Teams file URL (To use the one provided by the script if left blank):"
 T[C127]="请输入 Teams 文件 URL (如果留空，则使用脚本提供的):"
 T[E128]="Successfully upgraded to a WARP Teams account"
 T[C128]="已升级为 WARP Teams 账户"
@@ -310,11 +317,11 @@ T[C136]="( 不符合 X )"
 # 脚本当天及累计运行次数统计
 COUNT=$(curl --retry 2 -ksm2 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fdocker.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1 | grep -m1 -oE "[0-9]+[ ]+/[ ]+[0-9]+") &&
 TODAY=$(cut -d " " -f1 <<< "$COUNT") && TOTAL=$(cut -d " " -f3 <<< "$COUNT")
-	
+
 # 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语
 case $(cat /etc/wireguard/language-docker 2>&1) in
 E ) L=E;;	C ) L=C;;
-* ) L=E && [[ -z $OPTION || $OPTION = [hdv1] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE 
+* ) L=E && [[ -z $OPTION || $OPTION = [hdv1] ]] && yellow " ${T[${L}0]} " && reading " ${T[${L}50]} " LANGUAGE
 [[ $LANGUAGE = 2 ]] && L=C;;
 esac
 
@@ -359,7 +366,7 @@ ip4_info(){
 	COUNTRY4=$(expr "$IP4" : '.*country\":[ ]*\"\([^"]*\).*')
 	ASNORG4=$(expr "$IP4" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
 	TRACE4=$(curl -ks4m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
-	if [[ $TRACE4 = plus ]]; then 
+	if [[ $TRACE4 = plus ]]; then
 	grep -sq 'Device name' /etc/wireguard/info.log && PLUS4='+' || PLUS4=' Teams'
 	fi
 	[[ $TRACE4 = on || $TRACE4 = plus ]] && WARPSTATUS4="( WARP$PLUS4 IPv4 )"
@@ -372,7 +379,7 @@ ip6_info(){
 	COUNTRY6=$(expr "$IP6" : '.*country\":[ ]*\"\([^"]*\).*')
 	ASNORG6=$(expr "$IP6" : '.*'$ISP'\":[ ]*\"\([^"]*\).*')
 	TRACE6=$(curl -ks6m8 https://www.cloudflare.com/cdn-cgi/trace | grep warp | sed "s/warp=//g")
-	if [[ $TRACE6 = plus ]]; then 
+	if [[ $TRACE6 = plus ]]; then
 	grep -sq 'Device name' /etc/wireguard/info.log && PLUS6='+' || PLUS6=' Teams'
 	fi
 	[[ $TRACE6 = on || $TRACE6 = plus ]] && WARPSTATUS6="( WARP$PLUS6 IPv6 )"
@@ -397,14 +404,14 @@ help(){	yellow " ${T[${L}6]} "; }
 uninstall(){
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6
 	docker exec -it wgcf wg-quick down wgcf
-	
+
 	# 停止及删除容器
 	docker stop wgcf
 	docker rm wgcf
-	
+
 	# 删除镜像
 	docker rmi -f $(docker images | grep wgcf | awk '{print $3}')
-	
+
 	# 删除文件
 	rm -rf /usr/local/bin/wgcf /etc/wireguard wgcf-account.toml wgcf-profile.conf /usr/bin/warp
 
@@ -438,7 +445,7 @@ net(){
 			ip4_info
 			[[ -n $IP4 ]] && ip6_info
 			if [[ $i = "$j" ]]; then
-				if [[ $LICENSETYPE = 2 ]]; then 
+				if [[ $LICENSETYPE = 2 ]]; then
 				unset LICENSETYPE && i=0 && green " ${T[${L}129]} " &&
 				cp -f /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf
 				else
@@ -504,10 +511,10 @@ teams_change(){
 	sed -i "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" /etc/wireguard/wgcf.conf
 		case $IPV4$IPV6 in
 			01 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*v6&quot;:&quot;\(\[[^&]*\).*')#g" /etc/wireguard/wgcf.conf;;
-			10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*endpoint&quot;:{&quot;v4&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf;;	
+			10 ) sed -i "s#Endpoint.*#Endpoint = $(expr "$TEAMS" : '.*endpoint&quot;:{&quot;v4&quot;:&quot;\([^&]*\).*')#g" /etc/wireguard/wgcf.conf;;
 		esac
 	}
-	
+
 # 输入 WARP+ 账户（如有），限制位数为空或者26位以防输入错误
 input_license(){
 	[[ -z $LICENSE ]] && reading " ${T[${L}28]} " LICENSE
@@ -592,29 +599,29 @@ update(){
 install(){
 	# 先删除之前安装，可能导致失败的文件
 	rm -rf /usr/local/bin/wgcf /usr/bin/wireguard-go wgcf-account.toml wgcf-profile.conf
-	
+
 	# 询问是否有 WARP+ 或 Teams 账户
 	[[ -z $LICENSETYPE ]] && yellow " ${T[${L}132]}" && reading " ${T[${L}50]} " LICENSETYPE
 	case $LICENSETYPE in
-	1 ) INPUT_LICENSE=1 && input_license;;	
+	1 ) INPUT_LICENSE=1 && input_license;;
 	2 ) input_url;;
 	esac
 
 	# 选择优先使用 IPv4 /IPv6 网络
 	yellow " ${T[${L}105]} " && reading " ${T[${L}50]} " PRIORITY
-	
+
 	# 脚本开始时间
 	start=$(date +%s)
-			
+
 	# 安装 docker, 拉取镜像+创建容器
 	{ green " \n${T[${L}32]}\n " && ! systemctl is-active docker >/dev/null 2>&1 && curl -sSL get.docker.com | sh
 
 	docker run -dit --restart=always --network=host --name wgcf --device /dev/net/tun --privileged --cap-add net_admin --cap-add sys_module  -v /etc/wireguard:/etc/wireguard -v /lib/modules:/lib/modules fscarmen/wgcf:"$ARCHITECTURE"
 	}&
-	
+
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 	# 判断 wgcf 的最新版本,如因 github 接口问题未能获取，默认 v2.2.18
-	{	
+	{
 	latest=$(wget --no-check-certificate -qO- -T1 -t1 $CDN "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 	latest=${latest:-'2.2.18'}
 
@@ -622,7 +629,7 @@ install(){
 	wget --no-check-certificate -T1 -t1 $CDN -O /usr/local/bin/wgcf https://github.com/ViRb3/wgcf/releases/download/v"$latest"/wgcf_"$latest"_linux_$ARCHITECTURE ||
 	wget --no-check-certificate $CDN -O /usr/local/bin/wgcf https://cdn.jsdelivr.net/gh/fscarmen/warp/wgcf_"$latest"_linux_$ARCHITECTURE
 	chmod +x /usr/local/bin/wgcf
-	
+
 	# 注册 WARP 账户 (将生成 wgcf-account.toml 文件保存账户信息)
 	until [[ -e wgcf-account.toml ]] >/dev/null 2>&1; do
 		wgcf register --accept-tos >/dev/null 2>&1 && break
@@ -631,7 +638,7 @@ install(){
 	# 如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
 	mkdir -p /etc/wireguard/ >/dev/null 2>&1
 	[[ -n $LICENSE ]] && yellow " \n${T[${L}35]}\n " && sed -i "s/license_key.*/license_key = \"$LICENSE\"/g" wgcf-account.toml &&
-	( wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 && 
+	( wgcf update --name "$NAME" > /etc/wireguard/info.log 2>&1 &&
 	green " ${T[${L}62]}\n ${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log | awk '{ print $NF }')\n ${T[${L}63]}：$(grep Quota /etc/wireguard/info.log | awk '{ print $(NF-1), $NF }')" || red " ${T[${L}36]} " )
 
 	# 生成 Wire-Guard 配置文件 (wgcf-profile.conf)
@@ -678,20 +685,20 @@ install(){
 	wait
 
 	echo "$MODIFY" | sh
-	
+
 	# 把 wgcf-profile.conf 复制到/etc/wireguard/ 并命名为 wgcf.conf, 如有 Teams，改为 Teams 账户信息
 	cp -f wgcf-profile.conf /etc/wireguard/wgcf.conf >/dev/null 2>&1
 
 	# 保存好配置文件
 	mv -f wgcf-account.toml wgcf-profile.conf docker.sh /etc/wireguard >/dev/null 2>&1
-	
+
 	# 创建再次执行的软链接快捷方式，再次运行可以用 warp 指令,设置默认语言
 	chmod +x /etc/wireguard/docker.sh >/dev/null 2>&1
 	ln -sf /etc/wireguard/docker.sh /usr/bin/warp && green " ${T[${L}38]} "
 	echo "$L" >/etc/wireguard/language-docker
-	
+
 	[[ $CONFIRM = [Yy] ]] && teams_change && echo "$TEAMS" > /etc/wireguard/info.log 2>&1
-	
+
 	# 运行 WGCF
 	unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
 	net
@@ -722,7 +729,7 @@ menu(){
 	else OPTION1=${T[${L}77]} && OPTION2=${T[${L}78]}
 	fi
 	grep -sq 'Device name' /etc/wireguard/info.log 2>/dev/null && TYPE='+' && PLUSINFO="${T[${L}25]}：$(grep 'Device name' /etc/wireguard/info.log 2>/dev/null | awk '{ print $NF }')" || TYPE=' Teams'
-	
+
 	clear
 	yellow " ${T[${L}16]} "
 	red "======================================================================================================================\n"
@@ -730,7 +737,7 @@ menu(){
 	green "	IPv4：$WAN4 $WARPSTATUS4 $COUNTRY4  $ASNORG4 "
 	green "	IPv6：$WAN6 $WARPSTATUS6 $COUNTRY6  $ASNORG6 "
 	[[ $TRACE4 = plus || $TRACE6 = plus ]] && green "	$(eval echo "${T[${L}114]}")	$PLUSINFO "
-	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	${T[${L}115]} " 	
+	[[ $TRACE4 = on || $TRACE6 = on ]] && green "	${T[${L}115]} "
 	[[ $PLAN != 3 ]] && green "	${T[${L}116]} "
  	red "\n======================================================================================================================\n"
 	green " 1. $OPTION1\n 2. $OPTION2\n 3. ${T[${L}72]}\n 0. ${T[${L}76]}\n "
@@ -738,7 +745,7 @@ menu(){
 		case "$CHOOSE1" in
 		1 )	[[ $OPTION1 = ${T[${L}66]} || $OPTION1 = ${T[${L}67]} ]] && MODIFY=$(eval echo \$MODIFYS$IPV4$IPV6) && install
 			[[ $OPTION1 = ${T[${L}70]} ]] && MODIFY=$MODIFYD11 && install
-			[[ $OPTION1 = ${T[${L}77]} ]] && onoff;;	
+			[[ $OPTION1 = ${T[${L}77]} ]] && onoff;;
 		2 )	[[ $OPTION2 = ${T[${L}71]} ]] && OPTION=o && onoff
 			[[ $OPTION2 = ${T[${L}78]} ]] && update;;
 		3 )	uninstall;;

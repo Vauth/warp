@@ -97,7 +97,7 @@ E[42]="License should be 26 characters, please re-enter WARP+ License. Otherwise
 C[42]="License 应为26位字符,请重新输入 WARP+ License \(剩余\${i}次\): "
 E[43]="Please customize the WARP+ device name (Default is [WARP] if left blank):"
 C[43]="请自定义 WARP+ 设备名 (如果不输入，默认为 [WARP]):"
-E[44]="Please input Teams file URL (To use the one provided by the script if left blank):" 
+E[44]="Please input Teams file URL (To use the one provided by the script if left blank):"
 C[44]="请输入 Teams 文件 URL (如果留空，则使用脚本提供的):"
 E[45]="( match √ )"
 C[45]="( 符合 √ )"
@@ -118,24 +118,31 @@ C[52]="失败已超过\${j}次，脚本中止，问题反馈:[https://github.com
 E[53]="The current Teams account is unavailable, automatically switch back to the free account"
 C[53]="当前 Teams 账户不可用，自动切换回免费账户"
 
-# 自定义字体彩色，read 函数，友道翻译函数
+# 自定义字体彩色，read 函数
 red(){ echo -e "\033[31m\033[01m$1\033[0m"; }
 green(){ echo -e "\033[32m\033[01m$1\033[0m"; }
 yellow(){ echo -e "\033[33m\033[01m$1\033[0m"; }
 reading(){ read -rp "$(green "$1")" "$2"; }
-translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
+
+# 自定义友道或谷歌翻译函数
+# translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
+translate() {
+  [ -n "$@" ] && EN="$@"
+  ZH=$(curl -km8 -sSL "https://translate.google.com/translate_a/t?client=any_client_id_works&sl=en&tl=zh&q=${EN//[[:space:]]/}")
+  [[ "$ZH" =~ ^\[\".+\"\]$ ]] && cut -d \" -f2 <<< "$ZH"
+}
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times(){
 COUNT=$(curl -ksm1 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1) &&
 TODAY=$(expr "$COUNT" : '.* \([0-9]\{1,\}\) /.*') && TOTAL=$(expr "$COUNT" : '.*/ \([0-9]\{1,\}\) .*')
 }
-	
+
 # 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语
 select_language(){
 	case $(cat /etc/wireguard/language 2>&1) in
 	e ) L=("${E[@]}");;	c ) L=("${C[@]}");;
-	* ) L=("${E[@]}") && [[ -z $OPTION ]] && yellow " ${L[0]} " && reading " ${L[3]} " LANGUAGE 
+	* ) L=("${E[@]}") && [[ -z $OPTION ]] && yellow " ${L[0]} " && reading " ${L[3]} " LANGUAGE
 	[[ $LANGUAGE = 2 ]] && L=("${C[@]}");;
 	esac
 }
@@ -190,7 +197,7 @@ net(){
 			sudo wg-quick up wgcf >/dev/null 2>&1
 			ip4_info; ip6_info
 			if [[ $i = "$j" ]]; then
-				if [[ $LICENSETYPE = 2 ]]; then 
+				if [[ $LICENSETYPE = 2 ]]; then
 				unset LICENSETYPE && i=0 && green " ${L[53]} " &&
 				cp -f /etc/wireguard/wgcf-profile.conf /etc/wireguard/wgcf.conf
 				else
@@ -206,7 +213,7 @@ net(){
 }
 
 # WARP 开关，先检查是否已安装，再根据当前状态转向相反状态
-onoff(){ 
+onoff(){
 	! type -p wg-quick >/dev/null 2>&1 && red " ${L[21]} " && exit 1
 	[[ -n $(sudo wg 2>/dev/null) ]] && (wg-quick down wgcf >/dev/null 2>&1; green " ${L[22]} ") || net
 }
@@ -242,7 +249,7 @@ install(){
 	# 询问是否有 WARP+ 或 Teams 账户
 	[[ -z $LICENSETYPE ]] && yellow " ${L[49]}" && reading " ${L[3]} " LICENSETYPE
 	case $LICENSETYPE in
-	1 ) input_license;;	
+	1 ) input_license;;
 	2 ) input_url;;
 	esac
 
@@ -287,7 +294,7 @@ install(){
 	# 如有 Teams，改为 Teams 账户信息
 	[[ $CONFIRM = [Yy] ]] && echo "$TEAMS" | sudo tee /etc/wireguard/info.log >/dev/null 2>&1 &&
 	sudo sed -i '' "s#PrivateKey.*#PrivateKey = $PRIVATEKEY#g;s#Address.*32#Address = ${ADDRESS4}/32#g;s#Address.*128#Address = ${ADDRESS6}/128#g;s#PublicKey.*#PublicKey = $PUBLICKEY#g" wgcf-profile.conf
-  
+
 	# 修改配置文件 wgcf-profile.conf 的内容, 更换 Endpoint 和 DNS
 	sudo sed -i '' 's/engage.cloudflareclient.com/162.159.193.10/g;s/1.1.1.1/8.8.8.8,&/g' wgcf-profile.conf
 
