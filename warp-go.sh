@@ -372,6 +372,8 @@ check_dependencies() {
   if echo "$SYSTEM" | grep -qE "Alpine|OpenWrt"; then
     [ ! -s /opt/warp-go/warp-go ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash xxd python3 tar )
   else
+    # 对于 CentOS 系统，xxd 需要依赖 vim-common
+    [ "${SYSTEM}" = 'CentOS' ] && ${PACKAGE_INSTALL[int]} vim-common
     DEPS_CHECK=("ping" "xxd" "wget" "curl" "systemctl" "ip" "python3")
     DEPS_INSTALL=("iputils-ping" "xxd" "wget" "curl" "systemctl" "iproute2" "python3")
     for ((c=0;c<${#DEPS_CHECK[@]};c++)); do [ ! $(type -p ${DEPS_CHECK[c]}) ] && [[ ! "${DEPS[@]}" =~ "${DEPS_INSTALL[c]}" ]] && DEPS+=(${DEPS_INSTALL[c]}); done
