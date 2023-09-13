@@ -45,7 +45,7 @@ Use method
 感谢大神 badafans的开源项目及耐心指导，现发布在linux下使用的Cloudflare WARP api，[badafans的开源项目](https://github.com/badafans/warp-reg) 
 使用方法
 ```
-wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.sh [option]
+wget -N https://gitlab.com/fscarmen/warp/-/raw/main/api.sh && bash api.sh [option]
 ```
 
 <details>
@@ -100,7 +100,7 @@ wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.
 >全网首发，隆重推出 @CoiaPrant 的 warp-go 一键脚本。使用 CloudFlare-WARP 的各类接口，集成 wireguard-go，可以完全替代 WGCF。 救活了香港、多伦多等，让没有官方 WARP 的 VPS 也可以获取 WARP IP。再次感谢 @CoiaPrant 及其团队。项目地址: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/
 >
 >```
->wget -N https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh && bash warp-go.sh [option] [lisence]
+>wget -N https://gitlab.com/fscarmen/warp/-/raw/main/warp-go.sh && bash warp-go.sh [option] [lisence]
 >```
 >
 >2022.8.5 2.41 1.Get the traffic quota of WARP+ via API. Thanks to Oreo for technical support; 1.通过 API 获取 WARP+ 剩余流量, 感谢猫佬的技术支持。
@@ -132,15 +132,15 @@ wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.
 >2022.2.25  2.32: 1.Change the WARP endpoint; 2. Sync the Netflix title with lmc999; 1.更换 WARP 的 endpoint; 2. 同步 lmc999 的 Netflix 检测 title
 >
 >2022.2.15 Happy Lantern Festival. Bring you a new experience of docker unlock, another way to unlock Netflix. Project based on alpine, content wgcf and >unblocking Netflix scripts. Change unlock warp ip automatically. 元宵节快乐。为大家带来个 docker 解锁的全新体验，换个姿势解锁 Netflix。项目以 alpine 为基础系统，内含 >wgcf 和解锁 Netflix 脚本，自动切换解锁 WARP IP    
->https://github.com/fscarmen/warp_unlock
+>https://github.com/fscarmen/unlock_warp
 >
 >2022.2.11  2.31: 1.iptables + dnsmasq + ipset to unlock stream media. (Not available for IPv6 only VPS). It is better than setting the outbound in >xray/v2ray. 1.iptables + dnsmasq + ipset 最小化解锁流媒体，warp 只接管流媒体流量 (不适合 IPv6 only VPS)，比在 xray/v2ray 设置分流的方案要更好
 >
->2022.1.25  Media unlock daemon.  Check it every 5 minutes. If unlocked, the scheduled task exits immediately. If it is not unlocked, it will be swiped >successfully in the background. Advantages: Minimized use of system resources. Please support professional unlock one-click script: >https://github.com/fscarmen/warp_unlock
+>2022.1.25  Media unlock daemon.  Check it every 5 minutes. If unlocked, the scheduled task exits immediately. If it is not unlocked, it will be swiped >successfully in the background. Advantages: Minimized use of system resources. Please support professional unlock one-click script: >https://github.com/fscarmen/unlock_warp
 >
->流媒体解锁守护进程,定时5分钟检查一次,遇到不解锁时更换 WARP IP，直至刷成功。请大家支持一下兄弟项目: https://github.com/fscarmen/warp_unlock
+>流媒体解锁守护进程,定时5分钟检查一次,遇到不解锁时更换 WARP IP，直至刷成功。请大家支持一下兄弟项目: https://github.com/fscarmen/unlock_warp
 >```
->bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh)
+>bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/unlock_warp/main/unlock.sh)
 >```
 >
 >2022.1.21  2.30: 1.All support WARP single-stack and dual-stack solutions. Switch to each other easily and quickly. Such as [warp s 4],[warp s 6],[warp s >d]; 2.Brush Netflix Unlock IP with the expect area. Such as [warp i hk]. You can use it with crontab,screen,nohup & etc. [Detail](README.md#刷-Netflix-解>锁-WARP-IP-的方法); 3.Fixed stuck when brushing Netflix IP 1.全面支持WARP单栈与双栈方案，简单并快速切换，如[warp s 4],[warp s 6],[warp s d]; 2.在刷解锁 Netflix WARP >IP 时可以带上期望的地区,如 [warp i hk]。你可以结合 crontab,screen,nohup & 等方式使用,[详细方法](README.md#刷-Netflix-解锁-WARP-IP-的方法); 3.修正刷 Netflix IP 时可能发>生的卡死不动的bug
@@ -236,7 +236,7 @@ wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.
 
 首次运行
 ```
-wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && bash menu.sh [option] [lisence/url/token]
+wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh && bash menu.sh [option] [lisence/url/token]
 ```
 再次运行
 ```
@@ -272,7 +272,7 @@ warp [option] [lisence]
 
 举例：想为 IPv4 的甲骨文添加 Warp 双栈，首次运行
 ```
-wget -N https://raw.githubusercontent.com/fscarmen/warp/main/menu.sh && bash menu.sh d
+wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh && bash menu.sh d
 ```
 刷日本 Netflix  运行
 ```
@@ -361,14 +361,9 @@ warp i jp
     
 ## 刷 Netflix 解锁 WARP IP 的方法
 
-也可以用另一个通过 WARP 解锁流媒体的一键脚本: [【刷 WARP IP】 - 为 WARP 解锁流媒体而生](https://github.com/fscarmen/warp_unlock)
+也可以用另一个通过 WARP 解锁流媒体的一键脚本: [【刷 WARP IP】 - 为 WARP 解锁流媒体而生](https://github.com/fscarmen/unlock_warp)
     
 以刷 香港 hk 为例
-    
-* crontab 计划任务方式，流媒体解锁守护进程
-```
-bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/tools/main/warp_crontab.sh)
-``` 
 
 * screen 多会话方式运行，会话任务名为 n
 ```
@@ -529,7 +524,7 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 ## warp-go 运行脚本
 首次运行
 ```
-wget -N https://raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh && bash warp-go.sh [option] [lisence]
+wget -N https://gitlab.com/fscarmen/warp/-/raw/main/warp-go.sh && bash warp-go.sh [option] [lisence]
 ```
 再次运行
 ```bash
@@ -552,7 +547,7 @@ warp-go [option] [lisence]
 
 ## Cloudflare api 运行脚本
 ```
-wget -N https://raw.githubusercontent.com/fscarmen/warp/main/api.sh && bash api.sh [option]
+wget -N https://gitlab.com/fscarmen/warp/-/raw/main/api.sh && bash api.sh [option]
 ```
   | [option] 变量 | 具体动作说明 |
   | -------------| ------------- |
@@ -593,7 +588,7 @@ WireGuard 网络接口数据，查看 ```wg```
 
 * 在 vps 里运行以下指令获取 teams 配置的全部信息，保存在文件 `warp-account.conf`
 ```
-bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/warp/main/api.sh) -r -t <TOKEN>
+bash <(wget -qO- https://gitlab.com/fscarmen/warp/-/raw/main/api.sh) -r -t <TOKEN>
 ```
 
 ## WARP原理

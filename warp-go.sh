@@ -9,7 +9,7 @@ ISP=("isp" "isp" "asn_org")
 IP=("query" "ip" "ip")
 
 # 自建 github cdn 反代网，用于不能直连 github 的机器。先直连 github，若部分大陆机器不能连接，寻找 github CDN
-CDN_URL=("cdn1.cloudflare.now.cc/proxy/" "cdn2.cloudflare.now.cc/https://" "cdn3.cloudflare.now.cc?url=https://" "cdn4.cloudflare.now.cc/proxy/https://" "cdn5.cloudflare.now.cc/" "cdn.spiritlhl.workers.dev/" "ghproxy.com/")
+CDN_URL=("cdn1.cloudflare.now.cc/proxy/" "cdn2.cloudflare.now.cc/https://" "cdn3.cloudflare.now.cc?url=https://" "cdn4.cloudflare.now.cc/proxy/https://")
 
 # 判断 Teams token 最少字符数
 TOKEN_LENGTH=800
@@ -29,18 +29,18 @@ E[3]="This project is designed to add WARP network interface for VPS, using warp
 C[3]="本项目专为 VPS 添加 WARP 网络接口，使用 wire-go 核心程序，利用CloudFlare-WARP 的各类接口，集成 wireguard-go，可以完全替代 WGCF。 救活了香港、多伦多等 VPS 也可以获取 WARP IP。再次感谢 @CoiaPrant 及其团队。项目地址: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/"
 E[4]="Choose:"
 C[4]="请选择:"
-E[5]="You must run the script as root. You can type sudo -i and then download and run it again. Feedback:[https://github.com/fscarmen/warp/issues]"
-C[5]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[6]="This script only supports Debian, Ubuntu, CentOS, Arch or Alpine systems, Feedback: [https://github.com/fscarmen/warp/issues]"
-C[6]="本脚本只支持 Debian、Ubuntu、CentOS、Arch 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[7]="Curren operating system is \$SYS.\\\n The system lower than \$SYSTEM \${MAJOR[int]} is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[7]="当前操作是 \$SYS\\\n 不支持 \$SYSTEM \${MAJOR[int]} 以下系统,问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[5]="You must run the script as root. You can type sudo -i and then download and run it again. Feedback:[https://github.com/fscarmen/warp-sh/issues]"
+C[5]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
+E[6]="This script only supports Debian, Ubuntu, CentOS, Arch or Alpine systems, Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[6]="本脚本只支持 Debian、Ubuntu、CentOS、Arch 或 Alpine 系统,问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
+E[7]="Curren operating system is \$SYS.\\\n The system lower than \$SYSTEM \${MAJOR[int]} is not supported. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[7]="当前操作是 \$SYS\\\n 不支持 \$SYSTEM \${MAJOR[int]} 以下系统,问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[8]="Install dependence-list:"
 C[8]="安装依赖列表:"
 E[9]="Step 3/3: Best MTU and Endpoint found."
 C[9]="进度 3/3: 已找到最佳 MTU 和 Endpoint"
-E[10]="No suitable solution was found for modifying the warp-go configuration file warp.conf and the script aborted. When you see this message, please send feedback on the bug to:[https://github.com/fscarmen/warp/issues]"
-C[10]="没有找到适合的方案用于修改 warp-go 配置文件 warp.conf，脚本中止。当你看到此信息，请把该 bug 反馈至:[https://github.com/fscarmen/warp/issues]"
+E[10]="No suitable solution was found for modifying the warp-go configuration file warp.conf and the script aborted. When you see this message, please send feedback on the bug to:[https://github.com/fscarmen/warp-sh/issues]"
+C[10]="没有找到适合的方案用于修改 warp-go 配置文件 warp.conf，脚本中止。当你看到此信息，请把该 bug 反馈至:[https://github.com/fscarmen/warp-sh/issues]"
 E[11]="Warp-go is not installed yet."
 C[11]="还没有安装 warp-go"
 E[12]="To install, press [y] and other keys to exit:"
@@ -65,8 +65,8 @@ E[21]="Can't find the account file: /opt/warp-go/warp.conf.You can uninstall and
 C[21]="找不到账户文件：/opt/warp-go/warp.conf，可以卸载后重装"
 E[22]="Current Teams account is not available. Switch back to free account automatically."
 C[22]="当前 Teams 账户不可用，自动切换回免费账户"
-E[23]="Failed more than \${j} times, script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[23]="失败已超过\${j}次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[23]="Failed more than \${j} times, script aborted. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[23]="失败已超过\${j}次，脚本中止，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[24]="non-"
 C[24]="非"
 E[25]="Successfully got WARP \$ACCOUNT_TYPE network.\\\n Running in \${GLOBAL_TYPE}global mode."
@@ -91,10 +91,10 @@ E[34]="Please enter the correct number"
 C[34]="请输入正确数字"
 E[35]="Checking VPS infomation..."
 C[35]="检查环境中……"
-E[36]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[36]="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp/issues]"
-E[37]="Curren architecture \$(uname -m) is not supported. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[37]="当前架构 \$(uname -m) 暂不支持,问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[36]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[36]="没有加载 TUN 模块，请在管理后台开启或联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
+E[37]="Curren architecture \$(uname -m) is not supported. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[37]="当前架构 \$(uname -m) 暂不支持,问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[38]="If there is a WARP+ License, please enter it, otherwise press Enter to continue:"
 C[38]="如有 WARP+ License 请输入，没有可回车继续:"
 E[39]="Input errors up to 5 times.The script is aborted."
@@ -119,22 +119,22 @@ E[48]="1. Change to free account.\n 2. Change to WARP+ account.\n 3. Change to a
 C[48]="1. 变更为 free 账户\n 2. 变更为 WARP+ 账户\n 3. 更换为另一个 Teams 账户 (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取，如果留空，则使用脚本提供的)\n 0. 返回主菜单"
 E[49]="1. Change to free account.\n 2. Change to another WARP+ account.\n 3. Change to Teams account. (You can easily available at https://web--public--warp-team-api--coia-mfs4.code.run. Or use the one provided by the script if left blank)\n 0. Return to the main menu."
 C[49]="1. 变更为 free 账户\n 2. 变更为另一个 WARP+ 账户\n 3. 变更为 Teams 账户 (可通过 https://web--public--warp-team-api--coia-mfs4.code.run 轻松获取，如果留空，则使用脚本提供的)\n 0. 返回主菜单"
-E[50]="Registration of WARP\${k} account failed, script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[50]="注册 WARP\${k} 账户失败，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
-E[51]="Warp-go not yet installed. No account registered. Script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[51]="warp-go 还没有安装，没有注册账户，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
+E[50]="Registration of WARP\${k} account failed, script aborted. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[50]="注册 WARP\${k} 账户失败，脚本中止，问题反馈: [https://github.com/fscarmen/warp-sh/issues]"
+E[51]="Warp-go not yet installed. No account registered. Script aborted. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[51]="warp-go 还没有安装，没有注册账户，脚本中止，问题反馈: [https://github.com/fscarmen/warp-sh/issues]"
 E[52]="Wireguard configuration file: /opt/warp-go/wgcf.conf\n"
 C[52]="Wireguard 配置文件: /opt/warp-go/wgcf.conf\n"
-E[53]="Warp-go installed. Script aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[53]="warp-go 已安装，脚本中止，问题反馈: [https://github.com/fscarmen/warp/issues]"
+E[53]="Warp-go installed. Script aborted. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[53]="warp-go 已安装，脚本中止，问题反馈: [https://github.com/fscarmen/warp-sh/issues]"
 E[54]="Is there a WARP+ or Teams account?\n  1. WARP+\n  2. Teams\n  3. Use free account (default)"
 C[54]="如有 WARP+ 或 Teams 账户请选择\n  1. WARP+\n  2. Teams\n  3. 使用免费账户 (默认)"
 E[55]="Please choose the priority:\n  1. IPv4\n  2. IPv6\n  3. Use initial settings (default)"
 C[55]="请选择优先级别:\n  1. IPv4\n  2. IPv6\n  3. 使用 VPS 初始设置 (默认)"
-E[56]="Download warp-go zip file unsuccessful. Script exits. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[56]="下载 warp-go 压缩文件不成功，脚本退出，问题反馈: [https://github.com/fscarmen/warp/issues]"
-E[57]="Warp-go file does not exist, script exits. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[57]="Warp-go 文件不存在，脚本退出，问题反馈: [https://github.com/fscarmen/warp/issues]"
+E[56]="Download warp-go zip file unsuccessful. Script exits. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[56]="下载 warp-go 压缩文件不成功，脚本退出，问题反馈: [https://github.com/fscarmen/warp-sh/issues]"
+E[57]="Warp-go file does not exist, script exits. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[57]="Warp-go 文件不存在，脚本退出，问题反馈: [https://github.com/fscarmen/warp-sh/issues]"
 E[58]="Maximum \${j} attempts to registe WARP\${k} account..."
 C[58]="注册 WARP\${k} 账户中, 最大尝试\${j}次……"
 E[59]="Try \${i}"
@@ -145,8 +145,8 @@ E[61]="Step 2/3: Install warp-go..."
 C[61]="进度 2/3: 已安装 warp-go"
 E[62]="Congratulations! WARP \$ACCOUNT_TYPE has been turn on. Total time spent:\$(( end - start )) seconds.\\\n Number of script runs in the day: \$TODAY. Total number of runs: \$TOTAL."
 C[62]="恭喜！WARP \$ACCOUNT_TYPE 已开启，总耗时:\$(( end - start ))秒\\\n 脚本当天运行次数: \$TODAY，累计运行次数：\$TOTAL"
-E[63]="Warp-go installation failed. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[63]="warp-go 安装失败，问题反馈: [https://github.com/fscarmen/warp/issues]"
+E[63]="Warp-go installation failed. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[63]="warp-go 安装失败，问题反馈: [https://github.com/fscarmen/warp-sh/issues]"
 E[64]="Add WARP IPv4 global network interface for \${NATIVE[n]}, IPv4 priority \(bash warp-go.sh 4\)"
 C[64]="为 \${NATIVE[n]} 添加 WARP IPv4 全局 网络接口，IPv4 优先 \(bash warp-go.sh 4\)"
 E[65]="Add WARP IPv4 global network interface for \${NATIVE[n]}, IPv6 priority \(bash warp-go.sh 4\)"
@@ -227,8 +227,8 @@ E[102]="WAN interface network protocol must be [static] on OpenWrt."
 C[102]="OpenWrt 系统的 WAN 接口的网络传输协议必须为 [静态地址]"
 E[103]="Unlimited"
 C[103]="无限制"
-E[104]="Failed to get the registration information from API. Script exits. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[104]="API 获取不到注册信息，脚本退出，问题反馈: [https://github.com/fscarmen/warp/issues]"
+E[104]="Failed to get the registration information from API. Script exits. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[104]="API 获取不到注册信息，脚本退出，问题反馈: [https://github.com/fscarmen/warp-sh/issues]"
 E[105]="upgrade successful."
 C[105]="升级成功"
 E[106]="upgrade failed. The free account will remain in use."
@@ -247,7 +247,7 @@ text_eval() { eval echo "\$(eval echo "\${${L}[$*]}")"; }
 # translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
 translate() {
   [ -n "$@" ] && EN="$@"
-  ZH=$(curl -km8 -sSL "https://translate.google.com/translate_a/t?client=any_client_id_works&sl=en&tl=zh&q=${EN//[[:space:]]/}")
+  ZH=$(curl -km8 -sSL "https://translate.google.com/translate_a/t?client=any_client_id_works&sl=en&tl=zh&q=${EN//[[:space:]]/%20}")
   [[ "$ZH" =~ ^\[\".+\"\]$ ]] && cut -d \" -f2 <<< "$ZH"
 }
 
@@ -286,10 +286,10 @@ check_root_virt() {
 }
 
 # 随机使用 cdn 网址，以负载均衡
-check_github_cdn() {
+check_cdn() {
   RANDOM_CDN=($(shuf -e "${CDN_URL[@]}"))
   for CDN in "${RANDOM_CDN[@]}"; do
-    wget -T2 -qO- https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh | grep -q '#!/usr/bin/env' && break || unset CDN
+    wget -T2 -qO- https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh | grep -q '#!/usr/bin/env' && break || unset CDN
   done
 }
 
@@ -400,10 +400,10 @@ check_install() {
   else
     STATUS=0
     {
-      # 预下载 warp-go，使用 githubusercontent，以更好的支持双栈。并添加执行权限，如因 gitlab 接口问题未能获取，默认 v1.0.8
+      # 预下载 warp-go，并添加执行权限，如因 gitlab 接口问题未能获取，默认 v1.0.8
       latest=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | awk -F '"' '{for (i=0; i<NF; i++) if ($i=="tag_name") {print $(i+2); exit}}' | sed "s/v//")
       latest=${latest:-'1.0.8'}
-      wget --no-check-certificate -qO /tmp/warp-go.tar.gz https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
+      wget --no-check-certificate -qO /tmp/warp-go.tar.gz https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz
       tar xzf /tmp/warp-go.tar.gz -C /tmp/ warp-go
       chmod +x /tmp/warp-go
       rm -f /tmp/warp-go.tar.gz
@@ -512,7 +512,7 @@ change_ip() {
     sed -i '1,6!d' /opt/warp-go/warp.conf.tmp2
     tail -n +7 /opt/warp-go/warp.conf.tmp1 >> /opt/warp-go/warp.conf.tmp2
     mv /opt/warp-go/warp.conf.tmp2 /opt/warp-go/warp.conf
-    bash <(curl -m8 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/warp.conf.tmp1 --cancle >/dev/null 2>&1
+    bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/warp.conf.tmp1 --cancle >/dev/null 2>&1
     rm -f /opt/warp-go/warp.conf.tmp*
     ${SYSTEMCTL_RESTART[int]}
     sleep $l
@@ -605,12 +605,12 @@ uninstall() {
   unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 INTERFACE4 INTERFACE6
 
   # 如已安装 warp_unlock 项目，先行卸载
-  [ -s /etc/wireguard/warp_unlock.sh ] && bash <(curl -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp_unlock/main/unlock.sh) -U -$L
+  [ -s /etc/wireguard/warp_unlock.sh ] && bash <(curl -sSL https://${CDN}gitlab.com/fscarmen/warp_unlock/-/raw/main/unlock.sh) -U -$L
 
   # 卸载
   systemctl disable --now warp-go >/dev/null 2>&1
   kill -15 $(pgrep warp-go) >/dev/null 2>&1
-  bash <(curl -m8 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/warp.conf --cancle >/dev/null 2>&1
+  bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/warp.conf --cancle >/dev/null 2>&1
   rm -rf /opt/warp-go /lib/systemd/system/warp-go.service /usr/bin/warp-go /tmp/warp-go*
   [ -s /opt/warp-go/tun.sh ] && rm -f /opt/warp-go/tun.sh && sed -i '/tun.sh/d' /etc/crontab
 
@@ -623,7 +623,7 @@ uninstall() {
 # 同步脚本至最新版本
 ver() {
   mkdir -p /tmp; rm -f /tmp/warp-go.sh
-  wget -O /tmp/warp-go.sh https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/warp-go.sh
+  wget -O /tmp/warp-go.sh https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/warp-go.sh
   if [ -s /tmp/warp-go.sh ]; then
     mv /tmp/warp-go.sh /opt/warp-go/
     chmod +x /opt/warp-go/warp-go.sh
@@ -683,7 +683,7 @@ registe_api() {
     if ! grep -sq 'PrivateKey' /opt/warp-go/$REGISTE_FILE; then
       unset CF_API_REGISTE API_DEVICE_ID API_ACCESS_TOKEN API_PRIVATEKEY API_TYPE
       rm -f /opt/warp-go/$REGISTE_FILE
-      CF_API_REGISTE="$(bash <(curl -m8 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh | sed 's# > $registe_path##g; /cat $registe_path/d') --registe --token $TOKEN 2>/dev/null)"
+      CF_API_REGISTE="$(bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh | sed 's# > $registe_path##g; /cat $registe_path/d') --registe --token $TOKEN 2>/dev/null)"
       [[ -n "$NF" && -n "$EXPECT" && -s /opt/warp-go/License ]] && LICENSE=$(cat /opt/warp-go/License) && NAME=$(cat /opt/warp-go/Device_Name)
       [[ -z "$LICENSE" && -s /opt/warp-go/License ]] && rm -f /opt/warp-go/License /opt/warp-go/Device_Name
       if grep -q 'private_key' <<< "$CF_API_REGISTE"; then
@@ -717,9 +717,9 @@ EOF
     if grep -sq 'Account' /opt/warp-go/$REGISTE_FILE; then
       echo -e "\n[Script]\nPostUp =\nPostDown =" >> /opt/warp-go/$REGISTE_FILE && sed -i 's/\r//' /opt/warp-go/$REGISTE_FILE
       if [ -n "$LICENSE" ]; then
-        local RESULT=$(bash <(curl -m8 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --license $LICENSE)
+        local RESULT=$(bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --license $LICENSE)
         if [[ "$RESULT" =~ '"warp_plus": true' ]]; then
-          bash <(curl -m8 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --name $NAME >/dev/null 2>&1
+          bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --name $NAME >/dev/null 2>&1
           echo "$LICENSE" > /opt/warp-go/License
           echo "$NAME" > /opt/warp-go/Device_Name
           sed -i "s/Type =.*/Type = plus/g" /opt/warp-go/$REGISTE_FILE
@@ -729,8 +729,8 @@ EOF
         fi
       elif [[ -s /opt/warp-go/License && -s /opt/warp-go/Device_Name ]]; then
         if [ -s /opt/warp-go/warp.conf.tmp ]; then
-          bash <(curl -m8 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --license $(cat /opt/warp-go/License 2>/dev/null) >/dev/null 2>&1
-          bash <(curl -m8 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --name $(cat /opt/warp-go/Device_Name 2>/dev/null) >/dev/null 2>&1
+          bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --license $(cat /opt/warp-go/License 2>/dev/null) >/dev/null 2>&1
+          bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --name $(cat /opt/warp-go/Device_Name 2>/dev/null) >/dev/null 2>&1
         fi
       fi
     else
@@ -1027,7 +1027,7 @@ update() {
           update_license
       esac
       cp -f /opt/warp-go/warp.conf{,.tmp1}
-      bash <(curl -m8 -sSL https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/api.sh) --file /opt/warp-go/warp.conf --cancle >/dev/null 2>&1
+      bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/warp.conf --cancle >/dev/null 2>&1
       [ -s /opt/warp-go/warp.conf ] && rm -f /opt/warp-go/warp.conf
       registe_api warp.conf 58 59
       head -n +6 /opt/warp-go/warp.conf > /opt/warp-go/warp.conf.tmp2
@@ -1137,8 +1137,8 @@ install() {
     echo "$MTU" > /tmp/warp-go-mtu
 
     # 寻找最佳 Endpoint，根据 v4 / v6 情况下载 endpoint 库
-    wget $STACK -qO /tmp/endpoint https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/endpoint/warp-linux-${ARCHITECTURE//amd64*/amd64} && chmod +x /tmp/endpoint
-    [ "$IPV4$IPV6" = 01 ] && wget $STACK -qO /tmp/ip https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/endpoint/ipv6 || wget $STACK -qO /tmp/ip https://${CDN}raw.githubusercontent.com/fscarmen/warp/main/endpoint/ipv4
+    wget $STACK -qO /tmp/endpoint https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/endpoint/warp-linux-${ARCHITECTURE//amd64*/amd64} && chmod +x /tmp/endpoint
+    [ "$IPV4$IPV6" = 01 ] && wget $STACK -qO /tmp/ip https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/endpoint/ipv6 || wget $STACK -qO /tmp/ip https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/endpoint/ipv4
 
     if [[ -s /tmp/endpoint && -s /tmp/ip ]]; then
       /tmp/endpoint -file /tmp/ip -output /tmp/endpoint_result >/dev/null 2>&1
@@ -1280,7 +1280,7 @@ EOF
 [Unit]
 Description=warp-go service
 After=network.target
-Documentation=https://github.com/fscarmen/warp
+Documentation=https://github.com/fscarmen/warp-sh
 Documentation=https://gitlab.com/ProjectWARP/warp-go
 
 [Service]
@@ -1450,7 +1450,7 @@ NAME="$3"
 statistics_of_run-times
 select_language
 check_operating_system
-check_github_cdn
+check_cdn
 check_arch
 check_dependencies
 check_install

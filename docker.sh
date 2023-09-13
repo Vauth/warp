@@ -423,7 +423,7 @@ uninstall(){
 
 # 同步脚本至最新版本
 ver(){
-	wget -N -P /etc/wireguard https://raw.githubusercontent.com/fscarmen/warp/main/docker.sh || wget -N -P /etc/wireguard https://cdn.jsdelivr.net/gh/fscarmen/warp/docker.sh
+	wget -N -P /etc/wireguard https://gitlab.com/fscarmen/warp/-/raw/main/docker.sh
 	chmod +x /etc/wireguard/docker.sh
 	ln -sf /etc/wireguard/docker.sh /usr/bin/warp
 	green " ${T[${L}64]}:$(grep ^VERSION /etc/wireguard/docker.sh | sed "s/.*=//g")  ${T[${L}18]}：$(grep "T\[${L}1]" /etc/wireguard/docker.sh | cut -d \" -f2) " || red " ${T[${L}65]} "

@@ -13,14 +13,14 @@ E[0]="\n Language:\n  1.English (default) \n  2.简体中文\n"
 C[0]="${E[0]}"
 E[1]="First publication on a global scale: WARP one-click script on macOS. A VPN that fast,modern,secure by WireGuard tunnel and WARP service"
 C[1]="全网首发: macOS 一键脚本， 一个为免费、快速、安全的基于 WireGuard 隧道，WARP 服务的 VPN"
-E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[3]="Choose:"
 C[3]="请选择:"
 E[4]="WARP have been completely deleted!"
 C[4]="WARP 已彻底删除!"
-E[5]="The script supports macOS only. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[5]="本脚本只支持 macOS, 问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[5]="The script supports macOS only. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[5]="本脚本只支持 macOS, 问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[6]="If there is a WARP+ License, please enter it, otherwise press Enter to continue:"
 C[6]="如有 WARP+ License 请输入，没有可回车继续:"
 E[7]="Input errors up to 5 times.The script is aborted."
@@ -47,8 +47,8 @@ E[17]="Device name：\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ p
 C[17]="设备名:\$(grep -s 'Device name' /etc/wireguard/info.log | awk '{ print \$NF }')\\\n 剩余流量:\$(grep -s Quota /etc/wireguard/info.log | awk '{ print \$(NF-1), \$NF }')"
 E[18]="Run again with warp [option], such as"
 C[18]="再次运行用 warp [option]，如"
-E[19]="WARP installation failed. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[19]="WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[19]="WARP installation failed. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[19]="WARP 安装失败，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[20]="warp h (help)\n warp o (WARP on-off)\n warp u (Turn off and uninstall WARP interface)\n warp a (Upgrade to WARP+ or Teams account)\n warp e (Install WARP in English)\n warp c (Install WARP in Chinese)\n warp v (Sync the latest version)"
 C[20]="warp h (帮助菜单）\n warp o (临时warp开关)\n warp u (卸载 WARP )\n warp a (免费 WARP 账户升级 WARP+ 或 Teams)\n warp e (英文安装 WARP )\n warp c (中文安装 WARP )\n warp v (同步脚本至最新版本)"
 E[21]="WGCF WARP has not been installed yet."
@@ -69,8 +69,8 @@ E[28]="Successfully synchronized the latest version"
 C[28]="成功！已同步最新脚本，版本号"
 E[29]="New features"
 C[29]="功能新增"
-E[30]="Upgrade failed. Feedback:[https://github.com/fscarmen/warp/issues]"
-C[30]="升级失败，问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[30]="Upgrade failed. Feedback:[https://github.com/fscarmen/warp-sh/issues]"
+C[30]="升级失败，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[31]="WARP+ or Teams account is working now. No need to upgrade."
 C[31]="已经是 WARP+ 或者 Teams 账户，不需要升级"
 E[32]="Cannot find the account file: /etc/wireguard/wgcf-account.toml, you can reinstall with the WARP+ License"
@@ -113,8 +113,8 @@ E[50]="If there is a WARP+ License, please enter it, otherwise press Enter to co
 C[50]="如有 WARP+ License 请输入，没有可回车继续:"
 E[51]="License should be 26 characters, please re-enter WARP+ License. Otherwise press Enter to continue. \(\${i} times remaining\):"
 C[51]="License 应为26位字符，请重新输入 WARP+ License，没有可回车继续\(剩余\${i}次\):"
-E[52]="There have been more than \${j} failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp/issues]"
-C[52]="失败已超过\${j}次，脚本中止，问题反馈:[https://github.com/fscarmen/warp/issues]"
+E[52]="There have been more than \${j} failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[52]="失败已超过\${j}次，脚本中止，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[53]="The current Teams account is unavailable, automatically switch back to the free account"
 C[53]="当前 Teams 账户不可用，自动切换回免费账户"
 
@@ -128,7 +128,7 @@ reading(){ read -rp "$(green "$1")" "$2"; }
 # translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
 translate() {
   [ -n "$@" ] && EN="$@"
-  ZH=$(curl -km8 -sSL "https://translate.google.com/translate_a/t?client=any_client_id_works&sl=en&tl=zh&q=${EN//[[:space:]]/}")
+  ZH=$(curl -km8 -sSL "https://translate.google.com/translate_a/t?client=any_client_id_works&sl=en&tl=zh&q=${EN//[[:space:]]/%20}")
   [[ "$ZH" =~ ^\[\".+\"\]$ ]] && cut -d \" -f2 <<< "$ZH"
 }
 
@@ -221,7 +221,7 @@ onoff(){
 # 同步脚本至最新版本
 ver(){
         T=$(cat /etc/wireguard/language | tr '[:lower:]' '[:upper:]')
-	sudo curl -o /etc/wireguard/mac.sh https://raw.githubusercontent.com/fscarmen/warp/main/pc/mac.sh
+	sudo curl -o /etc/wireguard/mac.sh https://gitlab.com/fscarmen/warp/-/raw/main/pc/mac.sh
 	sudo chmod +x /etc/wireguard/mac.sh
 	sudo ln -sf /etc/wireguard/mac.sh /usr/local/bin/warp
 	green " ${L[28]}:$(grep ^VERSION /etc/wireguard/mac.sh | sed "s/.*=//g")  ${L[29]}：$(grep "$T\[1]" /etc/wireguard/mac.sh | cut -d \" -f2) " || red " ${L[30]} "
@@ -268,10 +268,10 @@ install(){
 	green "\n ${L[11]}\n "
 	latest=$(curl -fsSL "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
 	latest=${latest:-'2.2.18'}
-	[[ ! -e /usr/local/bin/wgcf ]] && sudo curl -o /usr/local/bin/wgcf https://raw.githubusercontent.com/fscarmen/warp/main/wgcf/wgcf_"$latest"_darwin_"$ARCHITECTURE"
+	[[ ! -e /usr/local/bin/wgcf ]] && sudo curl -o /usr/local/bin/wgcf https://gitlab.com/fscarmen/warp/-/raw/main/wgcf/wgcf_"$latest"_darwin_"$ARCHITECTURE"
 
 	# 安装 wireguard-go
-	[[ ! -e /usr/local/bin/wireguard-go ]] && sudo curl -o /usr/local/bin/wireguard-go_darwin_"$ARCHITECTURE".tar.gz https://raw.githubusercontent.com/fscarmen/warp/main/wireguard-go/wireguard-go_darwin_"$ARCHITECTURE".tar.gz &&
+	[[ ! -e /usr/local/bin/wireguard-go ]] && sudo curl -o /usr/local/bin/wireguard-go_darwin_"$ARCHITECTURE".tar.gz https://gitlab.com/fscarmen/warp/-/raw/main/wireguard-go/wireguard-go_darwin_"$ARCHITECTURE".tar.gz &&
 	sudo tar xzf /usr/local/bin/wireguard-go_darwin_"$ARCHITECTURE".tar.gz -C /usr/local/bin/
 	sudo rm -f /usr/local/bin/wireguard-go_darwin_"$ARCHITECTURE".tar.gz
 
