@@ -1,0 +1,163 @@
+stages:
+  - Synchronize applications              # 变量 job: sync 时手动运行，all 时运行所有
+  - Mirror to others git repositories     # 变量 job: mirror 时手动运行，all 时运行所有
+
+Synchronize applications:
+  stage: Synchronize applications
+
+  rules:
+    - if: ( $job == "sync" || $job == "all" ) && ( $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "trigger" )
+      when: always
+
+  image: ubuntu:latest
+
+  variables:
+    WGCF_DIR: wgcf
+    WARP_GO_DIR: warp-go
+    WIREPROXY_DIR: wireproxy
+
+  script:
+    - echo "Install dependencies"
+    - |
+      apt-get update -y >/dev/null 2>&1
+      apt-get install -y wget sed git >/dev/null 2>&1
+
+    - echo "Set git env"
+    - |
+      git config --global user.email $GITLAB_USER_EMAIL
+      git config --global user.name $GITLAB_USER_NAME
+      git remote set-url origin https://$GITLAB_USER_NAME:$PASSWORD@gitlab.com/$CI_PROJECT_PATH.git
+
+    - echo "Synchronize wgcf"
+    - |
+      WGCF_NOW=$(wget -qO- https://gitlab.com/$CI_PROJECT_PATH/-/raw/main/docker.sh | grep 'latest=${latest' | cut -d \' -f2)
+      WGCF_LATEST=$(wget -qO- "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
+
+      if [ "$WGCF_LATEST" != "$WGCF_NOW" ]; then
+        [ ! -d $WGCF_DIR ] && mkdir -p $WGCF_DIR
+        PLATFORM=("darwin_amd64" "darwin_arm64" "linux_386" "linux_amd64" "linux_arm64" "linux_386" "linux_s390x" "windows_386.exe" "windows_amd64.exe")
+        SCRIPTS=("docker.sh" "menu.sh" "pc/mac.sh")
+
+        for i in "${PLATFORM[@]}"; do
+          wget -NP $WGCF_DIR/ https://github.com/ViRb3/wgcf/releases/download/v"$WGCF_LATEST"/wgcf_"$WGCF_LATEST"_"$i"
+          [ -f $WGCF_DIR/wgcf_"$WGCF_NOW"_"$i" ] && rm -f $WGCF_DIR/wgcf_"$WGCF_NOW"_"$i"
+        done
+
+        for j in "${SCRIPTS[@]}"; do
+          sed -Ei "s/(wgcf.*|[ ]+latest.*)$WGCF_NOW/\1$WGCF_LATEST/g" $j || true
+        done
+
+        export WGCF_VERSION="$WGCF_LATEST"
+      fi
+
+      if [ -n "$WGCF_VERSION" ]; then
+        git add .
+        git commit -m "Sync wgcf to V$WGCF_VERSION by GitLab CI/CD, $CI_JOB_STARTED_AT"
+      fi
+
+    - echo "Synchronize warp-go"
+    - |
+      WARP_GO_NOW=$(wget -qO- https://gitlab.com/$CI_PROJECT_PATH/-/raw/main/warp-go.sh | grep 'latest=${latest' | cut -d \' -f2)
+      WARP_GO_LATEST=$(wget -qO- -T1 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | grep -oP '"tag_name":"v\K[^\"]+' | head -n 1)
+
+      if [ "$WARP_GO_LATEST" != "$WARP_GO_NOW" ]; then
+        [ ! -d $WARP_GO_DIR ] && mkdir -p $WARP_GO_DIR
+        PLATFORM=("linux_386" "linux_amd64" "linux_amd64v2" "linux_amd64v3" "linux_amd64v4" "linux_arm64" "linux_386" "linux_s390x")
+        SCRIPTS=("warp-go.sh")
+
+        for i in "${PLATFORM[@]}"; do
+          wget -NP $WARP_GO_DIR https://gitlab.com/ProjectWARP/warp-go/-/releases/v"$WARP_GO_LATEST"/downloads/warp-go_"$WARP_GO_LATEST"_"$i".tar.gz
+          rm -f $WARP_GO_DIR/warp-go_"$WARP_GO_NOW"_"$i".tar.gz
+        done
+
+        for j in "${SCRIPTS[@]}"; do
+          sed -Ei "s/(warp-go.*|latest.*)$WARP_GO_NOW/\1$WARP_GO_LATEST/g" $j || true
+        done
+
+        export WARP_GO_VERSION="$WARP_GO_LATEST"
+      fi
+
+      if [ -n "$WARP_GO_VERSION" ]; then
+        git add .
+        git commit -m "Sync warp-go to V$WARP_GO_VERSION by GitLab CI/CD, $CI_JOB_STARTED_AT"
+      fi
+
+    - echo "Synchronize wireproxy"
+    - |
+      WIREPROXY_NOW=$(wget -qO- https://gitlab.com/$CI_PROJECT_PATH/-/raw/main/wireproxy/version_history | head -n 1 | sed "s/.*v\(.*\)/\1/g")
+      WIREPROXY_LATEST=$(wget -qO- "https://api.github.com/repos/octeep/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
+
+      if [ "$WIREPROXY_LATEST" != "$WIREPROXY_NOW" ]; then
+        [ ! -d $WIREPROXY_DIR ] && mkdir -p $WIREPROXY_DIR
+        PLATFORM=( "linux_amd64" "linux_arm64" "linux_s390x" )
+        for i in "${PLATFORM[@]}"; do
+          wget -O $WIREPROXY_DIR/wireproxy_"$i".tar.gz https://github.com/octeep/wireproxy/releases/download/v"$WIREPROXY_LATEST"/wireproxy_"$i".tar.gz
+        done
+        sed -Ei "s/(wireproxy_latest.*)$WIREPROXY_NOW/\1$WIREPROXY_LATEST/g" menu.sh || true
+        sed -i "1i$(date "+%Y/%m/%d") v$WIREPROXY_LATEST" $WIREPROXY_DIR/version_history || true
+
+        export WIREPROXY_VERSION="$WIREPROXY_LATEST"
+      fi
+
+      if [ -n "$WIREPROXY_VERSION" ]; then
+        git add .
+        git commit -m "Sync wireproxy to V$WIREPROXY_VERSION by GitLab CI/CD, $CI_JOB_STARTED_AT"
+      fi
+
+    - echo "Push to repo"
+    - |
+      if [ -n "$WGCF_VERSION$WARP_GO_VERSION$WIREPROXY_VERSION" ]; then
+        git push origin HEAD:refs/heads/main --force
+      else
+        echo "Nothing needs update."
+      fi
+
+.Mirror_script: &mirror_script
+  stage: Mirror to others git repositories
+
+  rules:
+    - if: ( $job == "mirror" || $job == "all" ) && ( $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule" )
+      when: always
+
+  image: alpine:latest
+
+  script:
+    - echo "Install dependencies"
+    - |
+      apk update && apk upgrade
+      apk add --no-cache git openssh git-lfs
+      git lfs install
+
+    - echo "Setup ssh"
+    - |
+      mkdir -p ~/.ssh
+      echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+      chmod 600 ~/.ssh/id_rsa
+
+    - echo "Mirror to $GIT_REPO"
+    - |
+      rm -f .git/refs/remotes/origin/HEAD
+      git remote add mirror "$TARGET_REPO_URL"
+      git push --no-follow-tags --force --prune mirror "refs/remotes/origin/*:refs/heads/*"
+      git remote remove mirror
+
+Mirror to Bitbucket:
+
+  variables:
+    GIT_USER_NAME: $GITLAB_USER_NAME
+    GIT_SSH_COMMAND: "ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -l $GIT_USER_NAME"
+    GIT_REPO: Bitbucket
+    TARGET_REPO_URL: git@bitbucket.org:$CI_PROJECT_PATH.git
+
+  <<: *mirror_script
+
+# Mirror to Gitlab group:
+#   stage: Mirror to others git repositories
+# 
+#   variables:
+#     GIT_USER_NAME: $GITLAB_USER_NAME
+#     GIT_SSH_COMMAND: "ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -l $GIT_USER_NAME"
+#     GIT_REPO: "Gitlab group"
+#     TARGET_REPO_URL: git@gitlab.com:ProjectWARP/warp-script.git
+# 
+#   <<: *mirror_script
