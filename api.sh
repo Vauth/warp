@@ -12,23 +12,33 @@ help() {
 fetch_account_information() {
   # 如不使用账户信息文件，则手动填写 Device id 和 Api token
   if [ -s "$registe_path" ]; then
+    # Teams 账户文件
+    if grep -q 'xml version' $registe_path; then
+      id=$(grep 'correlation_id' $registe_path | sed "s#.*>\(.*\)<.*#\1#")
+      token=$(grep 'warp_token' $registe_path | sed "s#.*>\(.*\)<.*#\1#")
+      client_id=$(grep 'client_id' $registe_path | sed "s#.*client_id&quot;:&quot;\([^&]\{4\}\)&.*#\1#")
+
     # 官方 api 文件
-    if grep -q 'client_id' $registe_path; then
+    elif grep -q 'client_id' $registe_path; then
       id=$(grep -m1 '"id' "$registe_path" | cut -d\" -f4)
       token=$(grep '"token' "$registe_path" | cut -d\" -f4)
       client_id=$(grep 'client_id' "$registe_path" | cut -d\" -f4)
+
     # client 文件，默认存放路径为 /var/lib/cloudflare-warp/reg.json
     elif grep -q 'registration_id' $registe_path; then
       id=$(cut -d\" -f4 "$registe_path")
       token=$(cut -d\" -f8 "$registe_path")
+
     # wgcf 文件，默认存放路径为 /etc/wireguard/wgcf-account.toml
     elif grep -q 'access_token' $registe_path; then
       id=$(grep 'device_id' "$registe_path" | cut -d\' -f2)
       token=$(grep 'access_token' "$registe_path" | cut -d\' -f2)
+
     # warp-go 文件，默认存放路径为 /opt/warp-go/warp.conf
     elif grep -q 'PrivateKey' $registe_path; then
       id=$(awk -F' *= *' '/^Device/{print $2}' "$registe_path")
       token=$(awk -F' *= *' '/^Token/{print $2}' "$registe_path")
+
     else
       echo " There is no registered account information, please check the content. " && exit 1
     fi
