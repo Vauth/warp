@@ -397,8 +397,7 @@ error() { echo -e "\033[31m\033[01m$*\033[0m" && exit 1; }  # 红色
 info() { echo -e "\033[32m\033[01m$*\033[0m"; }   # 绿色
 hint() { echo -e "\033[33m\033[01m$*\033[0m"; }   # 黄色
 reading() { read -rp "$(info "$1")" "$2"; }
-text() { eval echo "\${${L}[$*]}"; }
-text_eval() { eval echo "\$(eval echo "\${${L}[$*]}")"; }
+text() { grep -q '\$' <<< "${E[$*]}" && eval echo "\$(eval echo "\${${L}[$*]}")" || eval echo "\${${L}[$*]}"; }
 
 # 自定义友道或谷歌翻译函数
 # translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
@@ -490,7 +489,7 @@ check_operating_system() {
 
   # 先排除 EXCLUDE 里包括的特定系统，其他系统需要作大发行版本的比较
   for ex in "${EXCLUDE[@]}"; do [[ ! $(tr 'A-Z' 'a-z' <<< "$SYS")  =~ $ex ]]; done &&
-  [[ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ]] && error " $(text_eval 26) "
+  [[ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ]] && error " $(text 26) "
 }
 
 # 安装系统依赖及定义 ping 指令
@@ -721,7 +720,7 @@ input() {
   i=5
   until [[ "$ID" =~ ^[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}$ ]]; do
     (( i-- )) || true
-    [ "$i" = 0 ] && error " $(text 29) " || reading " $(text_eval 53) " ID
+    [ "$i" = 0 ] && error " $(text 29) " || reading " $(text 53) " ID
   done
 }
 
@@ -804,7 +803,7 @@ result_priority() {
     * )
       [[ "$(curl -ksm8 -A Mozilla ${IP_API[3]} | grep 'ip=' | cut -d= -f2)" =~ ^([0-9]{1,3}\.){3} ]] && PRIO=4 || PRIO=6
   esac
-  PRIORITY_NOW=$(text_eval 97)
+  PRIORITY_NOW=$(text 97)
 
   # 如是快捷方式切换优先级别的话，显示结果
   [ "$OPTION" = s ] && hint "\n $PRIORITY_NOW \n"
@@ -816,9 +815,9 @@ input_region() {
   [ -n "$WIREPROXY_PORT" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -sx socks5h://127.0.0.1:$WIREPROXY_PORT -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
   [ -n "$INTERFACE" ] && REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
   REGION=${REGION:-'US'}
-  reading " $(text_eval 56) " EXPECT
+  reading " $(text 56) " EXPECT
   until [[ -z "$EXPECT" || "$EXPECT" = [Yy] || "$EXPECT" =~ ^[A-Za-z]{2}$ ]]; do
-    reading " $(text_eval 56) " EXPECT
+    reading " $(text 56) " EXPECT
   done
   [[ -z "$EXPECT" || "$EXPECT" = [Yy] ]] && EXPECT="$REGION"
 }
@@ -832,7 +831,7 @@ change_ip() {
 
   change_warp() {
     warp_restart() {
-      warning " $(text_eval 126) "
+      warning " $(text 126) "
       wg-quick down warp >/dev/null 2>&1
       [ -s /etc/wireguard/info.log ] && grep -q 'Device name' /etc/wireguard/info.log && local LICENSE=$(cat /etc/wireguard/license) && local NAME=$(awk '/Device name/{print $NF}' /etc/wireguard/info.log)
       cancel_account /etc/wireguard/warp-account.conf
@@ -901,7 +900,7 @@ change_ip() {
       if [[ "${RESULT[@]}" =~ 200 ]]; then
         REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -"$NF" $GLOBAL -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
         REGION=${REGION:-'US'}
-        echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || warp_restart
+        echo "$REGION" | grep -qi "$EXPECT" && info " $(text 125) " && i=0 && sleep 1h || warp_restart
       else
         warp_restart
       fi
@@ -913,7 +912,7 @@ change_ip() {
       local CLIENT_MODE=$(warp-cli --accept-tos settings | awk '/Mode:/{for (i=0; i<NF; i++) if ($i=="Mode:") {print $(i+1)}}')
       case "$CLIENT_MODE" in
         Warp )
-          warning " $(text_eval 126) " && warp-cli --accept-tos delete >/dev/null 2>&1
+          warning " $(text 126) " && warp-cli --accept-tos delete >/dev/null 2>&1
           rule_del >/dev/null 2>&1
           warp-cli --accept-tos register >/dev/null 2>&1
           [ -s /etc/wireguard/license ] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1
@@ -921,7 +920,7 @@ change_ip() {
           rule_add >/dev/null 2>&1
           ;;
         WarpProxy )
-          warning " $(text_eval 126) " && warp-cli --accept-tos delete >/dev/null 2>&1
+          warning " $(text 126) " && warp-cli --accept-tos delete >/dev/null 2>&1
           warp-cli --accept-tos delete >/dev/null 2>&1
           warp-cli --accept-tos register >/dev/null 2>&1
           [ -s /etc/wireguard/license ] && warp-cli --accept-tos set-license $(cat /etc/wireguard/license) >/dev/null 2>&1
@@ -947,7 +946,7 @@ change_ip() {
         if [[ "${RESULT[@]}" =~ 200 ]]; then
           REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -"$NF" -sx socks5://127.0.0.1:$CLIENT_PORT -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
           REGION=${REGION:-'US'}
-          echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || client_restart
+          echo "$REGION" | grep -qi "$EXPECT" && info " $(text 125) " && i=0 && sleep 1h || client_restart
         else
           client_restart
         fi
@@ -970,7 +969,7 @@ change_ip() {
         if [[ "${RESULT[@]}" =~ 200 ]]; then
           REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" $INTERFACE -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
           REGION=${REGION:-'US'}
-          echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || client_restart
+          echo "$REGION" | grep -qi "$EXPECT" && info " $(text 125) " && i=0 && sleep 1h || client_restart
         else
           client_restart
         fi
@@ -979,7 +978,7 @@ change_ip() {
   }
 
   change_wireproxy() {
-    wireproxy_restart() { warning " $(text_eval 126) " && systemctl restart wireproxy; sleep $j; }
+    wireproxy_restart() { warning " $(text 126) " && systemctl restart wireproxy; sleep $j; }
 
     change_stack
 
@@ -998,7 +997,7 @@ change_ip() {
       if [[ "${RESULT[@]}" =~ 200 ]]; then
         REGION=$(tr 'a-z' 'A-Z' <<< "$(curl --user-agent "${UA_Browser}" -"$NF" -sx socks5h://127.0.0.1:$WIREPROXY_PORT -fs --max-time 10 --write-out "%{redirect_url}" --output /dev/null "https://www.netflix.com/title/$REGION_TITLE" | sed 's/.*com\/\([^-/]\{1,\}\).*/\1/g')")
         REGION=${REGION:-'US'}
-        echo "$REGION" | grep -qi "$EXPECT" && info " $(text_eval 125) " && i=0 && sleep 1h || wireproxy_restart
+        echo "$REGION" | grep -qi "$EXPECT" && info " $(text 125) " && i=0 && sleep 1h || wireproxy_restart
       else
         wireproxy_restart
       fi
@@ -1130,7 +1129,7 @@ uninstall() {
 
   # 列出依赖，确认是手动还是自动卸载
   UNINSTALL_DEPENDENCIES_LIST=$(echo $UNINSTALL_DEPENDENCIES_LIST | sed "s/ /\n/g" | sort -u | paste -d " " -s)
-  [ "$UNINSTALL_DEPENDENCIES_LIST" != '' ] && hint "\n $(text_eval 79) \n" && reading " $(text 170) " CONFIRM_UNINSTALL
+  [ "$UNINSTALL_DEPENDENCIES_LIST" != '' ] && hint "\n $(text 79) \n" && reading " $(text 170) " CONFIRM_UNINSTALL
 
   # 卸载核心程序
   for ((i=0; i<${#UNINSTALL_CHECK[@]}; i++)); do
@@ -1172,7 +1171,7 @@ net() {
   unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 WARPSTATUS4 WARPSTATUS6 TYPE QUOTA
   [[ ! $(type -p wg-quick) || ! -e /etc/wireguard/warp.conf ]] && error " $(text 10) "
   local i=1; local j=3
-  hint " $(text_eval 11)\n $(text_eval 12) "
+  hint " $(text 11)\n $(text 12) "
   [ "$SYSTEM" != Alpine ] && [[ $(systemctl is-active wg-quick@warp) != 'active' ]] && wg-quick down warp >/dev/null 2>&1
   ${SYSTEMCTL_START[int]} >/dev/null 2>&1
   wg-quick up warp >/dev/null 2>&1
@@ -1202,7 +1201,7 @@ net() {
 
   until [[ "$TRACE4$TRACE6" =~ on|plus ]]; do
     (( i++ )) || true
-    hint " $(text_eval 12) "
+    hint " $(text 12) "
     ${SYSTEMCTL_RESTART[int]} >/dev/null 2>&1
     ss -nltp | grep dnsmasq >/dev/null 2>&1 && systemctl restart dnsmasq >/dev/null 2>&1
 
@@ -1225,7 +1224,7 @@ net() {
     if [ "$i" = "$j" ]; then
       if [ -z "$CONFIRM_TEAMS_INFO" ]; then
         wg-quick down warp >/dev/null 2>&1
-        error " $(text_eval 13) "
+        error " $(text 13) "
       else
         break
       fi
@@ -1234,7 +1233,7 @@ net() {
 
   if [[ "$TRACE4$TRACE6" =~ on|plus ]]; then
     TYPE=' Free' && [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -sq 'Device name' /etc/wireguard/info.log && TYPE='+' && check_quota warp
-    info " $(text_eval 14), $(text_eval 186) "
+    info " $(text 14), $(text 186) "
     [ "$NO_OUTPUT" != 'no_output' ] && info " IPv4:$WAN4 $COUNTRY4 $ASNORG4\n IPv6:$WAN6 $COUNTRY6 $ASNORG6 " && [ -n "$QUOTA" ] && info " $(text 25): $(awk '/Device name/{print $NF}' /etc/wireguard/info.log)\n $(text 63): $QUOTA "
   fi
 }
@@ -1286,18 +1285,18 @@ wireproxy_onoff() {
     [[ ! $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ wireproxy ]] && info " $(text 158) "
   else
     local i=1; local j=3
-    hint " $(text_eval 11)\n $(text_eval 12) "
+    hint " $(text 11)\n $(text 12) "
     systemctl start wireproxy; sleep 1
     ip_case d wireproxy
 
     until [[ "$WIREPROXY_TRACE4$WIREPROXY_TRACE6" =~ on|plus ]]; do
       (( i++ )) || true
-      hint " $(text_eval 12) "
+      hint " $(text 12) "
       systemctl restart wireproxy; sleep 1
       ip_case d wireproxy
       if [[ "$i" = "$j" ]]; then
         systemctl stop wireproxy
-        [ -z "$CONFIRM_TEAMS_INFO" ] && error " $(text_eval 13) " || break
+        [ -z "$CONFIRM_TEAMS_INFO" ] && error " $(text 13) " || break
       fi
     done
 
@@ -1377,10 +1376,10 @@ kernel_reserved_switch() {
   # 先判断是否可以转换
   case "$KERNEL_ENABLE@$WIREGUARD_GO_ENABLE" in
     0@1 )
-      KERNEL_OR_WIREGUARD_GO='wireguard-go with reserved' && error "\n $(text_eval 179) \n"
+      KERNEL_OR_WIREGUARD_GO='wireguard-go with reserved' && error "\n $(text 179) \n"
       ;;
     1@0 )
-      KERNEL_OR_WIREGUARD_GO='wireguard kernel' && error "\n $(text_eval 179) \n"
+      KERNEL_OR_WIREGUARD_GO='wireguard kernel' && error "\n $(text 179) \n"
       ;;
     1@1 )
       if grep -q '^#[[:space:]]*add_if' /usr/bin/wg-quick; then
@@ -1389,7 +1388,7 @@ kernel_reserved_switch() {
         WIREGUARD_BEFORE='wireguard kernel'; WIREGUARD_AFTER='wireguard-go with reserved'; local CP_FILE=reserved
       fi
 
-      reading "\n $(text_eval 181) " CONFIRM_WIREGUARD_CHANGE
+      reading "\n $(text 181) " CONFIRM_WIREGUARD_CHANGE
       if [[ "$CONFIRM_WIREGUARD_CHANGE" = [Yy] ]]; then
         wg-quick down warp >/dev/null 2>&1
         cp -f /usr/bin/wg-quick.$CP_FILE /usr/bin/wg-quick
@@ -1409,7 +1408,7 @@ working_mode_switch() {
     MODE_BEFORE="$(text 185)"; MODE_AFTER="$(text 184)"
   fi
 
-  reading "\n $(text_eval 183) " CONFIRM_MODE_CHANGE
+  reading "\n $(text 183) " CONFIRM_MODE_CHANGE
   if [[ "$CONFIRM_MODE_CHANGE" = [Yy] ]]; then
     wg-quick down warp >/dev/null 2>&1
     [ "$MODE_AFTER" = "$(text 185)" ] && sed -i "/Table/s/#//g;/NonGlobal/s/#//g" /etc/wireguard/warp.conf || sed -i "s/^Table/#Table/g; /NonGlobal/s/^/#&/g" /etc/wireguard/warp.conf
@@ -1488,7 +1487,7 @@ EOF
       ARCHITECTURE=s390x; AMD64_ONLY="$(text 156)"
       ;;
     * )
-      error " $(text_eval 134) "
+      error " $(text 134) "
   esac
 
   # 判断当前 Linux Client 状态，决定变量 CLIENT，变量 CLIENT 含义:0=未安装  1=已安装未激活  2=状态激活  3=Client proxy 已开启  5=Client warp 已开启
@@ -1540,10 +1539,10 @@ input_license() {
   i=5
   until [[ -z "$LICENSE" || "$LICENSE" =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; do
     (( i-- )) || true
-    [ "$i" = 0 ] && error " $(text 29) " || reading " $(text_eval 30) " LICENSE
+    [ "$i" = 0 ] && error " $(text 29) " || reading " $(text 30) " LICENSE
   done
   if [ "$INPUT_LICENSE" = 1 ]; then
-    [[ -n "$LICENSE" && -z "$NAME" ]] && reading " $(text_eval 102) " NAME
+    [[ -n "$LICENSE" && -z "$NAME" ]] && reading " $(text 102) " NAME
     [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-"$(hostname)"}
   fi
 }
@@ -1614,7 +1613,7 @@ input_url_token() {
   [[ "$CLIENT_ID" =~ ^\[[0-9]{1,3}(,[[:space:]]*[0-9]{1,3}){2}\]$ ]] && MATCH[2]=$(text 135) || MATCH[2]=$(text 136)
 
   [ "$1" != 'token' ] && TEAMS="{\"private_key\": \"$PRIVATEKEY\", \"v6\": \"$ADDRESS6\", \"client_id\": \"$CLIENT_ID\"}"
-  hint "\n $(text_eval 130) \n" && reading " $(text 131) " CONFIRM_TEAMS_INFO
+  hint "\n $(text 130) \n" && reading " $(text 131) " CONFIRM_TEAMS_INFO
 }
 
 # 升级 WARP+ 账户（如有），限制位数为空或者26位以防输入错误，WARP interface 可以自定义设备名(不允许字符串间有空格，如遇到将会以_代替)
@@ -1623,9 +1622,9 @@ update_license() {
   i=5
   until [[ "$LICENSE" =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; do
     (( i-- )) || true
-    [ "$i" = 0 ] && error " $(text 29) " || reading " $(text_eval 100) " LICENSE
+    [ "$i" = 0 ] && error " $(text 29) " || reading " $(text 100) " LICENSE
   done
-  [[ -z "$CLIENT_ACCOUNT" && "$CHOOSE_TYPE" = 2 && -n "$LICENSE" && -z "$NAME" ]] && reading " $(text_eval 102) " NAME
+  [[ -z "$CLIENT_ACCOUNT" && "$CHOOSE_TYPE" = 2 && -n "$LICENSE" && -z "$NAME" ]] && reading " $(text 102) " NAME
   [ -n "$NAME" ] && NAME="${NAME//[[:space:]]/_}" || NAME=${NAME:-"$(hostname)"}
 }
 
@@ -1633,20 +1632,20 @@ update_license() {
 input_port() {
   i=5
   PORT=40000
-  ss -nltp | awk '{print $4}' | awk -F: '{print $NF}' | grep -qw $PORT && reading " $(text_eval 103) " PORT || reading " $(text 104) " PORT
+  ss -nltp | awk '{print $4}' | awk -F: '{print $NF}' | grep -qw $PORT && reading " $(text 103) " PORT || reading " $(text 104) " PORT
   PORT=${PORT:-'40000'}
   until grep -qE "^[1-9][0-9]{3,4}$" <<< $PORT && [[ "$PORT" -ge 1000 && "$PORT" -le 65535 ]] && [[ ! $(ss -nltp) =~ :"$PORT"[[:space:]] ]]; do
     (( i-- )) || true
     [ "$i" = 0 ] && error " $(text 29) "
     if grep -qwE "^[1-9][0-9]{3,4}$" <<< $PORT; then
       if [[ "$PORT" -ge 1000 && "$PORT" -le 65535 ]]; then
-        ss -nltp | awk '{print $4}' | awk -F: '{print $NF}' | grep -qw $PORT && reading " $(text_eval 103) " PORT
+        ss -nltp | awk '{print $4}' | awk -F: '{print $NF}' | grep -qw $PORT && reading " $(text 103) " PORT
       else
-        reading " $(text_eval 111) " PORT
+        reading " $(text 111) " PORT
         PORT=${PORT:-'40000'}
       fi
     else
-      reading " $(text_eval 111) " PORT
+      reading " $(text 111) " PORT
       PORT=${PORT:-'40000'}
     fi
   done
@@ -1678,14 +1677,14 @@ change_port() {
   case "$f" in
     0|1 )
       ${CHANGE_PORT1[f]}
-      ss -nltp | grep -q ":$PORT" && info " $(text_eval 122) " || error " $(text 34) "
+      ss -nltp | grep -q ":$PORT" && info " $(text 122) " || error " $(text 34) "
       ;;
     2 )
       hint " ${SHOW_CHOOSE[f]} " && reading " $(text 50) " MODE
         case "$MODE" in
           [1-2] )
             $(eval echo "\${CHANGE_IP$MODE[f]}")
-            ss -nltp | grep -q ":$PORT" && info " $(text_eval 122) " || error " $(text 34) "
+            ss -nltp | grep -q ":$PORT" && info " $(text 122) " || error " $(text 34) "
             ;;
           * )
             warning " $(text 51) [1-2] "; sleep 1; change_port
@@ -1700,16 +1699,16 @@ iptables_solution() {
   # 创建 dnsmasq 规则文件
   cat >/etc/dnsmasq.d/warp.conf << EOF
 #!/usr/bin/env bash
-server=1.1.1.1
 server=8.8.8.8
+server=1.1.1.1
 # ----- WARP ----- #
 # > Youtube Premium
-server=/googlevideo.com/1.1.1.1
-server=/youtube.com/1.1.1.1
-server=/youtubei.googleapis.com/1.1.1.1
-server=/fonts.googleapis.com/1.1.1.1
-server=/yt3.ggpht.com/1.1.1.1
-server=/gstatic.com/1.1.1.1
+server=/googlevideo.com/8.8.8.8
+server=/youtube.com/8.8.8.8
+server=/youtubei.googleapis.com/8.8.8.8
+server=/fonts.googleapis.com/8.8.8.8
+server=/yt3.ggpht.com/8.8.8.8
+server=/gstatic.com/8.8.8.8
 
 # > Custom ChatGPT
 ipset=/openai.com/warp
@@ -1869,10 +1868,10 @@ install() {
         error " $(text 3) "
         ;;
       0@1 )
-        KERNEL_OR_WIREGUARD_GO='wireguard-go with reserved' && info "\n $(text_eval 179) "
+        KERNEL_OR_WIREGUARD_GO='wireguard-go with reserved' && info "\n $(text 179) "
         ;;
       1@0 )
-        KERNEL_OR_WIREGUARD_GO='wireguard kernel' && info "\n $(text_eval 179) "
+        KERNEL_OR_WIREGUARD_GO='wireguard kernel' && info "\n $(text 179) "
         ;;
       1@1 )
         hint "\n $(text 180) \n" && reading " $(text 50) " KERNEL_OR_WIREGUARD_GO_CHOOSE
@@ -1987,11 +1986,11 @@ EOF
           echo "$LICENSE" > /etc/wireguard/license
           echo -e "Device name   : $NAME" > /etc/wireguard/info.log
         elif grep -q 'Invalid license' <<< "$UPDATE_RESULT"; then
-          warning "\n $(text_eval 169) \n"
+          warning "\n $(text 169) \n"
         elif grep -q 'Too many connected devices.' <<< "$UPDATE_RESULT"; then
-          warning "\n $(text_eval 36) \n"
+          warning "\n $(text 36) \n"
         else
-          warning "\n $(text_eval 42) \n"
+          warning "\n $(text 42) \n"
         fi
       else
         warning " $(text 106) "
@@ -2005,7 +2004,7 @@ EOF
 PrivateKey = $(grep 'private_key' /etc/wireguard/warp-account.conf | cut -d\" -f4)
 Address = 172.16.0.2/32
 Address = $(grep '"v6.*"$' /etc/wireguard/warp-account.conf | cut -d\" -f4)/128
-DNS = 1.1.1.1
+DNS = 8.8.8.8
 MTU = 1280
 #Reserved = $(reserved_and_clientid /etc/wireguard/warp-account.conf file)
 #Table = off
@@ -2144,18 +2143,18 @@ EOF
   wait
 
   # WARP 配置修改
-  MODIFY014="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
-  MODIFY016="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
-  MODIFY01D="s/1.1.1.1/2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4/g;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;\$a\PersistentKeepalive = 30"
-  MODIFY104="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
-  MODIFY106="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
-  MODIFY10D="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\n\n/;\$a\PersistentKeepalive = 30"
-  MODIFY114="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
-  MODIFY116="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
-  MODIFY11D="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;\$a\PersistentKeepalive = 30"
-  MODIFY11N4="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
-  MODIFY11N6="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
-  MODIFY11ND="s/1.1.1.1/1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;\$a\PersistentKeepalive = 30"
+  MODIFY014="s/\(DNS[ ]\+=[ ]\+\).*/\12001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111,8.8.8.8,8.8.4.4,1.1.1.1/g;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY016="s/\(DNS[ ]\+=[ ]\+\).*/\12001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111,8.8.8.8,8.8.4.4,1.1.1.1/g;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY01D="s/\(DNS[ ]\+=[ ]\+\).*/\12001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111,8.8.8.8,8.8.4.4,1.1.1.1/g;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;\$a\PersistentKeepalive = 30"
+  MODIFY104="s/\(DNS[ ]\+=[ ]\+\).*/\18.8.8.8,8.8.4.4,1.1.1.1,2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY106="s/\(DNS[ ]\+=[ ]\+\).*/\18.8.8.8,8.8.4.4,1.1.1.1,2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY10D="s/\(DNS[ ]\+=[ ]\+\).*/\18.8.8.8,8.8.4.4,1.1.1.1,2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\n\n/;\$a\PersistentKeepalive = 30"
+  MODIFY114="s/\(DNS[ ]\+=[ ]\+\).*/\18.8.8.8,8.8.4.4,1.1.1.1,2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY116="s/\(DNS[ ]\+=[ ]\+\).*/\18.8.8.8,8.8.4.4,1.1.1.1,2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY11D="s/\(DNS[ ]\+=[ ]\+\).*/\18.8.8.8,8.8.4.4,1.1.1.1,2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;\$a\PersistentKeepalive = 30"
+  MODIFY11N4="s/\(DNS[ ]\+=[ ]\+\).*/\18.8.8.8,8.8.4.4,1.1.1.1,2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY11N6="s/\(DNS[ ]\+=[ ]\+\).*/\18.8.8.8,8.8.4.4,1.1.1.1,2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*0\.\0\/0/#&/g;\$a\PersistentKeepalive = 30"
+  MODIFY11ND="s/\(DNS[ ]\+=[ ]\+\).*/\18.8.8.8,8.8.4.4,1.1.1.1,2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111/g;7 s/^/PostUp = ip -4 rule add from $LAN4 lookup main\nPostDown = ip -4 rule delete from $LAN4 lookup main\nPostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;\$a\PersistentKeepalive = 30"
 
   sed -i "$(eval echo "\$MODIFY$CONF")" /etc/wireguard/warp.conf
 
@@ -2165,7 +2164,7 @@ EOF
     local MTU=$(awk '/^MTU/{print $NF}' /etc/wireguard/warp.conf)
     local FREE_ADDRESS6=$(awk '/^Address.*128$/{print $NF}' /etc/wireguard/warp.conf)
     local FREE_PRIVATEKEY=$(awk '/PrivateKey/{print $NF}' /etc/wireguard/warp.conf)
-    [ "$m" = 0 ] && local DNS='2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844,1.1.1.1,8.8.8.8,8.8.4.4' || local DNS='1.1.1.1,8.8.8.8,8.8.4.4,2606:4700:4700::1111,2001:4860:4860::8888,2001:4860:4860::8844'
+    [ "$m" = 0 ] && local DNS='2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111,8.8.8.8,8.8.4.4,1.1.1.1' || local DNS='8.8.8.8,8.8.4.4,1.1.1.1,2001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111'
 
     # 创建 Wireproxy 配置文件
     cat > /etc/wireguard/proxy.conf << EOF
@@ -2254,7 +2253,7 @@ EOF
       cancel_account /etc/wireguard/warp-account.conf.bak
       backup_restore_delete delete
     else
-      ACCOUNT_CHANGE_FAILED='Teams' && warning "\n $(text_eval 187) \n"
+      ACCOUNT_CHANGE_FAILED='Teams' && warning "\n $(text 187) \n"
       backup_restore_delete restore wireproxy
       unset CONFIRM_TEAMS_INFO
       wireproxy_onoff no_output
@@ -2265,7 +2264,7 @@ EOF
 
     # 结果提示，脚本运行时间，次数统计
     end=$(date +%s)
-    info " $(text_eval 149)\n $(text 27): $WIREPROXY_SOCKS5\n WARP$WIREPROXY_ACCOUNT\n IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4\n IPv6: $WIREPROXY_WAN6 $WIREPROXY_COUNTRY6 $WIREPROXY_ASNORG6"
+    info " $(text 149)\n $(text 27): $WIREPROXY_SOCKS5\n WARP$WIREPROXY_ACCOUNT\n IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4\n IPv6: $WIREPROXY_WAN6 $WIREPROXY_COUNTRY6 $WIREPROXY_ASNORG6"
     [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
     echo -e "\n==============================================================\n"
     hint " $(text 43) \n" && help
@@ -2291,14 +2290,14 @@ EOF
     # 自动刷直至成功（ warp bug，有时候获取不了ip地址），重置之前的相关变量值，记录新的 IPv4 和 IPv6 地址和归属地，IPv4 / IPv6 优先级别
     info " $(text 39) "
     unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 TRACE4 TRACE6 PLUS4 PLUS6 WARPSTATUS4 WARPSTATUS6
-    [ "$COMPANY" = amazon ] && warning " $(text_eval 40) " && reboot || net no_output
+    [ "$COMPANY" = amazon ] && warning " $(text 40) " && reboot || net no_output
 
     # 如成功升级 Teams ，根据新账户信息修改配置文件并注销旧账户; 如失败则还原为原账户
     if [[ "$TRACE4$TRACE6" =~ on|plus ]]; then
       cancel_account /etc/wireguard/warp-account.conf.bak
       backup_restore_delete delete
     else
-      ACCOUNT_CHANGE_FAILED='Teams' && warning "\n $(text_eval 187) \n"
+      ACCOUNT_CHANGE_FAILED='Teams' && warning "\n $(text 187) \n"
       backup_restore_delete restore warp
       unset CONFIRM_TEAMS_INFO
       net
@@ -2315,8 +2314,8 @@ EOF
     echo -e "\n==============================================================\n"
     info " IPv4: $WAN4 $COUNTRY4  $ASNORG4 "
     info " IPv6: $WAN6 $COUNTRY6  $ASNORG6 "
-    info " $(text_eval 41) " && [ -n "$QUOTA" ] && info " $(text_eval 133) "
-    info " $PRIORITY_NOW , $(text_eval 186) "
+    info " $(text 41) " && [ -n "$QUOTA" ] && info " $(text 133) "
+    info " $PRIORITY_NOW , $(text 186) "
     echo -e "\n==============================================================\n"
     hint " $(text 43) \n" && help
     [[ "$TRACE4$TRACE6" = offoff ]] && warning " $(text 44) "
@@ -2339,12 +2338,12 @@ client_install() {
     elif [ -n "$LICENSE" ]; then
       hint " $(text 35) " && warp-cli --accept-tos set-license "$LICENSE" >/dev/null 2>&1 && sleep 1 &&
       local CLIENT_ACCOUNT=$(warp-cli --accept-tos account 2>/dev/null | awk  '/type/{print $3}') &&
-      [ "$CLIENT_ACCOUNT" = Limited ] && TYPE='+' && echo "$LICENSE" > /etc/wireguard/license && info " $(text_eval 62) " ||
-      warning " $(text_eval 36) "
+      [ "$CLIENT_ACCOUNT" = Limited ] && TYPE='+' && echo "$LICENSE" > /etc/wireguard/license && info " $(text 62) " ||
+      warning " $(text 36) "
     fi
     if [ "$LUBAN" = 1 ]; then
       i=1; j=3
-      hint " $(text_eval 11)\n $(text_eval 12) "
+      hint " $(text 11)\n $(text 12) "
       warp-cli --accept-tos add-excluded-route 0.0.0.0/0 >/dev/null 2>&1
       warp-cli --accept-tos add-excluded-route ::0/0 >/dev/null 2>&1
       warp-cli --accept-tos set-mode warp >/dev/null 2>&1
@@ -2356,7 +2355,7 @@ client_install() {
       ip_case d luban
       until [[ -n "$CFWARP_WAN4" && -n "$CFWARP_WAN6" ]]; do
         (( i++ )) || true
-        hint " $(text_eval 12) "
+        hint " $(text 12) "
         warp-cli --accept-tos disconnect >/dev/null 2>&1
         warp-cli --accept-tos disable-always-on >/dev/null 2>&1
         rule_del >/dev/null 2>&1
@@ -2370,26 +2369,26 @@ client_install() {
           warp-cli --accept-tos disconnect >/dev/null 2>&1
           warp-cli --accept-tos disable-always-on >/dev/null 2>&1
           rule_del >/dev/null 2>&1
-          error " $(text_eval 13) "
+          error " $(text 13) "
         fi
       done
-      info " $(text_eval 14) "
+      info " $(text 14) "
     else
       warp-cli --accept-tos set-mode proxy >/dev/null 2>&1
       warp-cli --accept-tos set-proxy-port "$PORT" >/dev/null 2>&1
       warp-cli --accept-tos set-custom-endpoint "$ENDPOINT" >/dev/null 2>&1
       warp-cli --accept-tos connect >/dev/null 2>&1
       warp-cli --accept-tos enable-always-on >/dev/null 2>&1
-      sleep 2 && [[ ! $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ warp-svc ]] && error " $(text 87) " || info " $(text_eval 86) "
+      sleep 2 && [[ ! $(ss -nltp | awk '{print $NF}' | awk -F \" '{print $2}') =~ warp-svc ]] && error " $(text 87) " || info " $(text 86) "
     fi
   }
 
   # 禁止安装的情况。重复安装，非 AMD64 CPU 架构
   [ "$CLIENT" -ge 2 ] && error " $(text 85) "
-  [ "$ARCHITECTURE" != amd64 ] && error " $(text_eval 101) "
+  [ "$ARCHITECTURE" != amd64 ] && error " $(text 101) "
 
   # 安装 WARP Linux Client
-  [[ "$SYSTEM" = 'CentOS' && "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" -le 7 ]] && error " $(text_eval 145) "
+  [[ "$SYSTEM" = 'CentOS' && "$(expr "$SYS" : '.*\s\([0-9]\{1,\}\)\.*')" -le 7 ]] && error " $(text 145) "
   input_license
   [ "$LUBAN" != 1 ] && input_port
   start=$(date +%s)
@@ -2429,12 +2428,12 @@ client_install() {
   if [ "$LUBAN" = 1 ]; then
     end=$(date +%s)
     echo -e "\n==============================================================\n"
-    info " $(text_eval 94)\n WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6 "
+    info " $(text 94)\n WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6 "
   else
     ip_case d client
     end=$(date +%s)
     echo -e "\n==============================================================\n"
-    info " $(text_eval 94)\n $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4\n WARP$CLIENT_AC IPv6: $CLIENT_WAN6 $CLIENT_COUNTRY6 $CLIENT_ASNORG6 "
+    info " $(text 94)\n $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4\n WARP$CLIENT_AC IPv6: $CLIENT_WAN6 $CLIENT_COUNTRY6 $CLIENT_ASNORG6 "
   fi
 
   [ -n "$QUOTA" ] && info " $(text 63): $QUOTA "
@@ -2574,10 +2573,10 @@ change_to_free() {
     if [ "$CLIENT_MODE" = 'Warp' ]; then
       rule_add >/dev/null 2>&1
       ip_case d luban
-      info " WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6\n $(text_eval 62) "
+      info " WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6\n $(text 62) "
     elif [ "$CLIENT_MODE" = 'WarpProxy' ]; then
       ip_case d client
-      info " $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC\n IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4\n IPv6: $CLIENT_WAN6 $CLIENT_COUNTRY6 $CLIENT_ASNORG6\n $(text_eval 62) "
+      info " $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC\n IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4\n IPv6: $CLIENT_WAN6 $CLIENT_COUNTRY6 $CLIENT_ASNORG6\n $(text 62) "
     fi
     exit 0
   elif [[ "$UPDATE_ACCOUNT" =~ 'warp'|'wireproxy' ]]; then
@@ -2588,7 +2587,7 @@ change_to_free() {
       elif [ "$UPDATE_ACCOUNT" = 'wireproxy' ]; then
         systemctl restart wireproxy; sleep 1
         ip_case d wireproxy
-        TYPE=' Free' && info " $(text 27): $WIREPROXY_SOCKS5\n WARP$WIREPROXY_ACCOUNT\n IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4\n IPv6: $WIREPROXY_WAN6 $WIREPROXY_COUNTRY6 $WIREPROXY_ASNORG6\n $(text_eval 62) "
+        TYPE=' Free' && info " $(text 27): $WIREPROXY_SOCKS5\n WARP$WIREPROXY_ACCOUNT\n IPv4: $WIREPROXY_WAN4 $WIREPROXY_COUNTRY4 $WIREPROXY_ASNORG4\n IPv6: $WIREPROXY_WAN6 $WIREPROXY_COUNTRY6 $WIREPROXY_ASNORG6\n $(text 62) "
       fi
       exit 0
     fi
@@ -2626,11 +2625,11 @@ change_to_free() {
       sed -i "s#\(PrivateKey[ ]\+=[ ]\+\).*#\1$PRIVATEKEY#g; s#\(Address[ ]\+=[ ]\+\).*\(/128$\)#\1$ADDRESS6\2#g; s#\(.*Reserved[ ]\+=[ ]\+\).*#\1$CLIENT_ID#g" /etc/wireguard/warp.conf
       [ "$UPDATE_ACCOUNT" = 'wireproxy' ] && sed -i "s#\(PrivateKey[ ]\+=[ ]\+\).*#\1$PRIVATEKEY#g; s#\(Address[ ]\+=[ ]\+\).*\(/128$\)#\1$ADDRESS6\2#g" /etc/wireguard/proxy.conf
       TYPE=' Free' && [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -q 'Device name' /etc/wireguard/info.log && TYPE='+'
-      info "\n $(text_eval 62) \n"
+      info "\n $(text 62) \n"
 
     # 升级失败的处理，提示并还原为原账户
     else
-      ACCOUNT_CHANGE_FAILED='Free' && warning "\n $(text_eval 187) \n"
+      ACCOUNT_CHANGE_FAILED='Free' && warning "\n $(text 187) \n"
       case "$UPDATE_ACCOUNT" in
         warp )
           backup_restore_delete restore warp
@@ -2648,7 +2647,7 @@ change_to_free() {
       wireproxy )
         wireproxy_onoff
     esac
-    info " $(text_eval 62) "
+    info " $(text 62) "
   fi
 }
 
@@ -2657,7 +2656,7 @@ change_to_plus() {
   update_license
   # client 两个模式升级 plus 流程: 1.如原账户为 plus，备份原 License; 2.注销原账户，停止服务; 3.使用新 License 升级账户; 4.如成功则删除原账户信息文件，保存 license 并显示结果; 如失败则看原账户有没有 License 用于还原
   if [ "$UPDATE_ACCOUNT" = client ]; then
-    [ "$(warp-cli --accept-tos account 2>/dev/null | awk '/License/{print $NF}')" = "$LICENSE" ] && KEY_LICENSE='License' && error " $(text_eval 31) "
+    [ "$(warp-cli --accept-tos account 2>/dev/null | awk '/License/{print $NF}')" = "$LICENSE" ] && KEY_LICENSE='License' && error " $(text 31) "
     # 流程1:如原账户为 plus，备份原 License
     backup_restore_delete backup client
 
@@ -2679,15 +2678,15 @@ change_to_plus() {
     else
       case "$LICENSE_STATUS" in
           *Invalid\ license* )
-            warning "\n $(text_eval 169) \n"
+            warning "\n $(text 169) \n"
             ;;
           *Too\ many\ devices* )
-            warning "\n $(text_eval 36) \n"
+            warning "\n $(text 36) \n"
             ;;
           *Error* )
-            warning "\n $(text_eval 42) \n"
+            warning "\n $(text 42) \n"
       esac
-      ACCOUNT_CHANGE_FAILED='Plus' && warning "\n $(text_eval 187) \n"
+      ACCOUNT_CHANGE_FAILED='Plus' && warning "\n $(text 187) \n"
       backup_restore_delete restore client
       [ -e /etc/wireguard/license ] && warp-cli --accept-tos set-license "$(cat /etc/wireguard/license)" >/dev/null 2>&1; sleep 1
     fi
@@ -2697,15 +2696,15 @@ change_to_plus() {
       rule_add >/dev/null 2>&1
       ip_case d luban
       [ "$TYPE" = '+' ] && CLIENT_PLUS="$(text 63): $QUOTA"
-      info " WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6\n $CLIENT_PLUS\n $(text_eval 62) \n"
+      info " WARP$CLIENT_AC IPv4: $CFWARP_WAN4 $CFWARP_COUNTRY4  $CFWARP_ASNORG4\n WARP$CLIENT_AC IPv6: $CFWARP_WAN6 $CFWARP_COUNTRY6  $CFWARP_ASNORG6\n $CLIENT_PLUS\n $(text 62) \n"
     elif [ "$CLIENT_MODE" = 'WarpProxy' ]; then
       ip_case d client
       [ "$TYPE" = '+' ] && CLIENT_PLUS="$(text 63): $QUOTA"
-      info " $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC\n IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4\n IPv6: $CLIENT_WAN6 $CLIENT_COUNTRY6 $CLIENT_ASNORG6\n $CLIENT_PLUS\n $(text_eval 62) \n"
+      info " $(text 27): $CLIENT_SOCKS5\n WARP$CLIENT_AC\n IPv4: $CLIENT_WAN4 $CLIENT_COUNTRY4 $CLIENT_ASNORG4\n IPv6: $CLIENT_WAN6 $CLIENT_COUNTRY6 $CLIENT_ASNORG6\n $CLIENT_PLUS\n $(text 62) \n"
     fi
   elif [[ "$UPDATE_ACCOUNT" =~ 'warp'|'wireproxy' ]]; then
     # 如现正使用着 WARP+ 账户，并且新输入的 License 也与现一样的话，脚本退出
-    [ "$ACCOUNT_TYPE" = + ] && grep -q "$LICENSE" /etc/wireguard/warp-account.conf && KEY_LICENSE='License' && error " $(text_eval 31) "
+    [ "$ACCOUNT_TYPE" = + ] && grep -q "$LICENSE" /etc/wireguard/warp-account.conf && KEY_LICENSE='License' && error " $(text 31) "
     hint "\n $(text 35) \n"
 
     # warp 和 wireproxy 升级 plus 流程: 1.停止服务; 2.备份原账户信息; 3.注册新账户; 4.使用 License 升级账户; 5.如成功，根据新账户信息修改配置文件并注销旧账户; 如失败则还原为原账户
@@ -2748,22 +2747,22 @@ change_to_plus() {
       echo -e "Device name   : $NAME" > /etc/wireguard/info.log
       echo "$LICENSE" > /etc/wireguard/license
       TYPE=' Free' && [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -q 'Device name' /etc/wireguard/info.log && TYPE='+'
-      info "\n $(text_eval 62) \n"
+      info "\n $(text 62) \n"
 
     # 升级失败的处理，提示并还原为原账户
     else
       case "$UPDATE_RESULT" in
         *Invalid\ license* )
-          warning "\n $(text_eval 169) \n"
+          warning "\n $(text 169) \n"
           ;;
         *Too\ many\ connected\ devices* )
-          warning "\n $(text_eval 36) \n"
+          warning "\n $(text 36) \n"
           ;;
         * )
-          warning "\n $(text_eval 42) \n"
+          warning "\n $(text 42) \n"
       esac
 
-      ACCOUNT_CHANGE_FAILED='Plus' && warning "\n $(text_eval 187) \n"
+      ACCOUNT_CHANGE_FAILED='Plus' && warning "\n $(text 187) \n"
       case "$UPDATE_ACCOUNT" in
         warp )
           backup_restore_delete restore warp
@@ -2781,7 +2780,7 @@ change_to_plus() {
       wireproxy )
         wireproxy_onoff
     esac
-    info " $(text_eval 62) "
+    info " $(text 62) "
   fi
 }
 
@@ -2804,7 +2803,7 @@ change_to_teams() {
   esac
 
   # 如输入的 PrivateKey 与现在使用的一样，则提示不需要更换，并提出
-  grep -q "$PRIVATEKEY" /etc/wireguard/warp.conf && KEY_LICENSE='Private key' && error " $(text_eval 31) "
+  grep -q "$PRIVATEKEY" /etc/wireguard/warp.conf && KEY_LICENSE='Private key' && error " $(text 31) "
 
   # 流程1:确认升级信息，停止服务
   if [[ "$CONFIRM_TEAMS_INFO" = [Yy] ]]; then
@@ -2843,9 +2842,9 @@ change_to_teams() {
         cancel_account /etc/wireguard/warp-account.conf.bak
         backup_restore_delete delete
         TYPE=' Free' && [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -q 'Device name' /etc/wireguard/info.log && TYPE='+'
-        info "\n $(text_eval 62) \n"
+        info "\n $(text 62) \n"
       else
-        ACCOUNT_CHANGE_FAILED='Teams' && warning "\n $(text_eval 187) \n"
+        ACCOUNT_CHANGE_FAILED='Teams' && warning "\n $(text 187) \n"
         backup_restore_delete restore warp
         unset CONFIRM_TEAMS_INFO
         net
@@ -2857,9 +2856,9 @@ change_to_teams() {
         cancel_account /etc/wireguard/warp-account.conf.bak
         backup_restore_delete delete
         TYPE=' Free' && [ -e /etc/wireguard/info.log ] && TYPE=' Teams' && grep -q 'Device name' /etc/wireguard/info.log && TYPE='+'
-        info "\n $(text_eval 62) \n"
+        info "\n $(text 62) \n"
       else
-        ACCOUNT_CHANGE_FAILED='Teams' && warning "\n $(text_eval 187) \n"
+        ACCOUNT_CHANGE_FAILED='Teams' && warning "\n $(text 187) \n"
         backup_restore_delete restore wireproxy
         unset CONFIRM_TEAMS_INFO
         wireproxy_onoff
@@ -2885,7 +2884,7 @@ update() {
     grep -q 'Device name' /etc/wireguard/info.log && ACCOUNT_TYPE='+' && CHANGE_TYPE=$(text 176) && check_quota warp && PLUS_QUOTA="\\n $(text 63): $QUOTA"
 
     if [ -z "$CHOOSE_TYPE" ]; then
-      hint "\n $(text_eval 173) "
+      hint "\n $(text 173) "
       [ "$OPTION" != a ] && hint " 0. $(text 49) \n" || hint " 0. $(text 76) \n"
       reading " $(text 50) " CHOOSE_TYPE
     fi
@@ -2923,7 +2922,7 @@ update() {
     [ "$CLIENT_ACCOUNT" = Limited ] && ACCOUNT_TYPE='+' && CHANGE_TYPE=$(text 178) && check_quota client && PLUS_QUOTA="$(text 63): $QUOTA"
 
     if [ -z "$CHOOSE_TYPE" ]; then
-      hint "\n $(text_eval 173) "
+      hint "\n $(text 173) "
       [ "$OPTION" != a ] && hint " 0. $(text 49) \n" || hint " 0. $(text 76) \n"
       reading " $(text 50) " CHOOSE_TYPE
     fi
@@ -2988,16 +2987,16 @@ menu_setting() {
     check_stack
     case "$m" in
       [0-2] )
-        MENU_OPTION[1]="1.  $(text_eval 66)"
-        MENU_OPTION[2]="2.  $(text_eval 67)"
-        MENU_OPTION[3]="3.  $(text_eval 68)"
+        MENU_OPTION[1]="1.  $(text 66)"
+        MENU_OPTION[2]="2.  $(text 67)"
+        MENU_OPTION[3]="3.  $(text 68)"
         ACTION[1]() { CONF=${CONF1[n]}; install; }
         ACTION[2]() { CONF=${CONF2[n]}; install; }
         ACTION[3]() { CONF=${CONF3[n]}; install; }
         ;;
       * )
-        MENU_OPTION[1]="1.  $(text_eval 141)"
-        MENU_OPTION[2]="2.  $(text_eval 142)"
+        MENU_OPTION[1]="1.  $(text 141)"
+        MENU_OPTION[2]="2.  $(text 142)"
         MENU_OPTION[3]="3.  $(text 78)"
         ACTION[1]() { stack_switch; }
         ACTION[2]() { stack_switch; }
@@ -3044,10 +3043,10 @@ menu() {
   info "\t IPv6: $WAN6 $COUNTRY6  $ASNORG6 "
   case "$TRACE4$TRACE6" in
     *plus* )
-      info "\t $(text_eval 114)\t $PLUSINFO\n\t $(text_eval 186) "
+      info "\t $(text 114)\t $PLUSINFO\n\t $(text 186) "
       ;;
     *on* )
-      info "\t $(text 115)\n\t $(text_eval 186) "
+      info "\t $(text 115)\n\t $(text 186) "
   esac
   [ "$PLAN" != 3 ] && info "\t $(text 116) "
   case "$CLIENT" in
