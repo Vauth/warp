@@ -66,7 +66,7 @@ registe_account() {
     private_key=$(wg genkey)
     public_key=$(wg pubkey <<< "$private_key")
   else
-    wg_api=$(curl -sSL https://wg.cloudflare.now.cc)
+    wg_api=$(curl -sSL https://fscarmen.cloudflare.now.cc/wg)
     private_key=$(echo "$wg_api" | awk 'NR==2 {print $2}')
     public_key=$(echo "$wg_api" | awk 'NR==1 {print $2}')
   fi
