@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号和新增功能
-VERSION=1.1.5
+VERSION=1.1.6
 
 # IP API 服务商
 IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.who.int/cdn-cgi/trace")
@@ -21,8 +21,8 @@ trap "rm -f /tmp/warp-go*; exit 1" INT
 
 E[0]="Language:\n  1.English (default) \n  2.简体中文"
 C[0]="${E[0]}"
-E[1]="Add Github CDN"
-C[1]="增加 Github CDN"
+E[1]="Add a check to see if udp is allowed, if all endpoints of WARP are unreachable, the script will abort."
+C[1]="增加是否允许 udp 的检测，如果 WARP 的所有 endpoint 均不能连通，脚本将中止"
 E[2]="warp-go h (help)\n warp-go o (temporary warp-go switch)\n warp-go u (uninstall WARP web interface and warp-go)\n warp-go v (sync script to latest version)\n warp-go i (replace IP with Netflix support)\n warp-go 4/6 ( WARP IPv4/IPv6 single-stack)\n warp-go d (WARP dual-stack)\n warp-go n (WARP IPv4 non-global)\n warp-go g (WARP global/non-global switching)\n warp-go e (output wireguard and sing-box configuration file)\n warp-go a (Change to Free, WARP+ or Teams account)"
 C[2]="warp-go h (帮助）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 和 sing-box 配置文件)\n warp-go a (更换到 Free，WARP+ 或 Teams 账户)"
 E[3]="This project is designed to add WARP network interface for VPS, using warp-go core, using various interfaces of CloudFlare-WARP, integrated wireguard-go, can completely replace WGCF. Save Hong Kong, Toronto and other VPS, can also get WARP IP. Thanks again @CoiaPrant and his team. Project address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/"
@@ -233,6 +233,8 @@ E[105]="upgrade successful."
 C[105]="升级成功"
 E[106]="upgrade failed. The free account will remain in use."
 C[106]="升级失败，将保持使用 free 账户。"
+E[107]="All endpoints of WARP cannot be connected. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[107]="WARP 的所有的 endpoint 均不能连通，有可能 UDP 被限制了，可联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 
 # 自定义字体彩色，read 函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
@@ -243,11 +245,10 @@ reading() { read -rp "$(info "$1")" "$2"; }
 text() { eval echo "\${${L}[$*]}"; }
 text_eval() { eval echo "\$(eval echo "\${${L}[$*]}")"; }
 
-# 自定义友道或谷歌翻译函数
-# translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
+# 自定义谷歌翻译函数
 translate() {
   [ -n "$@" ] && EN="$@"
-  ZH=$(curl -km8 -sSL "https://translate.google.com/translate_a/t?client=any_client_id_works&sl=en&tl=zh&q=${EN//[[:space:]]/%20}")
+  ZH=$(curl -km8 -sSL "https://translate.google.com/translate_a/t?client=any_client_id_works&sl=en&tl=zh&q=${EN//[[:space:]]/%20}" 2>/dev/null)
   [[ "$ZH" =~ ^\[\".+\"\]$ ]] && cut -d \" -f2 <<< "$ZH"
 }
 
@@ -615,8 +616,8 @@ uninstall() {
   [ -s /opt/warp-go/tun.sh ] && rm -f /opt/warp-go/tun.sh && sed -i '/tun.sh/d' /etc/crontab
 
   # 显示卸载结果
-  ip4_info; [[ "$L" = C && -n "$COUNTRY4" ]] && COUNTRY4=$(translate "$COUNTRY4")
-  ip6_info; [[ "$L" = C && -n "$COUNTRY6" ]] && COUNTRY6=$(translate "$COUNTRY6")
+  ip4_info; [ "$L" = C ] && [ -n "$COUNTRY4" ] && COUNTRY4=$(translate "$COUNTRY4")
+  ip6_info; [ "$L" = C ] && [ -n "$COUNTRY6" ] && COUNTRY6=$(translate "$COUNTRY6")
   info " $(text 17)\n IPv4: $WAN4 $COUNTRY4 $ASNORG4\n IPv6: $WAN6 $COUNTRY6 $ASNORG6 "
 }
 
@@ -665,8 +666,8 @@ net() {
   grep -q '#AllowedIPs' /opt/warp-go/warp.conf && GLOBAL_TYPE="$(text 24)"
 
   info " $(text_eval 25) "
-  [ "$L" = C ] && COUNTRY4=$(translate "$COUNTRY4")
-  [ "$L" = C ] && COUNTRY6=$(translate "$COUNTRY6")
+  [ "$L" = C ] && [ -n "$COUNTRY4" ] && COUNTRY4=$(translate "$COUNTRY4")
+  [ "$L" = C ] && [ -n "$COUNTRY6" ] && COUNTRY6=$(translate "$COUNTRY6")
   [ "$OPTION" = o ] && info " IPv4: $WAN4 $WARPSTATUS4 $COUNTRY4 $ASNORG4\n IPv6: $WAN6 $WARPSTATUS6 $COUNTRY6 $ASNORG6 "
   [ -n "$QUOTA" ] && info " $(text 26): $QUOTA "
 }
@@ -1142,7 +1143,8 @@ install() {
 
     if [[ -s /tmp/endpoint && -s /tmp/ip ]]; then
       /tmp/endpoint -file /tmp/ip -output /tmp/endpoint_result >/dev/null 2>&1
-      ENDPOINT=$(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $1}')
+      # 如果全部是数据包丢失，LOSS = 100%，说明 UDP 被禁止，生成标志 /tmp/noudp
+      [ $(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $2}') = '100.00%' ] && touch /tmp/noudp || ENDPOINT=$(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $1}')
       rm -f /tmp/{endpoint,ip,endpoint_result}
     fi
 
@@ -1249,6 +1251,12 @@ EOF
   esac
 
   wait
+
+  # 如有所有 endpoint 都不能连通的情况，脚本中止
+  if [ -e /tmp/noudp ]; then
+    rm -rf /tmp/noudp /opt/warp-go /lib/systemd/system/warp-go.service /usr/bin/warp-go /tmp/warp-go*
+    error "\n $(text 107) \n"
+  fi
 
   # 如没有注册成功，脚本退出
   [ ! -s /opt/warp-go/warp.conf ] && error " $(text 104) "

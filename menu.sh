@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号
-VERSION='3.00'
+VERSION='3.01'
 
 # IP API 服务商
 IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.who.int/cdn-cgi/trace")
@@ -16,8 +16,8 @@ export DEBIAN_FRONTEND=noninteractive
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="1. Add a non-global working mode, it can be switched use [warp g], which requires a script reinstallation; 2. Support regions sanctioned by Cloudflare, such as Russia, with a shared account; 3. IPv6 only uses the preset nat64 and restores the original nameserver file when uninstalled. 4. Add Github CDN"
-C[1]="1. 增加warp的非全局工作模式，可以通过 [warp g] 切换，需要重装脚本; 2. 支持被Cloudflare制裁地区，如俄罗斯，使用共享账户; 3. IPv6 only 使用预设 nat64，卸载时恢复原始 nameserver 文件; 4. 增加 Github CDN"
+E[1]="Add a check to see if udp is allowed, if all endpoints of WARP are unreachable, the script will abort."
+C[1]="增加是否允许 udp 的检测，如果 WARP 的所有 endpoint 均不能连通，脚本将中止"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
@@ -390,6 +390,8 @@ E[186]="Working mode: \$GLOBAL_OR_NOT"
 C[186]="工作模式: \$GLOBAL_OR_NOT"
 E[187]="Failed to change to \$ACCOUNT_CHANGE_FAILED account, automatically switch back to the original account."
 C[187]="更换到 \$ACCOUNT_CHANGE_FAILED 账户失败，自动切换回原来的账户"
+E[188]="All endpoints of WARP cannot be connected. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[188]="WARP 的所有的 endpoint 均不能连通，有可能 UDP 被限制了，可联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 
 # 自定义字体彩色，read 函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
@@ -399,11 +401,10 @@ hint() { echo -e "\033[33m\033[01m$*\033[0m"; }   # 黄色
 reading() { read -rp "$(info "$1")" "$2"; }
 text() { grep -q '\$' <<< "${E[$*]}" && eval echo "\$(eval echo "\${${L}[$*]}")" || eval echo "\${${L}[$*]}"; }
 
-# 自定义友道或谷歌翻译函数
-# translate() { [ -n "$1" ] && curl -ksm8 "http://fanyi.youdao.com/translate?&doctype=json&type=EN2ZH_CN&i=${1//[[:space:]]/}" | cut -d \" -f18 2>/dev/null; }
+# 自定义谷歌翻译函数
 translate() {
   [ -n "$@" ] && EN="$@"
-  ZH=$(curl -km8 -sSL "https://translate.google.com/translate_a/t?client=any_client_id_works&sl=en&tl=zh&q=${EN//[[:space:]]/%20}")
+  ZH=$(curl -km8 -sSL "https://translate.google.com/translate_a/t?client=any_client_id_works&sl=en&tl=zh&q=${EN//[[:space:]]/%20}" 2>/dev/null)
   [[ "$ZH" =~ ^\[\".+\"\]$ ]] && cut -d \" -f2 <<< "$ZH"
 }
 
@@ -567,7 +568,7 @@ ip_case() {
       TRACE4=$(expr "$IP_RESULT4" : '.*trace=\([^@]*\).*')
       WAN4=$(expr "$IP_RESULT4" : '.*ip=\([^@]*\).*')
       COUNTRY4=$(expr "$IP_RESULT4" : '.*country=\([^@]*\).*')
-      [ "$L" = C ] && COUNTRY4_ZH=$(translate "$COUNTRY4")
+      [ "$L" = C ] && [ -n "$COUNTRY4" ] && COUNTRY4_ZH=$(translate "$COUNTRY4")
       [ -n "$COUNTRY4_ZH" ] && COUNTRY4="$COUNTRY4_ZH"
       ASNORG4=$(expr "$IP_RESULT4" : '.*asnorg=\([^@]*\).*')
     }
@@ -578,7 +579,7 @@ ip_case() {
       TRACE6=$(expr "$IP_RESULT6" : '.*trace=\([^@]*\).*')
       WAN6=$(expr "$IP_RESULT6" : '.*ip=\([^@]*\).*')
       COUNTRY6=$(expr "$IP_RESULT6" : '.*country=\([^@]*\).*')
-      [ "$L" = C ] && COUNTRY6_ZH=$(translate "$COUNTRY6")
+      [ "$L" = C ] && [ -n "$COUNTRY6" ] && COUNTRY6_ZH=$(translate "$COUNTRY6")
       [ -n "$COUNTRY6_ZH" ] && COUNTRY6="$COUNTRY6_ZH"
       ASNORG6=$(expr "$IP_RESULT6" : '.*asnorg=\([^@]*\).*')
     }
@@ -604,7 +605,7 @@ ip_case() {
       WIREPROXY_TRACE4=$(expr "$IP_RESULT4" : '.*trace=\([^@]*\).*')
       WIREPROXY_WAN4=$(expr "$IP_RESULT4" : '.*ip=\([^@]*\).*')
       WIREPROXY_COUNTRY4=$(expr "$IP_RESULT4" : '.*country=\([^@]*\).*')
-      [ "$L" = C ] && WIREPROXY_COUNTRY4_ZH=$(translate "$WIREPROXY_COUNTRY4")
+      [ "$L" = C ] && [ -n "$WIREPROXY_COUNTRY4" ] && WIREPROXY_COUNTRY4_ZH=$(translate "$WIREPROXY_COUNTRY4")
       [ -n "$WIREPROXY_COUNTRY4_ZH" ] && WIREPROXY_COUNTRY4="$WIREPROXY_COUNTRY4_ZH"
       WIREPROXY_ASNORG4=$(expr "$IP_RESULT4" : '.*asnorg=\([^@]*\).*')
     }
@@ -615,7 +616,7 @@ ip_case() {
       WIREPROXY_TRACE6=$(expr "$IP_RESULT6" : '.*trace=\([^@]*\).*')
       WIREPROXY_WAN6=$(expr "$IP_RESULT6" : '.*ip=\([^@]*\).*')
       WIREPROXY_COUNTRY6=$(expr "$IP_RESULT6" : '.*country=\([^@]*\).*')
-      [ "$L" = C ] && WIREPROXY_COUNTRY6_ZH=$(translate "$WIREPROXY_COUNTRY6")
+      [ "$L" = C ] && [ -n "$WIREPROXY_COUNTRY6" ] && WIREPROXY_COUNTRY6_ZH=$(translate "$WIREPROXY_COUNTRY6")
       [ -n "$WIREPROXY_COUNTRY6_ZH" ] && WIREPROXY_COUNTRY6="$WIREPROXY_COUNTRY6_ZH"
       WIREPROXY_ASNORG6=$(expr "$IP_RESULT6" : '.*asnorg=\([^@]*\).*')
     }
@@ -641,7 +642,7 @@ ip_case() {
       CLIENT_TRACE4=$(expr "$IP_RESULT4" : '.*trace=\([^@]*\).*')
       CLIENT_WAN4=$(expr "$IP_RESULT4" : '.*ip=\([^@]*\).*')
       CLIENT_COUNTRY4=$(expr "$IP_RESULT4" : '.*country=\([^@]*\).*')
-      [ "$L" = C ] && CLIENT_COUNTRY4_ZH=$(translate "$CLIENT_COUNTRY4")
+      [ "$L" = C ] && [ -n "$CLIENT_COUNTRY4" ] && CLIENT_COUNTRY4_ZH=$(translate "$CLIENT_COUNTRY4")
       [ -n "$CLIENT_COUNTRY4_ZH" ] && CLIENT_COUNTRY4="$CLIENT_COUNTRY4_ZH"
       CLIENT_ASNORG4=$(expr "$IP_RESULT4" : '.*asnorg=\([^@]*\).*')
     }
@@ -652,7 +653,7 @@ ip_case() {
       CLIENT_TRACE6=$(expr "$IP_RESULT6" : '.*trace=\([^@]*\).*')
       CLIENT_WAN6=$(expr "$IP_RESULT6" : '.*ip=\([^@]*\).*')
       CLIENT_COUNTRY6=$(expr "$IP_RESULT6" : '.*country=\([^@]*\).*')
-      [ "$L" = C ] && CLIENT_COUNTRY6_ZH=$(translate "$CLIENT_COUNTRY6")
+      [ "$L" = C ] && [ -n "$CLIENT_COUNTRY6" ] && CLIENT_COUNTRY6_ZH=$(translate "$CLIENT_COUNTRY6")
       [ -n "$CLIENT_COUNTRY6_ZH" ] && CLIENT_COUNTRY6="$CLIENT_COUNTRY6_ZH"
       CLIENT_ASNORG6=$(expr "$IP_RESULT6" : '.*asnorg=\([^@]*\).*')
     }
@@ -682,7 +683,7 @@ ip_case() {
       CFWARP_TRACE4=$(expr "$IP_RESULT4" : '.*trace=\([^@]*\).*')
       CFWARP_WAN4=$(expr "$IP_RESULT4" : '.*ip=\([^@]*\).*')
       CFWARP_COUNTRY4=$(expr "$IP_RESULT4" : '.*country=\([^@]*\).*')
-      [ "$L" = C ] && CFWARP_COUNTRY4_ZH=$(translate "$CFWARP_COUNTRY4")
+      [ "$L" = C ] && [ -n "$CFWARP_COUNTRY4" ] && CFWARP_COUNTRY4_ZH=$(translate "$CFWARP_COUNTRY4")
       [ -n "$CFWARP_COUNTRY4_ZH" ] && CFWARP_COUNTRY4="$CFWARP_COUNTRY4_ZH"
       CFWARP_ASNORG4=$(expr "$IP_RESULT4" : '.*asnorg=\([^@]*\).*')
     }
@@ -693,7 +694,7 @@ ip_case() {
       CFWARP_TRACE6=$(expr "$IP_RESULT6" : '.*trace=\([^@]*\).*')
       CFWARP_WAN6=$(expr "$IP_RESULT6" : '.*ip=\([^@]*\).*')
       CFWARP_COUNTRY6=$(expr "$IP_RESULT6" : '.*country=\([^@]*\).*')
-      [ "$L" = C ] && CFWARP_COUNTRY6_ZH=$(translate "$CFWARP_COUNTRY6")
+      [ "$L" = C ] && [ -n "$CFWARP_COUNTRY6" ] && CFWARP_COUNTRY6_ZH=$(translate "$CFWARP_COUNTRY6")
       [ -n "$CFWARP_COUNTRY6_ZH" ] && CFWARP_COUNTRY6="$CFWARP_COUNTRY6_ZH"
       CFWARP_ASNORG6=$(expr "$IP_RESULT6" : '.*asnorg=\([^@]*\).*')
     }
@@ -1836,7 +1837,8 @@ best_endpoint() {
 
   if [[ -e /tmp/endpoint && -e /tmp/ip ]]; then
     /tmp/endpoint -file /tmp/ip -output /tmp/endpoint_result >/dev/null 2>&1
-    ENDPOINT=$(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $1}')
+    # 如果全部是数据包丢失，LOSS = 100%，说明 UDP 被禁止，生成标志 /tmp/noudp
+    [ $(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $2}') = '100.00%' ] && touch /tmp/noudp || ENDPOINT=$(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $1}')
     rm -f /tmp/{endpoint,ip,endpoint_result}
   fi
 
@@ -2141,6 +2143,13 @@ EOF
   fi
 
   wait
+
+  # 如有所有 endpoint 都不能连通的情况，脚本中止
+  if [ -e /tmp/noudp ]; then
+    rm -f /tmp/noudp /usr/bin/wireguard-go /etc/wireguard/{wgcf-account.conf,warp-temp.conf,warp-account.conf,warp_unlock.sh,warp.conf.bak,warp.conf,up,proxy.conf.bak,proxy.conf,menu.sh,license,language,info-temp.log,info.log,down,account-temp.conf,NonGlobalUp.sh,NonGlobalDown.sh}
+    [[ -e /etc/wireguard && -z "$(ls -A /etc/wireguard/)" ]] && rmdir /etc/wireguard
+    error "\n $(text 188) \n"
+  fi
 
   # WARP 配置修改
   MODIFY014="s/\(DNS[ ]\+=[ ]\+\).*/\12001:4860:4860::8888,2001:4860:4860::8844,2606:4700:4700::1111,8.8.8.8,8.8.4.4,1.1.1.1/g;7 s/^/PostUp = ip -6 rule add from $LAN6 lookup main\nPostDown = ip -6 rule delete from $LAN6 lookup main\n\n/;s/^.*\:\:\/0/#&/g;\$a\PersistentKeepalive = 30"
