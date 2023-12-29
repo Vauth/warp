@@ -44,7 +44,7 @@ Synchronize applications:
         done
 
         for j in "${SCRIPTS[@]}"; do
-          sed -Ei "s/(wgcf.*|[ ]+latest.*)$WGCF_NOW/\1$WGCF_LATEST/g" $j || true
+          sed -Ei "s/(wgcf.*|[[:space:]]+latest.*)$WGCF_NOW/\1$WGCF_LATEST/g" $j || true
         done
 
         export WGCF_VERSION="$WGCF_LATEST"
