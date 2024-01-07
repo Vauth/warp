@@ -1678,6 +1678,7 @@ change_port() {
   case "$f" in
     0|1 )
       ${CHANGE_PORT1[f]}
+      sleep 1
       ss -nltp | grep -q ":$PORT" && info " $(text 122) " || error " $(text 34) "
       ;;
     2 )
@@ -1685,6 +1686,7 @@ change_port() {
         case "$MODE" in
           [1-2] )
             $(eval echo "\${CHANGE_IP$MODE[f]}")
+            sleep 1
             ss -nltp | grep -q ":$PORT" && info " $(text 122) " || error " $(text 34) "
             ;;
           * )
