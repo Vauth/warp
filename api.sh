@@ -67,27 +67,34 @@ registe_account() {
     public_key=$(wg pubkey <<< "$private_key")
   else
     wg_api=$(curl -sSL https://fscarmen.cloudflare.now.cc/wg)
-    private_key=$(echo "$wg_api" | awk 'NR==2 {print $2}')
-    public_key=$(echo "$wg_api" | awk 'NR==1 {print $2}')
+    private_key=$(awk 'NR==2 {print $2}' <<< "$wg_api")
+    public_key=$(awk 'NR==1 {print $2}' <<< "$wg_api")
   fi
 
   registe_path=${registe_path:-warp-account.conf}
   [[ "$(dirname "$registe_path")" != '.' ]] && mkdir -p $(dirname "$registe_path")
-  install_id=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 22)
-  fcm_token="${install_id}:APA91b$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 134)"
 
-  curl --request POST 'https://api.cloudflareclient.com/v0a2158/reg' \
-  --silent \
-  --location \
-  --tlsv1.3 \
-  --header 'User-Agent: okhttp/3.12.1' \
-  --header 'CF-Client-Version: a-6.10-2158' \
-  --header 'Content-Type: application/json' \
-  --header "Cf-Access-Jwt-Assertion: ${team_token}" \
-  --data '{"key":"'${public_key}'","install_id":"'${install_id}'","fcm_token":"'${fcm_token}'","tos":"'$(date +"%Y-%m-%dT%H:%M:%S.000Z")'","model":"PC","serial_number":"'${install_id}'","locale":"zh_CN"}' \
-  | python3 -m json.tool | sed "/\"account_type\"/i\        \"private_key\": \"$private_key\"," > $registe_path
+  if [[ -n "$private_key" && -n "$public_key" ]]; then
+    install_id=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 22)
+    fcm_token="${install_id}:APA91b$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 134)"
 
-   [[ ! -s $registe_path || $(grep 'error' $registe_path) ]] && { rm -f $registe_path; exit 1; } || { cat $registe_path; exit 0; }
+    # 由于某些 IP 存在被限制注册，所以使用不停的注册来处理
+    until grep -q 'account' <<< "$account"; do
+      account=$(curl --request POST 'https://api.cloudflareclient.com/v0a2158/reg' \
+      --silent \
+      --location \
+      --tlsv1.3 \
+      --header 'User-Agent: okhttp/3.12.1' \
+      --header 'CF-Client-Version: a-6.10-2158' \
+      --header 'Content-Type: application/json' \
+      --header "Cf-Access-Jwt-Assertion: ${team_token}" \
+      --data '{"key":"'${public_key}'","install_id":"'${install_id}'","fcm_token":"'${fcm_token}'","tos":"'$(date +"%Y-%m-%dT%H:%M:%S.000Z")'","model":"PC","serial_number":"'${install_id}'","locale":"zh_CN"}')
+    done
+
+    account=$(python3 -m json.tool <<< "$account" 2>&1 | sed "/\"account_type\"/i\        \"private_key\": \"$private_key\",")
+    echo "$account" > $registe_path 2>&1
+  fi
+  [[ ! -s $registe_path || $(grep 'error' $registe_path) ]] && { rm -f $registe_path; exit 1; } || { cat $registe_path; exit 0; }
 }
 
 # 获取设备信息
@@ -101,7 +108,7 @@ device_information() {
   --header 'CF-Client-Version: a-6.10-2158' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer ${token}" \
-  | python3 -m json.tool
+  | python3 -m json.tool | sed "/\"warp_enabled\"/i\    \"token\": \"${token}\","
 }
 
 # 获取账户APP信息

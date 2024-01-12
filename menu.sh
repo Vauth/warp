@@ -1171,7 +1171,7 @@ net() {
   local NO_OUTPUT="$1"
   unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 WARPSTATUS4 WARPSTATUS6 TYPE QUOTA
   [[ ! $(type -p wg-quick) || ! -e /etc/wireguard/warp.conf ]] && error " $(text 10) "
-  local i=1; local j=3
+  local i=1; local j=5
   hint " $(text 11)\n $(text 12) "
   [ "$SYSTEM" != Alpine ] && [[ $(systemctl is-active wg-quick@warp) != 'active' ]] && wg-quick down warp >/dev/null 2>&1
   ${SYSTEMCTL_START[int]} >/dev/null 2>&1
@@ -1941,7 +1941,7 @@ install() {
   {
     # 如安装 WireProxy ，尽量下载官方的最新版本，如官方 WireProxy 下载不成功，将使用 cdn，以更好的支持双栈和大陆 VPS。并添加执行权限
     if [ "$PUFFERFFISH" = 1 ]; then
-      wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $STACK "https://api.github.com/repos/pufferffish/wireproxy/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
+      wireproxy_latest=$(wget --no-check-certificate -qO- -T1 -t1 $STACK "https://api.github.com/repos/pufferffish/wireproxy/releases/latest" | awk -F [v\"] '/tag_name/{print $5; exit}')
       wireproxy_latest=${wireproxy_latest:-'1.0.6'}
       wget --no-check-certificate -T10 -t1 $STACK -O wireproxy.tar.gz https://${CDN}github.com/pufferffish/wireproxy/releases/download/v"$wireproxy_latest"/wireproxy_linux_"$ARCHITECTURE".tar.gz ||
       wget --no-check-certificate $STACK -O wireproxy.tar.gz https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/wireproxy/wireproxy_linux_"$ARCHITECTURE".tar.gz
@@ -1951,57 +1951,26 @@ install() {
 
     # 注册 WARP 账户 ( warp-account.conf 使用默认值加快速度)。如有 WARP+ 账户，修改 license 并升级，并把设备名等信息保存到 /etc/wireguard/info.log
     mkdir -p /etc/wireguard/ >/dev/null 2>&1
-    local REGISTE_TIME=0
-    until [[ -e /etc/wireguard/warp-account.conf || "$REGISTE_TIME" -eq 50 ]]; do
-      bash <(curl -m5 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh | sed 's#cat $registe_path; ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null && break
-      (( REGISTE_TIME++ ))
-    done
+    bash <(curl -m5 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh | sed 's#cat $registe_path; ##') --registe --file /etc/wireguard/warp-account.conf 2>/dev/null
 
-    # 注册失败达 50 次，给予一个免费账户。否则根据是否有 License 来升级
-    if [ "$REGISTE_TIME" -eq 100 ]; then
-      [ ! -d /etc/wireguard ] && mkdir -p /etc/wireguard
-      cat > /etc/wireguard/warp-account.conf <<EOF
-{
-    "id":"317b5a76-3da1-469f-88d6-c3b261da9f10",
-    "name":"",
-    "account":{
-        "private_key":"CNUysnWWJmFGTkqYtg/wpDfURUWvHB8+U1FLlVAIB0Q=",
-        "account_type":"free",
-        "license":"n01H3Cf4-3Za40C7b-5qOs0c42"
-    },
-    "config":{
-        "client_id":"9URL",
-        "interface":{
-            "addresses":{
-                "v4":"172.16.0.2",
-                "v6":"2606:4700:110:8d4e:cef9:30c2:6d4a:f97b"
-            }
-        }
-    }
-}
-EOF
-      [ -s /etc/wireguard/warp-account.conf ] && warning "\n $(text 107) \n"
-    elif [ -n "$LICENSE" ]; then
-      if [ -s /etc/wireguard/warp-account.conf ]; then
-        local UPDATE_RESULT=$(bash <(curl -m5 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /etc/wireguard/warp-account.conf --license $LICENSE)
-        if grep -q '"warp_plus": true' <<< "$UPDATE_RESULT"; then
-          [ -n "$NAME" ] && bash <(curl -m5 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /etc/wireguard/warp-account.conf --name $NAME >/dev/null 2>&1
-          sed -i "s#\([ ]\+\"license\": \"\).*#\1$LICENSE\"#g; s#\"account_type\".*#\"account_type\": \"limited\",#g; s#\([ ]\+\"name\": \"\).*#\1$NAME\"#g" /etc/wireguard/warp-account.conf
-          echo "$LICENSE" > /etc/wireguard/license
-          echo -e "Device name   : $NAME" > /etc/wireguard/info.log
-        elif grep -q 'Invalid license' <<< "$UPDATE_RESULT"; then
-          warning "\n $(text 169) \n"
-        elif grep -q 'Too many connected devices.' <<< "$UPDATE_RESULT"; then
-          warning "\n $(text 36) \n"
-        else
-          warning "\n $(text 42) \n"
-        fi
+    # 有 License 来升级账户
+    if [ -n "$LICENSE" ]; then
+      local UPDATE_RESULT=$(bash <(curl -m5 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /etc/wireguard/warp-account.conf --license $LICENSE)
+      if grep -q '"warp_plus": true' <<< "$UPDATE_RESULT"; then
+        [ -n "$NAME" ] && bash <(curl -m5 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /etc/wireguard/warp-account.conf --name $NAME >/dev/null 2>&1
+        sed -i "s#\([ ]\+\"license\": \"\).*#\1$LICENSE\"#g; s#\"account_type\".*#\"account_type\": \"limited\",#g; s#\([ ]\+\"name\": \"\).*#\1$NAME\"#g" /etc/wireguard/warp-account.conf
+        echo "$LICENSE" > /etc/wireguard/license
+        echo -e "Device name   : $NAME" > /etc/wireguard/info.log
+      elif grep -q 'Invalid license' <<< "$UPDATE_RESULT"; then
+        warning "\n $(text 169) \n"
+      elif grep -q 'Too many connected devices.' <<< "$UPDATE_RESULT"; then
+        warning "\n $(text 36) \n"
       else
-        warning " $(text 106) "
+        warning "\n $(text 42) \n"
       fi
     fi
 
-    # 生成 WireGuard 配置文件 (warp.conf)，如果注册一直不成功，即使用共享账户
+    # 生成 WireGuard 配置文件 (warp.conf)
     if [ -s /etc/wireguard/warp-account.conf ]; then
       cat > /etc/wireguard/warp.conf <<EOF
 [Interface]

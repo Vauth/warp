@@ -31,7 +31,7 @@ Synchronize applications:
     - echo "Synchronize wgcf"
     - |
       WGCF_NOW=$(wget -qO- https://gitlab.com/$CI_PROJECT_PATH/-/raw/main/docker.sh | grep 'latest=${latest' | cut -d \' -f2)
-      WGCF_LATEST=$(wget -qO- "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | grep "tag_name" | head -n 1 | cut -d : -f2 | sed 's/[ \"v,]//g')
+      WGCF_LATEST=$(wget -qO- "https://api.github.com/repos/ViRb3/wgcf/releases/latest" | awk -F [v\"] '/tag_name/{print $5}')
 
       if [ "$WGCF_LATEST" != "$WGCF_NOW" ]; then
         [ ! -d $WGCF_DIR ] && mkdir -p $WGCF_DIR
@@ -153,11 +153,11 @@ Mirror to Bitbucket:
 
 # Mirror to Gitlab group:
 #   stage: Mirror to others git repositories
-# 
+#
 #   variables:
 #     GIT_USER_NAME: $GITLAB_USER_NAME
 #     GIT_SSH_COMMAND: "ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -l $GIT_USER_NAME"
 #     GIT_REPO: "Gitlab group"
 #     TARGET_REPO_URL: git@gitlab.com:ProjectWARP/warp-script.git
-# 
+#
 #   <<: *mirror_script
