@@ -23,6 +23,8 @@
 * * *
 
 ## 更新信息
+2024.2.7 menu.sh V3.02 To check if the WireGuard kernel module is already loaded. If not, attempt to load it and recheck; 判断系统是否已经加载 wireguard 内核模块，如果还没有则尝试加载，再重新判断
+
 2023.12.19 menu.sh V3.01 / warp-go.sh 1.1.6 Add a check to see if udp is allowed, if all endpoints of WARP are unreachable, the script will abort; 增加是否允许 udp 的检测，如果 WARP 的所有 endpoint 均不能连通，脚本将中止
 
 2023.8.22 menu.sh V3.00 / warp-go.sh 1.1.5 Add Github CDN; 添加 Github CDN
