@@ -5,39 +5,39 @@
 
 # 帮助
 help() {
-  echo -ne " Usage:\n\tbash api.sh\t-h/--help\t\thelp\n\t\t\t-f/--file string\tConfiguration file (default "warp-account.conf")\n\t\t\t-r/--registe\t\tRegiste an account\n\t\t\t-t/--token\t\tRegiste with a team token\n\t\t\t-d/--device\t\tGet the devices information and plus traffic quota\n\t\t\t-a/--app\t\tFetch App information\n\t\t\t-b/--bind\t\tGet the account blinding devices\n\t\t\t-n/--name\t\tChange the device name\n\t\t\t-l/--license\t\tChange the license\n\t\t\t-u/--unbind\t\tUnbine a device from the account\n\t\t\t-c/--cancle\t\tCancle the account\n\t\t\t-i/--id\t\t\tShow the client id and reserved\n\n"
+  echo -ne " Usage:\n\tbash api.sh\t-h/--help\t\thelp\n\t\t\t-f/--file string\tConfiguration file (default "warp-account.conf")\n\t\t\t-r/--register\t\tRegister an account\n\t\t\t-t/--token\t\tRegister with a team token\n\t\t\t-d/--device\t\tGet the devices information and plus traffic quota\n\t\t\t-a/--app\t\tFetch App information\n\t\t\t-b/--bind\t\tGet the account blinding devices\n\t\t\t-n/--name\t\tChange the device name\n\t\t\t-l/--license\t\tChange the license\n\t\t\t-u/--unbind\t\tUnbine a device from the account\n\t\t\t-c/--cancle\t\tCancle the account\n\t\t\t-i/--id\t\t\tShow the client id and reserved\n\n"
 }
 
 # 获取账户信息
 fetch_account_information() {
   # 如不使用账户信息文件，则手动填写 Device id 和 Api token
-  if [ -s "$registe_path" ]; then
+  if [ -s "$register_path" ]; then
     # Teams 账户文件
-    if grep -q 'xml version' $registe_path; then
-      id=$(grep 'correlation_id' $registe_path | sed "s#.*>\(.*\)<.*#\1#")
-      token=$(grep 'warp_token' $registe_path | sed "s#.*>\(.*\)<.*#\1#")
-      client_id=$(grep 'client_id' $registe_path | sed "s#.*client_id&quot;:&quot;\([^&]\{4\}\)&.*#\1#")
+    if grep -q 'xml version' $register_path; then
+      id=$(grep 'correlation_id' $register_path | sed "s#.*>\(.*\)<.*#\1#")
+      token=$(grep 'warp_token' $register_path | sed "s#.*>\(.*\)<.*#\1#")
+      client_id=$(grep 'client_id' $register_path | sed "s#.*client_id&quot;:&quot;\([^&]\{4\}\)&.*#\1#")
 
     # 官方 api 文件
-    elif grep -q 'client_id' $registe_path; then
-      id=$(grep -m1 '"id' "$registe_path" | cut -d\" -f4)
-      token=$(grep '"token' "$registe_path" | cut -d\" -f4)
-      client_id=$(grep 'client_id' "$registe_path" | cut -d\" -f4)
+    elif grep -q 'client_id' $register_path; then
+      id=$(grep -m1 '"id' "$register_path" | cut -d\" -f4)
+      token=$(grep '"token' "$register_path" | cut -d\" -f4)
+      client_id=$(grep 'client_id' "$register_path" | cut -d\" -f4)
 
     # client 文件，默认存放路径为 /var/lib/cloudflare-warp/reg.json
-    elif grep -q 'registration_id' $registe_path; then
-      id=$(cut -d\" -f4 "$registe_path")
-      token=$(cut -d\" -f8 "$registe_path")
+    elif grep -q 'registration_id' $register_path; then
+      id=$(cut -d\" -f4 "$register_path")
+      token=$(cut -d\" -f8 "$register_path")
 
     # wgcf 文件，默认存放路径为 /etc/wireguard/wgcf-account.toml
-    elif grep -q 'access_token' $registe_path; then
-      id=$(grep 'device_id' "$registe_path" | cut -d\' -f2)
-      token=$(grep 'access_token' "$registe_path" | cut -d\' -f2)
+    elif grep -q 'access_token' $register_path; then
+      id=$(grep 'device_id' "$register_path" | cut -d\' -f2)
+      token=$(grep 'access_token' "$register_path" | cut -d\' -f2)
 
     # warp-go 文件，默认存放路径为 /opt/warp-go/warp.conf
-    elif grep -q 'PrivateKey' $registe_path; then
-      id=$(awk -F' *= *' '/^Device/{print $2}' "$registe_path")
-      token=$(awk -F' *= *' '/^Token/{print $2}' "$registe_path")
+    elif grep -q 'PrivateKey' $register_path; then
+      id=$(awk -F' *= *' '/^Device/{print $2}' "$register_path")
+      token=$(awk -F' *= *' '/^Token/{print $2}' "$register_path")
 
     else
       echo " There is no registered account information, please check the content. " && exit 1
@@ -60,7 +60,7 @@ fetch_account_information() {
 }
 
 # 注册warp账户
-registe_account() {
+register_account() {
   # 生成 wireguard 公私钥，并且补上 private key
   if [ $(type -p wg) ]; then
     private_key=$(wg genkey)
@@ -71,8 +71,8 @@ registe_account() {
     public_key=$(awk 'NR==1 {print $2}' <<< "$wg_api")
   fi
 
-  registe_path=${registe_path:-warp-account.conf}
-  [[ "$(dirname "$registe_path")" != '.' ]] && mkdir -p $(dirname "$registe_path")
+  register_path=${register_path:-warp-account.conf}
+  [[ "$(dirname "$register_path")" != '.' ]] && mkdir -p $(dirname "$register_path")
 
   if [[ -n "$private_key" && -n "$public_key" ]]; then
     install_id=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 22)
@@ -92,9 +92,9 @@ registe_account() {
     done
 
     account=$(python3 -m json.tool <<< "$account" 2>&1 | sed "/\"account_type\"/i\        \"private_key\": \"$private_key\",")
-    echo "$account" > $registe_path 2>&1
+    echo "$account" > $register_path 2>&1
   fi
-  [[ ! -s $registe_path || $(grep 'error' $registe_path) ]] && { rm -f $registe_path; exit 1; } || { cat $registe_path; exit 0; }
+  [[ ! -s $register_path || $(grep 'error' $register_path) ]] && { rm -f $register_path; exit 1; } || { cat $register_path; exit 0; }
 }
 
 # 获取设备信息
@@ -213,11 +213,11 @@ while [[ $# -ge 1 ]]; do
   case $1 in
     -f|--file)
       shift
-      registe_path="$1"
+      register_path="$1"
       shift
       ;;
-    -r|--registe)
-      run=registe_account
+    -r|--register)
+      run=register_account
       shift
       ;;
     -d|--device)

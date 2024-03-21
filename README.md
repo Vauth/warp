@@ -23,16 +23,18 @@
 * * *
 
 ## 更新信息
-2024.2.7 menu.sh V3.02 To check if the WireGuard kernel module is already loaded. If not, attempt to load it and recheck; 判断系统是否已经加载 wireguard 内核模块，如果还没有则尝试加载，再重新判断
-
-2023.12.19 menu.sh V3.01 / warp-go.sh 1.1.6 Add a check to see if udp is allowed, if all endpoints of WARP are unreachable, the script will abort; 增加是否允许 udp 的检测，如果 WARP 的所有 endpoint 均不能连通，脚本将中止
-
-2023.8.22 menu.sh V3.00 / warp-go.sh 1.1.5 Add Github CDN; 添加 Github CDN
+2024.3.21 menu.sh V3.03 / warp-go.sh 1.1.7 1. Update some commands according to warp-cli; 2. Remove the github cdn; 1. 根据 warp-cli 官方更新部分命令； 2. 去掉 Github cdn
 
 <details>
     <summary>历史更新 history（点击即可展开或收起）</summary>
 <br>
 
+>2024.2.7 menu.sh V3.02 To check if the WireGuard kernel module is already loaded. If not, attempt to load it and recheck; 判断系统是否已经加载 wireguard 内核模块，如果还没有则尝试加载，再重新判断
+>
+>2023.12.19 menu.sh V3.01 / warp-go.sh 1.1.6 Add a check to see if udp is allowed, if all endpoints of WARP are unreachable, the script will abort; 增加是否允许 udp 的检测，如果 WARP 的所有 endpoint 均不能连通，脚本将中止
+>
+>2023.8.22 menu.sh V3.00 / warp-go.sh 1.1.5 Add Github CDN; 添加 Github CDN
+>
 >2023.8.15 menu.sh V3.00 1. Add a non-global working mode, it can be switched use [warp g], which requires a script reinstallation; 2. Support regions sanctioned by Cloudflare, such as Russia, with a shared account; 3. IPv6 only uses the preset nat64 and restores the original nameserver file when uninstalled; 1. 增加warp的非全局工作模式，可以通过 [warp g] 切换，需要重装脚本; 2. 支持被Cloudflare制裁地区，如俄罗斯，使用共享账户; 3. IPv6 only 使用预设 nat64，卸载时恢复原始 nameserver 文件
 >
 >2023.7.21 menu.sh V3.00 beta2 1. If the system supports wireguard kernel and wireguard-go-reserved, it can be switched use [warp k], which requires a script reinstallation; 2. Support Fedora system; 3. Fix switch error caused by client version 2023.7.40-1; 1. 如果系统支持 wireguard kernel 和 wireguard-go-reserved，可以通过 [warp k] 切换，需要重装脚本; 2. 支持 Fedora 系统; 3. 修复 client 2023.7.40-1 版本导致的开关错误
@@ -553,20 +555,20 @@ warp-go [option] [lisence]
 ```
 wget -N https://gitlab.com/fscarmen/warp/-/raw/main/api.sh && bash api.sh [option]
 ```
-  | [option] 变量 | 具体动作说明 |
-  | -------------| ------------- |
-  | -h/--help    | 帮助 |
-  | -f/--file    | 保存账户注册信息的文件，支持官方api，client，wgcf 和 warp-go ，不填则手动输入 device id 和 api token |
-  | -r/--registe | 注册账户 |
-  | -t/--token   | -r 注册时，使用 team token 注册，快速获取: https://web--public--warp-team-api--coia-mfs4.code.run |
-  | -d/--device  | 获取账户注册信息，包括 plus 流量等 |
-  | -a/--app     | 获取 app 信息 |
-  | -b/--bind    | 获取绑定设备信息，包括子设备 |
-  | -n/--name    | 修改设备名称 |
-  | -l/--license | 修改 license |
-  | -u/--unbind  | 解绑设备 |
-  | -c/--cancle  | 注销账户 |
-  | -i/--id      | 显示 cliend id 与 reserved |
+  | [option] 变量  | 具体动作说明 |
+  | ------------- | ------------- |
+  | -h/--help     | 帮助 |
+  | -f/--file     | 保存账户注册信息的文件，支持官方api，client，wgcf 和 warp-go ，不填则手动输入 device id 和 api token |
+  | -r/--register | 注册账户 |
+  | -t/--token    | -r 注册时，使用 team token 注册，快速获取: https://web--public--warp-team-api--coia-mfs4.code.run |
+  | -d/--device   | 获取账户注册信息，包括 plus 流量等 |
+  | -a/--app      | 获取 app 信息 |
+  | -b/--bind     | 获取绑定设备信息，包括子设备 |
+  | -n/--name     | 修改设备名称 |
+  | -l/--license  | 修改 license |
+  | -u/--unbind   | 解绑设备 |
+  | -c/--cancle   | 注销账户 |
+  | -i/--id       | 显示 cliend id 与 reserved |
 
 ## WARP+ License 及 ID 获取
 

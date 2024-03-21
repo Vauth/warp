@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号和新增功能
-VERSION=1.1.6
+VERSION='1.1.7'
 
 # IP API 服务商
 IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.who.int/cdn-cgi/trace")
 ISP=("isp" "isp" "asn_org")
 IP=("query" "ip" "ip")
-
-# 自建 github cdn 反代网，用于不能直连 github 的机器。先直连 github，若部分大陆机器不能连接，寻找 github CDN
-CDN_URL=("cdn1.cloudflare.now.cc/proxy/" "cdn2.cloudflare.now.cc/https://" "cdn3.cloudflare.now.cc?url=https://" "cdn4.cloudflare.now.cc/proxy/https://")
 
 # 判断 Teams token 最少字符数
 TOKEN_LENGTH=800
@@ -21,8 +18,8 @@ trap "rm -f /tmp/warp-go*; exit 1" INT
 
 E[0]="Language:\n  1.English (default) \n  2.简体中文"
 C[0]="${E[0]}"
-E[1]="Add a check to see if udp is allowed, if all endpoints of WARP are unreachable, the script will abort."
-C[1]="增加是否允许 udp 的检测，如果 WARP 的所有 endpoint 均不能连通，脚本将中止"
+E[1]="Remove the github cdn"
+C[1]="去掉 Github cdn"
 E[2]="warp-go h (help)\n warp-go o (temporary warp-go switch)\n warp-go u (uninstall WARP web interface and warp-go)\n warp-go v (sync script to latest version)\n warp-go i (replace IP with Netflix support)\n warp-go 4/6 ( WARP IPv4/IPv6 single-stack)\n warp-go d (WARP dual-stack)\n warp-go n (WARP IPv4 non-global)\n warp-go g (WARP global/non-global switching)\n warp-go e (output wireguard and sing-box configuration file)\n warp-go a (Change to Free, WARP+ or Teams account)"
 C[2]="warp-go h (帮助）\n warp-go o (临时 warp-go 开关)\n warp-go u (卸载 WARP 网络接口和 warp-go)\n warp-go v (同步脚本至最新版本)\n warp-go i (更换支持 Netflix 的IP)\n warp-go 4/6 (WARP IPv4/IPv6 单栈)\n warp-go d (WARP 双栈)\n warp-go n (WARP IPv4 非全局)\n warp-go g (WARP 全局 / 非全局相互切换)\n warp-go e (输出 wireguard 和 sing-box 配置文件)\n warp-go a (更换到 Free，WARP+ 或 Teams 账户)"
 E[3]="This project is designed to add WARP network interface for VPS, using warp-go core, using various interfaces of CloudFlare-WARP, integrated wireguard-go, can completely replace WGCF. Save Hong Kong, Toronto and other VPS, can also get WARP IP. Thanks again @CoiaPrant and his team. Project address: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/"
@@ -135,7 +132,7 @@ E[56]="Download warp-go zip file unsuccessful. Script exits. Feedback: [https://
 C[56]="下载 warp-go 压缩文件不成功，脚本退出，问题反馈: [https://github.com/fscarmen/warp-sh/issues]"
 E[57]="Warp-go file does not exist, script exits. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
 C[57]="Warp-go 文件不存在，脚本退出，问题反馈: [https://github.com/fscarmen/warp-sh/issues]"
-E[58]="Maximum \${j} attempts to registe WARP\${k} account..."
+E[58]="Maximum \${j} attempts to register WARP\${k} account..."
 C[58]="注册 WARP\${k} 账户中, 最大尝试\${j}次……"
 E[59]="Try \${i}"
 C[59]="第\${i}次尝试"
@@ -282,16 +279,12 @@ check_root_virt() {
   [ "$(id -u)" != 0 ] && error " $(text 5) "
 
   # 判断虚拟化，选择 Wireguard内核模块 还是 Wireguard-Go
-  VIRT=$(systemd-detect-virt 2>/dev/null | tr 'A-Z' 'a-z')
-  [ -z "$VIRT" ] && VIRT=$(hostnamectl 2>/dev/null | tr 'A-Z' 'a-z' | grep virtualization | sed "s/.*://g")
-}
-
-# 随机使用 cdn 网址，以负载均衡
-check_cdn() {
-  RANDOM_CDN=($(shuf -e "${CDN_URL[@]}"))
-  for CDN in "${RANDOM_CDN[@]}"; do
-    wget -T2 -qO- https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh | grep -q '#!/usr/bin/env' && break || unset CDN
-  done
+  if [ "$1" = Alpine ]; then
+    VIRT=$(virt-what)
+  else
+    [ $(type -p systemd-detect-virt) ] && VIRT=$(systemd-detect-virt)
+    [[ -z "$VIRT" && $(type -p hostnamectl) ]] && VIRT=$(hostnamectl | awk '/Virtualization:/{print $NF}')
+  fi
 }
 
 # 多方式判断操作系统，试到有值为止。只支持 Debian 9/10/11、Ubuntu 18.04/20.04/22.04 或 CentOS 7/8 ,如非上述操作系统，退出脚本
@@ -320,7 +313,7 @@ check_operating_system() {
 
   REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky|amazon linux" "alpine" "arch linux" "openwrt")
   RELEASE=("Debian" "Ubuntu" "CentOS" "Alpine" "Arch" "OpenWrt")
-  EXCLUDE=("bookworm")
+  EXCLUDE=("")
   MAJOR=("9" "16" "7" "3" "" "")
   PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "apk update -f" "pacman -Sy" "opkg update")
   PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm" "opkg install")
@@ -331,13 +324,18 @@ check_operating_system() {
   SYSTEMCTL_ENABLE=("systemctl enable --now warp-go" "systemctl enable --now warp-go" "systemctl enable --now warp-go" "alpine_wgcf_enable" "systemctl enable --now warp-go")
 
   for ((int=0; int<${#REGEX[@]}; int++)); do
-    [[ $(echo "$SYS" | tr 'A-Z' 'a-z') =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && COMPANY="${COMPANY[int]}" && break
+    [[ "${SYS,,}" =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && break
   done
-  [ -z "$SYSTEM" ] && error "$(text 6)"
+
+  # 针对各厂运的订制系统
+  if [ -z "$SYSTEM" ]; then
+    [ $(type -p yum) ] && int=2 && SYSTEM='CentOS' || error " $(text 6) "
+  fi
+
   [ "$SYSTEM" = OpenWrt ] && [[ ! $(uci show network.wan.proto 2>/dev/null | cut -d \' -f2)$(uci show network.lan.proto 2>/dev/null | cut -d \' -f2) =~ 'static' ]] && error " $(text 102) "
 
   # 先排除 EXCLUDE 里包括的特定系统，其他系统需要作大发行版本的比较
-  for ex in "${EXCLUDE[@]}"; do [[ ! $(echo "$SYS" | tr 'A-Z' 'a-z')  =~ $ex ]]; done &&
+  for ex in "${EXCLUDE[@]}"; do [[ ! "${SYS,,}"  =~ $ex ]]; done &&
   [[ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ]] && error " $(text_eval 7) "
 }
 
@@ -377,20 +375,26 @@ check_arch() {
 # 安装系统依赖及定义 ping 指令
 check_dependencies() {
   # 对于 Alpine 和 OpenWrt 系统，升级库并重新安装依赖
-  if echo "$SYSTEM" | grep -qE "Alpine|OpenWrt"; then
-    [ ! -s /opt/warp-go/warp-go ] && ( ${PACKAGE_UPDATE[int]}; ${PACKAGE_INSTALL[int]} curl wget grep bash xxd python3 tar )
+  if [[ "$SYSTEM" =~ Alpine|OpenWrt ]]; then
+    DEPS_CHECK=("ping" "curl" "wget" "grep" "bash" "xxd" "ip" "python3" "tar" "virt-what")
+    DEPS_INSTALL=("iputils-ping" "curl" "wget" "grep" "bash" "xxd" "iproute2" "python3" "tar" "virt-what")
   else
     # 对于 CentOS 系统，xxd 需要依赖 vim-common
     [ "${SYSTEM}" = 'CentOS' ] && ${PACKAGE_INSTALL[int]} vim-common
     DEPS_CHECK=("ping" "xxd" "wget" "curl" "systemctl" "ip" "python3")
     DEPS_INSTALL=("iputils-ping" "xxd" "wget" "curl" "systemctl" "iproute2" "python3")
-    for ((c=0;c<${#DEPS_CHECK[@]};c++)); do [ ! $(type -p ${DEPS_CHECK[c]}) ] && [[ ! "${DEPS[@]}" =~ "${DEPS_INSTALL[c]}" ]] && DEPS+=(${DEPS_INSTALL[c]}); done
-    if [ "${#DEPS[@]}" -ge 1 ]; then
-      info "\n $(text 8) ${DEPS[@]} \n"
-      ${PACKAGE_UPDATE[int]} >/dev/null 2>&1
-      ${PACKAGE_INSTALL[int]} ${DEPS[@]} >/dev/null 2>&1
-    fi
   fi
+
+  for c in "${!DEPS_CHECK[@]}"; do
+    [ ! $(type -p ${DEPS_CHECK[c]}) ] && [[ ! "${DEPS[@]}" =~ "${DEPS_INSTALL[c]}" ]] && DEPS+=(${DEPS_INSTALL[c]})
+  done
+
+  if [ "${#DEPS[@]}" -ge 1 ]; then
+    info "\n $(text 8) ${DEPS[@]} \n"
+    ${PACKAGE_UPDATE[int]} >/dev/null 2>&1
+    ${PACKAGE_INSTALL[int]} ${DEPS[@]} >/dev/null 2>&1
+  fi
+
   PING6='ping -6' && [ $(type -p ping6) ] && PING6='ping6'
 }
 
@@ -404,7 +408,7 @@ check_install() {
       # 预下载 warp-go，并添加执行权限，如因 gitlab 接口问题未能获取，默认 v1.0.8
       latest=$(wget -qO- -T2 -t1 https://gitlab.com/api/v4/projects/ProjectWARP%2Fwarp-go/releases | awk -F '"' '{for (i=0; i<NF; i++) if ($i=="tag_name") {print $(i+2); exit}}' | sed "s/v//")
       latest=${latest:-'1.0.8'}
-      wget --no-check-certificate -T5 -qO- /tmp/warp-go.tar.gz https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz | tar xz -C /tmp/ warp-go
+      wget --no-check-certificate -T5 -qO- /tmp/warp-go.tar.gz https://gitlab.com/fscarmen/warp/-/raw/main/warp-go/warp-go_"$latest"_linux_"$ARCHITECTURE".tar.gz | tar xz -C /tmp/ warp-go
       chmod +x /tmp/warp-go
     }&
   fi
@@ -507,11 +511,11 @@ change_ip() {
     warning " $(text_eval 13) "
     cp -f /opt/warp-go/warp.conf{,.tmp1}
     [ -s /opt/warp-go/License ] && k='+' || k=' free'
-    registe_api warp.conf.tmp2
+    register_api warp.conf.tmp2
     sed -i '1,6!d' /opt/warp-go/warp.conf.tmp2
     tail -n +7 /opt/warp-go/warp.conf.tmp1 >> /opt/warp-go/warp.conf.tmp2
     mv /opt/warp-go/warp.conf.tmp2 /opt/warp-go/warp.conf
-    bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/warp.conf.tmp1 --cancle >/dev/null 2>&1
+    bash <(curl -m8 -sSL https://gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/warp.conf.tmp1 --cancle >/dev/null 2>&1
     rm -f /opt/warp-go/warp.conf.tmp*
     ${SYSTEMCTL_RESTART[int]}
     sleep $l
@@ -536,7 +540,7 @@ change_ip() {
   UA_Browser="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36"
 
   # 根据 lmc999 脚本检测 Netflix Title，如获取不到，使用兜底默认值
-  local LMC999=($(curl -sSLm4 https://${CDN}raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh | awk -F 'title/' '/netflix.com\/title/{print $2}' | cut -d\" -f1))
+  local LMC999=($(curl -sSLm4 https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/check.sh | awk -F 'title/' '/netflix.com\/title/{print $2}' | cut -d\" -f1))
   RESULT_TITLE=(${LMC999[*]:0:2})
   REGION_TITLE=${LMC999[2]}
   [[ ! "${RESULT_TITLE[0]}" =~ ^[0-9]+$ ]] && RESULT_TITLE[0]='81280792'
@@ -604,12 +608,12 @@ uninstall() {
   unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 INTERFACE4 INTERFACE6
 
   # 如已安装 warp_unlock 项目，先行卸载
-  [ -s /etc/wireguard/warp_unlock.sh ] && bash <(curl -sSL https://${CDN}gitlab.com/fscarmen/warp_unlock/-/raw/main/unlock.sh) -U -$L
+  [ -s /etc/wireguard/warp_unlock.sh ] && bash <(curl -sSL https://gitlab.com/fscarmen/warp_unlock/-/raw/main/unlock.sh) -U -$L
 
   # 卸载
   systemctl disable --now warp-go >/dev/null 2>&1
   kill -15 $(pgrep warp-go) >/dev/null 2>&1
-  bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/warp.conf --cancle >/dev/null 2>&1
+  bash <(curl -m8 -sSL https://gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/warp.conf --cancle >/dev/null 2>&1
   rm -rf /opt/warp-go /lib/systemd/system/warp-go.service /usr/bin/warp-go /tmp/warp-go*
   [ -s /opt/warp-go/tun.sh ] && rm -f /opt/warp-go/tun.sh && sed -i '/tun.sh/d' /etc/crontab
 
@@ -622,7 +626,7 @@ uninstall() {
 # 同步脚本至最新版本
 ver() {
   mkdir -p /tmp; rm -f /tmp/warp-go.sh
-  wget -T2 -O /tmp/warp-go.sh https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/warp-go.sh
+  wget -T2 -O /tmp/warp-go.sh https://gitlab.com/fscarmen/warp/-/raw/main/warp-go.sh
   if [ -s /tmp/warp-go.sh ]; then
     mv /tmp/warp-go.sh /opt/warp-go/
     chmod +x /opt/warp-go/warp-go.sh
@@ -671,27 +675,27 @@ net() {
 }
 
 # api 注册账户, 使用官方 api 脚本
-registe_api() {
-  local REGISTE_FILE="$1"
+register_api() {
+  local REGISTER_FILE="$1"
   local i=0; local j=5
   [ -n "$2" ] && hint " $(text_eval $2) "
-  until [ -s /opt/warp-go/$REGISTE_FILE ]; do
+  until [ -s /opt/warp-go/$REGISTER_FILE ]; do
     ((i++)) || true
     [ "$i" -gt "$j" ] && rm -f /opt/warp-go/warp.conf.tmp* && error " $(text_eval 50) "
     [ -n "$3" ] && hint " $(text_eval $3) "
-    if ! grep -sq 'PrivateKey' /opt/warp-go/$REGISTE_FILE; then
-      unset CF_API_REGISTE API_DEVICE_ID API_ACCESS_TOKEN API_PRIVATEKEY API_TYPE
-      rm -f /opt/warp-go/$REGISTE_FILE
-      CF_API_REGISTE="$(bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh | sed 's# > $registe_path##g; /cat $registe_path/d') --registe --token $TOKEN 2>/dev/null)"
+    if ! grep -sq 'PrivateKey' /opt/warp-go/$REGISTER_FILE; then
+      unset CF_API_REGISTER API_DEVICE_ID API_ACCESS_TOKEN API_PRIVATEKEY API_TYPE
+      rm -f /opt/warp-go/$REGISTER_FILE
+      CF_API_REGISTER="$(bash <(curl -m8 -sSL https://gitlab.com/fscarmen/warp/-/raw/main/api.sh | sed 's# > $register_path##g; /cat $register_path/d') --register --token $TOKEN 2>/dev/null)"
       [[ -n "$NF" && -n "$EXPECT" && -s /opt/warp-go/License ]] && LICENSE=$(cat /opt/warp-go/License) && NAME=$(cat /opt/warp-go/Device_Name)
       [[ -z "$LICENSE" && -s /opt/warp-go/License ]] && rm -f /opt/warp-go/License /opt/warp-go/Device_Name
-      if grep -q 'private_key' <<< "$CF_API_REGISTE"; then
-        local API_DEVICE_ID=$(expr "$CF_API_REGISTE " | grep -m1 'id' | cut -d\" -f4)
-        local API_ACCESS_TOKEN=$(expr "$CF_API_REGISTE " | grep '"token' | cut -d\" -f4)
-        local API_PRIVATEKEY=$(expr "$CF_API_REGISTE " | grep 'private_key' | cut -d\" -f4)
-        local API_TYPE=$(expr "$CF_API_REGISTE " | grep 'account_type' | cut -d\" -f4)
+      if grep -q 'private_key' <<< "$CF_API_REGISTER"; then
+        local API_DEVICE_ID=$(expr "$CF_API_REGISTER " | grep -m1 'id' | cut -d\" -f4)
+        local API_ACCESS_TOKEN=$(expr "$CF_API_REGISTER " | grep '"token' | cut -d\" -f4)
+        local API_PRIVATEKEY=$(expr "$CF_API_REGISTER " | grep 'private_key' | cut -d\" -f4)
+        local API_TYPE=$(expr "$CF_API_REGISTER " | grep 'account_type' | cut -d\" -f4)
         [[ -z "$NF" && -z "$EXPECT" && -n "$TOKEN" ]] && ( [ "$API_TYPE" = 'team' ] && info "\n teams $(text_eval 105) \n" || warning "\n teams $(text_eval 106) \n" )
-        cat > /opt/warp-go/$REGISTE_FILE << EOF
+        cat > /opt/warp-go/$REGISTER_FILE << EOF
 [Account]
 Device = $API_DEVICE_ID
 PrivateKey = $API_PRIVATEKEY
@@ -713,27 +717,27 @@ EOF
       fi
     fi
 
-    if grep -sq 'Account' /opt/warp-go/$REGISTE_FILE; then
-      echo -e "\n[Script]\nPostUp =\nPostDown =" >> /opt/warp-go/$REGISTE_FILE && sed -i 's/\r//' /opt/warp-go/$REGISTE_FILE
+    if grep -sq 'Account' /opt/warp-go/$REGISTER_FILE; then
+      echo -e "\n[Script]\nPostUp =\nPostDown =" >> /opt/warp-go/$REGISTER_FILE && sed -i 's/\r//' /opt/warp-go/$REGISTER_FILE
       if [ -n "$LICENSE" ]; then
-        local RESULT=$(bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --license $LICENSE)
+        local RESULT=$(bash <(curl -m8 -sSL https://gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTER_FILE --license $LICENSE)
         if [[ "$RESULT" =~ '"warp_plus": true' ]]; then
-          bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --name $NAME >/dev/null 2>&1
+          bash <(curl -m8 -sSL https://gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTER_FILE --name $NAME >/dev/null 2>&1
           echo "$LICENSE" > /opt/warp-go/License
           echo "$NAME" > /opt/warp-go/Device_Name
-          sed -i "s/Type =.*/Type = plus/g" /opt/warp-go/$REGISTE_FILE
+          sed -i "s/Type =.*/Type = plus/g" /opt/warp-go/$REGISTER_FILE
           [[ -z "$NF" && -z "$EXPECT" ]] && info "\n License: $LICENSE $(text_eval 105) \n"
         else
           warning "\n License: $LICENSE $(text_eval 106) \n"
         fi
       elif [[ -s /opt/warp-go/License && -s /opt/warp-go/Device_Name ]]; then
         if [ -s /opt/warp-go/warp.conf.tmp ]; then
-          bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --license $(cat /opt/warp-go/License 2>/dev/null) >/dev/null 2>&1
-          bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTE_FILE --name $(cat /opt/warp-go/Device_Name 2>/dev/null) >/dev/null 2>&1
+          bash <(curl -m8 -sSL https://gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTER_FILE --license $(cat /opt/warp-go/License 2>/dev/null) >/dev/null 2>&1
+          bash <(curl -m8 -sSL https://gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/$REGISTER_FILE --name $(cat /opt/warp-go/Device_Name 2>/dev/null) >/dev/null 2>&1
         fi
       fi
     else
-      rm -f /opt/warp-go/$REGISTE_FILE
+      rm -f /opt/warp-go/$REGISTER_FILE
     fi
  done
 }
@@ -929,7 +933,7 @@ EOF
   LAN4=$(ip route get 192.168.193.10 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
   LAN6=$(ip route get 2606:4700:d0::a29f:c001 2>/dev/null | awk '{for (i=0; i<NF; i++) if ($i=="src") {print $(i+1)}}')
   [[ "$LAN4" =~ ^([0-9]{1,3}\.){3} ]] && INET4=1
-  [[ "$LAN6" != "::1" && "$LAN6" =~ ^([a-f0-9]{1,4}:){2,4}[a-f0-9]{1,4} ]] && INET6=1
+  [[ "$LAN6" != "::1" && "$LAN6" =~ ^[a-f0-9:]+$ ]] && INET6=1
   [ "$INET6" = 1 ] && $PING6 -c2 -w10 2606:4700:d0::a29f:c001 >/dev/null 2>&1 && IPV6=1 && STACK=-6
   [ "$INET4" = 1 ] && ping -c2 -W3 162.159.193.10 >/dev/null 2>&1 && IPV4=1 && STACK=-4
 
@@ -1026,9 +1030,9 @@ update() {
           update_license
       esac
       cp -f /opt/warp-go/warp.conf{,.tmp1}
-      bash <(curl -m8 -sSL https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/warp.conf --cancle >/dev/null 2>&1
+      bash <(curl -m8 -sSL https://gitlab.com/fscarmen/warp/-/raw/main/api.sh) --file /opt/warp-go/warp.conf --cancle >/dev/null 2>&1
       [ -s /opt/warp-go/warp.conf ] && rm -f /opt/warp-go/warp.conf
-      registe_api warp.conf 58 59
+      register_api warp.conf 58 59
       head -n +6 /opt/warp-go/warp.conf > /opt/warp-go/warp.conf.tmp2
       tail -n +7 /opt/warp-go/warp.conf.tmp1 >> /opt/warp-go/warp.conf.tmp2
       rm -f /opt/warp-go/warp.conf.tmp1
@@ -1040,7 +1044,7 @@ update() {
       input_token
       if [ -n "$TOKEN" ]; then
         k=' teams'
-        registe_api warp.conf.tmp 58 59
+        register_api warp.conf.tmp 58 59
         for a in {2..5}; do
           sed -i "${a}s#.*#$(sed -ne ${a}p /opt/warp-go/warp.conf.tmp)#" /opt/warp-go/warp.conf
         done
@@ -1066,7 +1070,7 @@ export_file() {
     PY=("python3" "python" "python2")
     for g in "${PY[@]}"; do [ $(type -p $g) ] && PYTHON=$g && break; done
     [ -z "$PYTHON" ] && PYTHON=python3 && ${PACKAGE_INSTALL[int]} $PYTHON
-    [ ! -s /opt/warp-go/warp.conf ] && registe_api warp.conf
+    [ ! -s /opt/warp-go/warp.conf ] && register_api warp.conf
     /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-wireguard=/opt/warp-go/wgcf.conf >/dev/null 2>&1
     /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf --export-singbox=/opt/warp-go/singbox.json >/dev/null 2>&1
   else
@@ -1136,13 +1140,13 @@ install() {
     echo "$MTU" > /tmp/warp-go-mtu
 
     # 寻找最佳 Endpoint，根据 v4 / v6 情况下载 endpoint 库
-    wget $STACK -qO /tmp/endpoint https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/endpoint/warp-linux-${ARCHITECTURE//amd64*/amd64} && chmod +x /tmp/endpoint
-    [ "$IPV4$IPV6" = 01 ] && wget $STACK -qO /tmp/ip https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/endpoint/ipv6 || wget $STACK -qO /tmp/ip https://${CDN}gitlab.com/fscarmen/warp/-/raw/main/endpoint/ipv4
+    wget $STACK -qO /tmp/endpoint https://gitlab.com/fscarmen/warp/-/raw/main/endpoint/warp-linux-${ARCHITECTURE//amd64*/amd64} && chmod +x /tmp/endpoint
+    [ "$IPV4$IPV6" = 01 ] && wget $STACK -qO /tmp/ip https://gitlab.com/fscarmen/warp/-/raw/main/endpoint/ipv6 || wget $STACK -qO /tmp/ip https://gitlab.com/fscarmen/warp/-/raw/main/endpoint/ipv4
 
     if [[ -s /tmp/endpoint && -s /tmp/ip ]]; then
       /tmp/endpoint -file /tmp/ip -output /tmp/endpoint_result >/dev/null 2>&1
       # 如果全部是数据包丢失，LOSS = 100%，说明 UDP 被禁止，生成标志 /tmp/noudp
-      [ $(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $2}') = '100.00%' ] && touch /tmp/noudp || ENDPOINT=$(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $1}')
+      [ "$(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $2}')" = '100.00%' ] && touch /tmp/noudp || ENDPOINT=$(grep -sE '[0-9]+[ ]+ms$' /tmp/endpoint_result | awk -F, 'NR==1 {print $1}')
       rm -f /tmp/{endpoint,ip,endpoint_result}
     fi
 
@@ -1165,7 +1169,7 @@ install() {
     if [ "$LICENSETYPE" = 2 ]; then
       if [ -n "$TOKEN" ]; then
         k=' teams'
-        registe_api warp.conf 58
+        register_api warp.conf 58
 
     # 注册公用 token 的 Teams 账户
       else
@@ -1196,7 +1200,7 @@ EOF
     # 注册免费和 Plus 账户
     else
       [ -n "$LICENSE" ] && k='+' || k=' free'
-      registe_api warp.conf 58 59
+      register_api warp.conf 58 59
     fi
 
     # 如为 Plus 或 Team 账户，把设备名记录到文件 /opt/warp-go/Device_Name; Plus 账户的话，把 License 保存到 /opt/warp-go/License;
@@ -1456,7 +1460,6 @@ NAME="$3"
 statistics_of_run-times
 select_language
 check_operating_system
-check_cdn
 check_arch
 check_dependencies
 check_install
@@ -1477,7 +1480,7 @@ case "$OPTION" in
 esac
 
 # 主程序运行 2/3
-check_root_virt
+check_root_virt $SYSTEM
 
 # 设置部分后缀 2/3
 case "$OPTION" in
