@@ -480,7 +480,6 @@ check_operating_system() {
   for ((int=0; int<${#REGEX[@]}; int++)); do
     [[ "${SYS,,}" =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && break
   done
-  [ -z "$SYSTEM" ] && error " $(text 5) "
 
   # 针对各厂运的订制系统
   if [ -z "$SYSTEM" ]; then
@@ -488,7 +487,7 @@ check_operating_system() {
   fi
 
   # 先排除 EXCLUDE 里包括的特定系统，其他系统需要作大发行版本的比较
-  for ex in "${EXCLUDE[@]}"; do [[ ! ${SYS,,}  =~ $ex ]]; done &&
+  for ex in "${EXCLUDE[@]}"; do [[ ! "${SYS,,}" =~ $ex ]]; done &&
   [[ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ]] && error " $(text 26) "
 }
 
@@ -1548,7 +1547,7 @@ rule_del() {
 input_license() {
   [ -z "$LICENSE" ] && reading " $(text 28) " LICENSE
   i=5
-  until [[ -z "$LICENSE" || "${LICENSE,,}" =~ ^[a-z0-9]{8}-[a-z0-9]{8}-[a-z0-9]{8}$ ]]; do
+  until [[ -z "$LICENSE" || "$LICENSE" =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; do
     (( i-- )) || true
     [ "$i" = 0 ] && error " $(text 29) " || reading " $(text 30) " LICENSE
   done
@@ -1631,7 +1630,7 @@ input_url_token() {
 update_license() {
   [ -z "$LICENSE" ] && reading " $(text 61) " LICENSE
   i=5
-  until [[ "$LICENSE" =~ ^[a-z0-9]{8}-[a-z0-9]{8}-[a-z0-9]{8}$ ]]; do
+  until [[ "$LICENSE" =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; do
     (( i-- )) || true
     [ "$i" = 0 ] && error " $(text 29) " || reading " $(text 100) " LICENSE
   done
@@ -3150,7 +3149,7 @@ menu_setting
 # 设置部分后缀 3/3
 case "$OPTION" in
 a )
-  if [[ "$2" =~ ^[a-z0-9]{8}-[a-z0-9]{8}-[a-z0-9]{8}$ ]]; then
+  if [[ "$2" =~ ^[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}-[A-Z0-9a-z]{8}$ ]]; then
     CHOOSE_TYPE=2 && LICENSE=$2
   elif [[ "$2" =~ ^http ]]; then
     CHOOSE_TYPE=3 && CHOOSE_TEAMS=1 && TEAM_URL=$2
