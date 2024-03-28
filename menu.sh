@@ -4,7 +4,7 @@
 VERSION='3.03'
 
 # IP API 服务商
-IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.who.int/cdn-cgi/trace")
+IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.cloudflare.com/cdn-cgi/trace")
 ISP=("isp" "isp" "asn_org")
 IP=("query" "ip" "ip")
 
@@ -389,6 +389,8 @@ E[187]="Failed to change to \$ACCOUNT_CHANGE_FAILED account, automatically switc
 C[187]="更换到 \$ACCOUNT_CHANGE_FAILED 账户失败，自动切换回原来的账户"
 E[188]="All endpoints of WARP cannot be connected. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
 C[188]="WARP 的所有的 endpoint 均不能连通，有可能 UDP 被限制了，可联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
+E[189]="Cannot detect any IPv4 or IPv6. The script is aborted. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[189]="检测不到任何 IPv4 或 IPv6。脚本中止，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 
 # 自定义字体彩色，read 函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
@@ -407,9 +409,9 @@ translate() {
 
 # 脚本当天及累计运行次数统计
 statistics_of_run-times() {
-  local COUNT=$(curl --retry 2 -ksm2 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fcdn.jsdelivr.net%2Fgh%2Ffscarmen%2Fwarp%2Fmenu.sh&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=&edge_flat=true" 2>&1 | grep -m1 -oE "[0-9]+[ ]+/[ ]+[0-9]+") &&
-  TODAY=$(cut -d " " -f1 <<< "$COUNT") &&
-  TOTAL=$(cut -d " " -f3 <<< "$COUNT")
+  local COUNT=$(curl --retry 2 -ksm2 "https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://cdn.jsdelivr.net/gh/fscarmen/warp/menu.sh" 2>&1 | grep -m1 -oE "[0-9]+[ ]+/[ ]+[0-9]+") &&
+  TODAY=$(awk -F ' ' '{print $1}' <<< "$COUNT") &&
+  TOTAL=$(awk -F ' ' '{print $3}' <<< "$COUNT")
 }
 
 # 选择语言，先判断 /etc/wireguard/language 里的语言选择，没有的话再让用户选择，默认英语。处理中文显示的问题
@@ -477,7 +479,7 @@ check_operating_system() {
   SYSTEMCTL_RESTART=("systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp" "alpine_warp_restart" "systemctl restart wg-quick@warp" "systemctl restart wg-quick@warp")
   SYSTEMCTL_ENABLE=("systemctl enable --now wg-quick@warp" "systemctl enable --now wg-quick@warp" "systemctl enable --now wg-quick@warp" "alpine_warp_enable" "systemctl enable --now wg-quick@warp" "systemctl enable --now wg-quick@warp")
 
-  for ((int=0; int<${#REGEX[@]}; int++)); do
+  for int in "${!REGEX[@]}"; do
     [[ "${SYS,,}" =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && break
   done
 
@@ -898,7 +900,7 @@ change_ip() {
       [ "$GLOBAL" = '--interface warp' ] && ip_case "$NF" warp non-global || ip_case "$NF" warp
       WAN=$(eval echo \$WAN$NF) && COUNTRY=$(eval echo \$COUNTRY$NF) && ASNORG=$(eval echo \$ASNORG$NF)
       unset RESULT REGION
-      for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
+      for l in ${!RESULT_TITLE[@]}; do
         RESULT[l]=$(curl --user-agent "${UA_Browser}" -$NF $GLOBAL -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
         [ "${RESULT[l]}" = 200 ] && break
       done
@@ -944,7 +946,7 @@ change_ip() {
         ip_case "$NF" client
         WAN=$(eval echo "\$CLIENT_WAN$NF") && ASNORG=$(eval echo "\$CLIENT_ASNORG$NF") && COUNTRY=$(eval echo "\$CLIENT_COUNTRY$NF")
         unset RESULT REGION
-        for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
+        for l in ${!RESULT_TITLE[@]}; do
           RESULT[l]=$(curl --user-agent "${UA_Browser}" -"$NF" -sx socks5://127.0.0.1:$CLIENT_PORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
           [ "${RESULT[l]}" = 200 ] && break
         done
@@ -966,7 +968,7 @@ change_ip() {
         ip_case "$NF" luban
         WAN=$(eval echo "\$CFWARP_WAN$NF") && COUNTRY=$(eval echo "\$CFWARP_COUNTRY$NF") && ASNORG=$(eval echo "\$CFWARP_ASNORG$NF")
         unset RESULT REGION
-        for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
+        for l in ${!RESULT_TITLE[@]}; do
           RESULT[l]=$(curl --user-agent "${UA_Browser}" $INTERFACE -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
           [ "${RESULT[l]}" = 200 ] && break
         done
@@ -995,7 +997,7 @@ change_ip() {
       ip_case "$NF" wireproxy
       WAN=$(eval echo "\$WIREPROXY_WAN$NF") && ASNORG=$(eval echo "\$WIREPROXY_ASNORG$NF") && COUNTRY=$(eval echo "\$WIREPROXY_COUNTRY$NF")
       unset RESULT REGION
-      for ((l=0; l<${#RESULT_TITLE[@]}; l++)); do
+      for l in ${!RESULT_TITLE[@]}; do
         RESULT[l]=$(curl --user-agent "${UA_Browser}" -"$NF" -sx socks5h://127.0.0.1:$WIREPROXY_PORT -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[l]}")
         [ "${RESULT[l]}" = 200 ] && break
       done
@@ -1030,11 +1032,11 @@ change_ip() {
   CHANGE_IP2=("" "" "" "change_wireproxy" "" "change_wireproxy" "change_client" "change_client")
   CHANGE_IP3=("" "" "" "" "" "" "" "change_wireproxy")
 
-  for ((a=0; a<${#INSTALL_CHECK[@]}; a++)); do
+  for a in ${!INSTALL_CHECK[@]}; do
     [ $(type -p ${INSTALL_CHECK[a]}) ] && INSTALL_RESULT[a]=1 || INSTALL_RESULT[a]=0
   done
 
-  for ((b=0; b<${#CASE_RESAULT[@]}; b++)); do
+  for b in ${!CASE_RESAULT[@]}; do
     [[ "${INSTALL_RESULT[@]}" = "${CASE_RESAULT[b]}" ]] && break
   done
 
@@ -1126,7 +1128,7 @@ uninstall() {
   UNINSTALL_NOT_ARCH=("wireguard-dkms " "" "wireguard-dkms resolvconf ")
   UNINSTALL_DNSMASQ=("ipset dnsmasq resolvconf ")
   UNINSTALL_RESULT=("$(text 117)" "$(text 119)" "$(text 98)")
-  for ((i=0; i<${#UNINSTALL_CHECK[@]}; i++)); do
+  for i in ${!UNINSTALL_CHECK[@]}; do
     [ $(type -p ${UNINSTALL_CHECK[i]}) ] && UNINSTALL_DO_LIST[i]=1 && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_DEPENDENCIES[i]}
     [[ $SYSTEM != "Arch" && $(dkms status 2>/dev/null) =~ wireguard ]] && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_NOT_ARCH[i]}
     [ -e /etc/dnsmasq.d/warp.conf ] && UNINSTALL_DEPENDENCIES_LIST+=${UNINSTALL_DNSMASQ[i]}
@@ -1137,7 +1139,7 @@ uninstall() {
   [ "$UNINSTALL_DEPENDENCIES_LIST" != '' ] && hint "\n $(text 79) \n" && reading " $(text 170) " CONFIRM_UNINSTALL
 
   # 卸载核心程序
-  for ((i=0; i<${#UNINSTALL_CHECK[@]}; i++)); do
+  for i in ${!UNINSTALL_CHECK[@]}; do
     [[ "${UNINSTALL_DO_LIST[i]}" = 1 ]] && ( ${UNINSTALL_DO[i]}; info " ${UNINSTALL_RESULT[i]} " )
   done
 
@@ -1333,8 +1335,10 @@ check_stack() {
         T6='1'
     esac
   fi
-  CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1")
-  for ((m=0;m<${#CASE[@]};m++)); do [ "$T4"@"$T6" = "${CASE[m]}" ] && break; done
+  CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1" "@")
+  for m in ${!CASE[@]}; do
+    [ "$T4"@"$T6" = "${CASE[m]}" ] && break
+  done
   WARP_BEFORE=("" "" "" "WARP IPv6 only" "WARP IPv6" "WARP IPv4 only" "WARP IPv4" "$(text 70)")
   WARP_AFTER1=("" "" "" "WARP IPv4" "WARP IPv4" "WARP IPv6" "WARP IPv6" "WARP IPv4")
   WARP_AFTER2=("" "" "" "$(text 70)" "$(text 70)" "$(text 70)" "$(text 70)" "WARP IPv6")
@@ -1346,11 +1350,13 @@ check_stack() {
   # 判断用于检测 NAT VSP，以选择正确配置文件
   if [ "$m" -le 3 ]; then
     NAT=("0@1@" "1@0@1" "1@1@1" "0@1@1")
-    for ((n=0;n<${#NAT[@]};n++)); do [ "$IPV4@$IPV6@$INET4" = "${NAT[n]}" ] && break; done
+    for n in ${!NAT[@]}; do [ "$IPV4@$IPV6@$INET4" = "${NAT[n]}" ] && break; done
     NATIVE=("IPv6 only" "IPv4 only" "$(text 69)" "NAT IPv4")
     CONF1=("014" "104" "114" "11N4")
     CONF2=("016" "106" "116" "11N6")
     CONF3=("01D" "10D" "11D" "11ND")
+  elif [ "$m" = 8 ]; then
+    error "\n $(text 189) \n"
   fi
 }
 
@@ -1676,11 +1682,11 @@ change_port() {
   CHANGE_PORT1=("wireproxy_port" "socks5_port" "socks5_port")
   CHANGE_PORT2=("" "" "wireproxy_port")
 
-  for ((e=0;e<${#INSTALL_CHECK[@]}; e++)); do
+  for e in ${!INSTALL_CHECK[@]}; do
     [[ "${INSTALL_CHECK[e]}" -gt 1 ]] && INSTALL_RESULT[e]=1 || INSTALL_RESULT[e]=0
   done
 
-  for ((f=0; f<${#CASE_RESAULT[@]}; f++)); do
+  for f in ${!CASE_RESAULT[@]}; do
     [[ "${INSTALL_RESULT[@]}" = "${CASE_RESAULT[f]}" ]] && break
   done
 
@@ -1831,7 +1837,7 @@ best_mtu() {
   elif [ "$MTU" -le $((1280+80-28)) ]; then
     MTU=$((1280+80-28))
   else
-    for ((i=0; i<9; i++)); do
+    for i in {0..8}; do
       (( MTU++ ))
       ( [ "$IPV4$IPV6" = 01 ] && $PING6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.193.10 >/dev/null 2>&1 ) || break
     done
@@ -2487,7 +2493,7 @@ check_quota() {
   if [[ "$QUOTA" != 0 && "$QUOTA" =~ ^[0-9]+$ && "$QUOTA" -ge 1000000 ]]; then
     CONVERSION=("1000000000000000000" "1000000000000000" "1000000000000" "1000000000" "1000000")
     UNIT=("EB" "PB" "TB" "GB" "MB")
-    for ((o=0; o<${#CONVERSION[*]}; o++)); do
+    for o in ${!CONVERSION[*]}; do
       [[ "$QUOTA" -ge "${CONVERSION[o]}" ]] && break
     done
 
@@ -2931,11 +2937,11 @@ update() {
   ACCOUNT2=("" ""  "" "wireproxy_account" "" "wireproxy_account" "client_account" "client_account")
   ACCOUNT3=("" ""  "" "" "" "" "" "wireproxy_account")
 
-  for ((c=0; c<${#INSTALL_CHECK[@]}; c++)); do
+  for c in ${!INSTALL_CHECK[@]}; do
     [ $(type -p ${INSTALL_CHECK[c]}) ] && INSTALL_RESULT[c]=1 || INSTALL_RESULT[c]=0
   done
 
-  for ((d=0; d<${#CASE_RESAULT[@]}; d++)); do
+  for d in ${!CASE_RESAULT[@]}; do
     [[ "${INSTALL_RESULT[@]}" = "${CASE_RESAULT[d]}" ]] && break
   done
 

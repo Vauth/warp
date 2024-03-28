@@ -4,7 +4,7 @@
 VERSION='1.1.7'
 
 # IP API 服务商
-IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.who.int/cdn-cgi/trace")
+IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.cloudflare.com/cdn-cgi/trace")
 ISP=("isp" "isp" "asn_org")
 IP=("query" "ip" "ip")
 
@@ -232,6 +232,8 @@ E[106]="upgrade failed. The free account will remain in use."
 C[106]="升级失败，将保持使用 free 账户。"
 E[107]="All endpoints of WARP cannot be connected. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
 C[107]="WARP 的所有的 endpoint 均不能连通，有可能 UDP 被限制了，可联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
+E[108]="Cannot detect any IPv4 or IPv6. The script is aborted. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[108]="检测不到任何 IPv4 或 IPv6。脚本中止，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 
 # 自定义字体彩色，read 函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
@@ -311,7 +313,7 @@ check_operating_system() {
   alpine_wgcf_enable() { echo -e "/opt/warp-go/tun.sh\n/opt/warp-go/warp-go --config=/opt/warp-go/warp.conf 2>&1 &" > /etc/local.d/warp-go.start; chmod +x /etc/local.d/warp-go.start; rc-update add local; }
   openwrt_wgcf_enable() { echo -e "@reboot /opt/warp-go/warp-go --config=/opt/warp-go/warp.conf" >> /etc/crontabs/root; }
 
-  REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky|amazon linux" "alpine" "arch linux" "openwrt")
+  REGEX=("debian" "ubuntu" "centos|red hat|kernel|alma|rocky|amazon linux" "alpine" "arch linux" "openwrt")
   RELEASE=("Debian" "Ubuntu" "CentOS" "Alpine" "Arch" "OpenWrt")
   EXCLUDE=("")
   MAJOR=("9" "16" "7" "3" "" "")
@@ -323,7 +325,7 @@ check_operating_system() {
   SYSTEMCTL_RESTART=("systemctl restart warp-go" "systemctl restart warp-go" "systemctl restart warp-go" "alpine_warp_restart" "systemctl restart wg-quick@wgcf" "alpine_warp_restart")
   SYSTEMCTL_ENABLE=("systemctl enable --now warp-go" "systemctl enable --now warp-go" "systemctl enable --now warp-go" "alpine_wgcf_enable" "systemctl enable --now warp-go")
 
-  for ((int=0; int<${#REGEX[@]}; int++)); do
+  for int in "${!REGEX[@]}"; do
     [[ "${SYS,,}" =~ ${REGEX[int]} ]] && SYSTEM="${RELEASE[int]}" && break
   done
 
@@ -588,7 +590,7 @@ change_ip() {
     WAN=$(eval echo \$WAN$NF) && ASNORG=$(eval echo \$ASNORG$NF)
     [ "$L" = C ] && COUNTRY=$(translate "$(eval echo \$COUNTRY$NF)") || COUNTRY=$(eval echo \$COUNTRY$NF)
     unset RESULT REGION
-    for ((p=0; p<${#RESULT_TITLE[@]}; p++)); do
+    for p in ${!RESULT_TITLE[@]}; do
       RESULT[p]=$(curl --user-agent "${UA_Browser}" --interface WARP -$NF -fsL --write-out %{http_code} --output /dev/null --max-time 10 "https://www.netflix.com/title/${RESULT_TITLE[p]}")
       [ "${RESULT[p]}" = 200 ] && break
     done
@@ -781,8 +783,10 @@ check_stack() {
         T6='1'
     esac
   fi
-  CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1" "2@")
-  for ((m=0;m<${#CASE[@]};m++)); do [[ "$T4@$T6" = "${CASE[m]}" ]] && break; done
+  CASE=("@0" "0@" "0@0" "@1" "0@1" "1@" "1@0" "1@1" "2@" "@")
+  for m in ${!CASE[@]}; do
+    [ "$T4@$T6" = "${CASE[m]}" ] && break
+  done
   WARP_BEFORE=("" "" "" "WARP $(text 99) IPv6 only" "WARP $(text 99) IPv6" "WARP $(text 99) IPv4 only" "WARP $(text 99) IPv4" "WARP $(text 99) $(text 96)" "WARP $(text 98) $(text 96)")
   WARP_AFTER1=("" "" "" "WARP $(text 99) IPv4" "WARP $(text 99) IPv4" "WARP $(text 99) IPv6" "WARP $(text 99) IPv6" "WARP $(text 99) IPv4" "WARP $(text 99) IPv4")
   WARP_AFTER2=("" "" "" "WARP $(text 99) $(text 96)" "WARP $(text 99) $(text 96)" "WARP $(text 99) $(text 96)" "WARP $(text 99) $(text 96)" "WARP $(text 99) IPv6" "WARP $(text 99) $(text 96)")
@@ -794,11 +798,13 @@ check_stack() {
   # 判断用于检测 NAT VSP，以选择正确配置文件
   if [ "$m" -le 3 ]; then
     NAT=("0@1@" "1@0@1" "1@1@1" "0@1@1")
-    for ((n=0;n<${#NAT[@]};n++)); do [ "$IPV4@$IPV6@$INET4" = "${NAT[n]}" ] && break; done
+    for n in ${!NAT[@]}; do [ "$IPV4@$IPV6@$INET4" = "${NAT[n]}" ] && break; done
     NATIVE=("IPv6 only" "IPv4 only" "$(text 94)" "NAT IPv4")
     CONF1=("014" "104" "114" "11N4")
     CONF2=("016" "106" "116" "11N6")
     CONF3=("01D" "10D" "11D" "11ND")
+  elif [ "$m" = 8 ]; then
+    error "\n $(text 108) \n"
   fi
 }
 
@@ -1128,7 +1134,7 @@ install() {
     elif [ "$MTU" -le $((1280+80-28)) ]; then
       MTU=$((1280+80-28))
     else
-      for ((i=0; i<9; i++)); do
+      for i in {0..8}; do
         (( MTU++ ))
         ( [ "$IPV4$IPV6" = 01 ] && $PING6 -c1 -W1 -s $MTU -Mdo 2606:4700:d0::a29f:c001 >/dev/null 2>&1 || ping -c1 -W1 -s $MTU -Mdo 162.159.193.10 >/dev/null 2>&1 ) || break
       done
@@ -1351,7 +1357,7 @@ check_quota() {
   if [[ "$QUOTA" != 0 && "$QUOTA" =~ ^[0-9]+$ && "$QUOTA" -ge 1000000000 ]]; then
     CONVERSION=("1000000000000000000" "1000000000000000" "1000000000000" "1000000000")
     UNIT=("EB" "PB" "TB" "GB")
-    for ((o=0; o<${#CONVERSION[*]}; o++)); do
+    for o in ${!CONVERSION[*]}; do
       [[ "$QUOTA" -ge "${CONVERSION[o]}" ]] && break
     done
 
