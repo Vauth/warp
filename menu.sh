@@ -63,8 +63,8 @@ E[24]="Client is on"
 C[24]="Client 已开启"
 E[25]="Device name"
 C[25]="设备名"
-E[26]="Curren operating system is \$SYS.\\\n The system lower than \$SYSTEM \${MAJOR[int]} is not supported. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
-C[26]="当前操作是 \$SYS\\\n 不支持 \$SYSTEM \${MAJOR[int]} 以下系统,问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
+E[26]="Curren operating system is \$SYS.\\\n Centos 9 and the system lower than \$SYSTEM \${MAJOR[int]} is not supported. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[26]="当前操作是 \$SYS\\\n 不支持 CentOS 9 及 \$SYSTEM \${MAJOR[int]} 以下系统,问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[27]="Local Socks5"
 C[27]="本地 Socks5"
 E[28]="If there is a WARP+ License, please enter it, otherwise press Enter to continue:"
@@ -470,7 +470,7 @@ check_operating_system() {
 
   REGEX=("debian" "ubuntu" "centos|red hat|kernel|alma|rocky" "alpine" "arch linux" "fedora")
   RELEASE=("Debian" "Ubuntu" "CentOS" "Alpine" "Arch" "Fedora")
-  EXCLUDE=("")
+  EXCLUDE=("---")
   MAJOR=("9" "16" "7" "3" "" "37")
   PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "apk update -f" "pacman -Sy" "dnf -y update")
   PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm" "dnf -y install")
@@ -490,7 +490,7 @@ check_operating_system() {
 
   # 先排除 EXCLUDE 里包括的特定系统，其他系统需要作大发行版本的比较
   for ex in "${EXCLUDE[@]}"; do [[ ! "${SYS,,}" =~ $ex ]]; done &&
-  [[ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" ]] && error " $(text 26) "
+  [[ "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -lt "${MAJOR[int]}" || ( "$SYSTEM" = 'CentOS' && "$(echo "$SYS" | sed "s/[^0-9.]//g" | cut -d. -f1)" -ge '9') ]] && error " $(text 26) "
 }
 
 # 安装系统依赖及定义 ping 指令
@@ -1119,7 +1119,7 @@ uninstall() {
   }
 
   # 如已安装 warp_unlock 项目，先行卸载
-  [ -e /etc/wireguard/warp_unlock.sh ] && bash <(curl -sSL https://gitlab.com/fscarmen/warp_unlock/-/raw/main/unlock.sh) -U -$L
+  [ -e /usr/bin/warp_unlock.sh ] && bash <(curl -sSL https://gitlab.com/fscarmen/warp_unlock/-/raw/main/unlock.sh) -U -$L
 
   # 根据已安装情况执行卸载任务并显示结果
   UNINSTALL_CHECK=("wg-quick" "warp-cli" "wireproxy")
@@ -1435,7 +1435,7 @@ check_system_info() {
 
   # 判断是否有加载 wireguard 内核，如没有先尝试是否可以加载，再重新判断一次
   if [ ! -e /sys/module/wireguard ]; then
-    [ -s /lib/modules/$(uname -r)/kernel/drivers/net/wireguard/wireguard.ko ] && [ $(type -p lsmod) ] && ! lsmod | grep -q wireguard && [ $(type -p modprobe) ] && modprobe wireguard
+    [ -s /lib/modules/$(uname -r)/kernel/drivers/net/wireguard/wireguard.ko* ] && [ $(type -p lsmod) ] && ! lsmod | grep -q wireguard && [ $(type -p modprobe) ] && modprobe wireguard
     [ -e /sys/module/wireguard ] && KERNEL_ENABLE=1 || KERNEL_ENABLE=0
   else
     KERNEL_ENABLE=1
