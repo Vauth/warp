@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号
-VERSION='3.03'
+VERSION='3.04'
 
 # IP API 服务商
 IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.cloudflare.com/cdn-cgi/trace")
@@ -13,8 +13,8 @@ export DEBIAN_FRONTEND=noninteractive
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="1. Update some commands according to warp-cli; 2. Remove the github cdn"
-C[1]="1. 根据 warp-cli 官方更新部分命令； 2. 去掉 Github cdn"
+E[1]="1. Alpine check and update the wget version; 2. Add a message for feedback when connect warp fails"
+C[1]="1. Alpine 检测并更新 wget 版本的； 2. 获取 IP 失败时增加提示信息以便反馈"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
@@ -37,8 +37,8 @@ E[11]="Maximum \${j} attempts to get WARP IP..."
 C[11]="后台获取 WARP IP 中,最大尝试\${j}次……"
 E[12]="Try \${i}"
 C[12]="第\${i}次尝试"
-E[13]="There have been more than \${j} failures. The script is aborted. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
-C[13]="失败已超过\${j}次，脚本中止，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
+E[13]="There have been more than \${j} failures. The script is aborted. Attach the above error message. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[13]="失败已超过\${j}次，脚本中止，附上以上错误提示，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[14]="Got the WARP\$TYPE IP successfully"
 C[14]="已成功获取 WARP\$TYPE 网络"
 E[15]="WARP is turned off. It could be turned on again by [warp o]"
@@ -91,8 +91,8 @@ E[38]="Create shortcut [warp] successfully"
 C[38]="创建快捷 warp 指令成功"
 E[39]="Running WARP"
 C[39]="运行 WARP"
-E[40]=""
-C[40]=""
+E[40]="Menu choose"
+C[40]="菜单选项"
 E[41]="Congratulations! WARP\$TYPE is turned on. Spend time:\$(( end - start )) seconds.\\\n The script runs today: \$TODAY. Total:\$TOTAL"
 C[41]="恭喜！WARP\$TYPE 已开启，总耗时:\$(( end - start ))秒， 脚本当天运行次数:\$TODAY，累计运行次数:\$TOTAL"
 E[42]="The upgrade failed, License: \$LICENSE could not update to WARP+. The script will remain the same account or be switched to a free account."
@@ -496,12 +496,14 @@ check_operating_system() {
 # 安装系统依赖及定义 ping 指令
 check_dependencies() {
   # 对于 alpine 系统，升级库并重新安装依赖
-  if [ "$SYSTEM" = Alpine ]; then
-    DEPS_CHECK=("ping" "curl" "wget" "grep" "bash" "xxd" "ip" "python3" "virt-what")
-    DEPS_INSTALL=("iputils-ping" "curl" "wget" "grep" "bash" "xxd" "iproute2" "python3" "virt-what")
+  if [ "$SYSTEM" = 'Alpine' ]; then
+    CHECK_WGET=$(wget 2>&1 | head -n 1)
+    grep -qi 'busybox' <<< "$CHECK_WGET" && ${PACKAGE_INSTALL[int]} wget >/dev/null 2>&1
+    DEPS_CHECK=("ping" "curl" "grep" "bash" "xxd" "ip" "python3" "virt-what")
+    DEPS_INSTALL=("iputils-ping" "curl" "grep" "bash" "xxd" "iproute2" "python3" "virt-what")
   else
     # 对于 CentOS 系统，xxd 需要依赖 vim-common
-    [ "${SYSTEM}" = 'CentOS' ] && ${PACKAGE_INSTALL[int]} vim-common
+    [ "$SYSTEM" = 'CentOS' ] && ${PACKAGE_INSTALL[int]} vim-common
     DEPS_CHECK=("ping" "xxd" "wget" "curl" "systemctl" "ip" "python3")
     DEPS_INSTALL=("iputils-ping" "xxd" "wget" "curl" "systemctl" "iproute2" "python3")
   fi
@@ -1231,6 +1233,9 @@ net() {
     if [ "$i" = "$j" ]; then
       if [ -z "$CONFIRM_TEAMS_INFO" ]; then
         wg-quick down warp >/dev/null 2>&1
+        ERROR_MESSAGE=$(wg-quick up warp 2>&1)
+        wg-quick down warp >/dev/null 2>&1
+        echo -e " ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓\n $(text 20): $SYS\n\n $(text 21):$(uname -r) \n\n (text 40): ${MENU_OPTION[MENU_CHOOSE]} \n\n $ERROR_MESSAGE\n ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ "
         error " $(text 13) "
       else
         break

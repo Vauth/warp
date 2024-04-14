@@ -23,6 +23,8 @@
 * * *
 
 ## 更新信息
+2024.4.14 menu.sh V3.04 1. Alpine check and update the wget version; 2. Add a message for feedback when connect warp fails; 1. Alpine 检测并更新 wget 版本的； 2. 获取 IP 失败时增加提示信息以便反馈
+
 2024.3.21 menu.sh V3.03 / warp-go.sh 1.1.7 1. Update some commands according to warp-cli; 2. Remove the github cdn; 1. 根据 warp-cli 官方更新部分命令； 2. 去掉 Github cdn
 
 <details>
