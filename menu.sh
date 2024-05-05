@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号
-VERSION='3.0.5'
+VERSION='3.0.6'
 
 # IP API 服务商
 IP_API=("http://ip-api.com/json/" "https://api.ip.sb/geoip" "https://ifconfig.co/json" "https://www.cloudflare.com/cdn-cgi/trace")
@@ -13,8 +13,8 @@ export DEBIAN_FRONTEND=noninteractive
 
 E[0]="\n Language:\n 1. English (default) \n 2. 简体中文\n"
 C[0]="${E[0]}"
-E[1]="Deal with apt library changes for Debian 10 installations of wireguard-tools."
-C[1]="处理 Debian 10 安装 wireguard-tools 的 apt 库变更的问题。"
+E[1]="Support Alpine edge system."
+C[1]="支持 Alpine edge 系统"
 E[2]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
 C[2]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[3]="The TUN module is not loaded. You should turn it on in the control panel. Ask the supplier for more help. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
@@ -31,8 +31,8 @@ E[8]="All dependencies already exist and do not need to be installed additionall
 C[8]="所有依赖已存在，不需要额外安装"
 E[9]="Client cannot be upgraded to a Teams account."
 C[9]="Client 不能升级为 Teams 账户"
-E[10]="WireGuard tools are not installed or the configuration file warp.conf cannot be found, please reinstall."
-C[10]="没有安装 WireGuard tools 或者找不到配置文件 warp.conf，请重新安装。"
+E[10]="wireguard-tools installation failed, The script is aborted. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[10]="wireguard-tools 安装失败，脚本中止，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[11]="Maximum \${j} attempts to get WARP IP..."
 C[11]="后台获取 WARP IP 中,最大尝试\${j}次……"
 E[12]="Try \${i}"
@@ -391,6 +391,8 @@ E[188]="All endpoints of WARP cannot be connected. Ask the supplier for more hel
 C[188]="WARP 的所有的 endpoint 均不能连通，有可能 UDP 被限制了，可联系供应商了解如何开启，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 E[189]="Cannot detect any IPv4 or IPv6. The script is aborted. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
 C[189]="检测不到任何 IPv4 或 IPv6。脚本中止，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
+E[190]="The configuration file warp.conf cannot be found, The script is aborted. Feedback: [https://github.com/fscarmen/warp-sh/issues]"
+C[190]="找不到配置文件 warp.conf，脚本中止，问题反馈:[https://github.com/fscarmen/warp-sh/issues]"
 
 # 自定义字体彩色，read 函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
@@ -440,7 +442,7 @@ check_root() {
 # 判断虚拟化
 check_virt() {
   if [ "$1" = Alpine ]; then
-    VIRT=$(virt-what)
+    VIRT=$(virt-what | tr '\n' ' ')
   else
     [ $(type -p systemd-detect-virt) ] && VIRT=$(systemd-detect-virt)
     [[ -z "$VIRT" && $(type -p hostnamectl) ]] && VIRT=$(hostnamectl | awk '/Virtualization:/{print $NF}')
@@ -471,7 +473,7 @@ check_operating_system() {
   REGEX=("debian" "ubuntu" "centos|red hat|kernel|alma|rocky" "alpine" "arch linux" "fedora")
   RELEASE=("Debian" "Ubuntu" "CentOS" "Alpine" "Arch" "Fedora")
   EXCLUDE=("---")
-  MAJOR=("9" "16" "7" "3" "" "37")
+  MAJOR=("9" "16" "7" "" "" "37")
   PACKAGE_UPDATE=("apt -y update" "apt -y update" "yum -y update" "apk update -f" "pacman -Sy" "dnf -y update")
   PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "apk add -f" "pacman -S --noconfirm" "dnf -y install")
   PACKAGE_UNINSTALL=("apt -y autoremove" "apt -y autoremove" "yum -y autoremove" "apk del -f" "pacman -Rcnsu --noconfirm" "dnf -y autoremove")
@@ -1178,7 +1180,8 @@ ver() {
 net() {
   local NO_OUTPUT="$1"
   unset IP4 IP6 WAN4 WAN6 COUNTRY4 COUNTRY6 ASNORG4 ASNORG6 WARPSTATUS4 WARPSTATUS6 TYPE QUOTA
-  [[ ! $(type -p wg-quick) || ! -e /etc/wireguard/warp.conf ]] && error " $(text 10) "
+  [ ! $(type -p wg-quick) ] && error " $(text 10) "
+  [ ! -e /etc/wireguard/warp.conf ] && error " $(text 190) "
   local i=1; local j=5
   hint " $(text 11)\n $(text 12) "
   [ "$SYSTEM" != Alpine ] && [[ $(systemctl is-active wg-quick@warp) != 'active' ]] && wg-quick down warp >/dev/null 2>&1
@@ -2065,7 +2068,6 @@ EOF
       if [ "$DEBIAN_VERSION" = '9' ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable-wireguard.list
         echo -e "Package: *\nPin: release a=unstable\nPin-Priority: 150\n" > /etc/apt/preferences.d/limit-unstable
-      
       elif
         [ "$DEBIAN_VERSION" = '10' ]; then
         echo 'deb http://archive.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list

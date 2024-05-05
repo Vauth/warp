@@ -23,6 +23,8 @@
 * * *
 
 ## 更新信息
+2024.5.5 menu.sh v3.0.6 / warp-go.sh v1.1.8 Support Alpine edge system; 支持 Alpine edge 系统
+
 2024.5.1 menu.sh v3.0.5 Deal with apt library changes for Debian 10 installations of wireguard-tools; 处理 Debian 10 安装 wireguard-tools 的 apt 库变更的问题
 
 2024.4.14 menu.sh v3.0.4 1. Alpine check and update the wget version; 2. Add a message for feedback when connect warp fails; 1. Alpine 检测并更新 wget 版本的； 2. 获取 IP 失败时增加提示信息以便反馈
