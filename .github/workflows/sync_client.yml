@@ -47,7 +47,7 @@ jobs:
           commit_message: Sync Client to V${{ env.VERSION }} by Github Actions, ${{ env.DATE }}
 
       - name: Release binaries 
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: ${{ env.VERSION != '' }}
         with:
           tag_name: CloudFlare_Client_v${{ env.VERSION }}

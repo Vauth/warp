@@ -64,7 +64,7 @@ jobs:
 #          commit_message: Sync wireguard-go to V${{ env.VERSION }} by Github Actions, ${{ env.DATE }}
   
       - name: Release binaries 
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: ${{ env.VERSION != '' }}
         with:
           tag_name: WireGuard-go_v${{ env.VERSION }}
