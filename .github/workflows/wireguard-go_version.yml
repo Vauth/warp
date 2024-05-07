@@ -43,7 +43,7 @@ jobs:
           args: release --clean
           
       - name: Release binaries 
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: WireGuard-go_v${{ env.version }}
           files: ${{ env.workdir }}/dist/*.tar.gz

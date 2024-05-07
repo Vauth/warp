@@ -45,7 +45,7 @@ jobs:
         tar -czf /opt/release/glibc-2.28.tar.gz ./glibc-2.28
 
     - name: Binaries Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
           tag_name: Glibc
           files: /opt/release/*
