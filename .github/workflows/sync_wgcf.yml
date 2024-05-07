@@ -53,7 +53,7 @@ jobs:
           fi
 
       - name: Upload to repository
-        uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        uses: stefanzweifel/git-auto-commit-action@v5.0.1
         if: ${{ env.VERSION != '' }}
         with:
           commit_message: Sync WGCF to V${{ env.VERSION }} by Github Actions, ${{ env.DATE }}
