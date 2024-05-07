@@ -61,7 +61,7 @@
 >感谢大神 badafans的开源项目及耐心指导，现发布在linux下使用的Cloudflare WARP api，[badafans的开源项目](https://github.com/badafans/warp-reg) 
 >使用方法
 >```
->wget -N https://gitlab.com/fscarmen/warp/-/raw/main/api.sh && bash api.sh [option]
+>wget -N https://raw.githubusercontent.com/Vauth/warp/main/api.sh && bash api.sh [option]
 >```
 >
 >2023.5.10 warp-go V1.1.4 1. Docking the warp-go official account pool api, wiki: https://docs.zeroteam.top/apis/warp; 2. Change non-global from ipv4 only to dualstacks; 3. Fix the bug that the native IPv6 cannot login when using dualstacks; 4. Update the Best-enpoint app; 5. Change ip api; 1. 对接 warp-go 官方账户池 api，wiki: https://docs.zeroteam.top/apis/warp; 2. 非全局从ipv4 only 改为双栈; 3. 修复双栈时使用原生 IPv6 不能登陆的 bug; 4. 更新最佳 Endpoint 应用; 5. 更换 ip api
@@ -112,7 +112,7 @@
 >全网首发，隆重推出 @CoiaPrant 的 warp-go 一键脚本。使用 CloudFlare-WARP 的各类接口，集成 wireguard-go，可以完全替代 WGCF。 救活了香港、多伦多等，让没有官方 WARP 的 VPS 也可以获取 WARP IP。再次感谢 @CoiaPrant 及其团队。项目地址: https://gitlab.com/ProjectWARP/warp-go/-/tree/master/
 >
 >```
->wget -N https://gitlab.com/fscarmen/warp/-/raw/main/warp-go.sh && bash warp-go.sh [option] [lisence]
+>wget -N https://raw.githubusercontent.com/Vauth/warp/main/warp-go.sh && bash warp-go.sh [option] [lisence]
 >```
 >
 >2022.8.5 2.41 1.Get the traffic quota of WARP+ via API. Thanks to Oreo for technical support; 1.通过 API 获取 WARP+ 剩余流量, 感谢猫佬的技术支持。
@@ -248,7 +248,7 @@
 
 首次运行
 ```
-wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh && bash menu.sh [option] [lisence/url/token]
+wget -N https://raw.githubusercontent.com/Vauth/warp/main/menu.sh && bash menu.sh [option] [lisence/url/token]
 ```
 再次运行
 ```
@@ -284,7 +284,7 @@ warp [option] [lisence]
 
 举例：想为 IPv4 的甲骨文添加 Warp 双栈，首次运行
 ```
-wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh && bash menu.sh d
+wget -N https://raw.githubusercontent.com/Vauth/warp/main/menu.sh && bash menu.sh d
 ```
 刷日本 Netflix  运行
 ```
@@ -536,7 +536,7 @@ kill -9 $(pgrep -f warp)   ##杀掉正在运行的进程
 ## warp-go 运行脚本
 首次运行
 ```
-wget -N https://gitlab.com/fscarmen/warp/-/raw/main/warp-go.sh && bash warp-go.sh [option] [lisence]
+wget -N https://raw.githubusercontent.com/Vauth/warp/main/warp-go.sh && bash warp-go.sh [option] [lisence]
 ```
 再次运行
 ```bash
@@ -559,7 +559,7 @@ warp-go [option] [lisence]
 
 ## Cloudflare api 运行脚本
 ```
-wget -N https://gitlab.com/fscarmen/warp/-/raw/main/api.sh && bash api.sh [option]
+wget -N https://raw.githubusercontent.com/Vauth/warp/main/api.sh && bash api.sh [option]
 ```
   | [option] 变量  | 具体动作说明 |
   | ------------- | ------------- |
@@ -600,7 +600,7 @@ WireGuard 网络接口数据，查看 ```wg```
 
 * 在 vps 里运行以下指令获取 teams 配置的全部信息，保存在文件 `warp-account.conf`
 ```
-bash <(wget -qO- https://gitlab.com/fscarmen/warp/-/raw/main/api.sh) -r -t <TOKEN>
+bash <(wget -qO- https://raw.githubusercontent.com/Vauth/warp/main/api.sh) -r -t <TOKEN>
 ```
 
 ## WARP原理
