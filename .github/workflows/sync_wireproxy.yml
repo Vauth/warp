@@ -15,7 +15,7 @@ jobs:
       FILE_DIR: wireproxy
 
     steps:
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v4.2.0
       - name: Synchronize wireproxy to the latest version
         run: |
           NOW=$(wget -qO- https://raw.githubusercontent.com/${{ github.repository }}/main/wireproxy/version_history | head -n 1 | sed "s/.*v\(.*\)/\1/g")
