@@ -30,7 +30,7 @@ jobs:
           ls ${{ env.workdir }}
 
       - name: Set up GoReleaser
-        uses: actions/setup-go@v5.0.2
+        uses: actions/setup-go@v5.1.0
         with:
           go-version: "1.18"
 
